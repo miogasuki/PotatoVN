@@ -16,10 +16,17 @@ public class ImagePathConverter : IValueConverter
     /// <returns></returns>
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is string str && !string.IsNullOrEmpty(str))
-            return new BitmapImage(new Uri(str));
-        if (parameter is string para)
-            return new BitmapImage(new Uri(para));
+        try
+        {
+            if (value is string str && !string.IsNullOrEmpty(str))
+                return new BitmapImage(new Uri(str));
+            if (parameter is string para)
+                return new BitmapImage(new Uri(para));
+        }
+        catch (Exception)
+        {
+            //ignore
+        }
         return new BitmapImage(new Uri(Galgame.DefaultImagePath));
     }
 

@@ -19,7 +19,7 @@
     <StackPanel>
         <RadioButtons SelectedIndex="{x:Bind SelectItem, Mode=TwoWay}">
             <x:String>本地库</x:String>
-            <x:String>本地压缩库</x:String>
+            <!-- <x:String>本地压缩库</x:String> -->
         </RadioButtons>
         <StackPanel Orientation="Horizontal">
             <TextBox  MinWidth="300" Text="{x:Bind Path ,Mode=TwoWay}"/>

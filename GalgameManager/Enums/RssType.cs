@@ -7,5 +7,6 @@ public enum RssType
     Mixed,
     None,
     PotatoVn,
-    Ymgal
+    Ymgal,
+    Cngal
 }

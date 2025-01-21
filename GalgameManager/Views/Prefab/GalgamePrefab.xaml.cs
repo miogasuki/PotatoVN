@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DependencyPropertyGenerator;
 using GalgameManager.Models;
 using Microsoft.UI.Xaml;
@@ -12,17 +13,27 @@ namespace GalgameManager.Views.Prefab;
 [DependencyProperty<Galgame>("Galgame")]
 [DependencyProperty<Visibility>("PlayTypeVisibility", DefaultValue = Visibility.Collapsed,
     DefaultBindingMode = DefaultBindingMode.OneWay)]
+[DependencyProperty<Visibility>("SourceVisibility", DefaultValue = Visibility.Collapsed,
+    DefaultBindingMode = DefaultBindingMode.OneWay)]
 [DependencyProperty<FlyoutBase>("Flyout")]
+[DependencyProperty<double>("ItemScale", DefaultValue = 1.0f)]
+[DependencyProperty<double>("TextHeight", DefaultValue = 80f)]
 public sealed partial class GalgamePrefab
 {
+    public double MediumFontSize = 10f;
+    
     public GalgamePrefab()
     {
+        if (Application.Current.Resources["MediumFontSize"] is double mediumFontSize)
+            MediumFontSize = mediumFontSize;
         InitializeComponent();
-        Loaded += GalgamePrefab_Loaded;
     }
-
-    private void GalgamePrefab_Loaded(object sender, RoutedEventArgs e)
+    
+    partial void OnItemScaleChanged(double newValue)
     {
-        Debug.Assert(Galgame != null, "Galgame property should not be null.");
+        if (newValue > 0) return;
+        ItemScale = 1.0f;
     }
+    
+    public double CalcValue(double value) => value * ItemScale;
 }

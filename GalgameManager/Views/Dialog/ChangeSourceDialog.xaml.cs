@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#pragma warning disable MVVMTK0049 //警告INotifyPropertyChanged无法NativeAOT，等后续处理
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -15,9 +17,8 @@ public sealed partial class ChangeSourceDialog
 {
     public List<GalgameSourceBase> Sources { get; }
     public List<GalgameSourceBase> GalgameSources { get; }
-    public bool Ok { get; private set; }
     public string TargetPath => _targetPath;
-    public GalgameSourceBase MoveInSource => Sources[_selectSourceIndex];
+    public GalgameSourceBase MoveInSource => Sources[SelectSourceIndex];
     public GalgameSourceBase? MoveOutSource => RemoveFromSource ? GalgameSources![RemoveFromSourceIndex] : null;
     
     [ObservableProperty] private int _selectSourceIndex;
@@ -25,10 +26,6 @@ public sealed partial class ChangeSourceDialog
     [ObservableProperty] private string _spaceInfo = string.Empty;
     [ObservableProperty] private int _spacePercent;
     [ObservableProperty] private bool _spaceShowError;
-    [ObservableProperty] private Grid? _additionSettingControl;
-    [ObservableProperty] private Visibility _additionSettingPanelVisibility = Visibility.Collapsed;
-    [ObservableProperty] private Visibility _additionSettingVisibility = Visibility.Collapsed;
-    [ObservableProperty] private Visibility _additionSettingWaitingVisibility = Visibility.Collapsed;
     [ObservableProperty] private bool _removeFromSource;
     [ObservableProperty] private int _removeFromSourceIndex;
     [ObservableProperty] private Visibility _removePanelVisibility = Visibility.Collapsed;
@@ -38,9 +35,7 @@ public sealed partial class ChangeSourceDialog
     [ObservableProperty] private string? _warningText;
 
     private readonly Galgame _game;
-    private ChangeSourceDialogAttachSetting _attachSetting = new();
     private string _targetPath = string.Empty;
-    private Task<Grid?>? _getAdditionSettingControlTask;
     private (long total, long used) _space;
 
     public ChangeSourceDialog(Galgame game)
@@ -49,7 +44,6 @@ public sealed partial class ChangeSourceDialog
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         PrimaryButtonText = "Yes".GetLocalized();
         IsPrimaryButtonEnabled = false;
-        PrimaryButtonClick += (_, _) => Ok = true;
         CloseButtonText = "Cancel".GetLocalized();
         DefaultButton = ContentDialogButton.Close;
 
@@ -66,7 +60,6 @@ public sealed partial class ChangeSourceDialog
     {
         try
         {
-            _getAdditionSettingControlTask = null;
             IsPrimaryButtonEnabled = false;
             _space = (-1, -1);
             Update();
@@ -76,16 +69,6 @@ public sealed partial class ChangeSourceDialog
             // 空间
             SpacePanelVisibility = Visibility.Collapsed;
             _space = await service.GetSpaceAsync(selectedSource);
-            // 附加设置
-            _attachSetting = new();
-            _attachSetting.OnValueChanged += () =>
-            {
-                _targetPath = _attachSetting.TargetPath ?? selectedSource.Path;
-                Update();
-            };
-            _getAdditionSettingControlTask = service.GetAdditionSettingControlAsync(selectedSource, _attachSetting);
-            Update();
-            AdditionSettingControl = await _getAdditionSettingControlTask;
             Update();
         }
         catch (Exception exception)
@@ -104,15 +87,8 @@ public sealed partial class ChangeSourceDialog
 
     private void Update()
     {
-        //额外设置面板相关
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract //假阳性
-        AdditionSettingWaitingVisibility = (!_getAdditionSettingControlTask?.IsCompleted)?.ToVisibility()
-                                           ?? Visibility.Collapsed;
-        AdditionSettingVisibility = (AdditionSettingControl != null).ToVisibility();
-        AdditionSettingPanelVisibility = (AdditionSettingVisibility == Visibility.Visible
-                                          || AdditionSettingWaitingVisibility == Visibility.Visible).ToVisibility();
         //容量相关
-        if (_space.total != -1 && _space.used != -1 && AdditionSettingWaitingVisibility == Visibility.Collapsed)
+        if (_space.total != -1 && _space.used != -1)
         {
             SpacePercent = (int)(_space.used * 100 / _space.total);
             SpaceShowError = SpacePercent >= 90;
@@ -126,16 +102,16 @@ public sealed partial class ChangeSourceDialog
         {
             WarningText = SourceServiceFactory.GetSourceService(MoveInSource.SourceType)
                 .CheckMoveOperateValid(MoveInSource, MoveOutSource, _game);
-            IsPrimaryButtonEnabled = WarningText is null && _attachSetting.OkClickable;
+            IsPrimaryButtonEnabled = WarningText is null;
         }
         //移出源面板相关
-        RemovePanelVisibility = (_attachSetting.OkClickable && GalgameSources.Count > 0).ToVisibility() ;
+        RemovePanelVisibility = (GalgameSources.Count > 0).ToVisibility() ;
         //操作提示面板相关
         OperatePanelDescriptionVisibility = IsPrimaryButtonEnabled.ToVisibility();
         GalgameSourceBase selectedSource = Sources[SelectSourceIndex];
         MoveInDescription = SourceServiceFactory.GetSourceService(selectedSource.SourceType)
             .GetMoveInDescription(selectedSource, _targetPath);
-        if (_removeFromSource)
+        if (RemoveFromSource)
         {
             GalgameSourceBase selectedMoveOutSource = GalgameSources[RemoveFromSourceIndex];
             MoveOutDescription = SourceServiceFactory.GetSourceService(selectedMoveOutSource.SourceType)
@@ -146,31 +122,4 @@ public sealed partial class ChangeSourceDialog
     }
 }
 
-public class ChangeSourceDialogAttachSetting
-{
-    public Action? OnValueChanged { get; set; }
-    private string? _targetPath;
-    private bool _okClickable;
-
-    /// 指定目标路径，若为null则表示使用源的根目录
-    public string? TargetPath
-    {
-        get => _targetPath;
-        set
-        {
-            _targetPath = value;
-            OnValueChanged?.Invoke();
-        }
-    }
-
-    /// 是否允许点击确定按钮，默认为false
-    public bool OkClickable
-    {
-        get => _okClickable;
-        set
-        {
-            _okClickable = value;
-            OnValueChanged?.Invoke();
-        }
-    }
-}
+#pragma warning restore MVVMTK0049 //警告INotifyPropertyChanged无法NativeAOT，等后续处理

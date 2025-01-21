@@ -16,6 +16,9 @@ public abstract class BgTaskBase
     
     [JsonIgnore] public Task Task { get; private set; } = Task.CompletedTask;
     
+    /// 是否在托盘图标上显示进度
+    public virtual bool ProgressOnTrayIcon => false;
+    
     protected bool StartFromBg;
 
     public Task RecoverFromJson()

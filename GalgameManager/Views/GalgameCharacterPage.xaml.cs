@@ -1,12 +1,9 @@
-﻿using System.Windows.Input;
-using CommunityToolkit.Mvvm.Input;
-using GalgameManager.Contracts.Services;
+﻿using GalgameManager.Contracts.Services;
 using GalgameManager.ViewModels;
 
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using CommunityToolkit.WinUI.UI.Animations;
-using GalgameManager.Models;
+using CommunityToolkit.WinUI.Animations;
 
 namespace GalgameManager.Views;
 

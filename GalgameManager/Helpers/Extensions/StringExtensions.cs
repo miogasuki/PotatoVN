@@ -65,4 +65,15 @@ public static class StringExtensions
     }
     
     public static bool IsNullOrEmpty(this string? str) => string.IsNullOrEmpty(str);
+    
+    /// <summary>
+    /// 移除字符串中的非法字符
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static string RemoveInvalidChars(this string str)
+    {
+        var invalidChars = Path.GetInvalidFileNameChars();
+        return new string(str.Where(c => !invalidChars.Contains(c)).ToArray());
+    }
 }

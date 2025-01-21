@@ -18,6 +18,9 @@ using GalgameManager.Services;
 using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System.Text.RegularExpressions;
+using Microsoft.Win32;
+using System.ComponentModel;
 
 namespace GalgameManager.ViewModels;
 
@@ -44,23 +47,26 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [NotifyCanExecuteChangedFor(nameof(SelectProcessCommand))]
     [NotifyCanExecuteChangedFor(nameof(SelectTextCommand))]
     [NotifyCanExecuteChangedFor(nameof(ClearTextCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ResetPathCommand))]
     [ObservableProperty] private bool _isLocalGame; //是否是本地游戏（而非云端同步过来/本地已删除的虚拟游戏）
-    [ObservableProperty] private bool _isZipGame;
     [ObservableProperty] private bool _isPhrasing;
+
     [ObservableProperty] private Visibility _isTagVisible = Visibility.Collapsed;
     [ObservableProperty] private Visibility _isDescriptionVisible = Visibility.Collapsed;
     [ObservableProperty] private Visibility _isCharacterVisible = Visibility.Collapsed;
     [ObservableProperty] private Visibility _isRemoveSelectedThreadVisible = Visibility.Collapsed;
     [ObservableProperty] private Visibility _isSelectProcessVisible = Visibility.Collapsed;
+    [ObservableProperty] private Visibility _isResetPathVisible = Visibility.Collapsed;
     [ObservableProperty] private bool _canOpenInBgm;
     [ObservableProperty] private bool _canOpenInVndb;
     [ObservableProperty] private bool _canOpenInYmgal;
+    [ObservableProperty] private bool _canOpenInCngal;
 
     [ObservableProperty] private bool _infoBarOpen;
     [ObservableProperty] private string _infoBarMsg = string.Empty;
     [ObservableProperty] private InfoBarSeverity _infoBarSeverity = InfoBarSeverity.Informational;
     private int _msgIndex;
-    private bool IsNotLocalGame => !_isLocalGame;
+    private bool IsNotLocalGame => !IsLocalGame;
     
     [RelayCommand]
     private void OnCharacterClick(GalgameCharacter? clickedItem)
@@ -71,18 +77,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             _navigationService.NavigateTo(typeof(GalgameCharacterViewModel).FullName!, new GalgameCharacterParameter() {GalgameCharacter = clickedItem});
         }
     }
-
-    [RelayCommand]
-    private async Task UnzipGame()
-    {
-        if (Item?.CheckIsZip() ?? false)
-        {
-            await _galgameService.ToLocalGalgame(Item);
-        }
-    }
     
-    
-
     public GalgameViewModel(IGalgameCollectionService dataCollectionService, INavigationService navigationService, 
         IJumpListService jumpListService, ILocalSettingsService localSettingsService, IBgTaskService bgTaskService,
         IPvnService pvnService, IFilterService filterService, ICategoryService categoryService, IInfoService infoService)
@@ -109,9 +104,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
         Item = param.Galgame;
         IsLocalGame = Item.IsLocalGame;
-        IsZipGame = Item.CheckIsZip();
         Item.SavePath = Item.SavePath; //更新存档位置显示
-        Update(_item);
+        Update(Item);
         
         if (param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
             await Play();
@@ -147,20 +141,38 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     
     private void Update(Galgame? game)
     {
-        if (game is null || game != _item) return;
+        if (game is null || game != Item) return;
         IsPhrasing = false;
         IsTagVisible = Item?.Tags.Value?.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         IsDescriptionVisible = Item?.Description! != string.Empty ? Visibility.Visible : Visibility.Collapsed;
         IsCharacterVisible = Item?.Characters.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        CanOpenInBgm = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Bangumi]);
-        CanOpenInVndb = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Vndb]);
-        CanOpenInYmgal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Ymgal]);
+        try
+        {
+            CanOpenInBgm = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Bangumi]);
+            CanOpenInVndb = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Vndb]);
+            CanOpenInYmgal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Ymgal]);
+            CanOpenInCngal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Cngal]);
+        }
+        catch (Exception ex)
+        {
+            // 原理上来说是不会越界的，但莫名奇妙有用户反馈过越界问题
+            _infoService.Info(InfoBarSeverity.Warning, $"Error setting open flags: {ex.Message}");
+        }
         IsRemoveSelectedThreadVisible = Item?.ProcessName is not null ? Visibility.Visible : Visibility.Collapsed;
         IsSelectProcessVisible = Item?.ProcessName is null ? Visibility.Visible : Visibility.Collapsed;
+        IsResetPathVisible = Item?.ExePath is not null || Item?.TextPath is not null ? Visibility.Visible : Visibility.Collapsed;
 
         var tagChanged = game.Tags.Value?.Count != Tags.Count;
-        for (var i = 0; i < Tags.Count && !tagChanged; i++)
-            tagChanged = Tags[i].Tag != game.Tags.Value?[i];
+        try
+        {
+            for (var i = 0; i < Tags.Count && !tagChanged; i++)
+                tagChanged = Tags[i].Tag != game.Tags.Value?[i];
+        }
+        catch (Exception ex)
+        {
+            // 原理上来说是不会越界的，但莫名奇妙有用户反馈过越界问题
+            _infoService.Info(InfoBarSeverity.Warning, $"Error checking tags: {ex.Message}");
+        }
         if (tagChanged)
         {
             Tags.Clear();
@@ -213,34 +225,77 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Ymgal])) return;
         await Launcher.LaunchUriAsync(new Uri("https://www.ymgal.games/ga"+Item!.Ids[(int)RssType.Ymgal]));
     }
+
+    [RelayCommand]
+    private async Task OpenInCngal()
+    {
+        if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Cngal])) return;
+        await Launcher.LaunchUriAsync(new Uri("https://www.cngal.org/entries/index/"+Item!.Ids[(int)RssType.Cngal]));
+    }
     
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task Play()
     {
-        if (Item == null) return; //不应该发生
-        if (Item.ExePath == null)
+        if (!Item!.IsLocalGame) return;
+        if (Item.ExePath is not null && !File.Exists(Item.ExePath)) Item.ExePath = null;
+        if (Item.ExePath == null && Item.Startup_parameters==string.Empty)
             await _galgameService.GetGalgameExeAsync(Item);
-        if (Item.ExePath == null) return;
-
-        Item.LastPlayTime = DateTime.Now;
-        Process process = new()
+        await CalcStartupPara();
+        if (Item.ExePath == null && Item.Startup_parameters == string.Empty) return;
+        Process process;
+        if (Item.Startup_parameters == string.Empty)
         {
-            StartInfo = new ProcessStartInfo
+            process = new()
             {
-                FileName = Item.ExePath,
-                WorkingDirectory = Item.Path,
-                UseShellExecute = Item.RunAsAdmin | Item.ExePath.ToLower().EndsWith("lnk"),
-                Verb = Item.RunAsAdmin ? "runas" : null,
-            }
-        };
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Item.ExePath,
+                    WorkingDirectory = Item.LocalPath,
+                    UseShellExecute = Item.RunAsAdmin | Item.ExePath!.ToLower().EndsWith("lnk"),
+                    Verb = Item.RunAsAdmin ? "runas" : null,
+                }
+            };
+        }
+        else
+        {
+            var pattern = "([A-Za-z0-9]+[  ]{1}|\".+?\")";    //这个正则表达式用于匹配""的文件的地址，或者是系统环境变量这种由数字字母组成的文件
+            var regex = new Regex(pattern,RegexOptions.None, TimeSpan.FromSeconds(0.1));
+            MatchCollection matches = regex.Matches(Item.Startup_parameters);
+            var filename = matches[0].Value;
+            var arguments = Item.Startup_parameters.Replace(filename, " ");
+            process = new()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = filename,
+                    Arguments = arguments,
+                    CreateNoWindow = true,
+                    Verb = Item.RunAsAdmin ? "runas" : null,
+                    UseShellExecute = true,
+                }
+            };
+        }
         try
         {
             process.Start();
+            Item.LastPlayTime = DateTime.Now;
             // _galgameService.Sort();
             if (Item.ProcessName is not null)
             {
                 await Task.Delay(1000 * 2); //有可能引导进程和游戏进程是一个名字，等2s让引导进程先退出
                 process = await WaitForProcessStartAsync(Item.ProcessName) ?? process;
+            }
+            if (Item.Startup_parameters != string.Empty && Item.ProcessName is null) 
+            { 
+                //启动的进程和游戏进程不是同一个进程，需要知道到底启动什么进程
+                await Task.Delay(1000 * 2);
+                if (TryGetProcessFromName() is { } p) // 尝试根据游戏可执行文件名获取进程
+                {
+                    process = p;
+                    Item.ProcessName = p.ProcessName;
+                }
+                else
+                    await SelectProcess();
             }
             _ = _bgTaskService.AddBgTask(new RecordPlayTimeTask(Item, process));
             await _jumpListService.AddToJumpListAsync(Item);
@@ -275,21 +330,36 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task ChangeSavePosition()
     {
-        if (Item is not {SourceType:GalgameSourceType.LocalFolder}) return;
+        if (Item?.IsLocalGame != true) return;
         await _galgameService.ChangeGalgameSavePosition(Item);
+    }
+
+    [RelayCommand]
+    private async Task ChangeTimeFormat()
+    {
+        try
+        {
+            var current = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour);
+            await _localSettingsService.SaveSettingAsync(KeyValues.TimeAsHour, !current);
+            Item!.RaisePropertyChanged(nameof(Galgame.TotalPlayTime));
+        }
+        catch (Exception e)
+        {
+            _infoService.Event(EventType.PageError, InfoBarSeverity.Error, "Oops, something went wrong", e);
+        }
     }
     
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private void ResetExePath(object obj)
     {
-        if (Item is not {SourceType:GalgameSourceType.LocalFolder}) return;
+        if (Item is null || !Item.IsLocalGame) return;
         Item!.ExePath = null;
     }
     
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task DeleteFromDisk()
     {
-        if (Item is not {SourceType:GalgameSourceType.LocalFolder}) return;
+        if (Item is null || !Item.IsLocalGame) return;
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
@@ -329,8 +399,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void JumpToHomePageWithDeveloperFilter()
     {
-        if (_item is null) return;
-        Category? category = _categoryService.GetDeveloperCategory(_item);
+        if (Item is null) return;
+        Category? category = _categoryService.GetDeveloperCategory(Item);
         if (category is null)
         {
             _infoService.Info(InfoBarSeverity.Error, msg:"HomePage_NoDeveloperCategory".GetLocalized());
@@ -345,6 +415,82 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task SaveAsync()
     {
         await _galgameService.SaveGalgamesAsync(Item);
+    }
+
+    [RelayCommand]
+    private async Task ChangeRunInLocaleEmulator()
+    {
+        if (Item is null) return;
+        if (Item.RunInLocaleEmulator && !await CheckLocaleEmulator())
+            Item.RunInLocaleEmulator = false;
+
+        if (!Item.RunInLocaleEmulator)
+        {
+            Item.Startup_parameters = string.Empty;
+            Item.ExePath = null;
+            await RemoveSelectedThread();
+        }
+        else
+            await CalcStartupPara();
+        await SaveAsync();
+    }
+
+    [RelayCommand]
+    private async Task ChangeHighDpi()
+    {
+        if (Item is null || string.IsNullOrEmpty(Item.ExePath)) 
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgamePage_HighDpi_ExePathIsEmpty".GetLocalized());
+            return;
+        }
+        
+        try 
+        {
+            // 构建 PowerShell 命令
+            var regPath = @"HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
+            var command = Item.HighDpi
+                ? $"Remove-ItemProperty -Path '{regPath}' -Name '{Item.ExePath.Replace("'", "''")}'"
+                : $"Set-ItemProperty -Path '{regPath}' -Name '{Item.ExePath.Replace("'", "''")}' -Value '~ PERPROCESSSYSTEMDPIFORCEOFF HIGHDPIAWARE'";
+
+            // 创建启动管理员权限的 PowerShell 进程
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-Command \"{command}\"",
+                UseShellExecute = true,
+                Verb = "runas",
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+
+            try
+            {
+                var process = Process.Start(startInfo);
+                if (process != null)
+                {
+                    await process.WaitForExitAsync();
+                    if (process.ExitCode == 0)
+                    {
+                        Item.HighDpi = !Item.HighDpi;
+                        await SaveAsync();
+                        _ = DisplayMsg(InfoBarSeverity.Success, "GalgamePage_HighDpi_Success".GetLocalized());
+                    }
+                    else
+                    {
+                        _infoService.Info(InfoBarSeverity.Error, "GalgamePage_HighDpi_Fail".GetLocalized() + $" {process.ExitCode}");
+                    }
+                }
+            }
+            catch (Win32Exception)
+            {
+                // 用户取消了UAC提示
+                _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_HighDpi_NeedAdmin".GetLocalized());
+            }
+        }
+        catch (Exception ex)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgamePage_HighDpi_Fail".GetLocalized() + $" {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -424,7 +570,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task RemoveSelectedThread()
     {
         Item!.ProcessName = null;
-        Update(_item);
+        Update(Item);
         _ = DisplayMsg(InfoBarSeverity.Success, "GalgamePage_RemoveSelectedThread_Success".GetLocalized());
         await SaveAsync();
     }
@@ -432,13 +578,13 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task SelectProcess()
     {
-        if (Item is not {SourceType:GalgameSourceType.LocalFolder}) return;
+        if (!Item!.IsLocalGame) return;
         SelectProcessDialog dialog = new();
         await dialog.ShowAsync();
         if (dialog.SelectedProcessName is not null)
         {
             Item.ProcessName = dialog.SelectedProcessName;
-            Update(_item);
+            Update(Item);
             await SaveAsync();
             _ = DisplayMsg(InfoBarSeverity.Success, "HomePage_ProcessNameSet".GetLocalized());
         }
@@ -447,11 +593,12 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task SelectText()
     {
-        if (Item is not {SourceType:GalgameSourceType.LocalFolder}) return;
+        if (Item is null || !Item.IsLocalGame) return;
         var path = Item.TextPath;
         if (path is null || File.Exists(path) == false)
         {
-            SelectFileDialog dialog = new(Item!.Path, new[] {".txt", ".pdf"}, "GalgamePage_SelectText_Title".GetLocalized());
+            SelectFileDialog dialog = new(Item!.LocalPath!, new[] { ".txt", ".pdf" },
+                "GalgamePage_SelectText_Title".GetLocalized());
             await dialog.ShowAsync();
             path = dialog.SelectedFilePath;
             if (dialog.RememberMe)
@@ -479,6 +626,48 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         if (Item is null) return;
         ChangeSourceDialog dialog = new(Item);
         await dialog.ShowAsync();
+    }
+
+    private async Task<bool> CheckLocaleEmulator()
+    {
+        var path = await _localSettingsService.ReadSettingAsync<string>(KeyValues.LocaleEmulatorPath);
+        if (path is not null && File.Exists(path)) return true;
+        _infoService.Info(InfoBarSeverity.Error, msg: "GalgamePage_InvalidLocaleEmulatorPath".GetLocalized(),
+            displayTimeMs: 5000);
+        return false;
+    }
+
+    private async Task CalcStartupPara()
+    {
+        if (Item is null) return;
+        if (!Item.RunInLocaleEmulator) return;
+        if (!await CheckLocaleEmulator() || !File.Exists(Item.ExePath))
+        {
+            Item.Startup_parameters = string.Empty;
+            return;
+        }
+        Item.Startup_parameters =
+            $"\"{await _localSettingsService.ReadSettingAsync<string>(KeyValues.LocaleEmulatorPath)}\" \"{Item.ExePath}\"";
+    }
+
+    private Process? TryGetProcessFromName()
+    {
+        if (Item?.ExePath is null) return null;
+        var name = Path.GetFileNameWithoutExtension(Item.ExePath);
+        return Process.GetProcesses().FirstOrDefault(p => p.ProcessName == name);
+    }
+
+    [RelayCommand]
+    private async Task ResetPath()
+    {
+        if (Item is null || !Item.IsLocalGame) return;
+        if (Item.HighDpi)
+            await ChangeHighDpi();
+        if (Item.HighDpi)
+            Item.HighDpi = false;
+        Item!.ExePath = null;
+        await ClearText();
+        
     }
 }
 

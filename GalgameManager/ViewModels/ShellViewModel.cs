@@ -75,13 +75,13 @@ public partial class ShellViewModel : ObservableObject
     private void HandleLocalSettingChanged(string key, object? value)
     {
         if (key == KeyValues.DevelopmentMode)
-            _isDeveloperMode = value as bool? ?? false;
+            IsDeveloperMode = value as bool? ?? false;
     }
     
     private void UpdateInfoPageBadge()
     {
         InfoPageBadgeCount = _bgTaskService.GetBgTasks().Count() + _unreadInfos;
-        InfoPageBadgeVisibility = _infoPageBadgeCount > 0;
+        InfoPageBadgeVisibility = InfoPageBadgeCount > 0;
     }
     
     #region INFO_BAR_CTRL

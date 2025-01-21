@@ -17,7 +17,7 @@
     <ScrollViewer HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto" Margin="0 10 25 0">
         <StackPanel>
             <control:SettingExpander x:Uid="InfoPage_BgTask" SettingIcon="&#xE770;" 
-                                     IsExpanded="{x:Bind ViewModel.BgTaskExpanded}">
+                                     IsExpanded="{x:Bind ViewModel.BgTaskExpanded, Mode=OneWay}">
                 <control:SettingExpander.SettingContent>
                     <Grid>
                         <TextBlock x:Uid="InfoPage_NoBgTask" HorizontalAlignment="Center"
@@ -30,7 +30,7 @@
                                        Converter={StaticResource InverseVisibilityConverter}}">
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="viewModels:BgTaskViewModel">
-                                    <control:Panel>
+                                    <control:Panel Margin="{StaticResource SmallBottomMargin}" >
                                         <StackPanel>
                                             <TextBlock Text="{x:Bind Title, Mode=OneWay}"
                                                        Style="{ThemeResource BodyTextBlockStyle}" />
@@ -46,7 +46,7 @@
             </control:SettingExpander>
 
             <control:SettingExpander x:Uid="InfoPage_Info" SettingIcon="&#xE946;" 
-                                     IsExpanded="{x:Bind ViewModel.InfoExpanded}">
+                                     IsExpanded="{x:Bind ViewModel.InfoExpanded, Mode=OneWay}">
                 <control:SettingExpander.SettingContent>
                     <Grid>
                         <TextBlock x:Uid="InfoPage_NoInfo" HorizontalAlignment="Center"

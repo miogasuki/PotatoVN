@@ -65,6 +65,7 @@ public sealed partial class UnpackDialog
         openPicker.FileTypeFilter.Add(".7z");
         openPicker.FileTypeFilter.Add(".tar");
         openPicker.FileTypeFilter.Add(".001");
+        openPicker.FileTypeFilter.Add(".rar");
         StorageFile = await openPicker.PickSingleFileAsync();
             
         PackNameText.Text = StorageFile?.Name ?? string.Empty;

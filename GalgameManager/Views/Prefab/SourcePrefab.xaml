@@ -5,7 +5,10 @@
     xmlns:converter="using:GalgameManager.Helpers.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:prefab="using:GalgameManager.Views.Prefab"
+    xmlns:sources="using:GalgameManager.Models.Sources"
+    Height="160" MinWidth="120">
 
     <UserControl.Resources>
         <converter:EnumToStringConverter x:Key="EnumStringConverter" />
@@ -13,30 +16,58 @@
     </UserControl.Resources>
 
     <Grid
-        Height="160" Width="175"
         Padding="{StaticResource XSmallLeftTopRightBottomMargin}"
         ContextFlyout="{x:Bind Flyout}">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <FontIcon
-                Glyph="{x:Bind Source.SourceType, Mode=OneWay,
-                    Converter={StaticResource SourceTypeGlyphConverter}, FallbackValue={x:Null}}"
-                FontFamily="Segoe Fluent Icons"
-                FontSize="50" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 当ImagePath为空时显示图标，否则显示对应图片 -->
+            <ContentControl Grid.Row="0" 
+                            Content="{x:Bind Source, Mode=OneWay}"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ContentControl.ContentTemplateSelector>
+                    <prefab:SourcePrefabTemplateSelector>
+                        <prefab:SourcePrefabTemplateSelector.FontIconTemplate>
+                            <DataTemplate x:DataType="sources:GalgameSourceBase">
+                                <FontIcon
+                                    Glyph="{x:Bind SourceType, Mode=OneWay, 
+                                        Converter={StaticResource SourceTypeGlyphConverter}}"
+                                    FontFamily="Segoe Fluent Icons"
+                                    FontSize="50" />
+                            </DataTemplate>
+                        </prefab:SourcePrefabTemplateSelector.FontIconTemplate>
+                        <prefab:SourcePrefabTemplateSelector.ImageTemplate>
+                            <DataTemplate x:DataType="sources:GalgameSourceBase">
+                                <Border CornerRadius="10">
+                                    <Image Source="{x:Bind ImagePath, Mode=OneWay}"/>
+                                </Border>
+                            </DataTemplate>
+                        </prefab:SourcePrefabTemplateSelector.ImageTemplate>
+                    </prefab:SourcePrefabTemplateSelector>
+                </ContentControl.ContentTemplateSelector>
+            </ContentControl>
+
             <TextBlock
+                Grid.Row="1" 
                 MaxHeight="85"
                 Margin="{StaticResource XXSmallTopMargin}"
-                HorizontalAlignment="Center"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom"
                 Style="{ThemeResource BodyTextStyle}"
                 Text="{x:Bind Source.Name, Mode=OneWay, FallbackValue={x:Null}}" />
+            
             <TextBlock
+                Grid.Row="2" 
                 MaxHeight="85"
-                Margin="{StaticResource XXSmallTopMargin}"
-                HorizontalAlignment="Center"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom"
                 Style="{ThemeResource DescriptionTextStyle}"
                 Text="{x:Bind Source.SourceType, Mode=OneWay, 
                     Converter={StaticResource EnumStringConverter},
                     FallbackValue={x:Null}}" />
-        </StackPanel>
+        </Grid>
         <!-- 透明控件，确保右键时射线检测能够打到Item上 -->
         <Rectangle Fill="Transparent" />
     </Grid>

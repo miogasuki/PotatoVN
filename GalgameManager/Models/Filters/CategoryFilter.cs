@@ -4,6 +4,8 @@ namespace GalgameManager.Models.Filters;
 
 public class CategoryFilter : FilterBase
 {
+    public Category Category => _category!;
+    
     private readonly Category? _category;
     
     public CategoryFilter(){} //for json

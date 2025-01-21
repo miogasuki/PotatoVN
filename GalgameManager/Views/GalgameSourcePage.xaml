@@ -4,28 +4,38 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
-    mc:Ignorable="d">
+    xmlns:control="using:GalgameManager.Views.Control"
+    xmlns:views="using:GalgameManager.Views"
+    xmlns:viewModels="using:GalgameManager.ViewModels"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    mc:Ignorable="d"
+    x:Name="Page">
 
     <Page.Resources>
         <converter:EnumToStringConverter x:Key="EnumStringConverter" />
+        <converter:ImagePathConverter x:Key="ImagePathConverter" />
     </Page.Resources>
     
-    <Grid>
+    <interactivity:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="SizeChanged">
+            <core:InvokeCommandAction Command="{x:Bind ViewModel.PageSizeChangedCommand}"/>
+        </core:EventTriggerBehavior>
+    </interactivity:Interaction.Behaviors>
+    
+    <Grid Margin="0 0 0 10">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <RelativePanel Grid.Row="0">
-                <TextBlock Text="{x:Bind ViewModel.Item.Name, FallbackValue={}}"
-                           Style="{ThemeResource TitleTextBlockStyle}" 
+                <TextBlock Text="{x:Bind ViewModel.Item.Name, FallbackValue={}, Mode=OneWay}"
+                           Style="{ThemeResource TitleTextBlockStyle}"
                            MaxWidth="{x:Bind ViewModel.TitleMaxWidth, Mode=OneWay}" />
                 <CommandBar RelativePanel.AlignRightWithPanel="True" Background="Transparent" IsOpen="False"
                             DefaultLabelPosition="Right">
@@ -56,11 +66,12 @@
                     <!-- 下载游戏数据 -->
                     <AppBarButton Icon="Download" Label="{x:Bind ViewModel.UiDownloadInfo, Mode=OneWay}" 
                                   Command="{x:Bind ViewModel.GetInfoFromRssCommand}" />
+                    <!-- 从游戏名下载游戏数据 -->
+                    <AppBarButton Icon="Download" x:Uid="GalgameFolderPage_DownloadSelectedInfoFromName"
+                                Visibility="{x:Bind ViewModel.IsDownloadFromNameVisible, Mode=OneWay}"
+                                  Command="{x:Bind ViewModel.GetInfoFromRssCommand}" 
+                                  CommandParameter="True"/>
                     <CommandBar.SecondaryCommands>
-                        <!-- 启动时自动扫描 -->
-                        <AppBarToggleButton x:Uid="GalgameFolderPage_AutoScan" Icon="Refresh"
-                                            IsChecked="{x:Bind ViewModel.Item.ScanOnStart, Mode=TwoWay, 
-                                            FallbackValue=False}"/>
                         <!-- 打开Log文件 -->
                         <AppBarButton x:Uid="GalgameFolderPage_Log" 
                                       IsEnabled="{x:Bind ViewModel.LogExists, Mode=OneWay}"
@@ -76,57 +87,195 @@
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </CommandBar>
-                <interactivity:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="SizeChanged">
-                        <core:InvokeCommandAction Command="{x:Bind ViewModel.PageSizeChangedCommand}"/>
-                    </core:EventTriggerBehavior>
-                </interactivity:Interaction.Behaviors>
             </RelativePanel>
-            
+
             <!-- 库路径 -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="15">
                 <TextBlock Text="{x:Bind ViewModel.Item.Path, FallbackValue={}}"
-                           MaxWidth="{x:Bind ViewModel.TitleMaxWidth, Mode=OneWay}" 
-                           VerticalAlignment="Center"/>
+                           VerticalAlignment="Center" />
                 <Border Background="{ThemeResource  ControlAltFillColorSecondaryBrush}"
                         BorderThickness="0"
                         CornerRadius="6"
                         VerticalAlignment="Center">
-                    <TextBlock Text="{x:Bind ViewModel.Item.SourceType, FallbackValue={}, Converter={StaticResource EnumStringConverter}}"
-                               Style="{ThemeResource SmallTextStyle}" 
-                               MaxWidth="{x:Bind ViewModel.TitleMaxWidth, Mode=OneWay}"
-                               Padding="10, 2"/>
+                    <TextBlock
+                        Text="{x:Bind ViewModel.Item.SourceType, FallbackValue={}, Converter={StaticResource EnumStringConverter}}"
+                        Style="{ThemeResource SmallTextStyle}"
+                        MaxWidth="{x:Bind ViewModel.TitleMaxWidth, Mode=OneWay}"
+                        Padding="10, 2" />
                 </Border>
             </StackPanel>
 
-            <controls:DataGrid
-                Grid.Row="2"
-                Margin="0 20 0 0"
-                AutoGenerateColumns="False"
-                GridLinesVisibility="Horizontal"
-                ItemsSource="{x:Bind ViewModel.Galgames, Mode=OneWay}">
-                <controls:DataGrid.Columns>
-                    <controls:DataGridTextColumn Binding="{Binding Name.Value}" Header="游戏名" Width="250"/>
-                    <controls:DataGridComboBoxColumn Binding="{Binding RssType}" Header="数据源" 
-                                                     ItemsSource="{x:Bind ViewModel.RssTypes}"/>
-                    <controls:DataGridTextColumn Binding="{Binding Id}" Header="id" />
-                    <controls:DataGridTextColumn Binding="{Binding Path}" Header="游戏目录" IsReadOnly="True"/>
-                </controls:DataGrid.Columns>
-                <interactivity:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="SelectionChanged">
-                        <core:InvokeCommandAction Command="{x:Bind ViewModel.SelectionChangedCommand}"/>
-                    </core:EventTriggerBehavior>
-                </interactivity:Interaction.Behaviors>
-            </controls:DataGrid>
+            <ScrollViewer Grid.Row="2" Margin="0 20 0 0"
+                          HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0 0 20 0">
+                    <!-- 游戏库设置 -->
+                    <control:SettingExpander x:Uid="GalgameSourcePage_Setting"
+                                             SettingIcon="&#xE713;" IsExpanded="True">
+                        <control:SettingExpander.SettingContent>
+                            <StackPanel Spacing="13">
+                                <!-- 库名 -->
+                                <control:Panel>
+                                    <control:Setting x:Uid="GalgameSourcePage_Setting_Name">
+                                        <TextBox
+                                            Text="{x:Bind ViewModel.Item.Name, Mode=TwoWay, FallbackValue={x:Null}}"
+                                            MinWidth="150" />
+                                    </control:Setting>
+                                </control:Panel>
+                                <!-- 封面图 -->
+                                <control:Panel>
+                                    <control:Setting x:Uid="GalgameSourcePage_Setting_Image"
+                                                     Description="{x:Bind ViewModel.ImagePathDes, Mode=OneWay}">
+                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                            <Button x:Uid="ResetToDefault" Command="{x:Bind ViewModel.SetImagePathCommand}">
+                                                <Button.CommandParameter>
+                                                    <x:Boolean>True</x:Boolean>
+                                                </Button.CommandParameter>
+                                            </Button>
+                                            <Button x:Uid="Select" Command="{x:Bind ViewModel.SetImagePathCommand}">
+                                                <Button.CommandParameter>
+                                                    <x:Boolean>False</x:Boolean>
+                                                </Button.CommandParameter>
+                                            </Button>
+                                        </StackPanel>
+                                    </control:Setting>
+                                </control:Panel>
+                                <!-- 启动时自动扫描 -->
+                                <control:Panel>
+                                    <views:SettingToggleSwitch
+                                        x:Uid="GalgameSourcePage_Setting_AutoScan"
+                                        IsOn="{x:Bind ViewModel.Item.ScanOnStart, Mode=TwoWay, FallbackValue=False}" />
+                                </control:Panel>
+                                <!-- 自动添加/取消托管游戏 -->
+                                <control:Panel>
+                                    <StackPanel Spacing="12">
+                                        <views:SettingToggleSwitch
+                                            x:Uid="GalgameSourcePage_Setting_Auto"
+                                            IsOn="{x:Bind ViewModel.Item.Detect, Mode=TwoWay, FallbackValue=False}" />
+                                        <views:SettingToggleSwitch
+                                            x:Uid="GalgameSourcePage_Setting_Auto_Add"
+                                            IsOn="{x:Bind ViewModel.Item.DetectFolderAdd, Mode=TwoWay, FallbackValue=False}" 
+                                            Visibility="{x:Bind ViewModel.Item.Detect, Mode=OneWay, FallbackValue=0}"/>
+                                        <views:SettingToggleSwitch
+                                            x:Uid="GalgameSourcePage_Setting_Auto_Remove"
+                                            IsOn="{x:Bind ViewModel.Item.DetectFolderRemove, Mode=TwoWay, FallbackValue=False}" 
+                                            Visibility="{x:Bind ViewModel.Item.Detect, Mode=OneWay, FallbackValue=0}"/>
+                                    </StackPanel>    
+                                </control:Panel>
+                            </StackPanel>
+                        </control:SettingExpander.SettingContent>
+                    </control:SettingExpander>
+                    <!-- 游戏列表 -->
+                    <control:SettingExpander x:Uid="GalgameSourcePage_GamesTable"
+                                             SettingIcon="&#xE71D;" 
+                                             IsExpanded="{x:Bind ViewModel.GameListExpend, Mode=TwoWay}">
+                        <control:SettingExpander.SettingContent>
+                            <ListView ItemsSource="{x:Bind ViewModel.Galgames}" 
+                                      SelectionMode="Extended"
+                                      ScrollViewer.VerticalScrollMode="Disabled"
+                                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                <ListView.Header>
+                                    <Grid Padding="16,12"
+                                          Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
+                                          RowDefinitions="Auto, Auto, Auto" RowSpacing="3"
+                                          CornerRadius="5">
+                                        <TextBlock Grid.Row="0" x:Uid="GalgameSourcePage_GamesTable_Name"
+                                                   Style="{StaticResource DescriptionTextStyle}" />
+                                        <TextBlock Grid.Row="1" x:Uid="GalgameSourcePage_GamesTable_Path"
+                                                   Style="{StaticResource DescriptionTextStyle}" />
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="20">
+                                            <TextBlock x:Uid="GalgameSourcePage_GamesTable_RssType"
+                                                       Style="{StaticResource DescriptionTextStyle}" />
+                                            <TextBlock Text="ID"
+                                                       Style="{StaticResource DescriptionTextStyle}" />
+                                        </StackPanel>
+                                        <interactivity:Interaction.Behaviors>
+                                            <behaviors:StickyHeaderBehavior />
+                                        </interactivity:Interaction.Behaviors>
+                                    </Grid>
+                                </ListView.Header>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="viewModels:GalgameSourcePageCustomGalgameViewModel">
+                                        <Grid>
+                                            <!-- 透明控件，确保右键时射线检测能够打到Item上 -->
+                                            <Rectangle Fill="Transparent" /> 
+                                            <Grid ColumnDefinitions="Auto, *" Margin="0, 7">
+                                                <Button Grid.Column="0" Margin="0 0 10 0"
+                                                        Style="{StaticResource TransparentButtonWithHover}">
+                                                    <Grid CornerRadius="10">
+                                                        <Rectangle Height="70" Width="50">
+                                                            <Rectangle.Fill>
+                                                                <ImageBrush
+                                                                    ImageSource="{x:Bind Galgame.ImagePath.Value,
+                                                                    Mode=OneWay,
+                                                                    Converter={StaticResource ImagePathConverter},
+                                                                    FallbackValue={x:Null}}"
+                                                                    Stretch="UniformToFill" />
+                                                            </Rectangle.Fill>
+                                                        </Rectangle>
+                                                    </Grid>
+                                                </Button>
+                                                <StackPanel Grid.Column="1" Spacing="3">
+                                                    <TextBox Text="{x:Bind Galgame.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                             MinWidth="450"
+                                                             HorizontalAlignment="Left" />
+                                                    <TextBlock Text="{x:Bind Path}"
+                                                               Style="{StaticResource DescriptionTextStyle}" />
+                                                    <StackPanel Orientation="Horizontal" Spacing="20">
+                                                        <control:ComboBoxWithoutNull
+                                                            SelectedItem="{x:Bind Galgame.RssType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            ItemsSource="{x:Bind RssTypes}" />
+                                                        <TextBox MinWidth="350"
+                                                                 Text="{x:Bind Galgame.Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid.ContextFlyout>
+                                                    <MenuFlyout>
+                                                        <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Edit"
+                                                                        Command="{x:Bind EditCommand}"
+                                                                        CommandParameter="{x:Bind}" />
+                                                        <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_CopyName"
+                                                                        Command="{x:Bind CopyNameCommand}"
+                                                                        CommandParameter="{x:Bind}">
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_CopyPath"
+                                                                        Command="{x:Bind CopyPathCommand}"
+                                                                        CommandParameter="{x:Bind}">
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_OpenInExplorer"
+                                                                        Command="{x:Bind OpenInExplorerCommand}"
+                                                                        CommandParameter="{x:Bind}">
+                                                        </MenuFlyoutItem>
+                                                    </MenuFlyout>
+                                                </Grid.ContextFlyout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                                <interactivity:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="SelectionChanged">
+                                        <core:InvokeCommandAction Command="{x:Bind ViewModel.SelectionChangedCommand}" />
+                                    </core:EventTriggerBehavior>
+                                </interactivity:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}"
+                                           TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                        </control:SettingExpander.SettingContent>
+                    </control:SettingExpander>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
-        
+
         <Grid
-            Margin ="25 10 25 100 "
+            Margin="25 10 25 100 "
             Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
             Visibility="{x:Bind ViewModel.IsUnpacking, Mode=OneWay}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ProgressRing
                 Value="{x:Bind ViewModel.ProgressValue, Mode=OneWay}"
@@ -137,7 +286,7 @@
                 Height="100"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center" />
-            <TextBlock Grid.Row="1" 
+            <TextBlock Grid.Row="1"
                        Text="{x:Bind ViewModel.ProgressMsg, Mode=OneWay}"
                        Margin="0 -80 0 50"
                        HorizontalAlignment="Center"

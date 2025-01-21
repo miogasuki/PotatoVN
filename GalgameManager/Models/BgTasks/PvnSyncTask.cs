@@ -49,7 +49,7 @@ public class PvnSyncTask : BgTaskBase
         if (Result.IsNullOrEmpty())
         {
             Result = "PvnSyncTask_NoChange".GetLocalized();
-            if (await App.GetService<ILocalSettingsService>()
+            if (!await App.GetService<ILocalSettingsService>()
                     .ReadSettingAsync<bool>(KeyValues.EventPvnSyncEmptyNotify))
                 notify = false;
         }
@@ -72,10 +72,13 @@ public class PvnSyncTask : BgTaskBase
         {
             GalgameDto dto = changedGalgames[index];
             Galgame? game = gameService.GetGalgameFromId(dto.id.ToString(), RssType.PotatoVn);
-            game ??= gameService.GetGalgameFromId(dto.bgmId, RssType.Bangumi);
-            game ??= gameService.GetGalgameFromId(dto.vndbId, RssType.Vndb);
-            game ??= gameService.GetGalgameFromName(dto.name);
-            game ??= gameService.GetGalgameFromName(dto.cnName);
+            game ??= gameService.GetGalgameFromUid(new GalgameUid
+            {
+                BangumiId = dto.bgmId,
+                VndbId = dto.vndbId,
+                Name = dto.name ?? string.Empty,
+                CnName = dto.cnName,
+            });
 
             await UiThreadInvokeHelper.InvokeAsync(async Task() =>
             {
@@ -94,7 +97,7 @@ public class PvnSyncTask : BgTaskBase
                 game.Ids[(int)RssType.PotatoVn] = dto.id.ToString();
                 game.Ids[(int)RssType.Bangumi] = dto.bgmId ?? game.Ids[(int)RssType.Bangumi];
                 game.Ids[(int)RssType.Vndb] = dto.vndbId ?? game.Ids[(int)RssType.Vndb];
-                game.Ids[(int)RssType.Mixed] = MixedPhraser.IdList2Id(game.Ids);
+                game.UpdateMixedId();
                 game.Name = dto.name ?? game.Name.Value ?? string.Empty;
                 game.CnName = dto.cnName ?? game.CnName;
                 game.Description = dto.description ?? game.Description.Value ?? string.Empty;
@@ -115,13 +118,10 @@ public class PvnSyncTask : BgTaskBase
 
                 if (dto.playTime is not null)
                 {
-                    dto.playTime.Sort((a, b) => a.dateTimeStamp.CompareTo(b.dateTimeStamp));
-                    game.PlayedTime.Clear();
-                    foreach (PlayLogDto time in dto.playTime)
-                        game.PlayedTime[time.dateTimeStamp.ToDateTime().ToLocalTime().ToStringDefault()] = time.minute;
-                    game.TotalPlayTime = game.PlayedTime.Values.Sum();
-                    if(dto.playTime.Count > 0)
-                        game.LastPlayTime = dto.playTime[^1].dateTimeStamp.ToDateTime().ToLocalTime();
+                    Dictionary<string, int> playTime = new();
+                    foreach(PlayLogDto time in dto.playTime)
+                        playTime[time.dateTimeStamp.ToDateTime().ToLocalTime().ToStringDefault()] = time.minute;
+                    game.MergeTime(new Galgame { PlayedTime = playTime });
                 }
 
                 game.PlayType = dto.playType;
@@ -189,7 +189,7 @@ public class PvnSyncTask : BgTaskBase
                 }
                 catch (Exception e)
                 {
-                    infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning, "PvnSyncTask_Error_Upload", e);
+                    infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning, "PvnSyncTask_Error_Upload".GetLocalized(), e);
                     ignore.Add(game);
                 }
             }

@@ -3,11 +3,11 @@
 </p>
 
 <div align="center">
-  
+
 # PotatoVN
 ![123](https://img.shields.io/endpoint?color=blue&label=Microsoft%20Store%20Rating&url=https%3A%2F%2Fmicrosoft-store-badge.fly.dev%2Fapi%2Frating%3FstoreId%3D9P9CBKD5HR3W)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoldenPotato137%2FPotatoVN.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoldenPotato137%2FPotatoVN?ref=badge_shield)
-[![Telegram](https://img.shields.io/badge/Telegram%E5%90%B9%E6%B0%B4%E7%BE%A4-Join-green)](https://t.me/+gymkuMygUpY1NzY1)
+[![Telegram](https://img.shields.io/badge/Telegram%E5%90%B9%E6%B0%B4%E7%BE%A4-Join-green)](https://t.me/potato_vn)
 
 一个VisualNovel管理工具，旨在为galgame屯屯鼠们提供一个方便的游戏管理平台。
 </div>
@@ -19,13 +19,17 @@
 * 统计游戏游玩时间
 * 从压缩包中自动解压游戏，并自动识别且添加到游戏库中
 
-### 预览
-[见应用商店](https://www.microsoft.com/store/apps/9P9CBKD5HR3W)
-
 ## 安装
-本程序打包格式为MSIX，可以在[微软应用商店](https://www.microsoft.com/store/apps/9P9CBKD5HR3W)下载
+> **对于windows10用户:** windows10用户需要额外安装[Segoe Fluent 图标字体](https://aka.ms/SegoeFluentIcons)
 
-**对于windows10用户:** windows10用户需要额外安装[Segoe Fluent 图标字体](https://aka.ms/SegoeFluentIcons)
+<p align="center">
+    <a href="https://apps.microsoft.com/detail/9p9cbkd5hr3w?cid=github&mode=full">
+        <img src="https://get.microsoft.com/images/zh-cn%20dark.svg" height="90" alt="https://apps.microsoft.com/detail/9p9cbkd5hr3w?cid=github&mode=full"/>
+    </a>
+    <a href="https://github.com/GoldenPotato137/PotatoVN/releases">
+        <img src="docs/DownloadBadge.svg" height="87.5" alt="https://github.com/GoldenPotato137/PotatoVN/releases"/>
+    </a>
+</p>
 
 ## 翻译
 ![en translation](https://img.shields.io/badge/dynamic/json?color=blue&label=en&style=flat&logo=crowdin&query=%24.progress[?(@.data.languageId==%27en%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15790227-581621.json)
@@ -40,5 +44,16 @@ PotatoVN使用crowdin来进行本地化，欢迎在[crowdin](https://crowdin.com
 
 欢迎各位感兴趣的dalao在[这里](https://github.com/GoldenPotato137/PotatoVN/discussions/categories/%E5%BC%80%E5%8F%91%E7%8A%B6%E6%80%81)查看目前急需解决的问题，PotatoVN永远欢迎各位的加入~
 
-## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoldenPotato137%2FPotatoVN.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoldenPotato137%2FPotatoVN?ref=badge_large)
+## 致谢
+感谢以下组织对本项目的支持❤️
+
+| 赞助方 | 支持内容 |
+|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+| <p align="center"><img src="https://github.com/user-attachments/assets/2de96f21-4e01-4d2b-8d22-72aae5784906" alt="signpath logo" width="80px"></p>                                                          | 为PotatoVN提供了免费的侧载版安装包签名，极大方便了不方便使用微软商店的用户的下载与安装 |
+| <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png" alt="JetBrains logo." width="80px"> | 提供了免费正版授权的强大IDE，其中的.Net开发工具`Rider`极大方便了PotatoVN的开发                                          |
+
+## Code signing policy
+* Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+* Committerss: [PotatoVN Committers](https://github.com/GoldenPotato137/PotatoVN/graphs/contributors)
+* Approver: [GoldenPotato137](https://github.com/GoldenPotato137)
+* Privacy policy: [Privacy policy](https://potatovn.net/usage/how-to-use/privacy-policy.html)

@@ -5,18 +5,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:GalgameManager.Helpers.Converter"
-    xmlns:local="using:GalgameManager.Helpers"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:ui="using:CommunityToolkit.WinUI.UI"
-    xmlns:models="using:GalgameManager.Models"
-    xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:TimeToDisplayTimeConverter x:Key="TimeToDisplayTimeConverter" />
-        <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
-        <converters:ImagePathConverter x:Key="ImagePathConverter"/>
         <converters:EnumToStringConverter x:Key="EnumToStringConverter"/>
     </Page.Resources>
 

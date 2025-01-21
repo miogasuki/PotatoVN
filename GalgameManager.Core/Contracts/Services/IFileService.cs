@@ -6,7 +6,7 @@ namespace GalgameManager.Core.Contracts.Services;
 public interface IFileService
 {
     /// <summary>
-    /// 读取数据
+    /// 读取数据，如果文件不存在则返回null
     /// </summary>
     /// <param name="folderPath">文件夹路径</param>
     /// <param name="fileName">文件名</param>

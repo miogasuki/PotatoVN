@@ -1,7 +1,6 @@
 ﻿using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using Newtonsoft.Json;
 using SystemPath = System.IO.Path;
 
 
@@ -10,7 +9,6 @@ namespace GalgameManager.Models.Sources;
 
 public class GalgameFolderSource : GalgameSourceBase
 {
-    [JsonIgnore] public bool IsUnpacking;
     public override GalgameSourceType SourceType =>  GalgameSourceType.LocalFolder;
 
     public GalgameFolderSource(string path): base(path)
@@ -24,10 +22,10 @@ public class GalgameFolderSource : GalgameSourceBase
 
     public override bool IsInSource(string path)
     {
-        return SystemPath.GetFullPath(path).StartsWith(SystemPath.GetFullPath(Path)) ;
+        return Utils.IsChildFolder(Path, path);
     }
 
-    public async override IAsyncEnumerable<(Galgame?, string)> ScanAllGalgames()
+    public async override IAsyncEnumerable<(string?, string)> ScanAllGalgames()
     {
         ILocalSettingsService localSettings = App.GetService<ILocalSettingsService>();
         
@@ -50,45 +48,18 @@ public class GalgameFolderSource : GalgameSourceBase
             if (!HasPermission(currentPath))
             {
                 yield return (null, "Has No Permission\n");
+                continue;
             }
             if (IsGameFolder(currentPath, fileMustContain, fileShouldContain))
             {
-                yield return (new 
-                    Galgame(SourceType, GetGalgameName(currentPath), currentPath), "");
+                yield return (currentPath, "");
+                continue;
             }
         
             if (currentDepth == maxDepth) continue;
             foreach (var subPath in Directory.GetDirectories(currentPath))
                 pathToCheck.Enqueue((subPath, currentDepth + 1));
         }
-    }
-
-    /// <summary>
-    /// 获取该库中可能用来放游戏的文件夹路径<br/>
-    /// </summary>
-    /// <example>
-    /// 某库为一个根目录包含三个文件夹，而三个文件夹各自包含一堆游戏，那么这个函数应该返回这三个文件的路径
-    /// </example>
-    public Task<List<string>> GetPossibleFoldersAsync()
-    {
-        return Task.Run(() =>
-        {
-            List<string> result = new();
-            Queue<string> pathToCheck = new();
-            pathToCheck.Enqueue(Path);
-            HashSet<string> gamePaths = new(Galgames.Select(g => SystemPath.GetFullPath(g.Path)));
-            while (pathToCheck.Count > 0)
-            {
-                var path = pathToCheck.Dequeue();
-                if (Galgames.Exists(g => Utils.IsChildFolder(path, g.Path)))
-                    result.Add(path);
-                // 将所有非游戏文件夹的子文件夹加入队列
-                var sub = Directory.GetDirectories(path);
-                foreach(var subPath in sub.Where(p => !gamePaths.Contains(SystemPath.GetFullPath(p))))
-                    pathToCheck.Enqueue(subPath);
-            }
-            return result;
-        });
     }
     
     /// <summary>

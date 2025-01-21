@@ -6,12 +6,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:GalgameManager.Helpers.Converter"
     xmlns:local="using:GalgameManager.Helpers"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:ui="using:CommunityToolkit.WinUI.UI"
+    xmlns:cmtkControls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:cmtkAnimations="using:CommunityToolkit.WinUI.Animations"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:models="using:GalgameManager.Models"
-    xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
     xmlns:viewModels="using:GalgameManager.ViewModels"
-    mc:Ignorable="d">
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:control="using:GalgameManager.Views.Control"
+    mc:Ignorable="d"
+    x:Name="Page">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -73,15 +77,8 @@
                         </Flyout>
                     </AppBarButton.ContextFlyout>
                 </AppBarButton>
-                <!-- 解压压缩游戏 -->
-                <AppBarButton x:Uid="GalgamePage_UnzipGame" Command="{x:Bind ViewModel.UnzipGameCommand}"
-                              Visibility="{x:Bind ViewModel.IsZipGame, 
-                              Converter={StaticResource BoolToVisibilityConverter}, 
-                              ConverterParameter = False, Mode=OneWay}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xF012;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
+
+
                 <!-- 设置本地路径 -->
                 <AppBarButton x:Uid="GalgamePage_SetLocalPath" Command="{x:Bind ViewModel.SetLocalPathCommand}"
                               Visibility="{x:Bind ViewModel.IsLocalGame, 
@@ -140,9 +137,31 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
+                    <AppBarButton x:Uid="GalgamePage_OpenInCngal" Command="{x:Bind ViewModel.OpenInCngalCommand}" 
+                                  Visibility="{x:Bind ViewModel.CanOpenInCngal, 
+                                  Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <!-- 以管理员权限运行游戏 -->
                     <AppBarToggleButton Icon="Admin" x:Uid="GalgamePage_RunAsAdmin" Command="{x:Bind ViewModel.SaveCommand}"
                                         IsChecked="{x:Bind ViewModel.Item.RunAsAdmin, Mode=TwoWay, FallbackValue=False}" 
                                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
+                    <!-- 转区运行游戏 -->
+                    <AppBarToggleButton Icon="Character" x:Uid="GalgamePage_RunInLocaleEmulator" 
+                                        Command="{x:Bind ViewModel.ChangeRunInLocaleEmulatorCommand}"
+                                        IsChecked="{x:Bind ViewModel.Item.RunInLocaleEmulator, Mode=TwoWay, FallbackValue=False}" 
+                                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
+                    <!-- 高DPI替代缩放 -->
+                    <AppBarToggleButton x:Uid="GalgamePage_HighDpi" 
+                                        Command="{x:Bind ViewModel.ChangeHighDpiCommand}"
+                                        IsChecked="{x:Bind ViewModel.Item.HighDpi, Mode=OneWay, FallbackValue=False}" 
+                                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}">
+                        <AppBarToggleButton.Icon>
+                            <control:ConditionalFontIcon Symbol="GoToStart" FluentGlyph="&#xE7F4;"/>
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
                     <AppBarSeparator/>
                     <!-- 下载游玩状态 -->
                     <AppBarButton x:Uid="GalgamePage_SyncFromBgm" Command="{x:Bind ViewModel.SyncFromBgmCommand}" 
@@ -177,6 +196,15 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE840;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
+                    <!-- 重置exe和文本路径 -->
+                    <AppBarButton 
+                        x:Uid="GalgamePage_ResetPath"
+                        Command="{x:Bind ViewModel.ResetPathCommand}"
+                        Visibility="{x:Bind ViewModel.IsResetPathVisible, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74E;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                     <!-- 移除进程指定 -->
                     <AppBarButton 
                         x:Uid="GalgamePage_RemoveSelectedThread"
@@ -189,7 +217,8 @@
                     <AppBarSeparator/>
                     <!-- 移入另一个源 -->
                     <AppBarButton x:Uid="GalgamePage_MoveToAnotherSource"
-                                  Command="{x:Bind ViewModel.MoveToSourceCommand}">
+                                  Command="{x:Bind ViewModel.MoveToSourceCommand}"
+                                  IsEnabled="False">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8DE;" />
                         </AppBarButton.Icon>
@@ -255,7 +284,13 @@
                                 <HyperlinkButton
                                     Content="{x:Bind ViewModel.Item.TotalPlayTime, Mode=OneWay, 
                                            FallbackValue={}, Converter={StaticResource TimeToDisplayTimeConverter}}"
-                                    Padding="0 0 0 0" Command="{x:Bind ViewModel.JumpToPlayedTimePageCommand}"/>
+                                    Padding="0 0 0 0" Command="{x:Bind ViewModel.JumpToPlayedTimePageCommand}">
+                                    <interactivity:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="RightTapped">
+                                            <core:InvokeCommandAction Command="{x:Bind ViewModel.ChangeTimeFormatCommand}" />
+                                        </core:EventTriggerBehavior>
+                                    </interactivity:Interaction.Behaviors>
+                                </HyperlinkButton>
                             </StackPanel>
                         </StackPanel>
 
@@ -330,7 +365,7 @@
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
                             <ItemsRepeater.Layout>
-                                <controls:WrapLayout Orientation="Horizontal" />
+                                <cmtkControls:WrapLayout Orientation="Horizontal" />
                             </ItemsRepeater.Layout>
                         </ItemsRepeater>
                         
@@ -339,49 +374,46 @@
                             Style="{ThemeResource SubtitleTextBlockStyle}"
                             Visibility="{x:Bind ViewModel.IsCharacterVisible, Mode=OneWay}"
                             x:Uid="GalgamePage_Characters" />
-                        
-                        <controls:AdaptiveGridView
-                            Visibility="{x:Bind ViewModel.IsCharacterVisible, Mode=OneWay}"
-                            DesiredWidth="100"
-                            ItemHeight="160"
-                            ItemsSource="{x:Bind ViewModel.Item.Characters,Mode=OneWay,FallbackValue={}}"
-                            IsItemClickEnabled="True"
-                            ItemClickCommand="{x:Bind ViewModel.CharacterClickCommand}"
-                            SelectionMode="None"
-                            StretchContentForSingleRow="False"
-                            animations:Connected.ListItemKey="galgameCharacter"
-                            animations:Connected.ListItemElementName="ConnectedElement">
-                            <controls:AdaptiveGridView.ItemTemplate>
+
+                        <ItemsRepeater Visibility="{x:Bind ViewModel.IsCharacterVisible, Mode=OneWay}"
+                                       ItemsSource="{x:Bind ViewModel.Item.Characters,Mode=OneWay,FallbackValue={}}"
+                                       cmtkAnimations:Connected.ListItemKey="galgameCharacter"
+                                       cmtkAnimations:Connected.ListItemElementName="ConnectedElement">
+                            <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="models:GalgameCharacter">
-                                    <Grid
-                                        Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
-                                        <StackPanel HorizontalAlignment="Center">
-                                            <Rectangle Height="75" Width="75"
-                                                       HorizontalAlignment="Center" 
-                                                       VerticalAlignment="Center"
-                                                       x:Name="ConnectedElement"
-                                            >
-                                                <Rectangle.Fill>
-                                                    <ImageBrush 
-                                                        ImageSource="{x:Bind PreviewImagePath, 
-                                                Mode=OneWay, 
+                                    <Button Style="{ThemeResource TransparentButtonWithHover}"
+                                            DataContext="{x:Bind}"
+                                            Command="{Binding ElementName=Page, Path=ViewModel.CharacterClickCommand}"
+                                            CommandParameter="{x:Bind}" Height="130">
+                                        <Grid
+                                            Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
+                                            <StackPanel HorizontalAlignment="Center">
+                                                <Rectangle Height="75" Width="75"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           x:Name="ConnectedElement">
+                                                    <Rectangle.Fill>
+                                                        <ImageBrush
+                                                            ImageSource="{x:Bind PreviewImagePath, Mode=OneWay,
                                                 Converter={StaticResource ImagePathConverter}}"
-                                                        Stretch="UniformToFill"
-                                                    />
-                                                </Rectangle.Fill>
-                                            </Rectangle>
-                            
-                                            <TextBlock
-                                                MaxHeight="85"
-                                                Margin="{StaticResource XXSmallTopMargin}"
-                                                HorizontalAlignment="Center"
-                                                Style="{ThemeResource BodyTextStyle}"
-                                                Text="{x:Bind Name, Mode=OneWay}" />
-                                        </StackPanel>
-                                    </Grid>
+                                                            Stretch="UniformToFill" />
+                                                    </Rectangle.Fill>
+                                                </Rectangle>
+                                                <TextBlock
+                                                    MaxHeight="40"
+                                                    Margin="{StaticResource XXSmallTopMargin}"
+                                                    HorizontalAlignment="Center"
+                                                    Style="{ThemeResource BodyTextStyle}"
+                                                    Text="{x:Bind Name, Mode=OneWay}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Button>
                                 </DataTemplate>
-                            </controls:AdaptiveGridView.ItemTemplate>
-                        </controls:AdaptiveGridView>
+                            </ItemsRepeater.ItemTemplate>
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout ItemsStretch="Fill" MinItemWidth="100" MinRowSpacing="10"/>
+                            </ItemsRepeater.Layout>
+                        </ItemsRepeater>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

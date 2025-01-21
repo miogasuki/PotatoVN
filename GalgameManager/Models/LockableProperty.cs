@@ -56,4 +56,6 @@ public partial class LockableProperty<T> : ObservableObject, IComparable
 
         throw new ArgumentException($"{nameof(T)} is not comparable");
     }
+
+    public LockableProperty<T> Clone() => (LockableProperty<T>) MemberwiseClone();
 }

@@ -18,6 +18,9 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
 using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
 using WindowExtensions = H.NotifyIcon.WindowExtensions;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using SkiaSharp;
 
 namespace GalgameManager;
 
@@ -103,6 +106,16 @@ public partial class App : Application
             services.AddSingleton<IFileService, FileService>();
 
             // Views and ViewModels
+            services.AddTransient<AnnualReportViewModel>();
+            services.AddTransient<AnnualReportPage>();
+            services.AddTransient<ReportSubPage1ViewModel>();
+            services.AddTransient<AnnualReportSubPage1>();
+            services.AddTransient<ReportSubPage2ViewModel>();
+            services.AddTransient<AnnualReportSubPage2>();
+            services.AddTransient<ReportSubPage3ViewModel>();
+            services.AddTransient<AnnualReportSubPage3>();
+            services.AddTransient<MultiStreamViewModel>();
+            services.AddTransient<Views.MultiStreamPage>();
             services.AddTransient<InfoViewModel>();
             services.AddTransient<InfoPage>();
             services.AddTransient<AccountViewModel>();
@@ -150,7 +163,9 @@ public partial class App : Application
                       string.Empty;
         errMsg += (errMsg.Length > 0 ? "\n\n" : string.Empty) + e.Message + "\n" + e.Exception;
         GetService<ILocalSettingsService>().SaveSettingAsync(KeyValues.LastError, errMsg);
-        e.Handled = false;
+        e.Handled = true;
+        if (Status != WindowMode.Booting)
+            AppInstance.Restart("/safemode");
     }
     
     /// <summary>
@@ -159,6 +174,8 @@ public partial class App : Application
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
         base.OnLaunched(args);
+        // 设置LiveCharts字体
+        LiveCharts.Configure(config => config.HasGlobalSKTypeface(SKFontManager.Default.MatchCharacter('汉')));
         _instance = this;
         Status = WindowMode.Booting;
         await GetService<IActivationService>().LaunchedAsync(AppInstance.GetCurrent().GetActivatedEventArgs());
@@ -189,15 +206,16 @@ public partial class App : Application
         {
             case WindowMode.Normal:
                 GetService<IPageService>().InitAsync();
-                WindowExtensions.Show(MainWindow!);
-                MainWindow!.Restore();
+                MainWindow!.Activate();
                 MainWindow!.BringToFront();
+                MainWindow.Content.Visibility = Visibility.Visible; 
                 if (GetService<ILocalSettingsService>().ReadSettingAsync<string>(KeyValues.LastError)
                         .Result is { } error)
                 {
                     GetService<IInfoService>().Event(EventType.AppError, InfoBarSeverity.Error,
                         "App_Error".GetLocalized(), msg: error);
                 }
+                Status = WindowMode.Normal;
                 break;
             case WindowMode.Minimize:
                 Status = WindowMode.Minimize;
@@ -206,6 +224,7 @@ public partial class App : Application
             case WindowMode.SystemTray:
                 OnAppClosing?.Invoke();
                 GetService<IBgTaskService>().SaveBgTasksString();
+                MainWindow?.Close();
                 AppInstance.Restart("/r");
                 WindowExtensions.Hide(MainWindow!);
                 break;

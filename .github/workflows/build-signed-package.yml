@@ -1,0 +1,123 @@
+﻿name: Build And Sign Package
+
+on:
+  push:
+    branches:
+      - flight-released
+      - relased
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        platform: [ "x86", "x64", "ARM64" ]
+
+    env:
+      BRANCH_NAME: ${{ github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v2
+        
+      - name: Add WindowsAppSDKSelfContained
+        shell: pwsh
+        run: |
+          $csprojPath = "GalgameManager/GalgameManager.csproj"
+          # 读取 csproj 文件
+          [xml]$xml = Get-Content $csprojPath
+          # 筛选出包含 <TargetFramework> 的 PropertyGroup（主 PropertyGroup）
+          $propertyGroup = $xml.Project.PropertyGroup | Where-Object { $_.TargetFramework }
+          if (!$propertyGroup) {
+            Write-Host "未找到包含 <TargetFramework> 的 PropertyGroup，改为使用第一个 PropertyGroup。"
+            $propertyGroup = $xml.Project.PropertyGroup | Select-Object -First 1
+            if (!$propertyGroup) {
+              Write-Error "没有可用的 PropertyGroup。"
+              exit 1
+            }
+          }
+          # 如果当前没有 WindowsAppSDKSelfContained，则创建该节点并追加
+          if (!$propertyGroup.WindowsAppSDKSelfContained) {
+            $newElement = $xml.CreateElement("WindowsAppSDKSelfContained")
+            $newElement.InnerText = "true"
+            $propertyGroup.AppendChild($newElement) | Out-Null
+          }
+          # 保存
+          $xml.Save($csprojPath)
+
+      - name: Set PUBLISHER
+        run: |
+          $manifestPath = "GalgameManager\Package.appxmanifest"
+          if (!(Test-Path $manifestPath)) {
+            Write-Error "无法找到 AppxManifest.xml 文件，路径为 $manifestPath"
+            exit 1
+          }
+          [xml]$xml = Get-Content $manifestPath
+          $xml.Package.Identity.Name = "37126GoldenPotato137.PotatoVN.sideload"
+          $xml.Package.Identity.Publisher = "${{ vars.PUBLISHER }}"
+          $xml.Save($manifestPath)
+
+      - name: Create the app package
+        run: |
+          msbuild GalgameManager\GalgameManager.csproj /restore `
+            /p:Platform=${{ matrix.platform }} `
+            /p:Configuration=Release `
+            /p:UapAppxPackageBuildMode=SideloadOnly `
+            /p:AppxPackageDir=..\publish\ `
+            /p:GenerateAppxPackageOnBuild=true `
+          
+      - name: Move package
+        shell: pwsh
+        run: |
+          # 将 msix 移动到 publish 根目录
+          $subFolder = Get-ChildItem -Path publish -Directory | Select-Object -First 1
+          Get-ChildItem -Path $subFolder.FullName | ForEach-Object {Write-Output $_.Name}
+          $msixFile = Get-ChildItem -Path $subFolder.FullName -Filter "*.msix" -File | Select-Object -First 1
+          if ($msixFile) { Move-Item $msixFile.FullName -Destination publish -Force }
+
+      - name: Rename MSIX file to include branch name
+        shell: pwsh
+        run: |
+          ls publish
+          $platform = "${{ matrix.platform }}"
+          $branch = "${{ env.BRANCH_NAME }}"
+          $msixFiles = Get-ChildItem -Path publish -Filter "*.msix" -File
+          foreach ($file in $msixFiles) {
+            $newName = "PotatoVN-$platform-$branch.msix"
+            Rename-Item $file.FullName -NewName $newName
+          }
+          ls publish
+
+      - name: Upload build artifacts
+        id: upload-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PotatoVN-${{ matrix.platform }}-${{ env.BRANCH_NAME }}
+          path: |
+            publish/PotatoVN-${{ matrix.platform }}-${{ env.BRANCH_NAME }}.msix
+
+      - name: Sign the package with SignPath
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '87787551-8846-4890-a0a9-b34f834c4c0f'
+          project-slug: 'PotatoVN'
+          signing-policy-slug: 'release-signing'
+          github-artifact-id: '${{ steps.upload-artifact.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: 'signed_package'
+
+      - name: Upload signed package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PotatoVN-${{ matrix.platform }}-${{ env.BRANCH_NAME }}-signed
+          path: signed_package

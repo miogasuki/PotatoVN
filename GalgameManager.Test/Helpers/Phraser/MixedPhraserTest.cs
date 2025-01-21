@@ -44,14 +44,13 @@ public class MixedPhraserTest
             return;
         }
 
-        Dictionary<string, string?> id = MixedPhraser.Id2IdDict(game.Id!);
         switch (name)
         {
             case "近月少女的礼仪":
                 if(game.Name != "月に寄りそう乙女の作法") Assert.Fail();
-                Assert.That(id["bgm"], Is.EqualTo("44123"));
-                Assert.That(id["vndb"], Is.EqualTo("10680"));
-                Assert.That(id["ymgal"], Is.EqualTo("31147"));
+                Assert.That(game.Ids[(int)RssType.Bangumi], Is.EqualTo("44123"));
+                Assert.That(game.Ids[(int)RssType.Vndb], Is.EqualTo("10680"));
+                Assert.That(game.Ids[(int)RssType.Ymgal], Is.EqualTo("31147"));
                 if(!game.Description.Value!.StartsWith("主人公大藏游星")) Assert.Fail(); //默认来自YMGAL
                 if(game.Developer != "Navel") Assert.Fail();
                 Assert.That(game.ImageUrl?.StartsWith("https://t.vndb.org/"), Is.True); //默认来自VNDB
@@ -88,14 +87,14 @@ public class MixedPhraserTest
         switch (name)
         {
             case "千恋万花":
-                // VNDB搜不到游戏，fallback到Bangumi
-                Assert.That(game.Description.Value?.StartsWith("電車も通っていない山の中に"), Is.True); // 从BGM中获取
+                // VNDB搜不到游戏，fallback到Bangumi  update：VNDB已经有了（2024-11-13）
+                // Assert.That(game.Description.Value?.StartsWith("電車も通っていない山の中に"), Is.True); // 从BGM中获取
                 break;
             case "近月少女的礼仪":
                 Assert.That(game.Name.Value, Is.EqualTo("Tsuki ni Yorisou Otome no Sahou")); // 从VNDB中获取
-                Assert.That(MixedPhraser.Id2IdDict(game.Id!)["bgm"], Is.EqualTo("44123"));
-                Assert.That(MixedPhraser.Id2IdDict(game.Id!)["vndb"], Is.EqualTo("10680"));
-                Assert.That(MixedPhraser.Id2IdDict(game.Id!)["ymgal"], Is.EqualTo("31147"));
+                Assert.That(game.Ids[(int)RssType.Bangumi], Is.EqualTo("44123"));
+                Assert.That(game.Ids[(int)RssType.Vndb], Is.EqualTo("10680"));
+                Assert.That(game.Ids[(int)RssType.Ymgal], Is.EqualTo("31147"));
                 Assert.That(game.Description.Value?.StartsWith("Navel tenth anniversary project"), Is.True); // 从VNDB中获取
                 Assert.That(game.ImageUrl?.StartsWith("https://lain.bgm.tv/"), Is.True); // 从BGM中获取
                 break;

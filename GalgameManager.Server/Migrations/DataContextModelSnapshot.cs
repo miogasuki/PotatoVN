@@ -74,8 +74,8 @@ namespace GalgameManager.Server.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(2500)
-                        .HasColumnType("character varying(2500)");
+                        .HasMaxLength(25000)
+                        .HasColumnType("character varying(25000)");
 
                     b.Property<string>("Developer")
                         .IsRequired()

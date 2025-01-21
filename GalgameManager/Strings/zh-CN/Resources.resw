@@ -270,9 +270,6 @@
   <data name="SettingsPage_CloudSync_Root" xml:space="preserve">
     <value>云存档根目录</value>
   </data>
-  <data name="Select" xml:space="preserve">
-    <value>更改</value>
-  </data>
   <data name="Error" xml:space="preserve">
     <value>错误</value>
   </data>
@@ -455,7 +452,10 @@
     <value>下载游戏数据</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfo" xml:space="preserve">
-    <value>下载选定游戏数据</value>
+    <value>使用游戏ID下载选定游戏数据</value>
+  </data>
+  <data name="GalgameFolderPage_DownloadSelectedInfoFromName.Label" xml:space="preserve">
+    <value>使用游戏名下载选定游戏数据</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>搜索</value>
@@ -487,6 +487,9 @@
   <data name="GalgamePage_OpenInYmgal.Label" xml:space="preserve">
     <value>在月幕Galgame中打开</value>
   </data>
+  <data name="GalgamePage_OpenInCngal.Label" xml:space="preserve">
+    <value>在CNGal中打开</value>
+  </data>
   <data name="GalgamePage_SyncFromVndb.Label" xml:space="preserve">
     <value>下载Vndb游玩状态</value>
   </data>
@@ -501,9 +504,6 @@
   </data>
   <data name="UpdateContentPage_Title.Text" xml:space="preserve">
     <value>最近更新的内容</value>
-  </data>
-  <data name="UpdateContentPage_Refresh.Label" xml:space="preserve">
-    <value>刷新</value>
   </data>
   <data name="UpdateContentPage_CurrentVersion" xml:space="preserve">
     <value>当前版本：</value>
@@ -831,7 +831,10 @@
     <value>下载开发商图</value>
   </data>
   <data name="GalgameSettingPage_GetInfoFromRss.Label" xml:space="preserve">
-    <value>从数据源更新数据</value>
+    <value>使用游戏ID从数据源更新数据</value>
+  </data>
+  <data name="GalgameSettingPage_GetInfoFromRssWithName.Label" xml:space="preserve">
+    <value>使用游戏名从数据源更新数据</value>
   </data>
   <data name="GalgameSettingPage_GalgameName.Title" xml:space="preserve">
     <value>游戏名</value>
@@ -907,9 +910,6 @@
   </data>
   <data name="HomePage_DragDrop.Text" xml:space="preserve">
     <value>把游戏可执行文件拖到这里来添加游戏</value>
-  </data>
-  <data name="UpdateContentPage_CategoryNow" xml:space="preserve">
-    <value>已按游戏开发商分类所有游戏</value>
   </data>
   <data name="Shell_UpdateContent.Content" xml:space="preserve">
     <value>更新记录</value>
@@ -1109,9 +1109,6 @@
   <data name="UnpackGameTask_Done_Msg" xml:space="preserve">
     <value>{0}已解压到{1}并已添加到库中</value>
   </data>
-  <data name="GalgameFolderPage_AutoScan.Label" xml:space="preserve">
-    <value>启动时自动扫描</value>
-  </data>
   <data name="GalgameFolderPage_AddManually.Label" xml:space="preserve">
     <value>手动添加游戏</value>
   </data>
@@ -1119,7 +1116,7 @@
     <value>添加游戏(压缩包)</value>
   </data>
   <data name="GalgameFolderPage_Refresh.Label" xml:space="preserve">
-    <value>自动寻找游戏</value>
+    <value>扫描游戏</value>
   </data>
   <data name="LibraryPage_AddGalgameFolder.Label" xml:space="preserve">
     <value>新增库</value>
@@ -1145,6 +1142,9 @@
   <data name="GalgamePage_SelectThread.Label" xml:space="preserve">
     <value>手动指定游戏进程</value>
   </data>
+  <data name="GalgamePage_ResetPath.Label" xml:space="preserve">
+    <value>重置exe和文本路径</value>
+  </data>
   <data name="VirtualGameFilter" xml:space="preserve">
     <value>本地游戏</value>
   </data>
@@ -1156,6 +1156,24 @@
   </data>
   <data name="HomePage_KeepFilters.Label" xml:space="preserve">
     <value>保留过滤器</value>
+  </data>
+  <data name="HomePage_Sort_Title" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="HomePage_Sort_FirstKey" xml:space="preserve">
+    <value>第一关键字</value>
+  </data>
+  <data name="HomePage_Sort_SecondKey" xml:space="preserve">
+    <value>第二关键字</value>
+  </data>
+  <data name="HomePage_Sort_DescendOrAscend" xml:space="preserve">
+    <value>降序/升序</value>
+  </data>
+  <data name="HomePage_Sort_Descend" xml:space="preserve">
+    <value>降序</value>
+  </data>
+  <data name="HomePage_Sort_Ascend" xml:space="preserve">
+    <value>升序</value>
   </data>
   <data name="GalgameCollectionService_PhraseFileFailed" xml:space="preserve">
     <value>解析.PotatoVN备份文件失败，请手动删除游戏目录下.PotatoVN文件夹或修改meta.json为合法的json文件后重试。</value>
@@ -1470,10 +1488,7 @@
     <value>下载角色数据任务</value>
   </data>
   <data name="Galgame_GetCharacterInfo_GettingInfo" xml:space="preserve">
-    <value>正在获取 {0}({1}) 的信息</value>
-  </data>
-  <data name="Galgame_GetCharacterInfo_GottenInfo" xml:space="preserve">
-    <value>成功获取 {0}({1}) 的信息</value>
+    <value>正在获取 {0} 的信息</value>
   </data>
   <data name="GalgameFolder_GetGalgameInfo_Waiting" xml:space="preserve">
     <value>等待角色信息下载完成</value>
@@ -1552,9 +1567,6 @@
   </data>
   <data name="VndbAuthService_InvalidToken" xml:space="preserve">
     <value>Vndb Token错误</value>
-  </data>
-  <data name="VndbAuthService_Success" xml:space="preserve">
-    <value>Vndb登录成功</value>
   </data>
   <data name="VndbAuthService_Success" xml:space="preserve">
     <value>Vndb登录成功</value>
@@ -1742,6 +1754,27 @@
   <data name="LibraryPage_Back.Label" xml:space="preserve">
     <value>回到上个库</value>
   </data>
+  <data name="LibraryPage_DownloadAllData.Label" xml:space="preserve">
+    <value>下载所有游戏数据</value>
+  </data>
+  <data name="LibraryPage_EditCurrentFolder.Text" xml:space="preserve">
+    <value>管理当前库</value>
+  </data>
+  <data name="LibraryPage_EditCurrentFolder_AppBarButton.Label" xml:space="preserve">
+    <value>管理当前库</value>
+  </data>
+  <data name="LibraryPage_EditGameInfo.Text" xml:space="preserve">
+    <value>修改游戏信息</value>
+  </data>
+  <data name="LibraryPage_DownloadGameInfo.Text" xml:space="preserve">
+    <value>下载游戏信息</value>
+  </data>
+  <data name="LibraryPage_RemoveGame.Text" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="LibraryPage_Statistics" xml:space="preserve">
+    <value>游戏库: {0} | 游戏: {1}</value>
+  </data>
   <data name="GalgameCollectionService_LoadMetaFailed" xml:space="preserve">
     <value>加载本地Meta失败</value>
   </data>
@@ -1762,5 +1795,444 @@
   </data>
   <data name="GalgameSourceCollectionService_CheckGamesInSource_Msg" xml:space="preserve">
     <value>由于无法在该库中检测到下列游戏，已将下列游戏移出了该库：{0}</value>
+  </data>
+  <data name="GalgameSettingPage_Startup_parameters.Text" xml:space="preserve">
+    <value>启动参数设置</value>
+  </data>
+  <data name="GalgameSettingPage_GalgamePath.Text" xml:space="preserve">
+    <value>游戏路径</value>
+  </data>
+  <data name="GalgameSettingPage_GalgameReleaseDate.Title" xml:space="preserve">
+    <value>发行日期</value>
+  </data>
+  <data name="GalgameSourcePage_NotInSource" xml:space="preserve">
+    <value>该游戏不属于这个库（游戏必须在库文件夹里面）</value>
+  </data>
+  <data name="GalgameFolder_UnpackGame_PathNotExist" xml:space="preserve">
+    <value>路径 {0} 不存在</value>
+  </data>
+  <data name="GalgameFolder_UnpackGame_PathNotEmpty" xml:space="preserve">
+    <value>{0} 非空，请先删除该文件夹后再解压</value>
+  </data>
+  <data name="PackGameTask_Title" xml:space="preserve">
+    <value>压缩游戏任务</value>
+  </data>
+  <data name="PackGameTask_ZipExist" xml:space="preserve">
+    <value>{0} 已存在，请删除该文件后再压缩</value>
+  </data>
+  <data name="PackGameTask_GamePathNotExist" xml:space="preserve">
+    <value>文件夹 {0} 不存在</value>
+  </data>
+  <data name="ConfirmGalInfoDialog_Title_Correct" xml:space="preserve">
+    <value>搜刮到的信息正确吗？</value>
+  </data>
+  <data name="ConfirmGalInfoDialog_Title_NotFound" xml:space="preserve">
+    <value>没有找到该游戏信息</value>
+  </data>
+  <data name="Canceled" xml:space="preserve">
+    <value>用户取消了操作</value>
+  </data>
+  <data name="ConfirmGalInfoDialog_NoID" xml:space="preserve">
+    <value>目前没有填入ID</value>
+  </data>
+  <data name="ConfirmGalInfoDialog_ID" xml:space="preserve">
+    <value>目前设置ID的源有：{0}</value>
+  </data>
+  <data name="ConfirmGalInfoDialog_Hint" xml:space="preserve">
+    <value>若填入ID，软件将直接使用ID在对应源上索引对应的游戏；否则按照游戏名搜索游戏。</value>
+  </data>
+  <data name="SettingsPage_Game_LocaleEmulator.Text" xml:space="preserve">
+    <value>LocaleEmulator 可执行文件路径</value>
+  </data>
+  <data name="Select.Content" xml:space="preserve">
+    <value>更改</value>
+  </data>
+  <data name="SettingsPage_Game_LocalEmulatorPathWarning" xml:space="preserve">
+    <value>默认情况下，LocaleEmulator的可执行文件名为LEProc.exe。
+您选择的文件名与其不一致，请检查是否选择了正确的可执行文件。</value>
+  </data>
+  <data name="GalgamePage_RunInLocaleEmulator.Label" xml:space="preserve">
+    <value>转区运行游戏</value>
+  </data>
+  <data name="GalgamePage_HighDpi.Label" xml:space="preserve">
+    <value>高DPI替代缩放</value>
+  </data>
+  <data name="GalgamePage_InvalidLocaleEmulatorPath" xml:space="preserve">
+    <value>LocaleEmulator 路径未设置或路径不存在，请在 设置-&gt;游戏 处设置LocaleEmulator路径</value>
+  </data>
+  <data name="GalgamePage_HighDpi_Success" xml:space="preserve">
+    <value>成功修改高DPI替代缩放</value>
+  </data>
+  <data name="GalgamePage_HighDpi_Fail" xml:space="preserve">
+    <value>修改高DPI替代缩放失败</value>
+  </data>
+  <data name="GalgamePage_HighDpi_NeedAdmin" xml:space="preserve">
+    <value>需要管理员权限来修改DPI设置</value>
+  </data>
+  <data name="GalgamePage_HighDpi_ExePathIsEmpty" xml:space="preserve">
+    <value>未指定游戏exe路径，请先设置游戏路径</value>
+  </data>
+  <data name="Shell_MultiStream.Content" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="MultiStreamPage_AllSources" xml:space="preserve">
+    <value>游戏库</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable.SettingTitle" xml:space="preserve">
+    <value>游戏列表</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable.SettingDescription" xml:space="preserve">
+    <value>查看与编辑这个库里的所有游戏信息</value>
+  </data>
+  <data name="GalgameSourcePage_Setting.SettingTitle" xml:space="preserve">
+    <value>游戏库设置</value>
+  </data>
+  <data name="GalgameSourcePage_Setting.SettingDescription" xml:space="preserve">
+    <value>查看与设置这个库的信息与配置</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Name.Title" xml:space="preserve">
+    <value>游戏库名</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Name.Description" xml:space="preserve">
+    <value>修改该名不会反应到物理实体上（不会重命名该库对应的文件夹）</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_AutoScan.Title" xml:space="preserve">
+    <value>启动时自动扫描</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_AutoScan.Description" xml:space="preserve">
+    <value>是否在PotatoVN启动时自动扫描该库内的游戏</value>
+  </data>
+  <data name="ResetToDefault.Content" xml:space="preserve">
+    <value>恢复到默认值</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Image.Title" xml:space="preserve">
+    <value>封面图</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_NoImage" xml:space="preserve">
+    <value>无封面图，将显示改游戏库对应的icon</value>
+  </data>
+  <data name="MultiStreamPage_Cmd_Search.Label" xml:space="preserve">
+    <value>搜索</value>
+  </data>
+  <data name="MultiStreamPage_SearchFailed" xml:space="preserve">
+    <value>没有找到与该关键字匹配的游戏/开发商</value>
+  </data>
+  <data name="MultiStreamPage_Cmd_Setting.Label" xml:space="preserve">
+    <value>设置显示列表</value>
+  </data>
+  <data name="PageEnum_Home" xml:space="preserve">
+    <value>游戏</value>
+  </data>
+  <data name="PageEnum_Category" xml:space="preserve">
+    <value>分类</value>
+  </data>
+  <data name="PageEnum_MultiStream" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="MultiStreamPageSortKeys_LastPlayed" xml:space="preserve">
+    <value>上次游玩时间</value>
+  </data>
+  <data name="MultiStreamPageSortKeys_ReleaseDate" xml:space="preserve">
+    <value>发行时间</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_ListTitle.Text" xml:space="preserve">
+    <value>列表标题</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_Sort.Text" xml:space="preserve">
+    <value>排序方式</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_GameList_Category.Text" xml:space="preserve">
+    <value>分类</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CategoryList_Group.Text" xml:space="preserve">
+    <value>分类组</value>
+  </data>
+  <data name="MultiStreamPageSortKeys_LastClicked" xml:space="preserve">
+    <value>上次点击时间</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_SourceList_Base.Text" xml:space="preserve">
+    <value>根库</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_GameList_Name.Text" xml:space="preserve">
+    <value>游戏列表</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CategoryList_Name.Text" xml:space="preserve">
+    <value>分类列表</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_SourceList_Name.Text" xml:space="preserve">
+    <value>库列表</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add.Label" xml:space="preserve">
+    <value>添加列表</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CommandBar_Reset.Label" xml:space="preserve">
+    <value>恢复默认设置</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListFull.Text" xml:space="preserve">
+    <value>游戏列表（全部游戏）</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListCategory.Text" xml:space="preserve">
+    <value>游戏列表（某分类中）</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListSource.Text" xml:space="preserve">
+    <value>游戏列表（某库中）</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_CategoryList.Text" xml:space="preserve">
+    <value>分类列表（某分类组）</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListFull.Text" xml:space="preserve">
+    <value>库列表（全部库）</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListSubSource.Text" xml:space="preserve">
+    <value>库列表（某库中）</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_NewGameList" xml:space="preserve">
+    <value>新建游戏列表</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_NewCategoryList" xml:space="preserve">
+    <value>新建分类列表</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_NewSourceList" xml:space="preserve">
+    <value>新建库列表</value>
+  </data>
+  <data name="MultiStreamPageSettingDialog_GameList_Source.Text" xml:space="preserve">
+    <value>游戏库</value>
+  </data>
+  <data name="MultiStreamPage_RecentPlayGames" xml:space="preserve">
+    <value>最近游玩的游戏</value>
+  </data>
+  <data name="MultiStreamPage_Cmd_AllowScroll.Label" xml:space="preserve">
+    <value>允许鼠标滚轮滚动列表</value>
+  </data>
+  <data name="SettingsPage_Other_Export.Title" xml:space="preserve">
+    <value>导出数据</value>
+  </data>
+  <data name="SettingsPage_Other_Export.Description" xml:space="preserve">
+    <value>导出所有的游戏、游戏库、分类等信息</value>
+  </data>
+  <data name="SettingsPage_Other_Export_Button.Content" xml:space="preserve">
+    <value>选择导出位置</value>
+  </data>
+  <data name="SettingsPage_Other_Export_Fail" xml:space="preserve">
+    <value>导出数据失败</value>
+  </data>
+  <data name="ExportTask_PathNotWritable" xml:space="preserve">
+    <value>路径 {0} 没有写权限</value>
+  </data>
+  <data name="ExportTask_Title" xml:space="preserve">
+    <value>导出数据任务</value>
+  </data>
+  <data name="SettingsPage_Other_Export_Exporting" xml:space="preserve">
+    <value>已有一个导出任务正在运行，请等待上个任务完成后再新增导出。</value>
+  </data>
+  <data name="ExportTask_Success" xml:space="preserve">
+    <value>成功导出数据至： {0}</value>
+  </data>
+  <data name="ExportTask_FileExist" xml:space="preserve">
+    <value>导出文件 {0} 已存在，请删除或移动该文件后再导出。</value>
+  </data>
+  <data name="ExportTask_Compressing" xml:space="preserve">
+    <value>正在压缩导出文件</value>
+  </data>
+  <data name="GalgameSourceCollectionService_RemoveNonExist_Title" xml:space="preserve">
+    <value>已删除找不到的库</value>
+  </data>
+  <data name="GalgameSourceCollectionService_RemoveNonExist_Msg" xml:space="preserve">
+    <value>无法在文件系统中找到以下库，已在PotatoVN中将其删除。请仔细检查对应的位置是否有库（改名了？）并重新添加库。{0}</value>
+  </data>
+  <data name="GalgameSourceCollectionService_Export_Progress" xml:space="preserve">
+    <value>正在导出游戏库：{0}</value>
+  </data>
+  <data name="CategoryService_Export_Progress" xml:space="preserve">
+    <value>正在导出分类：{0}</value>
+  </data>
+  <data name="GalgameCollectionService_Export_Progress" xml:space="preserve">
+    <value>正在导出游戏：{0}</value>
+  </data>
+  <data name="ActivationService_LoadDataError" xml:space="preserve">
+    <value>无法读取PotatoVN数据，数据损坏？
+旧数据已被备份到：{0}
+您可以尝试恢复之前导出的数据（如有），或从同步服务器中获取数据（如有），或在github上提出issue联系开发者以尝试恢复数据。
+软件已恢复到初始状态。
+    </value>
+  </data>
+  <data name="ImportWindow_Extracting" xml:space="preserve">
+    <value>正在解压备份文件： {0}</value>
+  </data>
+  <data name="ImportWindow_BackingUp" xml:space="preserve">
+    <value>正在备份当前数据</value>
+  </data>
+  <data name="ImportWindow_Fail" xml:space="preserve">
+    <value>导入数据失败</value>
+  </data>
+  <data name="ImportWindow_Restoring" xml:space="preserve">
+    <value>数据导入失败，恢复原有数据中。失败原因为：
+{0}
+    </value>
+  </data>
+  <data name="ImportWindow_Importing" xml:space="preserve">
+    <value>各模块正在读取数据</value>
+  </data>
+  <data name="SettingsPage_Other_Import.Title" xml:space="preserve">
+    <value>导入数据</value>
+  </data>
+  <data name="SettingsPage_Other_Import.Description" xml:space="preserve">
+    <value>导入所有的游戏、游戏库、分类等信息</value>
+  </data>
+  <data name="SettingsPage_Other_Import_Button.Content" xml:space="preserve">
+    <value>选择数据包</value>
+  </data>
+  <data name="SettingsPage_Other_Import_Fail" xml:space="preserve">
+    <value>导入数据失败</value>
+  </data>
+  <data name="SettingsPage_Other_Import_Copying" xml:space="preserve">
+    <value>正在复制数据包到PotatoVN数据库</value>
+  </data>
+  <data name="SettingsPage_Other_Import_Restart" xml:space="preserve">
+    <value>应用将在10秒后自动重启以完成剩余的导入过程。</value>
+  </data>
+  <data name="SettingsPage_Other_Import_WrongFile" xml:space="preserve">
+    <value>请选择形如"xxx.pvnExport.zip"的PotatoVN导出文件</value>
+  </data>
+  <data name="UpdateContentPage_WebView2IsNeeded.Text" xml:space="preserve">
+    <value>本页需要WebView2以正常显示</value>
+  </data>
+  <data name="UpdateContentPage_DownloadWebview2.Content" xml:space="preserve">
+    <value>点此跳转Webview2下载链接</value>
+  </data>
+  <data name="UpdateContentPage_SeeWebsite.Label" xml:space="preserve">
+    <value>查看所有更新记录</value>
+  </data>
+  <data name="LocalFolderSourceService_OnFolderCreatedError" xml:space="preserve">
+    <value>自动添加游戏失败</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Auto.Title" xml:space="preserve">
+    <value>自动添加/取消托管游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Auto.Description" xml:space="preserve">
+    <value>PotatoVN运行时，在文件管理器手动修改游戏库的内容是否反馈到PotatoVN里。</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Auto_Add.Title" xml:space="preserve">
+    <value>自动添加游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Auto_Add.Description" xml:space="preserve">
+    <value>手动往游戏库添加游戏文件夹时，PotatoVN自动添加该游戏到库里。</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Auto_Remove.Title" xml:space="preserve">
+    <value>自动取消托管游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_Auto_Remove.Description" xml:space="preserve">
+    <value>手动在游戏库删除游戏文件夹时，PotatoVN自动从该库取消托管游戏。</value>
+  </data>
+  <data name="LocalFolderSourceService_OnFolderCreated" xml:space="preserve">
+    <value>自动添加游戏成功</value>
+  </data>
+  <data name="LocalFolderSourceService_OnFolderDelete" xml:space="preserve">
+    <value>自动从库中移出游戏成功</value>
+  </data>
+  <data name="LocalFolderSourceService_OnFolderDeleteError" xml:space="preserve">
+    <value>自动从库中移出游戏失败</value>
+  </data>
+  <data name="Shell_AnnualReport.Content" xml:space="preserve">
+    <value>年度报告</value>
+  </data>
+  <data name="SettingsPage_Library_RemoveAllBackup.Title" xml:space="preserve">
+    <value>移除所有的.PotatoVN备份文件</value>
+  </data>
+  <data name="SettingsPage_Library_RemoveAllBackup.Description" xml:space="preserve">
+    <value>删除所有游戏目录下的.PotatoVN备份文件（只是备份，不影响当前数据）</value>
+  </data>
+  <data name="SettingsPage_Library_RemoveMetaBackupProgress" xml:space="preserve">
+    <value>正在删除 {0} 的.PotatoVN备份文件</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_RssType.Text" xml:space="preserve">
+    <value>搜刮源</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_Name.Text" xml:space="preserve">
+    <value>游戏名</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_Path.Text" xml:space="preserve">
+    <value>路径</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_Edit.Text" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_CopyName.Text" xml:space="preserve">
+    <value>复制游戏名</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_CopyPath.Text" xml:space="preserve">
+    <value>复制路径</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_OpenInExplorer.Text" xml:space="preserve">
+    <value>在文件管理器中打开</value>
+  </data>
+  <data name="AnnualReportPage_Calculating.Text" xml:space="preserve">
+    <value>正在计算年度数据，请稍后</value>
+  </data>
+  <data name="Shell_GalgamePage.Content" xml:space="preserve">
+    <value>游戏详情</value>
+  </data>
+  <data name="Galgame_GetCharacterInfo_Waiting" xml:space="preserve">
+    <value>目标搜刮源拥塞控制，排队等待中，{0} 秒后重试</value>
+  </data>
+  <data name="SortKeys_Name" xml:space="preserve">
+    <value>游戏名</value>
+  </data>
+  <data name="SortKeys_Developer" xml:space="preserve">
+    <value>开发商</value>
+  </data>
+  <data name="SortKeys_Rating" xml:space="preserve">
+    <value>评分</value>
+  </data>
+  <data name="SortKeys_LastPlay" xml:space="preserve">
+    <value>最后游玩时间</value>
+  </data>
+  <data name="SortKeys_ReleaseDate" xml:space="preserve">
+    <value>发售日期</value>
+  </data>
+  <data name="SortKeys_LastFetchInfoTime" xml:space="preserve">
+    <value>最后更新信息时间</value>
+  </data>
+  <data name="SortKeys_AddTime" xml:space="preserve">
+    <value>添加时间</value>
+  </data>
+  <data name="GalgameSettingPage_GetInfoFromRssFailed" xml:space="preserve">
+    <value>从数据源获取数据失败</value>
+  </data>
+  <data name="SettingsPage_Download_Character.Title" xml:space="preserve">
+    <value>获取游戏角色信息</value>
+  </data>
+  <data name="SettingsPage_Download_Character.Description" xml:space="preserve">
+    <value>是否在获取游戏信息时下载对应游戏的游戏角色信息</value>
+  </data>
+  <data name="Galgame_GetCharacterInfo_RunningTasks" xml:space="preserve">
+    <value>还有{0}个游戏等待下载角色信息</value>
+  </data>
+  <data name="LibraryPage_NavVisible.Label" xml:space="preserve">
+    <value>显示导航栏</value>
+  </data>
+  <data name="LibraryPage_StatisticsVisible.Label" xml:space="preserve">
+    <value>显示统计数据</value>
+  </data>
+  <data name="SettingsPage_Start_AutoStartOnLogin.Title" xml:space="preserve">
+    <value>系统启动后自动启动软件</value>
+  </data>
+  <data name="SettingsPage_Start_AutoStartOnLogin.Description" xml:space="preserve">
+    <value>是否在windows启动后（登录后）自动启动PotatoVN</value>
+  </data>
+  <data name="SettingsPage_Start_MinToTray.Title" xml:space="preserve">
+    <value>最小化到系统托盘</value>
+  </data>
+  <data name="SettingsPage_Start_MinToTray.Description" xml:space="preserve">
+    <value>自动启动后是否最小化到系统托盘</value>
+  </data>
+  <data name="SettingsPage_Start_AutoStartDisabledByUser" xml:space="preserve">
+    <value>你在任务管理器中手动禁用过PotatoVN的自动启动啦，请在任务管理器中打开本软件的自动启动后再尝试~</value>
+  </data>
+  <data name="SettingsPage_Start_AutoStartDisabledByPolicy" xml:space="preserve">
+    <value>PotatoVN的自动启动被组策略禁用啦，详情请咨询电脑管理员~</value>
+  </data>
+  <data name="SettingsPage_Start_AutoStartFail" xml:space="preserve">
+    <value>修改自动启动设置失败</value>
   </data>
 </root>

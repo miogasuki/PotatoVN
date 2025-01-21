@@ -172,11 +172,15 @@ public class PvnService : IPvnService
                 ossFilePath = result.ossFilePath;
                 await UploadFileAsync(result.presignedUrl, avatarPath);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _infoService.Event(EventType.PvnAccountEvent, InfoBarSeverity.Warning,
                     "PvnService_UploadAvatarFailed".GetLocalized(), e);
                 avatarPath = null;
+            }
+            finally
+            {
+                await AfterUploadFileAsync(ossFilePath, client);
             }
         }
 
@@ -315,16 +319,22 @@ public class PvnService : IPvnService
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.ImageLoc) &&
             string.IsNullOrEmpty(galgame.ImagePath) == false && galgame.ImagePath != Galgame.DefaultImagePath)
         {
+            string? ossPath = null;
             try
             {
                 (string url, string path) tmp = await GetPresignedUrl(galgame.ImagePath!, galgame.Name!, client);
+                ossPath = tmp.path;
                 await UploadFileAsync(tmp.url, galgame.ImagePath!);
                 payload["imageLoc"] = tmp.path;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning,
                     "PvnService_UploadImageFailed".GetLocalized(galgame.Name.Value ?? string.Empty), e);
+            }
+            finally
+            {
+                await AfterUploadFileAsync(ossPath, client);
             }
         }
 
@@ -431,12 +441,38 @@ public class PvnService : IPvnService
     private async Task<(string presignedUrl, string ossFilePath)> GetPresignedUrl(string filePath, string saveName,
         HttpClient client)
     {
+        if (!Path.Exists(filePath)) throw new FileNotFoundException("File not found.", filePath);
+        var size = new FileInfo(filePath).Length;
         HttpResponseMessage tmp = await client.GetAsync(
-            new Uri(BaseUri, "oss/put").AddQuery("objectFullName", $"{saveName}{Path.GetExtension(filePath)}"));
+            new Uri(BaseUri, "oss/put")
+                .AddQuery("objectFullName", $"{saveName}{Path.GetExtension(filePath)}")
+                .AddQuery("requireSpace", size.ToString()));
         if (tmp.IsSuccessStatusCode == false)
             throw new Exception($"Get Oss presigned url failed with code {tmp.StatusCode}.");
         var presignedUrl = await tmp.Content.ReadAsStringAsync();
         return (presignedUrl, $"{saveName}{Path.GetExtension(filePath)}");
+    }
+    
+    private async Task AfterUploadFileAsync(string? ossFilePath, HttpClient client)
+    {
+        if (ossFilePath.IsNullOrEmpty()) return;
+        try
+        {
+            HttpResponseMessage response =
+                await client.PutAsync(new Uri(BaseUri, "oss/update").AddQuery("objectFullName", ossFilePath!), null);
+            if (response.IsSuccessStatusCode == false) return;
+            // 更新用户空间
+            JToken token = JToken.Parse(await response.Content.ReadAsStringAsync());
+            PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
+            if (account is null || token["usedSpace"] is null || token["totalSpace"] is null) return;
+            account.UsedSpace = token["usedSpace"]!.Value<long>();
+            account.TotalSpace = token["totalSpace"]!.Value<long>();
+            await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(msg: "Failed to update user space.", e: e);
+        }
     }
 
     private void StartSyncTask()

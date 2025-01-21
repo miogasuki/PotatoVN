@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>GalgameManager</RootNamespace>
     <ApplicationIcon>Assets/WindowIcon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>x86;x64;arm64</Platforms>
-    <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<Nullable>enable</Nullable>
@@ -20,13 +20,16 @@
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Never</AppxBundle>
     <DefaultLanguage>zh-cn</DefaultLanguage>
-    <AppxPackageDir>D:\.Net\PotatoVN_Release\</AppxPackageDir>
+    <AppxPackageDir>.\Build\</AppxPackageDir>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
+    <!-- TODO: 要处理该警告需要用到.Net Preview的特性，等特性稳定（进入正式版）后再处理 -->
+    <NoWarn>MVVMTK0045</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="Assets\Pictures\icon-dev\*" />
     <Content Remove="Assets\Potato.altform-lightunplated_targetsize-16.png" />
     <Content Remove="Assets\Potato.altform-lightunplated_targetsize-24.png" />
     <Content Remove="Assets\Potato.altform-lightunplated_targetsize-256.png" />
@@ -52,6 +55,7 @@
     <Content Update="Assets\Libs\x64\7za.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Remove="Assets\Potato-dev.png" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Assets\Potato.scale-100.png" />
@@ -67,6 +71,9 @@
     <None Remove="Assets\Potato.targetsize-32.png" />
     <None Remove="Assets\Potato.targetsize-48.png" />
     <None Remove="Assets\Potato.targetsize-48_altform-unplated.png" />
+    <None Remove="Views\AnnualReportSubPage1.xaml" />
+    <None Remove="Views\AnnualReportSubPage2.xaml" />
+    <None Remove="Views\AnnualReportSubPage3.xaml" />
     <None Remove="Views\Control\HomeItem.xaml" />
     <None Remove="Views\Dialog\ChangePlayStatusDialog.xaml" />
     <None Remove="Views\Dialog\ChangeSourceDialog.xaml" />
@@ -75,6 +82,7 @@
     <None Remove="Views\Dialog\PvnSetAccountDialog.xaml" />
     <None Remove="Views\Dialog\SelectProcessDialog.xaml" />
     <None Remove="Views\Dialog\SelectPvnServerDialog.xaml" />
+    <None Remove="Views\ImportWindow.xaml" />
     <None Remove="Views\PasswordDialog.xaml" />
     <None Remove="Views\SettingExpander.xaml" />
   </ItemGroup>
@@ -84,29 +92,36 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI" Version="7.1.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Markdown" Version="7.1.2" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.230830" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.241112-preview1" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.TokenizingTextBox" Version="8.1.240916" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.241112-preview1" />
+    <PackageReference Include="CSharpMarkup.WinUI.LiveChartsCore.SkiaSharpView" Version="2.4.18" />
     <PackageReference Include="DependencyPropertyGenerator" Version="1.4.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.118" />
-    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.2" />
+    <PackageReference Include="KnowledgePicker.WordCloud" Version="1.3.1" />
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.6" />
     <PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls" Version="7.1.3" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240607001" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
-    <PackageReference Include="Refit" Version="7.1.2" />
-    <PackageReference Include="Refit.Newtonsoft.Json" Version="7.1.2" />
+    <PackageReference Include="Refit" Version="8.0.0" />
+    <PackageReference Include="Refit.Newtonsoft.Json" Version="8.0.0" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="SharpCompress" Version="0.38.0" />
     <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
     <PackageReference Include="Squid-Box.SevenZipSharp" Version="1.6.1.23" />
     <PackageReference Include="TinyPinyin" Version="1.1.0" />
-    <PackageReference Include="WanaKanaShaapu" Version="1.0.2" />
-    <PackageReference Include="WinUIEx" Version="2.2.0" />
+    <PackageReference Include="WanaKanaShaapu" Version="2.0.1" />
+    <PackageReference Include="WinUIEx" Version="2.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -116,6 +131,21 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Page Update="ViewModels\ReportSubPage3ViewModel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AnnualReportSubPage3.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AnnualReportSubPage2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AnnualReportSubPage1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\ImportWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\Dialog\MixedPhraserOrderDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -143,6 +173,7 @@
     <Page Update="Views\Dialog\SelectFileDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Remove="Views\Control\AdactiveGridView.xaml" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">

@@ -4,6 +4,8 @@ namespace GalgameManager.Helpers;
 
 public static class RssTypeHelper
 {
+    public static List<RssType> UsablePhrasers { get; } = [RssType.Bangumi, RssType.Vndb, RssType.Ymgal];
+    
     public static string? GetAbbr(this RssType rssType)
         => rssType switch
         {

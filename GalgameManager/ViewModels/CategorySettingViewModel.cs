@@ -3,7 +3,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI.UI;
+using CommunityToolkit.WinUI.Collections;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
@@ -156,9 +156,6 @@ public partial class CategorySettingViewModel : ObservableObject, INavigationAwa
     private void ClickCategoryGroup(CategoryGroupChecker? groupChecker)
     {
         if(groupChecker is null) return;
-        
-        if (groupChecker.Group.Type == CategoryGroupType.Status && groupChecker.IsSelect)
-            _ = DisplayMsgAsync(InfoBarSeverity.Error, "CategorySettingPage_StatusGroupCannotSelect".GetLocalized());
         
         var cnt = CategoryGroups.Count(checker => checker.IsSelect);
         if (cnt == 0)

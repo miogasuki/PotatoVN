@@ -24,7 +24,7 @@ public class Galgame
     [MaxLength(20)] public string? VndbId { get; set; }
     [MaxLength(200)] public string Name { get; set; } = string.Empty;
     [MaxLength(200)] public string CnName { get; set; } = string.Empty;
-    [MaxLength(2500)] public string Description { get; set; } = string.Empty;
+    [MaxLength(25000)] public string Description { get; set; } = string.Empty;
     [MaxLength(200)] public string Developer { get; set; } = DefaultString;
     [MaxLength(200)] public string ExpectedPlayTime { get; set; } = DefaultString;
     public float Rating { get; set; }

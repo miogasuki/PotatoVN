@@ -4,6 +4,8 @@ using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Text;
 using Windows.Foundation;
+using GalgameManager.Models;
+using Microsoft.Web.WebView2.Core;
 using TinyPinyin;
 
 namespace GalgameManager.Helpers;
@@ -150,9 +152,18 @@ public static class Utils
     /// <returns></returns>
     public static bool IsPathContained(string parentPath, string childPath)
     {
-        Uri parentUri = new(Path.GetFullPath(parentPath) + Path.DirectorySeparatorChar);
-        Uri childUri = new(Path.GetFullPath(childPath) + Path.DirectorySeparatorChar);
-        return parentUri.IsBaseOf(childUri);
+        try
+        {
+            var parent = Path.GetFullPath(parentPath).TrimEnd(Path.DirectorySeparatorChar);
+            var child = Path.GetFullPath(childPath).TrimEnd(Path.DirectorySeparatorChar);
+            
+            return child.Equals(parent, StringComparison.OrdinalIgnoreCase) || 
+                   (child + Path.DirectorySeparatorChar).StartsWith(parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -183,5 +194,50 @@ public static class Utils
             if (DateTime.TryParse(dateString, culture, DateTimeStyles.None, out DateTime parsedDate))
                 return parsedDate;
         return DateTime.MinValue;
+    }
+    
+    /// <summary>
+    /// 检查path是否可写
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static bool IsPathWritable(string path)
+    {
+        try
+        {
+            using FileStream fs = File.Create(Path.Combine(path, Path.GetRandomFileName()), 1, FileOptions.DeleteOnClose);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// 检查图片是否有效
+    /// </summary>
+    /// <param name="src"></param>
+    /// <returns></returns>
+    public static bool IsImageValid(string? src)
+    {
+        if (string.IsNullOrEmpty(src) || src is Galgame.DefaultImagePath) return false;
+        return File.Exists(src);
+    }
+
+    /// <summary>
+    /// 检查WebView2是否可用
+    /// </summary>
+    /// <returns></returns>
+    public static bool IsWebview2Ok()
+    {
+        try
+        {
+            return CoreWebView2Environment.GetAvailableBrowserVersionString() != null;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

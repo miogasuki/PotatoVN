@@ -16,6 +16,7 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
     private HttpClient _httpClient;
     private bool _authed;
     private string _userId = string.Empty;
+    private string _userName = string.Empty;
     private Task? _checkAuthTask;
 
     public BgmPhraser(BgmPhraserData data)
@@ -47,6 +48,7 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
                     if (!_authed) return;
                     JObject json = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                     _userId = json["id"]!.ToString();
+                    _userName = json["username"]!.ToString();
                 }
                 catch (Exception)
                 {
@@ -424,8 +426,9 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         string errorMsg;
         try
         {
+            var userIdOrName = string.IsNullOrEmpty(_userName) ? _userId : _userName;
             HttpResponseMessage response = await _httpClient.GetAsync(
-                $"https://api.bgm.tv/v0/users/{_userId}/collections/{galgame.Ids[(int)RssType.Bangumi]}");
+                $"https://api.bgm.tv/v0/users/{userIdOrName}/collections/{galgame.Ids[(int)RssType.Bangumi]}");
             JToken json = JObject.Parse(await response.Content.ReadAsStringAsync());
             if (response.IsSuccessStatusCode == false)
                 throw new Exception(json["description"]!.ToString());
@@ -449,8 +452,9 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         {
             try
             {
+                var userIdOrName = string.IsNullOrEmpty(_userName) ? _userId : _userName;
                 HttpResponseMessage response = await _httpClient.GetAsync(
-                    $"https://api.bgm.tv/v0/users/{_userId}/collections?subject_type=4&limit=30&offset={offset}");
+                    $"https://api.bgm.tv/v0/users/{userIdOrName}/collections?subject_type=4&limit=30&offset={offset}");
                 JToken json = JObject.Parse(await response.Content.ReadAsStringAsync());
                 if (response.IsSuccessStatusCode == false)
                     throw new Exception(json["description"]!.ToString());

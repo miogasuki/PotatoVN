@@ -40,4 +40,12 @@ public interface IInfoService
     /// <param name="e"></param>
     public void DeveloperEvent(InfoBarSeverity infoBarSeverity = InfoBarSeverity.Warning, string? msg = null,
         Exception? e = null);
+
+    /// <summary>
+    /// 手动记录日志，默认只将severity >= InfoBarSeverity.Warning的日志通知，开发者模式下通知所有日志 <br/>
+    /// <see cref="Event"/>会自动调用该方法记录日志
+    /// </summary>
+    /// <param name="severity"></param>
+    /// <param name="msg"></param>
+    public void Log(InfoBarSeverity severity = InfoBarSeverity.Warning, string msg = "");
 }

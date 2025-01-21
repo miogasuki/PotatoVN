@@ -4,16 +4,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:models="using:GalgameManager.Models"
     xmlns:converters="using:GalgameManager.Helpers.Converter"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
     xmlns:filters="using:GalgameManager.Models.Filters"
     xmlns:control="using:GalgameManager.Views.Control"
-    xmlns:ui="using:CommunityToolkit.WinUI.UI"
     xmlns:prefab="using:GalgameManager.Views.Prefab"
+    xmlns:cmtkControl="using:CommunityToolkit.WinUI.Controls"
+    xmlns:cmtk="using:CommunityToolkit.WinUI"
+    xmlns:cmtkAnimations="using:CommunityToolkit.WinUI.Animations"
     mc:Ignorable="d"
     x:Name="Page"
     NavigationCacheMode="Required">
@@ -58,32 +58,32 @@
                     </AppBarButton.Icon>
                     <AppBarButton.Flyout>
                         <Flyout Placement="Bottom">
-                            <controls:TokenizingTextBox 
+                            <cmtkControl:TokenizingTextBox 
                                 x:Uid="HomePage_FilterTokenizingTextBox"
                                 Width="250" HorizontalAlignment="Left"
                                 TokenDelimiter=","
                                 ItemsSource="{x:Bind ViewModel.Filters, Mode=TwoWay}"
-                                QueryIcon="{ui:FontIconSource Glyph=&#xE721;,
+                                QueryIcon="{cmtk:FontIconSource Glyph=&#xE721;,
                                                                   FontSize=12}"
                                 SuggestedItemsSource="{x:Bind ViewModel.FilterInputSuggestions, Mode=OneWay}"
                                 AllowFocusOnInteraction="True"
                                 Text="{x:Bind ViewModel.FilterInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 >
-                                <controls:TokenizingTextBox.AutoSuggestBoxStyle>
+                                <cmtkControl:TokenizingTextBox.AutoSuggestBoxStyle>
                                     <Style TargetType="AutoSuggestBox">
                                         <Setter Property="MinWidth" Value="200"/>
                                     </Style>
-                                </controls:TokenizingTextBox.AutoSuggestBoxStyle>
-                                <controls:TokenizingTextBox.SuggestedItemTemplate>
+                                </cmtkControl:TokenizingTextBox.AutoSuggestBoxStyle>
+                                <cmtkControl:TokenizingTextBox.SuggestedItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding }" />
                                     </DataTemplate>
-                                </controls:TokenizingTextBox.SuggestedItemTemplate>
-                                <controls:TokenizingTextBox.TokenItemTemplate>
+                                </cmtkControl:TokenizingTextBox.SuggestedItemTemplate>
+                                <cmtkControl:TokenizingTextBox.TokenItemTemplate>
                                     <DataTemplate x:DataType="filters:FilterBase">
                                         <TextBlock Text="{x:Bind ToString() }" />
                                     </DataTemplate>
-                                </controls:TokenizingTextBox.TokenItemTemplate>
+                                </cmtkControl:TokenizingTextBox.TokenItemTemplate>
                                 <interactivity:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="TokenItemRemoved">
                                         <core:InvokeCommandAction Command="{x:Bind ViewModel.FilterRemovedCommand}" />
@@ -98,7 +98,7 @@
                                         <core:InvokeCommandAction Command="{x:Bind ViewModel.FilterInputTokenItemAddingCommand}" />
                                     </core:EventTriggerBehavior>
                                 </interactivity:Interaction.Behaviors>
-                            </controls:TokenizingTextBox>
+                            </cmtkControl:TokenizingTextBox>
                             
                             <interactivity:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Opening">
@@ -152,7 +152,7 @@
                     <!-- 保留过滤器 -->
                     <AppBarToggleButton x:Uid="HomePage_KeepFilters"
                                         IsChecked="{x:Bind ViewModel.KeepFilters, Mode=TwoWay}"
-                                        Icon="{ui:FontIcon Glyph=&#xE74E;}">
+                                        Icon="{cmtk:FontIcon Glyph=&#xE74E;}">
                     </AppBarToggleButton>
                     <!-- 显示非本地游戏 -->
                     <AppBarToggleButton x:Uid="HomePage_Filter_DisplayVirtualGames"
@@ -164,28 +164,30 @@
                 </CommandBar.SecondaryCommands>
             </CommandBar>
             
-            <GridView Grid.Row="1" 
-                      ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                      IsItemClickEnabled="True" SelectionMode="None"
-                      animations:Connected.ListItemKey="galgameItem"
-                      animations:Connected.ListItemElementName="ConnectedElement">
-                <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Galgame">
-                        <prefab:GalgamePrefab
-                            Galgame="{x:Bind}"
-                            ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
-                            PlayTypeVisibility="{Binding ElementName=Page,
-                                    Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
-                            Flyout="{StaticResource GalFlyout}" />
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-                <interactivity:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="ItemClick">
-                        <core:InvokeCommandAction Command="{x:Bind ViewModel.ItemClickCommand}" />
-                    </core:EventTriggerBehavior>
-                </interactivity:Interaction.Behaviors>
-            </GridView>
-            
+            <ScrollViewer Grid.Row="1">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                               cmtkAnimations:Connected.ListItemKey="galgameItem"
+                               cmtkAnimations:Connected.ListItemElementName="ConnectedElement">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="models:Galgame">
+                            <Button Style="{ThemeResource TransparentButtonWithHover}"
+                                    DataContext="{x:Bind}"
+                                    Command="{Binding ElementName=Page, Path=ViewModel.ItemClickCommand}"
+                                    CommandParameter="{x:Bind}">
+                                <prefab:GalgamePrefab
+                                    Galgame="{x:Bind}"
+                                    ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
+                                    PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
+                                    Flyout="{StaticResource GalFlyout}" />
+                            </Button>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                    <ItemsRepeater.Layout>
+                        <UniformGridLayout ItemsStretch="Fill" MinItemWidth="175" MinRowSpacing="1" />
+                    </ItemsRepeater.Layout>
+                </ItemsRepeater>
+            </ScrollViewer>
+
             <!-- Drag&Drop(用于提示的区域) -->
             <Border Grid.Row="1" CornerRadius="5" 
                     Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}" 

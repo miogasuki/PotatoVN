@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using GalgameManager.Helpers;
 using Newtonsoft.Json;
 
 namespace GalgameManager.Models;

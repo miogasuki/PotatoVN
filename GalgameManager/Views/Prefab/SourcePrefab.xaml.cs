@@ -2,6 +2,7 @@
 using DependencyPropertyGenerator;
 using GalgameManager.Models.Sources;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 
 namespace GalgameManager.Views.Prefab;
@@ -22,3 +23,14 @@ public sealed partial class SourcePrefab
     }
 }
 
+public class SourcePrefabTemplateSelector : DataTemplateSelector
+{
+    public DataTemplate ImageTemplate { get; set; } = null!;
+    public DataTemplate FontIconTemplate { get; set; } = null!;
+
+    protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+    {
+        if (item is not GalgameSourceBase source) return base.SelectTemplateCore(item);
+        return string.IsNullOrEmpty(source.ImagePath) ? FontIconTemplate : ImageTemplate;
+    }
+}

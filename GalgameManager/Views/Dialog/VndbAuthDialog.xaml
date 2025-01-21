@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:converters="using:GalgameManager.Helpers.Converter"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ui="using:CommunityToolkit.WinUI.UI"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     Style="{StaticResource DefaultContentDialogStyle}"
     mc:Ignorable="d"
     IsPrimaryButtonEnabled="{Binding (ui:TextBoxExtensions.IsValid), ElementName=TokenTextBox}">

@@ -5,6 +5,21 @@ namespace GalgameManager.Contracts.Services;
 
 public interface ICategoryService
 {
+    /// <summary>
+    /// 获取某个分类组，若没有则返回null
+    /// </summary>
+    public CategoryGroup? GetGroup(Guid id);
+    
+    /// <summary>
+    /// 获取游玩状态分类组
+    /// </summary>
+    public CategoryGroup StatusGroup { get; }
+    
+    /// <summary>
+    /// 开发商分类组
+    /// </summary>
+    public CategoryGroup DeveloperGroup { get; }
+    
     public Task Init();
 
     public Task<ObservableCollection<CategoryGroup>> GetCategoryGroupsAsync();
@@ -33,6 +48,20 @@ public interface ICategoryService
     /// <param name="target">目标分类</param>
     /// <param name="source">源分类</param>
     public void Merge(Category target, Category source);
+    
+    /// <summary>
+    /// 获取某个分类，若没有则返回null
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Category? GetCategory(Guid id);
+    
+    /// <summary>
+    /// 获取某个分类，若没有则返回null
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    Category? GetCategory(string name);
 
     /// <summary>
     /// 获取某个游戏的开发商分类，若没有则返回null
@@ -40,4 +69,10 @@ public interface ICategoryService
     /// <param name="galgame"></param>
     /// <returns></returns>
     Category? GetDeveloperCategory(Galgame galgame);
+    
+    /// <summary>
+    /// 导出数据
+    /// </summary>
+    /// <returns></returns>
+    Task ExportAsync(Action<string, int, int>? progress);
 }

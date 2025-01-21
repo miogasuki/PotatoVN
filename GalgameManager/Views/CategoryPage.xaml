@@ -4,11 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:models="using:GalgameManager.Models"
-    xmlns:converters="using:GalgameManager.Helpers.Converter"
     xmlns:control="using:GalgameManager.Views.Control"
-    mc:Ignorable="d">
+    xmlns:prefab="using:GalgameManager.Views.Prefab"
+    mc:Ignorable="d"
+    x:Name="Page">
     
     <Page.Resources>
         <MenuFlyout Placement="Right" x:Key="Flyout">
@@ -19,7 +19,6 @@
             <MenuFlyoutItem x:Uid="CategoryPage_Category_Delete" Command="{x:Bind ViewModel.DeleteCategoryCommand}" 
                             CommandParameter="{Binding}"/>
         </MenuFlyout>
-        <converters:ImagePathConverter x:Key="ImagePathConverter"/>
     </Page.Resources>
 
     <Grid>
@@ -69,49 +68,26 @@
             </CommandBar.SecondaryCommands>
         </CommandBar>
         
-        <controls:AdaptiveGridView
-            Grid.Row="1" 
-            DesiredWidth="220"
-            ItemHeight="160"
-            IsItemClickEnabled="True"
-            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-            ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
-            SelectionMode="None"
-            StretchContentForSingleRow="False">
-            <controls:AdaptiveGridView.ItemTemplate>
-                <DataTemplate x:DataType="models:Category">
-                    <Grid
-                        x:Name="itemThumbnail"
-                        Padding="{StaticResource XSmallLeftTopRightBottomMargin}"
-                        ContextFlyout="{StaticResource Flyout}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Rectangle Fill="Transparent"/>
-                        <Rectangle Grid.Row="1" Fill="Transparent"/>
-                        <Rectangle Grid.Row="2" Fill="Transparent"/>
-                        
-                        <Rectangle Grid.Row="0" Height="55" Width="220"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Rectangle.Fill>
-                                <ImageBrush ImageSource="{x:Bind ImagePath , Mode=OneWay, Converter={StaticResource ImagePathConverter}}"
-                                            Stretch="Uniform" />
-                            </Rectangle.Fill>
-                        </Rectangle>
-                        <TextBlock
-                            Grid.Row="1" MaxHeight="20"
-                            HorizontalAlignment="Center"
-                            Style="{ThemeResource BodyTextStyle}"
-                            Text="{x:Bind Name}"/>
-                        <Grid Grid.Row="2" Background="{ThemeResource  ControlAltFillColorSecondaryBrush}"
-                              CornerRadius="10" HorizontalAlignment="Right">
-                            <TextBlock Padding="5" Text="{x:Bind DisplayCount()}" />
-                        </Grid>
-                    </Grid>
-                </DataTemplate>
-            </controls:AdaptiveGridView.ItemTemplate>
-        </controls:AdaptiveGridView>
+        <ScrollViewer Grid.Row="1">
+            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}">
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="models:Category">
+                        <Button
+                            Style="{StaticResource TransparentButtonWithHover}"
+                            DataContext="{x:Bind}"
+                            Command="{Binding ElementName=Page, Path=ViewModel.ItemClickCommand}"
+                            CommandParameter="{x:Bind}"
+                            MinWidth="220" MinHeight="145"
+                            ContextFlyout="{StaticResource Flyout}">
+                            <prefab:CategoryPrefab Category="{x:Bind}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Button>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+                <ItemsRepeater.Layout>
+                    <UniformGridLayout ItemsStretch="Fill" MinRowSpacing="1"/>
+                </ItemsRepeater.Layout>
+            </ItemsRepeater>
+        </ScrollViewer>
     </Grid>
 </Page>

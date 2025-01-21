@@ -95,6 +95,6 @@ public partial class PlayTimeViewModelItem : ObservableObject
     public void UpdateWidth(double totalWidth, double maxPlayTime)
     {
         Width = Math.Max(totalWidth - 200, 0); //预留日期、时间显示区域
-        Width = Width * _playTime / maxPlayTime;
+        Width = Width * PlayTime / maxPlayTime;
     }
 }

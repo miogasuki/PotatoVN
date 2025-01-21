@@ -51,17 +51,6 @@
                        Text="{x:Bind SpaceInfo, Mode= OneWay}" />
         </Grid>
 
-        <!-- 由各个SourceService提供的额外设置区 -->
-        <Grid Visibility="{x:Bind AdditionSettingPanelVisibility,Mode=OneWay}">
-            <ContentPresenter HorizontalAlignment="Stretch"
-                              Visibility="{x:Bind AdditionSettingVisibility, Mode=OneWay}"
-                              Content="{x:Bind AdditionSettingControl, Mode=OneWay}" />
-            <StackPanel Spacing="10" Visibility="{x:Bind AdditionSettingWaitingVisibility, Mode=OneWay}">
-                <ProgressRing IsIndeterminate="True" HorizontalAlignment="Stretch" />
-                <TextBlock x:Uid="ChangeSourceDialog_FetchingSourceInfo" HorizontalAlignment="Center" />
-            </StackPanel>
-        </Grid>
-
         <!-- 并从源中移除 -->
         <StackPanel Orientation="Horizontal" Spacing="20" Margin="0 10 0 0 "
                     Visibility="{x:Bind RemovePanelVisibility, Mode=OneWay}">

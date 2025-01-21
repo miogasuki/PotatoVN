@@ -4,7 +4,6 @@ using GalgameManager.Models;
 using GalgameManager.Services;
 using GalgameManager.ViewModels;
 using Microsoft.Windows.AppLifecycle;
-using Newtonsoft.Json;
 
 namespace GalgameManager.Activation;
 
@@ -27,7 +26,7 @@ public class JumpListActivationHandler : ActivationHandler<AppActivationArgument
         {
             var target = arg.Arguments[3..]; //去掉/j与空格
             target = target[1..^1]; //去掉双引号
-            _game = _galgameCollectionService.GetGalgameFromUid(JsonConvert.DeserializeObject<GalgameUid>(target));
+            _game = _galgameCollectionService.GetGalgameFromUuid(new Guid(target));
             return _game is not null;
         }
         catch (Exception)

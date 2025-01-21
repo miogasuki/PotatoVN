@@ -11,16 +11,22 @@ public interface IOssService
     /// </summary>
     public long SpacePerUser { get; }
     
-    public string OssEventToken { get; }
-    
     /// <summary>
     /// 获取带有userId前缀的key, e.g. 114/1919/514.jpg (objectFullName = 1919/514.jpg)
     /// </summary>
     public string GetFullKey(int userId, string objectFullName);
     
-    public Task<string?> GetWritePresignedUrlAsync(int userId, string objectFullName);
+    public Task<string?> GetWritePresignedUrlAsync(int userId, string objectFullName, long requireSpace);
     
     public Task<string?> GetReadPresignedUrlAsync(int userId, string objectFullName);
+    
+    /// <summary>
+    /// 获取对象信息，若不存在则返回null
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="objectFullName">不包含userId的完整key，如(Galgame/114.jpg)</param>
+    /// <returns></returns>
+    public Task<ObjectEntity?> GetObjectAsync(int userId, string objectFullName);
     
     /// <summary>
     /// 需要在外部捕获异常

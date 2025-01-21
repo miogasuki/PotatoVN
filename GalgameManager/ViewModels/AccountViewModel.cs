@@ -37,9 +37,10 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         _localSettingsService.OnSettingChanged += OnLocalSettingsChanged;
         _bgmService.OnAuthResultChange += BgmAuthResultNotify;
         _pvnService.StatusChanged += HandelPvnServiceStatusChanged;
-        
+#pragma warning disable MVVMTK0034 //防止触发属性更改事件，该事件是手动切换服务器类型时才应该触发的
         _pvnServerType = await _localSettingsService.ReadSettingAsync<PvnServerType>(KeyValues.PvnServerType);
-        _pvnSyncGames = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncGames);
+#pragma warning restore MVVMTK0034
+        PvnSyncGames = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncGames);
         await UpdateAccountDisplay();
     }
 
@@ -210,15 +211,17 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
 
     #region BANUGMI_ACCOUNT
 
-    public string BgmName => _bgmAccount?.Name ?? "NoName".GetLocalized();
+    public string BgmName => BgmAccount?.Name ?? "NoName".GetLocalized();
+#pragma warning disable MVVMTK0034 //不知道为什么使用生成的属性会导致图片无法显示，暂时关闭未使用生成字段的警告
     public string? BgmAvatar => _bgmAccount?.Avatar;
-    public string BgmDescription => _bgmAccount is null
+#pragma warning restore MVVMTK0034
+    public string BgmDescription => BgmAccount is null
         ? "AccountPage_Bgm_NoLogin".GetLocalized()
-        : "AccountPage_Bgm_LoginedDescription".GetLocalized(_bgmAccount.UserId, _bgmAccount.Expires.ToStringDefault(),
-            _bgmAccount.NextRefresh.ToStringDefault());
-    public string BgmLoginBtnText => _bgmAccount is null ? "Login".GetLocalized() : "Logout".GetLocalized();
-    public ICommand BgmLoginBtnCommand => _bgmAccount is null ? new RelayCommand(BgmLogin) : new RelayCommand(BgmLogout);
-    public bool IsBgmLogin => _bgmAccount is not null;
+        : "AccountPage_Bgm_LoginedDescription".GetLocalized(BgmAccount.UserId, BgmAccount.Expires.ToStringDefault(),
+            BgmAccount.NextRefresh.ToStringDefault());
+    public string BgmLoginBtnText => BgmAccount is null ? "Login".GetLocalized() : "Logout".GetLocalized();
+    public ICommand BgmLoginBtnCommand => BgmAccount is null ? new RelayCommand(BgmLogin) : new RelayCommand(BgmLogout);
+    public bool IsBgmLogin => BgmAccount is not null;
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BgmName))]
@@ -269,7 +272,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    private async void BgmRefreshToken()
+    private async Task BgmRefreshToken()
     {
         _infoService.Info(InfoBarSeverity.Informational, msg: "AccountPage_Bgm_Refreshing".GetLocalized(),
             displayTimeMs: 1000 * 60);
@@ -282,21 +285,21 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
 
     #region VNDB_ACCOUNT
     
-    public bool IsVndbLogin => _vndbAccount is not null;
+    public bool IsVndbLogin => VndbAccount is not null;
 
-    public string VndbUsername => _vndbAccount?.Username ?? "NoName".GetLocalized();
+    public string VndbUsername => VndbAccount?.Username ?? "NoName".GetLocalized();
 
     
-    public string VndbDescription => _vndbAccount is null
+    public string VndbDescription => VndbAccount is null
         ? "AccountPage_Vndb_NoLogin".GetLocalized()
         : "AccountPage_Vndb_LoginedDescription".GetLocalized(
-            _vndbAccount.Id,
-            string.Join(", ", _vndbAccount.Permissions.Select(p=>p.GetLocalized()).ToList())
+            VndbAccount.Id,
+            string.Join(", ", VndbAccount.Permissions.Select(p=>p.GetLocalized()).ToList())
             );
 
-    public string VndbLoginBtnText => _vndbAccount is null ? "Login".GetLocalized() : "Logout".GetLocalized();
+    public string VndbLoginBtnText => VndbAccount is null ? "Login".GetLocalized() : "Logout".GetLocalized();
 
-    public ICommand VndbLoginBtnCommand => _vndbAccount is null ? new RelayCommand(VndbLogin) : new RelayCommand(VndbLogout);
+    public ICommand VndbLoginBtnCommand => VndbAccount is null ? new RelayCommand(VndbLogin) : new RelayCommand(VndbLogout);
 
     
     [ObservableProperty]

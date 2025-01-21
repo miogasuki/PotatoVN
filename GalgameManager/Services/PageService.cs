@@ -29,6 +29,8 @@ public class PageService : IPageService
         Configure<CategorySettingViewModel, CategorySettingPage>();
         Configure<AccountViewModel, AccountPage>();
         Configure<InfoViewModel, InfoPage>();
+        Configure<MultiStreamViewModel, Views.MultiStreamPage>();
+        Configure<AnnualReportViewModel, AnnualReportPage>();
     }
     
     private readonly Dictionary<string, Type> _pages = new();

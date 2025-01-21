@@ -11,7 +11,8 @@ namespace GalgameManager.Services;
 
 public partial class GalgameCollectionService
 {
-    public async Task<Galgame> AddGameAsync(GalgameSourceType sourceType, string path, bool force)
+    public async Task<Galgame> AddGameAsync(GalgameSourceType sourceType, string path, bool force,
+        bool requireConfirm = true)
     {
         IGalgameSourceService sourceService = SourceServiceFactory.GetSourceService(sourceType);
         Galgame? meta = null;
@@ -27,11 +28,12 @@ public partial class GalgameCollectionService
         }
 
         // 尝试从数据源获取游戏信息
-        meta ??= await PhraseGalInfoAsync(new Galgame(GetNameFromPath(sourceType, path)));
+        meta ??= await PhraseGalInfoAsync(new Galgame(await GetNameFromPath(sourceType, path)),
+            requireConfirm: requireConfirm);
         // 检查该游戏是否已经存在
         if (GetGalgameFromUid(meta.Uid) is { } existGame)
         {
-            Galgame tmp = await DealWithExistGameAsync(sourceType, path, existGame);
+            Galgame tmp = await DealWithExistGameAsync(sourceType, path, existGame, meta);
             GalgameChangedEvent?.Invoke(tmp);
             return tmp;
         }
@@ -41,8 +43,9 @@ public partial class GalgameCollectionService
             throw new PvnException("AddGalgameResult_NotFoundInRss".GetLocalized());
 
         // 添加游戏并移入对应的源
+        meta.AddTime = DateTime.Now; // 游戏添加时间
         _galgames.Add(meta);
-        _galgameMap[meta.Uid] = meta;
+        _galgameMap[meta.Uuid] = meta;
         GalgameAddedEvent?.Invoke(meta);
         GalgameChangedEvent?.Invoke(meta);
         meta.ErrorOccurred += e =>
@@ -56,28 +59,34 @@ public partial class GalgameCollectionService
 
     public async Task<Galgame> SetLocalPathAsync(Galgame galgame, string path)
     {
-        Galgame result = await DealWithExistGameAsync(GalgameSourceType.LocalFolder, path, galgame);
+        Galgame result = await DealWithExistGameAsync(GalgameSourceType.LocalFolder, path, galgame, null);
         GalgameChangedEvent?.Invoke(result);
         await SaveGalgamesAsync(result);
         return result;
     }
 
-    private string GetNameFromPath(GalgameSourceType sourceType, string path)
+    private async Task<string> GetNameFromPath(GalgameSourceType sourceType, string path)
     {
         switch (sourceType)
         {
             case GalgameSourceType.LocalFolder:
             case GalgameSourceType.LocalZip:
-                return Path.GetFileName(Path.GetDirectoryName(path + Path.DirectorySeparatorChar)) ??
-                       throw new Exception("GalgameCollectionService_GetNameFromPathFailed".GetLocalized());
+                var name = Path.GetFileName(Path.GetDirectoryName(path + Path.DirectorySeparatorChar)) ??
+                           throw new Exception("GalgameCollectionService_GetNameFromPathFailed".GetLocalized());
+                var pattern = await LocalSettingsService.ReadSettingAsync<string>(KeyValues.RegexPattern) ?? ".+";
+                var regexIndex = await LocalSettingsService.ReadSettingAsync<int>(KeyValues.RegexIndex);
+                var removeBorder = await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.RegexRemoveBorder); 
+                return NameRegex.GetName(name, pattern, removeBorder, regexIndex);
         }
 
         Debug.Fail("应该在GalgameCollectionService_AddGame里面实现该类型源的GetNameFromPath");
         throw new PvnException(string.Empty);
     }
 
-    private async Task<Galgame> DealWithExistGameAsync(GalgameSourceType type, string path, Galgame existGame)
+    private async Task<Galgame> DealWithExistGameAsync(GalgameSourceType type, string path, Galgame existGame,
+        Galgame? meta)
     {
+        existGame.MergeTime(meta);
         switch (type)
         {
             case GalgameSourceType.LocalFolder:

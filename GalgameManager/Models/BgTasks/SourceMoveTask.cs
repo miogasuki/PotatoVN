@@ -6,10 +6,10 @@ namespace GalgameManager.Models.BgTasks;
 
 public class SourceMoveTask : BgTaskBase
 {
-    public GalgameUid GalgameUid //仅用于序列化与反序列化
+    public Guid GalgameUid //仅用于序列化与反序列化
     {
-        get => _game!.Uid;
-        set => _game = _gameService.GetGalgameFromUid(value);
+        get => _game!.Uuid;
+        set => _game = _gameService.GetGalgameFromUuid(value);
     }
     public string? MoveInPath { get; init; }
     public string? MoveInSourceUrl //仅用于序列化与反序列化

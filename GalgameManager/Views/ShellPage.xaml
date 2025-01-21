@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:helpers="using:GalgameManager.Helpers"
     xmlns:viewmodels="using:GalgameManager.ViewModels"
+    xmlns:control="using:GalgameManager.Views.Control"
     Loaded="OnLoaded">
 
     <Grid>
@@ -34,6 +35,11 @@
             DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
             Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay, FallbackValue={}}">
             <NavigationView.MenuItems>
+                <NavigationViewItem x:Uid="Shell_MultiStream" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.MultiStreamViewModel">
+                    <NavigationViewItem.Icon>
+                        <control:ConditionalFontIcon Symbol="List" FluentGlyph="&#xE71D;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Home" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HomeViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf0e2;"/>
@@ -53,9 +59,16 @@
                 <!-- 这里的导航项是隐藏的，只是为了让导航项的命令能够被触发 -->
                 <NavigationViewItem x:Uid="Shell_UpdateContent" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.UpdateContentViewModel"
                                     Visibility="Collapsed"/>
+                <NavigationViewItem x:Uid="Shell_GalgamePage" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.GalgameViewModel"
+                                    Visibility="Collapsed"/>
             </NavigationView.MenuItems>
             
             <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:Uid="Shell_AnnualReport" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AnnualReportViewModel">
+                    <NavigationViewItem.Icon>
+                        <control:ConditionalFontIcon Symbol="OutlineStar" FluentGlyph="&#xE728;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Info" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.InfoViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE770;"/>

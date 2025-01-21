@@ -14,11 +14,11 @@ public class RecordPlayTimeTask : BgTaskBase
     private const int ManuallySelectProcessSec = 15; //认定为需要手动选择游戏进程的时间阈值
     
     public string ProcessName { get; set; } = string.Empty;
-    public GalgameUid GalgameUid { get; set; } = null!;
     public DateTime StartTime { get; set; }= DateTime.Now;
     public int CurrentPlayTime { get; set; } //本次游玩时间
-    
-    private Galgame? _galgame;
+    public override bool ProgressOnTrayIcon => true;
+
+    public Galgame? Galgame;
     private Process? _process;
 
     private readonly ILocalSettingsService _localSettingsService = App.GetService<ILocalSettingsService>();
@@ -30,23 +30,20 @@ public class RecordPlayTimeTask : BgTaskBase
         Debug.Assert(game.CheckExistLocal());
         if (process.HasExited) return;
         ProcessName = process.ProcessName;
-        GalgameUid = game.Uid;
-        _galgame = game;
+        Galgame = game;
         _process = process;
     }
     
     protected override Task RecoverFromJsonInternal()
     {
         _process = Process.GetProcessesByName(ProcessName).FirstOrDefault();
-        _galgame = (App.GetService<IGalgameCollectionService>() as GalgameCollectionService)?.
-            GetGalgameFromUid(GalgameUid);
         return Task.CompletedTask;
     }
 
     protected async override Task RunInternal()
     {
-        if(_process is null || _galgame is null) return ;
-        ChangeProgress(0, 1, "RecordPlayTimeTask_ProgressMsg".GetLocalized(_galgame.Name.Value!));
+        if(_process is null || Galgame is null) return ;
+        ChangeProgress(0, 1, "RecordPlayTimeTask_ProgressMsg".GetLocalized(Galgame.Name.Value!));
         Task t = Task.Run(async () =>
         {
             await _process.WaitForExitAsync();
@@ -54,19 +51,19 @@ public class RecordPlayTimeTask : BgTaskBase
             {
                 GalgamePageParameter parma = new()
                 {
-                    Galgame = _galgame,
+                    Galgame = Galgame,
                     SelectProgress = DateTime.Now - StartTime < TimeSpan.FromSeconds(ManuallySelectProcessSec) 
-                                     && _galgame.ProcessName is null
+                                     && Galgame.ProcessName is null
                 };
                 App.GetService<INavigationService>().NavigateTo(typeof(GalgameViewModel).FullName!, parma);
                 App.SetWindowMode(WindowMode.Normal);
-                ChangeProgress(0, 1,
-                    "RecordPlayTimeTask_Done".GetLocalized(_galgame.Name.Value ?? string.Empty,
+                ChangeProgress(1, 1,
+                    "RecordPlayTimeTask_Done".GetLocalized(Galgame.Name.Value ?? string.Empty,
                         TimeToDisplayTimeConverter.Convert(CurrentPlayTime)));
             });
-            await (App.GetService<IGalgameCollectionService>() as GalgameCollectionService)!.SaveGalgamesAsync(_galgame);
+            await (App.GetService<IGalgameCollectionService>() as GalgameCollectionService)!.SaveGalgamesAsync(Galgame);
             if(await App.GetService<ILocalSettingsService>().ReadSettingAsync<bool>(KeyValues.SyncGames))
-                App.GetService<IPvnService>().Upload(_galgame, PvnUploadProperties.PlayTime);
+                App.GetService<IPvnService>().Upload(Galgame, PvnUploadProperties.PlayTime);
         });
         
         _ = RecordPlayTimeAsync();
@@ -92,12 +89,12 @@ public class RecordPlayTimeTask : BgTaskBase
                         continue;
                     UiThreadInvokeHelper.Invoke(() =>
                     {
-                        _galgame!.TotalPlayTime++;
+                        Galgame!.TotalPlayTime++;
                         CurrentPlayTime++;
                     });
                     var now = DateTime.Now.ToStringDefault();
-                    if (!_galgame!.PlayedTime.TryAdd(now, 1))
-                        _galgame.PlayedTime[now]++;
+                    if (!Galgame!.PlayedTime.TryAdd(now, 1))
+                        Galgame.PlayedTime[now]++;
                 }
             }
             finally

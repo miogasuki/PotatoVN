@@ -8,6 +8,10 @@ namespace GalgameManager.Models.Sources;
 
 public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObject
 {
+    /// 当游戏列表发生变化时触发，第二个bool为true时为删除，否则为添加
+    public event Action<Galgame, bool>? GalgamesChanged;
+    /// 当监听需求改变时触发，对于各个实现的具体触发时机（比如说具体什么监听目标发生改变）由具体实现决定，应手动triger
+    public event Action<GalgameSourceBase>? DetectChanged;
     [JsonIgnore] public bool IsRunning;
     /// 所有游戏和路径，只用于序列化，任何时候都不应该直接操作这个列表
     public List<GalgameAndPath> Galgames { get; } = new();
@@ -16,11 +20,18 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
     /// 父库，若为null则表示这是根库；由Service初始化时计算，不在json中存储
     [JsonIgnore] public GalgameSourceBase? ParentSource { get; set; }
 
-    public string Url => CalcUrl(SourceType, Path);
+    [JsonIgnore] public string Url => CalcUrl(SourceType, Path);
     public string Path { get; set; } = "";
     public virtual GalgameSourceType SourceType => throw new NotImplementedException();
     public bool ScanOnStart { get; set; }
     [ObservableProperty] private string _name = string.Empty;
+    [ObservableProperty] private string? _imagePath;
+    [ObservableProperty] private DateTime _lastPlayed = DateTime.MinValue;
+    [ObservableProperty] private DateTime _lastClicked = DateTime.MinValue;
+    /// 是否对库进行监听总开关
+    [ObservableProperty] private bool _detect;
+    [ObservableProperty] private bool _detectFolderAdd;
+    [ObservableProperty] private bool _detectFolderRemove = true;
     
     public static string CalcUrl(GalgameSourceType type, string path) => $"{type.SourceTypeToString()}://{path}";
 
@@ -65,6 +76,7 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
     {
         Galgames.Add(new GalgameAndPath(galgame, path));
         galgame.Sources.Add(this);
+        GalgamesChanged?.Invoke(galgame, false);
     }
 
     /// <summary>
@@ -75,16 +87,7 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
     {
         Galgames.RemoveAll(g => g.Galgame == galgame);
         galgame.Sources.Remove(this);
-    }
-
-    /// <summary>
-    /// 检查该游戏是否应该在这个库中
-    /// </summary>
-    /// <param name="galgame">游戏</param>
-    /// <returns></returns>
-    public virtual bool IsInSource(Galgame galgame)
-    {
-        return galgame.SourceType == SourceType && !string.IsNullOrEmpty(galgame.Path) && IsInSource(galgame.Path);
+        GalgamesChanged?.Invoke(galgame, true);
     }
 
     /// <summary>
@@ -102,9 +105,9 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
     /// </summary>
     public virtual string GetLogPath() => StdPath.Combine("Logs", GetLogName());
     
-    public virtual string GetLogName() => $"Galgame_{Url.ToBase64().Replace("/", "").Replace("=", "")}.txt";
+    public virtual string GetLogName() => $"Source_{Name.RemoveInvalidChars()}.txt";
 
-    public async virtual IAsyncEnumerable<(Galgame?, string)> ScanAllGalgames()
+    public async virtual IAsyncEnumerable<(string? path, string msg)> ScanAllGalgames()
     {
         await Task.CompletedTask;
         yield break;
@@ -129,7 +132,17 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
             //ignore
         }
     }
+    
+    public void UpdateLastPlayed() => LastPlayed = Galgames.Select(g => g.Galgame.LastPlayTime).Max();
 
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnDetectChanged(bool value) => DetectChanged?.Invoke(this);
+
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnDetectFolderAddChanged(bool value) => DetectChanged?.Invoke(this);
+
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnDetectFolderRemoveChanged(bool value) => DetectChanged?.Invoke(this);
 }
 
 public enum GalgameSourceType

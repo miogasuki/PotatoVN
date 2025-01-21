@@ -7,6 +7,7 @@ using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Sources;
 using Microsoft.UI.Xaml.Controls;
+using Newtonsoft.Json;
 
 namespace GalgameManager.Services;
 
@@ -19,6 +20,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
     private readonly ILocalSettingsService _localSettingsService;
     private readonly IBgTaskService _bgTaskService;
     private readonly IInfoService _infoService;
+    private readonly List<JsonConverter> _converters;
 
     public GalgameSourceCollectionService(ILocalSettingsService localSettingsService, IBgTaskService bgTaskService,
         IInfoService infoService)
@@ -27,16 +29,22 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         _bgTaskService = bgTaskService;
         _infoService = infoService;
         App.OnAppClosing += async () => await Save();
+        _converters =
+        [
+            new GalgameAndUidConverter(),
+            new GalgameSourceCustomConverter(),
+        ];
     }
     
     public async Task InitAsync()
     {
         _galgameSources = await _localSettingsService.ReadSettingAsync<ObservableCollection<GalgameSourceBase>>(
                               KeyValues.GalgameSources, true,
-                              converters: new() { new GalgameAndUidConverter() })
+                              converters: _converters)
                           ?? new ObservableCollection<GalgameSourceBase>();
-        await SourceUpgradeAsync();
-        await NameAndSubSourceUpgradeAsync();
+        LocalSettingStatus settingStatus = await _localSettingsService.ReadSettingAsync<LocalSettingStatus>
+            (KeyValues.DataStatus, true) ?? new();
+        await SourceUpgradeAsync(settingStatus);
         foreach (GalgameSourceBase source in _galgameSources) // 部分崩溃的情况可能导致source里面部分galgame为null
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -48,12 +56,30 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
                     "GalgameSourceCollectionService_InitAsync_GalgameIsNull".GetLocalized(g.Path, source.Url));
             }
         }
+        // 去除找不到的库
+        List<GalgameSourceBase> toRemove = _galgameSources.Where(source => !Directory.Exists(source.Path)).ToList();
+        if (toRemove.Count > 0)
+        {
+            foreach (GalgameSourceBase source in toRemove)
+                _galgameSources.Remove(source);
+            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning,
+                "GalgameSourceCollectionService_RemoveNonExist_Title".GetLocalized(),
+                msg: "GalgameSourceCollectionService_RemoveNonExist_Msg".GetLocalized(
+                    $"\n{string.Join('\n', toRemove.Select(s => s.Path))}"));
+        }
+        await ImportAsync(settingStatus);
         // 给Galgame注入Source列表
         foreach (GalgameSourceBase s in _galgameSources)
             foreach (Galgame g in s.GetGalgameList().Where(g => !g.Sources.Contains(s)))
                 g.Sources.Add(s);
         // 计算子库
         CalcSubSources();
+        // 添加监听变动检测
+        foreach (GalgameSourceBase s in _galgameSources)
+        {
+            s.DetectChanged += DetectionChanged;
+            DetectionChanged(s); // 手动触发一次，挂上监听（如果这个库之前有设置监听需求）
+        }
     }
 
     public async Task StartAsync()
@@ -147,6 +173,8 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         }
         
         CalcSubSources();
+        galgameSource.DetectChanged += DetectionChanged;
+        DetectionChanged(galgameSource); // 手动触发一次，挂上监听
         OnSourceChanged?.Invoke();
         
         return galgameSource;
@@ -181,6 +209,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         }
         _galgameSources.Remove(source);
         CalcSubSources();
+        source.Detect = false; // 关掉监听，触发取消监听事件
         await Save();
         OnSourceDeleted?.Invoke(source);
         OnSourceChanged?.Invoke();
@@ -237,6 +266,22 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         }
     }
 
+    public async Task ExportAsync(Action<string, int, int>? progress)
+    {
+        ObservableCollection<GalgameSourceBase> exportData = new();
+        for (var i = 0; i < _galgameSources.Count; i++)
+        {
+            GalgameSourceBase source = _galgameSources[i];
+            progress?.Invoke("GalgameSourceCollectionService_Export_Progress".GetLocalized(source.Name), i + 1,
+                _galgameSources.Count);
+            GalgameSourceBase clone = source.DeepClone(new JsonSerializerSettings { Converters = _converters });
+            clone.ImagePath = await _localSettingsService.AddImageToExportAsync(clone.ImagePath);
+            exportData.Add(clone);
+        }
+
+        await _localSettingsService.AddToExportAsync(KeyValues.GalgameSources, exportData, converters: _converters);
+    }
+
     /// <summary>
     /// 扫描所有库
     /// </summary>
@@ -249,7 +294,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
     private async Task Save()
     {
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgameSources, _galgameSources, true,
-            converters: new() { new GalgameAndUidConverter() });
+            converters: _converters);
     }
 
     /// <summary>
@@ -300,48 +345,111 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         }
     }
 
-    #region UPGRADES
-    /// <summary>
-    /// 将galgame源归属记录从galgame移入source管理
-    /// </summary>
-    private async Task SourceUpgradeAsync()
+    private async Task ImportAsync(LocalSettingStatus status)
     {
-        if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SourceUpgrade)) return;
-        // 将游戏搬入对应的源中
-        IList<Galgame> games = App.GetService<IGalgameCollectionService>().Galgames;
-        foreach (Galgame g in games)
+        if (status.ImportGalgameSource) return;
+        foreach (GalgameSourceBase source in _galgameSources)
         {
-            var gamePath = g.Path;
-            if (!string.IsNullOrEmpty(gamePath))
-            {
-                var folderPath = Path.GetDirectoryName(gamePath);
-                if (folderPath is null)
-                {
-                    _infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error,
-                        "UnexpectedEvent".GetLocalized(),
-                        new PvnException($"Can not get the parent folder of the game{gamePath}"));
-                    continue;
-                }
-
-                GalgameSourceBase? source = GetGalgameSource(GalgameSourceType.LocalFolder, folderPath);
-                source ??= await AddGalgameSourceAsync(GalgameSourceType.LocalFolder, folderPath);
-                MoveInNoOperate(source, g, folderPath);
-            }
+            source.ImagePath = await _localSettingsService.GetImageFromImportAsync(source.ImagePath);
         }
-
+        status.ImportGalgameSource = true;
         await Save();
-        await _localSettingsService.SaveSettingAsync(KeyValues.SourceUpgrade, true);
+        await _localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
     }
 
-    private async Task NameAndSubSourceUpgradeAsync()
+    #region DETECTION SOURCE CHANGE
+
+    private void DetectionChanged(GalgameSourceBase source)
     {
-        if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SourceNameAndSubUpgrade))
-            return;
-        foreach (GalgameSourceBase src in _galgameSources)
-            src.SetNameFromPath();
-        CalcSubSources();
-        await _localSettingsService.SaveSettingAsync(KeyValues.SourceNameAndSubUpgrade, true);  
+        Task.Run(async () =>
+        {
+            try
+            {
+                IGalgameSourceService srcHandler = SourceServiceFactory.GetSourceService(source.SourceType);
+                await srcHandler.RemoveListenAsync(source); // 先移除旧有监听
+                if (source.Detect) await srcHandler.AddListenAsync(source);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        });
+    }
+
+    #endregion
+    
+    #region UPGRADES
+    
+    /// <summary>
+    /// <b>since v.1.8.0</b><br/>
+    /// 1. 修改存储库的结构（data.galgameFolders.json -> data.galgameSources.json, GalgameFolder -> GalgameSourceBase）<br/>
+    /// 2. 给各库命名<br/>
+    /// 3. 将galgame源归属记录从galgame移入source管理 <br/>
+    /// </summary>
+    private async Task SourceUpgradeAsync(LocalSettingStatus status)
+    {
+        if (status.GalgameSourceFormatUpgrade) return;
+        // 修改存储库结构
+        try
+        {
+            var template = new[] // 旧的GalgameFolder存储库结构
+            {
+                new
+                {
+                    Path = string.Empty,
+                    ScanOnStart = false,
+                },
+            };
+            var tmp = await _localSettingsService.ReadOldSettingAsync(KeyValues.GalgameFolders, template);
+            if (tmp is not null)
+            {
+                foreach (var folder in tmp.Where(f => !string.IsNullOrEmpty(f.Path)))
+                {
+                    GalgameFolderSource source = new(folder.Path) { ScanOnStart = folder.ScanOnStart };
+                    _galgameSources.Add(source);
+                }
+            }
+            await _localSettingsService.RemoveSettingAsync(KeyValues.GalgameFolders, true);
+        }
+        catch (Exception e) //不应该发生
+        {
+            _infoService.Event(EventType.UpgradeError, InfoBarSeverity.Warning, "升级游戏库数据库结构失败", e);
+        }
+        // 给各库命名
+        {
+            foreach (GalgameSourceBase src in _galgameSources)
+                src.SetNameFromPath();
+        }
+        // 将游戏搬入对应的源中
+        {
+            IList<Galgame> games = App.GetService<IGalgameCollectionService>().Galgames;
+            foreach (Galgame g in games)
+            {
+#pragma warning disable CS0618 // 类型或成员已过时，升级旧数据使用
+                var gamePath = g.Path;
+#pragma warning restore CS0618 // 类型或成员已过时
+                if (!string.IsNullOrEmpty(gamePath))
+                {
+                    var folderPath = Path.GetDirectoryName(gamePath);
+                    if (string.IsNullOrEmpty(folderPath))
+                    {
+                        _infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error,
+                            "UnexpectedEvent".GetLocalized(),
+                            new PvnException($"Can not get the parent folder of the game{gamePath}"));
+                        continue;
+                    }
+
+                    GalgameSourceBase? source = GetGalgameSource(GalgameSourceType.LocalFolder, folderPath);
+                    source ??= await AddGalgameSourceAsync(GalgameSourceType.LocalFolder, folderPath);
+                    MoveInNoOperate(source, g, gamePath);
+                }
+            }
+        }
+        
         await Save();
+        status.GalgameSourceFormatUpgrade = true;
+        await _localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
     }
 
     #endregion

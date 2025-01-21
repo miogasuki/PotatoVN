@@ -1,8 +1,9 @@
 ﻿using Windows.UI.StartScreen;
 
 using GalgameManager.Contracts.Services;
-using GalgameManager.Core.Helpers;
+using GalgameManager.Enums;
 using GalgameManager.Models;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Services;
 
@@ -10,7 +11,7 @@ namespace GalgameManager.Services;
 /// JumpList 管理
 /// "/j galgamePath"
 /// </summary>
-public class JumpListService : IJumpListService
+public class JumpListService (IInfoService infoService)  : IJumpListService
 {
     private JumpList? _jumpList;
     private const int MaxItems = 5;
@@ -23,42 +24,63 @@ public class JumpListService : IJumpListService
 
     public async Task CheckJumpListAsync(IList<Galgame> galgames)
     {
-        if (_jumpList == null) await Init();
-        List<JumpListItem> toRemove = _jumpList!.Items.Where(item => galgames.All(gal => $"/j \"{gal.Uid.ToJson()}\"" != item.Arguments)).ToList();
-        foreach (JumpListItem item in toRemove)
+        try
         {
-            _jumpList.Items.Remove(item);
+            if (_jumpList == null) await Init();
+            List<JumpListItem> toRemove = _jumpList!.Items.Where(item => galgames.All(gal => $"/j \"{gal.Uuid}\"" != item.Arguments)).ToList();
+            foreach (JumpListItem item in toRemove)
+            {
+                _jumpList.Items.Remove(item);
+            }
+            await _jumpList!.SaveAsync();
         }
-        await _jumpList!.SaveAsync();
+        catch (Exception e)
+        {
+            infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error, "检查JumpList失败", e);
+        }
     }
 
     public async Task AddToJumpListAsync(Galgame galgame)
     {
-        if (_jumpList == null) await Init();
-        IList<JumpListItem>? items = _jumpList!.Items;
-        JumpListItem? item = items.FirstOrDefault(i => i.Arguments == $"/j \"{galgame.Uid.ToJson()}\"");
-        if (item == null)
+        try
         {
-            item = JumpListItem.CreateWithArguments($"/j \"{galgame.Uid.ToJson()}\"", galgame.Name);
-            item.Logo = new Uri("ms-appx:///Assets/heart.png");
+            if (_jumpList == null) await Init();
+            IList<JumpListItem>? items = _jumpList!.Items;
+            JumpListItem? item = items.FirstOrDefault(i => i.Arguments == $"/j \"{galgame.Uuid}\"");
+            if (item == null)
+            {
+                item = JumpListItem.CreateWithArguments($"/j \"{galgame.Uuid}\"", galgame.Name);
+                item.Logo = new Uri("ms-appx:///Assets/heart.png");
+            }
+            else
+                items.Remove(item); 
+            items.Insert(0, item);
+            if (items.Count > MaxItems)
+                items.RemoveAt(items.Count-1);
+            await _jumpList!.SaveAsync();
         }
-        else
-            items.Remove(item); 
-        items.Insert(0, item);
-        if (items.Count > MaxItems)
-            items.RemoveAt(items.Count-1);
-        await _jumpList!.SaveAsync();
+        catch (Exception e)
+        {
+            infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error, "添加JumpList失败", e);
+        }
     }
 
     public async Task RemoveFromJumpListAsync(Galgame galgame)
     {
-        if (_jumpList == null) await Init();
-        IList<JumpListItem>? items = _jumpList!.Items;
-        JumpListItem? item = items.FirstOrDefault(i => i.Arguments == $"/j \"{galgame.Uid.ToJson()}\"");
-        if (item != null)
+        try
         {
-            items.Remove(item);
-            await _jumpList!.SaveAsync();
+            if (_jumpList == null) await Init();
+            IList<JumpListItem>? items = _jumpList!.Items;
+            JumpListItem? item = items.FirstOrDefault(i => i.Arguments == $"/j \"{galgame.Uuid}\"");
+            if (item != null)
+            {
+                items.Remove(item);
+                await _jumpList!.SaveAsync();
+            }
+        }
+        catch (Exception e)
+        {
+            infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error, "移除JumpList失败", e);
         }
     }
 }

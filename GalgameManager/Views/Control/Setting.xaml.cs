@@ -1,40 +1,16 @@
-// Copyright (c) Microsoft Corporation and Contributors.
-// Licensed under the MIT License.
-
+using DependencyPropertyGenerator;
 using Microsoft.UI.Xaml;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace GalgameManager.Views.Control
 {
+    [DependencyProperty<string>("Title")]
+    [DependencyProperty<string>("Description")]
     public sealed partial class Setting
     {
         public Setting()
         {
             InitializeComponent();
         }
-
-        public string Title
-        {
-            get => (string)GetValue(TitleProperty);
-            set => SetValue(TitleProperty, value);
-        }
-
-        public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(
-            nameof(Title), typeof(string), typeof(Setting),
-            new PropertyMetadata(string.Empty));
-
-        public string Description
-        {
-            get => (string)GetValue(DescriptionProperty);
-            set => SetValue(DescriptionProperty, value);
-        }
-
-        public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
-            nameof(Description), typeof(string), typeof(Setting),
-            new PropertyMetadata(string.Empty));
-
         
         public static readonly new DependencyProperty ContentProperty = DependencyProperty.Register(
             nameof(Content), typeof(UIElement), typeof(Setting),
@@ -52,6 +28,11 @@ namespace GalgameManager.Views.Control
             {
                 setting.ContentArea.Content = e.NewValue;
             }
+        }
+
+        private void Setting_OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            DescriptionTextBlock.MaxWidth = ActualWidth - Content.ActualSize.X - 40;
         }
     }
 }

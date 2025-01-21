@@ -1,8 +1,6 @@
 ﻿using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Sources;
-using GalgameManager.Views.Dialog;
-using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Contracts.Services;
 
@@ -35,20 +33,33 @@ public interface IGalgameSourceService
     /// <exception cref="PvnException">当.PotatoVN存在但meta.json不存在时抛出</exception>
     /// <returns></returns>
     public Task<Galgame?> LoadMetaAsync(string path);
-
+    
     /// <summary>
-    /// 在转换游戏位置时，给ChangeSourceDialog提供附加设置控件，返回null则不附加任何控件
+    /// 从库中删除游戏的Meta文件夹
     /// </summary>
-    /// <param name="source"></param>
-    /// <param name="setting"></param>
+    /// <param name="game"></param>
     /// <returns></returns>
-    public Task<Grid?> GetAdditionSettingControlAsync(GalgameSourceBase source, ChangeSourceDialogAttachSetting setting);
+    public Task RemoveMetaAsync(Galgame game);
     
     /// <summary>
     /// 获取库的（总空间，已用空间）（byte），若无法获取则返回(-1,-1)
     /// </summary>
     /// <param name="source"></param>
     public Task<(long total, long used)> GetSpaceAsync(GalgameSourceBase source);
+    
+    /// <summary>
+    /// 监听库的变化
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public Task AddListenAsync(GalgameSourceBase source);
+    
+    /// <summary>
+    /// 取消监听库的变化
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public Task RemoveListenAsync(GalgameSourceBase source);
 
     /// <summary>
     /// 获取移入描述 <br/>

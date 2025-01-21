@@ -13,6 +13,7 @@ public sealed partial class LibraryPage : Page
     public LibraryPage()
     {
         ViewModel = App.GetService<LibraryViewModel>();
+        DataContext = ViewModel;
         InitializeComponent();
     }
 

@@ -14,6 +14,7 @@ public sealed partial class CategoryPage : Page
     public CategoryPage()
     {
         ViewModel = App.GetService<CategoryViewModel>();
+        DataContext = ViewModel;
         InitializeComponent();
     }
 

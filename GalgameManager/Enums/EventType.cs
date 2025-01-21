@@ -23,4 +23,7 @@ public enum EventType
     /// 后台任务成功触发的事件
     /// </summary>
     BgTaskSuccessEvent,
+    
+    PageError,
+    UpgradeError,
 }

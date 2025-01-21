@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI.UI;
+using CommunityToolkit.WinUI.Collections;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
@@ -40,9 +40,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     [RelayCommand]
     private void OnItemClick(Category category)
     {
-        _filterService.ClearFilters();
-        _filterService.AddFilter(new CategoryFilter(category));
-        _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
+        NavigationHelper.NavigateToHomePage(_navigationService, _filterService, [new CategoryFilter(category)]);
     }
     
     [RelayCommand]
@@ -64,7 +62,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
             return false;
         };
         _categoryGroups = await _categoryService.GetCategoryGroupsAsync();
-        await SelectCategoryGroup(await GetCategoryGroup());
+        await SelectCategoryGroup(parameter as CategoryGroup ?? await GetCategoryGroup());
     }
 
     // 并不符合MVVM要求，但暂时没有更好的办法

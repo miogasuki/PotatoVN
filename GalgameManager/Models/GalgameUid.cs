@@ -13,7 +13,7 @@ public class GalgameUid
     public string? BangumiId { get; init; }
     public string? VndbId { get; init; }
     public string? PvnId { get; init; }
-    public required string Name { get; init; }
+    public string Name { get; init; } = string.Empty;
     public string? CnName { get; init; }
     
     /// <summary>
@@ -32,6 +32,36 @@ public class GalgameUid
         result += Name == rhs.Name ? 1 : 0;
         return result;
     }
+
+    /// <summary>
+    /// 是否与另一个UID相同，当且仅当双方均不为null且所有字段相同时返回true <br/>
+    /// 不考虑CnName字段 <br/>
+    /// <b>除非只有Name的情况，否则不要求Name相同 </b>
+    /// </summary>
+    /// <param name="rhs"></param>
+    /// <returns></returns>
+    public bool IsSame(GalgameUid? rhs)
+    {
+        if (rhs is null) return false;
+        var containValue = false;
+        if (!BangumiId.IsNullOrEmpty() && !rhs.BangumiId.IsNullOrEmpty())
+        {
+            containValue = true;
+            if (BangumiId != rhs.BangumiId) return false;
+        }
+        if (!VndbId.IsNullOrEmpty() && !rhs.VndbId.IsNullOrEmpty())
+        {
+            containValue = true;
+            if (VndbId != rhs.VndbId) return false;
+        }
+        if (!PvnId.IsNullOrEmpty() && !rhs.PvnId.IsNullOrEmpty())
+        {
+            containValue = true;
+            if (PvnId != rhs.PvnId) return false;
+        }
+        if (containValue) return true;
+        return Name == rhs.Name;
+    }
     
     public override string ToString()
     {
@@ -44,4 +74,13 @@ public class GalgameUid
 
         return $"GalgameUid [{string.Join(", ", parts)}]";
     }
+}
+
+public enum GalgameUidFetchMode
+{
+    /// 获取相似度最高的游戏
+    MaxSimilarity, 
+    
+    /// 获取与指定UID相同<see cref="GalgameUid.IsSame"/>>的游戏
+    Same,
 }

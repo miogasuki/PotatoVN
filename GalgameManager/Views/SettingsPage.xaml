@@ -12,9 +12,9 @@
     <Page.Resources>
         <converter:RssTypeToVisibilityConverter x:Key="RssTypeToVisibilityConverter"/>
         <converter:ElementThemeToStringConverter x:Key="ElementThemeToStringConverter"/>
-        <converter:PageToStringConverter x:Key="PageToStringConverter"/>
         <converter:AuthenticationTypeToStringConverter x:Key="AuthenticationTypeToStringConverter"/>
         <converter:WindowModeToStringConverter x:Key="WindowModeToStringConverter"/>
+        <converter:EnumToStringConverter x:Key="EnumToStringConverter"/>
         <Style x:Key="SettingStackPanelStyle" TargetType="StackPanel">
             <Setter Property="Spacing" Value="13" />
             <Setter Property="Orientation" Value="Vertical" />
@@ -98,6 +98,26 @@
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
                                 </control:Setting>
+                            </control:Panel>
+                            <!-- LocaleEmulator -->
+                            <control:Panel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" x:Uid="SettingsPage_Game_LocaleEmulator" 
+                                               Margin="0 0 25 0" VerticalAlignment="Center" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Text="{x:Bind ViewModel.LocalEmulatorPath, Mode=OneWay}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        Margin="0 0 25 0" />
+                                    <Button Grid.Column="2" x:Uid="Select" MinWidth="75"
+                                            Command="{x:Bind ViewModel.SelectLocalEmulatorPathCommand}" />
+                                </Grid>
                             </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
@@ -211,6 +231,11 @@
                                     </control:Setting>
                                 </StackPanel>
                             </control:Panel>
+                            <!-- 下载游戏角色信息 -->
+                            <control:Panel>
+                                <local:SettingToggleSwitch x:Uid="SettingsPage_Download_Character"
+                                                           IsOn="{x:Bind ViewModel.DownloadCharacters, Mode=TwoWay}"/>
+                            </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
                 </control:SettingExpander>
@@ -236,6 +261,15 @@
                                             <Button.Flyout>
                                                 <Flyout Placement="Bottom">
                                                     <TextBlock Text="{x:Bind ViewModel.MetaBackupProgress, Mode=OneWay}"/>
+                                                </Flyout>
+                                            </Button.Flyout>
+                                        </Button>
+                                    </control:Setting>
+                                    <control:Setting x:Uid="SettingsPage_Library_RemoveAllBackup">
+                                        <Button Content="Go" Width="75" Command="{x:Bind ViewModel.RemoveMetaBackUpCommand}">
+                                            <Button.Flyout>
+                                                <Flyout Placement="Bottom">
+                                                    <TextBlock Text="{x:Bind ViewModel.RemoveMetaBackupProgress, Mode=OneWay}"/>
                                                 </Flyout>
                                             </Button.Flyout>
                                         </Button>
@@ -351,7 +385,7 @@
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center"
                                         Margin="0 0 25 0" />
-                                    <Button Grid.Column="2" Content="{x:Bind ViewModel.UiSelect}" MinWidth="75"
+                                    <Button Grid.Column="2" x:Uid="Select" MinWidth="75"
                                             Command="{x:Bind ViewModel.SelectRemoteFolderCommand}" />
                                 </Grid>
                             </control:Panel>
@@ -392,11 +426,25 @@
                                               SelectedItem="{x:Bind ViewModel.StartPage, Mode=TwoWay}">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate x:DataType="enums:PageEnum">
-                                                <TextBlock Text="{x:Bind Converter={StaticResource PageToStringConverter}}" />
+                                                <TextBlock Text="{x:Bind Converter={StaticResource EnumToStringConverter}}" />
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
                                 </control:Setting>
+                            </control:Panel>
+                            <!-- 开机自启 -->
+                            <control:Panel>
+                                <StackPanel Spacing="{StaticResource SettingsPageStackPanelSpacing}">
+                                    <!-- 是否开机自启 -->
+                                    <local:SettingToggleSwitch 
+                                        x:Uid="SettingsPage_Start_AutoStartOnLogin"
+                                        IsOn="{x:Bind ViewModel.AutoStartWhenLogin, Mode=TwoWay}" />
+                                    <!-- 开机自启时是否最小化到托盘 -->
+                                    <local:SettingToggleSwitch 
+                                        x:Uid="SettingsPage_Start_MinToTray"
+                                        IsOn="{x:Bind ViewModel.MinToTrayWhenAutoStart, Mode=TwoWay}" 
+                                        Visibility="{x:Bind ViewModel.AutoStartWhenLogin, Mode=OneWay}"/>
+                                </StackPanel>
                             </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
@@ -452,6 +500,22 @@
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
+                                </control:Setting>
+                            </control:Panel>
+                            <!-- 导出数据 -->
+                            <control:Panel>
+                                <control:Setting x:Uid="SettingsPage_Other_Export">
+                                    <Button x:Uid="SettingsPage_Other_Export_Button" 
+                                            MinWidth="{StaticResource ButtonMinWidth}"
+                                            Command="{x:Bind ViewModel.ExportDataCommand}"/>
+                                </control:Setting>
+                            </control:Panel>
+                            <!-- 导入数据 -->
+                            <control:Panel>
+                                <control:Setting x:Uid="SettingsPage_Other_Import">
+                                    <Button x:Uid="SettingsPage_Other_Import_Button" 
+                                            MinWidth="{StaticResource ButtonMinWidth}"
+                                            Command="{x:Bind ViewModel.ImportDataCommand}"/>
                                 </control:Setting>
                             </control:Panel>
                             <!-- 优化内存占用 -->

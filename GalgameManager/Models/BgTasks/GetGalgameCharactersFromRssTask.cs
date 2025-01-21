@@ -1,74 +1,138 @@
-﻿using GalgameManager.Contracts.Services;
-using GalgameManager.Enums;
+﻿using System.Collections.Concurrent;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Helpers;
-using GalgameManager.Services;
-using H.NotifyIcon.Core;
+using GalgameManager.Helpers.API;
 
 namespace GalgameManager.Models.BgTasks;
 
 public class GetGalgameCharactersFromRssTask : BgTaskBase
 {
-    public string GalgamesName = "";
-    private Galgame? _galgame;
-
-
-    public GetGalgameCharactersFromRssTask() { }
-
-    public GetGalgameCharactersFromRssTask(Galgame galgame)
-    {
-        _galgame = galgame;
-        GalgamesName = galgame.Name.Value ?? "";
-    }
+    public ConcurrentQueue<Galgame?> GetCharactersQueue = new();
+    public int MaxRunning = 3;
+    private readonly List<Task> _runningTasks = new();
+    private readonly object _runningTasksLock = new();
+    private readonly ConcurrentDictionary<Galgame, string> _runningTasksMsg = new();
+    private readonly object _changeMsgLock = new();
     
-    protected override Task RecoverFromJsonInternal()
+    /// 添加一个galgame到解析队列中
+    public void AddGalgame(Galgame? game)
     {
-        _galgame =  (App.GetService<IGalgameCollectionService>() as GalgameCollectionService)?.GetGalgameFromName(GalgamesName);
-        return Task.CompletedTask;
+        if (game is null) return;
+        GetCharactersQueue.Enqueue(game);
     }
+
+    protected override Task RecoverFromJsonInternal() => Task.CompletedTask;
 
     protected override Task RunInternal()
     {
-        if (_galgame is null)
-            return Task.CompletedTask;
-        ILocalSettingsService localSettings = App.GetService<ILocalSettingsService>();
-        GalgameCollectionService galgameService = (App.GetService<IGalgameCollectionService>() as GalgameCollectionService)!;
-        var log = string.Empty;
-        
+        IGalgameCollectionService gameService = App.GetService<IGalgameCollectionService>();
         return Task.Run((async Task () =>
         {
-            log += $"{DateTime.Now}\n{_galgame.Name}\n\n";
-            var total = _galgame.Characters.Count;
-            for (var i = 0; i < _galgame.Characters.Count; i++)
+            while (true)
             {
-                GalgameCharacter character = _galgame.Characters[i];
-                ChangeProgress(i, total, 
-                    "Galgame_GetCharacterInfo_GettingInfo".GetLocalized(character.Name, _galgame.Name.Value??""));
-                await UiThreadInvokeHelper.InvokeAsync(async Task() =>
+                lock (_runningTasksLock)
                 {
-                    character = await galgameService.PhraseGalCharacterAsync(character, _galgame.RssType);
-                });
-                log += $"{_galgame.Name.Value}->{character.Name} Done";
-                ChangeProgress(i+1, total, 
-                    "Galgame_GetCharacterInfo_GottenInfo".GetLocalized(character.Name, _galgame.Name.Value??""));
-
-            }
-            
-            await galgameService.SaveGalgamesAsync();
-            
-            ChangeProgress(0, 1, "Galgame_GetCharacterInfo_Saving".GetLocalized());
-            FileHelper.SaveWithoutJson(_galgame.GetLogName(), log, "Logs");
-            await Task.Delay(1000); //等待文件保存
-
-            ChangeProgress(1, 1, "Galgame_GetCharacterInfo_Done".GetLocalized(_galgame.Name.Value ?? string.Empty));
-            if (App.MainWindow is null && await localSettings.ReadSettingAsync<bool>(KeyValues.NotifyWhenGetGalgameInFolder))
-            {
-                App.SystemTray?.ShowNotification(nameof(NotificationIcon.Info),
-                    "Galgame_GetCharacterInfo_Done".GetLocalized(_galgame.Name.Value ?? string.Empty));
+                    if (GetCharactersQueue.IsEmpty && _runningTasks.Count == 0) break;
+                    _runningTasks.RemoveAll(t => t.IsCompleted);
+                    while (_runningTasks.Count < MaxRunning && GetCharactersQueue.TryDequeue(out Galgame? game))
+                    {
+                        Task t = GetCharacterAsync(game, gameService, progress =>
+                        {
+                            if (game is null) return;
+                            lock (_changeMsgLock)
+                                _runningTasksMsg[game] = $"{progress.Message}, {progress.Current}/{progress.Total}";
+                            UpdateProgressMsg();
+                        }).ContinueWith(t =>
+                        {
+                            if (game is null) return;
+                            lock (_changeMsgLock) // 防止这个时候正在迭代更新msg，导致迭代过程中容器被修改
+                            {
+                                _runningTasksMsg.TryRemove(game, out _);
+                            }
+                        });
+                        _runningTasks.Add(t);
+                    }
+                }
+                UpdateProgressMsg();
+                await Task.Delay(500);
             }
         })!);
+
+        void UpdateProgressMsg()
+        {
+            lock (_changeMsgLock)
+            {
+                int runningTasksCount;
+                lock (_runningTasksLock)
+                {
+                    runningTasksCount = _runningTasks.Count;
+                }
+                var msg = string.Empty;
+                foreach (var (game, message) in _runningTasksMsg)
+                    msg += $"{game.Name.Value}: {message}\n";
+                msg += "Galgame_GetCharacterInfo_RunningTasks".GetLocalized(GetCharactersQueue.Count);
+                ChangeProgress(runningTasksCount, runningTasksCount + GetCharactersQueue.Count, msg);
+            }
+        }
     }
 
-    public override bool OnSearch(string key) => _galgame?.Url.Contains(key) ?? false;
-    
+    /// 获取角色信息，注意捕获异常，若game为null则什么都不做
+    private static async Task GetCharacterAsync(Galgame? game, IGalgameCollectionService galgameService,
+        Action<Progress> onProgress)
+    {
+        if (game is null) return;
+        var log = string.Empty;
+        log += $"{DateTime.Now}\n{game.Name.Value}\n\n";
+        var total = game.Characters.Count;
+        var galgameName = game.Name.Value ?? string.Empty;
+        for (var i = 0; i < game.Characters.Count; i++)
+        {
+            GalgameCharacter character = game.Characters[i];
+            onProgress.Invoke(new Progress
+            {
+                Current = i, Total = total,
+                Message = "Galgame_GetCharacterInfo_GettingInfo".GetLocalized(character.Name),
+            });
+            await UiThreadInvokeHelper.InvokeAsync(async Task () =>
+            {
+                for (var retry = 0; retry < 3; retry++)
+                {
+                    try
+                    {
+                        character = await galgameService.PhraseGalCharacterAsync(character, game.RssType);
+                    }
+                    catch (ThrottledException)
+                    {
+                        //等待1分钟
+                        for (var wait = 60; wait > 0; wait -= 10)
+                        {
+                            onProgress.Invoke(new Progress
+                            {
+                                Current = i, Total = total,
+                                Message = "Galgame_GetCharacterInfo_Waiting".GetLocalized(wait),
+                            });
+                            await Task.Delay(1000 * 10);
+                        }
+                    }
+                }
+            });
+            log += $"{game.Name.Value}->{character.Name} Done\n";
+        }
+        onProgress.Invoke(new Progress
+        {
+            Current = total, Total = total,
+            Message = "Galgame_GetCharacterInfo_Saving".GetLocalized(),
+        });
+        FileHelper.SaveWithoutJson(game.GetLogName(), log, "Logs");
+        await Task.Delay(1000); //等待文件保存
+        onProgress.Invoke(new Progress
+        {
+            Current = 1, Total = 1,
+            Message = "Galgame_GetCharacterInfo_Done".GetLocalized(galgameName),
+        });
+    }
+
+    public override bool OnSearch(string key) => true;
+
     public override string Title { get; } = "GetCharacterInfoTask_Title".GetLocalized();
 }

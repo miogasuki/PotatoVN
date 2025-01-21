@@ -270,9 +270,6 @@
   <data name="SettingsPage_CloudSync_Root" xml:space="preserve">
     <value>Cloud Saves Root</value>
   </data>
-  <data name="Select" xml:space="preserve">
-    <value>Edit</value>
-  </data>
   <data name="Error" xml:space="preserve">
     <value>Error</value>
   </data>
@@ -492,9 +489,6 @@ Failure reasons:</value>
   </data>
   <data name="UpdateContentPage_Title.Text" xml:space="preserve">
     <value>Recently Updated</value>
-  </data>
-  <data name="UpdateContentPage_Refresh.Label" xml:space="preserve">
-    <value>Refresh</value>
   </data>
   <data name="UpdateContentPage_CurrentVersion" xml:space="preserve">
     <value>Current Version:</value>
@@ -871,9 +865,6 @@ Failure reasons:</value>
   <data name="HomePage_DragDrop.Text" xml:space="preserve">
     <value>Drag the game's executable here to add the game</value>
   </data>
-  <data name="UpdateContentPage_CategoryNow" xml:space="preserve">
-    <value>All games categorized by game developer</value>
-  </data>
   <data name="Shell_UpdateContent.Content" xml:space="preserve">
     <value>Change log</value>
   </data>
@@ -1066,9 +1057,6 @@ If play time can record correctly, just cancel this popup.
   <data name="UnpackGameTask_Done_Msg" xml:space="preserve">
     <value>{0} has been unpacked to {1} and added to library</value>
   </data>
-  <data name="GalgameFolderPage_AutoScan.Label" xml:space="preserve">
-    <value>Auto scan on startup</value>
-  </data>
   <data name="GalgameFolderPage_AddManually.Label" xml:space="preserve">
     <value>Add game manually</value>
   </data>
@@ -1179,5 +1167,11 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="GalgameFolder_GetGalgameInfo_Waiting" xml:space="preserve">
     <value>Waiting for character info to be downloaded</value>
+  </data>
+  <data name="Shell_MultiStream.Content" xml:space="preserve">
+    <value>MultiStream</value>
+  </data>
+  <data name="Shell_AnnualReport.Content" xml:space="preserve">
+    <value>AnnualReport</value>
   </data>
 </root>

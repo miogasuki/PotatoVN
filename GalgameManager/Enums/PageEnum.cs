@@ -3,5 +3,8 @@
 public enum PageEnum
 {
     Home,
-    Category
+    Category,
+    
+    /// 多信息流页（主页）
+    MultiStream,
 }

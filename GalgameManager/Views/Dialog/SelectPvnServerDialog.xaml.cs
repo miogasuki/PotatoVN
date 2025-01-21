@@ -32,7 +32,10 @@ public sealed partial class SelectPvnServerDialog
         Button.Content = "SelectPvnServerDialog_Checking".GetLocalized();
         try
         {
+            if (!(TextBox.Text.StartsWith("http") || TextBox.Text.StartsWith("https"))) //没有写协议，默认https
+                TextBox.Text = "https://" + TextBox.Text;
             Uri baseUri = new(TextBox.Text);
+            Button.Content = "Testing";
             HttpResponseMessage response = await _httpClient.GetAsync(new Uri(baseUri, "Server/info"));
             IsPrimaryButtonEnabled = response.IsSuccessStatusCode;
             Button.Content = response.IsSuccessStatusCode ? "OK" : "Failed";

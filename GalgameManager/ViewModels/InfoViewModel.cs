@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
@@ -40,10 +41,9 @@ public partial class InfoViewModel : ObservableObject, INavigationAware
         
         _bgTaskService.BgTaskAdded += AddBgTask;
         _bgTaskService.BgTaskRemoved += RemoveBgTask;
-        BgTasks.CollectionChanged += (_, _) => UpdateVisibility();
+        BgTasks.CollectionChanged += HandleCollectionChanged;
+        Infos.CollectionChanged += HandleCollectionChanged;
         
-        BgTaskExpanded = BgTasks.Count > 0;
-        InfoExpanded = Infos.Count > 0;
         UpdateVisibility();
     }
 
@@ -51,6 +51,8 @@ public partial class InfoViewModel : ObservableObject, INavigationAware
     {
         _bgTaskService.BgTaskAdded -= AddBgTask;
         _bgTaskService.BgTaskRemoved -= RemoveBgTask;
+        BgTasks.CollectionChanged -= HandleCollectionChanged;
+        Infos.CollectionChanged -= HandleCollectionChanged;
     }
 
     private void AddBgTask(BgTaskBase task)
@@ -68,6 +70,13 @@ public partial class InfoViewModel : ObservableObject, INavigationAware
     {
         NoBgTaskVisibility = BgTasks.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         NoInfoVisibility = Infos.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        BgTaskExpanded = BgTasks.Count > 0;
+        InfoExpanded = Infos.Count > 0;
+    }
+    
+    private void HandleCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdateVisibility();
     }
 }
 

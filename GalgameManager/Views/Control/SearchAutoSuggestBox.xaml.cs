@@ -1,13 +1,15 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using GalgameManager.Contracts.Services;
+using DependencyPropertyGenerator;
 using GalgameManager.Helpers;
-using GalgameManager.Services;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Views.Control
 {
+    [DependencyProperty<string>("SearchKey")]
+    [DependencyProperty<ICommand>("SearchCommand")]
+    [DependencyProperty<ICommand>("SearchSubmitCommand")]
+    [DependencyProperty<ISearchSuggestionsProvider>("SearchSuggestionsProvider")]
     public sealed partial class SearchAutoSuggestBox: UserControl
     {
         public SearchAutoSuggestBox()
@@ -19,37 +21,6 @@ namespace GalgameManager.Views.Control
     
         public readonly ObservableCollection<string> SearchSuggestions = new();
         private DateTime _lastSearchTime = DateTime.Now;
-
-        public static readonly DependencyProperty SearchKeyProperty = DependencyProperty.Register(
-            nameof(SearchKey),
-            typeof(string),
-            typeof(SearchAutoSuggestBox),
-            new PropertyMetadata(string.Empty));
-
-        public string SearchKey
-        {
-            get => (string)GetValue(SearchKeyProperty);
-            set => SetValue(SearchKeyProperty, value);
-        }
-        
-        public ICommand? SearchCommand
-        {
-            get => (ICommand)GetValue(SearchCommandProperty);
-            set => SetValue(SearchCommandProperty, value);
-        }
-    
-        public static readonly DependencyProperty SearchCommandProperty = DependencyProperty.Register(nameof(SearchCommand),
-            typeof(ICommand), typeof(SearchAutoSuggestBox), new PropertyMetadata(null));
-        
-        public ISearchSuggestionsProvider? SearchSuggestionsProvider
-        {
-            get => (ISearchSuggestionsProvider)GetValue(SearchSuggestionsProviderProperty);
-            set => SetValue(SearchSuggestionsProviderProperty, value);
-        }
-    
-        public static readonly DependencyProperty SearchSuggestionsProviderProperty = DependencyProperty.Register(nameof(SearchSuggestionsProvider),
-            typeof(ISearchSuggestionsProvider), typeof(SearchAutoSuggestBox), new PropertyMetadata(null));
-
         private async void AutoSuggestBox_OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (string.IsNullOrEmpty(SearchKey))
@@ -90,6 +61,7 @@ namespace GalgameManager.Views.Control
         {
             if (string.IsNullOrEmpty(SearchKey)) return;
             SearchCommand?.Execute(SearchKey);
+            SearchSubmitCommand?.Execute(SearchKey);
         }
     }
 }

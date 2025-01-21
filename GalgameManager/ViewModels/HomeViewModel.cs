@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -15,8 +14,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml;
 using Windows.ApplicationModel.DataTransfer;
-using CommunityToolkit.WinUI.UI;
-using CommunityToolkit.WinUI.UI.Controls;
+using CommunityToolkit.WinUI.Collections;
+using CommunityToolkit.WinUI.Controls;
 using GalgameManager.Helpers.Converter;
 using GalgameManager.Models.Filters;
 using GalgameManager.Models.Sources;
@@ -57,12 +56,11 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     public readonly string UiRemove = "HomePage_Remove".GetLocalized();
     private readonly string _uiSearch = "Search".GetLocalized();
     #endregion
-    
+
     /// <summary>
     /// 一定要有ObservableProperty，不然切换页面后不会更新
     /// </summary>
-    [ObservableProperty]
-    private AdvancedCollectionView _source = new(null, true);
+    [ObservableProperty] private AdvancedCollectionView _source = new(new List<Galgame>(), true);
 
     public HomeViewModel(INavigationService navigationService, IGalgameCollectionService dataCollectionService,
         ILocalSettingsService localSettingsService, IFilterService filterService, IInfoService infoService)
@@ -128,7 +126,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     public async void OnNavigatedFrom()
     {
         await Task.Delay(200); //等待动画结束
-        Source.Filter = null;
+        Source.Filter = _ => true; 
         if(await _localSettingsService.ReadSettingAsync<bool>(KeyValues.KeepFilters) == false)
             _filterService.ClearFilters();
         _galgameService.PhrasedEvent -= OnGalgameServicePhrased;
@@ -139,14 +137,10 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    private void ItemClick(ItemClickEventArgs e)
+    private void ItemClick(Galgame? clickedItem)
     {
-        Debug.Assert(e.ClickedItem is Galgame);
-        if (e.ClickedItem is Galgame clickedItem)
-        {
-            _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
-            _navigationService.NavigateTo(typeof(GalgameViewModel).FullName!, new GalgamePageParameter {Galgame = clickedItem});
-        }
+        if (clickedItem == null) return;
+        NavigationHelper.NavigateToGalgamePage(_navigationService, new GalgamePageParameter { Galgame = clickedItem });
     }
 
     #region DRAG_AND_DROP
@@ -291,7 +285,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                     ));
                     break;
                 case SortKeys.Name:
-                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), 
+                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), 
                         SortKeysAscending[i]?SortDirection.Descending:SortDirection.Ascending, 
                         StringComparer.CurrentCultureIgnoreCase
                     ));
@@ -316,6 +310,11 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                         SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending
                     ));
                     break;
+                case SortKeys.AddTime:
+                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), 
+                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending
+                    ));
+                    break;
             }
             
         }
@@ -327,41 +326,44 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     /// </summary>
     [RelayCommand]
     private async Task Sort()
-    
     {
-        // Move to homepage
-        List<SortKeys> sortKeysList = new()
+        // 创建一个字典来映射本地化字符串和枚举值
+        Dictionary<string, SortKeys> sortKeysMap = new()
         {
-            SortKeys.Name,
-            SortKeys.Developer,
-            SortKeys.Rating,
-            SortKeys.LastPlay,
-            SortKeys.ReleaseDate,
-            SortKeys.LastFetchInfoTime,
+            { SortKeys.Name.GetLocalized(), SortKeys.Name },
+            { SortKeys.Developer.GetLocalized(), SortKeys.Developer },
+            { SortKeys.Rating.GetLocalized(), SortKeys.Rating },
+            { SortKeys.LastPlay.GetLocalized(), SortKeys.LastPlay },
+            { SortKeys.ReleaseDate.GetLocalized(), SortKeys.ReleaseDate },
+            { SortKeys.LastFetchInfoTime.GetLocalized(), SortKeys.LastFetchInfoTime },
+            { SortKeys.AddTime.GetLocalized(), SortKeys.AddTime },
         };
+
+        List<string> sortKeysList = sortKeysMap.Keys.ToList();
+
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
-            Title = "排序",
+            Title = "HomePage_Sort_Title".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
         };
         
         ComboBox comboBox1 = new()
         {
-            Header = "第一关键字",
+            Header = "HomePage_Sort_FirstKey".GetLocalized(),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             ItemsSource = sortKeysList,
             Margin = new Thickness(0, 0, 5, 0),
-            SelectedItem = SortKeysList[0]
+            SelectedItem = SortKeysList[0].GetLocalized()
         };
         ToggleSwitch toggleSwitch1 = new()
         {
-            Header = "降序/升序",
+            Header = "HomePage_Sort_DescendOrAscend".GetLocalized(),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Margin = new Thickness(5, 0, 0, 0),
-            OnContent = "升序",
-            OffContent = "降序",
+            OnContent = "HomePage_Sort_Ascend".GetLocalized(),
+            OffContent = "HomePage_Sort_Descend".GetLocalized(),
             IsOn = SortKeysAscending[0]
         };
         StackPanel panel1 = new ();
@@ -371,19 +373,19 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         
         ComboBox comboBox2 = new()
         {
-            Header = "第二关键字",
+            Header = "HomePage_Sort_SecondKey".GetLocalized(),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             ItemsSource = sortKeysList,
             Margin = new Thickness(0, 0, 5, 0),
-            SelectedItem = SortKeysList[1]
+            SelectedItem = SortKeysList[1].GetLocalized()
         };
         ToggleSwitch toggleSwitch2 = new()
         {
-            Header = "降序/升序",
+            Header = "HomePage_Sort_DescendOrAscend".GetLocalized(),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Margin = new Thickness(5, 0, 0, 0),
-            OnContent = "升序",
-            OffContent = "降序",
+            OnContent = "HomePage_Sort_Ascend".GetLocalized(),
+            OffContent = "HomePage_Sort_Descend".GetLocalized(),
             IsOn = SortKeysAscending[1]
         };
         StackPanel panel2 = new ();
@@ -395,9 +397,13 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
         dialog.PrimaryButtonClick += async (_, _) =>
         {
+            // 将本地化字符串转换回枚举值
+            var selectedKey1 = sortKeysMap[(string)comboBox1.SelectedItem];
+            var selectedKey2 = sortKeysMap[(string)comboBox2.SelectedItem];
+
             UpdateSortKeys(
-                new[] { (SortKeys)comboBox1.SelectedItem, (SortKeys)comboBox2.SelectedItem },
-                new []{toggleSwitch1.IsOn, toggleSwitch2.IsOn});
+                new[] { selectedKey1, selectedKey2 },
+                new[] { toggleSwitch1.IsOn, toggleSwitch2.IsOn });
             await _localSettingsService.SaveSettingAsync(KeyValues.SortKeys, SortKeysList);
             await _localSettingsService.SaveSettingAsync(KeyValues.SortKeysAscending, SortKeysAscending);
         };
@@ -536,13 +542,18 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
 public class GalgameSearchSuggestionsProvider : ISearchSuggestionsProvider
 {
-    private GalgameCollectionService _galgameCollectionService;
-    public GalgameSearchSuggestionsProvider()
+    private readonly GalgameCollectionService _galgameCollectionService;
+    private readonly bool _searchName, _searchDeveloper, _searchTags;
+    
+    public GalgameSearchSuggestionsProvider(bool searchName = true, bool searchDeveloper = true, bool searchTags = true)
     {
+        _searchName = searchName;
+        _searchDeveloper = searchDeveloper;
+        _searchTags = searchTags;
         _galgameCollectionService = (App.GetService<IGalgameCollectionService>() as GalgameCollectionService)!;
     }
     public async Task<IEnumerable<string>?> GetSearchSuggestionsAsync(string key)
     {
-        return await _galgameCollectionService.GetSearchSuggestions(key);
+        return await _galgameCollectionService.GetSearchSuggestions(key, _searchName, _searchDeveloper, _searchTags);
     }
 }

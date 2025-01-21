@@ -33,6 +33,9 @@ public class DefaultActivationHandler : ActivationHandler<AppActivationArguments
             case PageEnum.Home:
                 _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
                 break;
+            case PageEnum.MultiStream:
+                _navigationService.NavigateTo(typeof(MultiStreamViewModel).FullName!);
+                break;
         }
     }
 }

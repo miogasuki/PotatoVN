@@ -8,36 +8,43 @@
     xmlns:control="using:GalgameManager.Views.Control"
     xmlns:prefab="using:GalgameManager.Views.Prefab"
     xmlns:models="using:GalgameManager.Models"
-    xmlns:dataTemplateSelector="using:GalgameManager.Helpers.DataTemplateSelector"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    mc:Ignorable="d">
+    xmlns:behaviors="using:GalgameManager.Behaviors"
+    mc:Ignorable="d"
+    x:Name="Page">
     
     <Page.Resources>
-        <MenuFlyout Placement="Right" x:Key="Flyout">
+        <MenuFlyout Placement="Right" x:Key="FolderFlyout">
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditFolder"
                             Command="{x:Bind ViewModel.EditLibraryCommand}" CommandParameter="{Binding}"/>
             <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_DeleteFolder"
                             Command="{x:Bind ViewModel.DeleteFolderCommand}" CommandParameter="{Binding}"/>
         </MenuFlyout>
-        <DataTemplate x:Key="GalgameTemplate" x:DataType="models:Galgame">
-            <prefab:GalgamePrefab Galgame="{x:Bind}"/>
-        </DataTemplate>
-        <DataTemplate x:Key="SourceTemplate" x:DataType="sources:GalgameSourceBase">
-            <prefab:SourcePrefab Source="{x:Bind}"
-                                 Flyout="{StaticResource Flyout}"/>
-        </DataTemplate>
-        <dataTemplateSelector:DisplayableGameObjectTemplateSelector 
-            x:Key="ObjectSelector"
-            GalgameTemplate="{StaticResource GalgameTemplate}"
-            SourceTemplate="{StaticResource SourceTemplate}"/>
+        
+        <MenuFlyout Placement="Right" x:Key="PageFlyout">
+            <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditCurrentFolder"
+                           Command="{x:Bind ViewModel.EditCurrentFolderCommand}"
+                           IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"/>
+        </MenuFlyout>
+
+        <MenuFlyout Placement="Right" x:Key="GameFlyout">
+            <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditGameInfo"
+                           Command="{x:Bind ViewModel.GalFlyOutEditCommand}"
+                           CommandParameter="{Binding}"/>
+            <MenuFlyoutItem Icon="Download" x:Uid="LibraryPage_DownloadGameInfo"
+                           Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}"
+                           CommandParameter="{Binding}"/>
+            <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_RemoveGame"
+                           Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}"
+                           CommandParameter="{Binding}"/>
+        </MenuFlyout>
     </Page.Resources>
 
-    <Grid Margin="0 0 0 20">
+
+    <Grid Margin="0 0 0 20" ContextFlyout="{StaticResource PageFlyout}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
@@ -48,6 +55,13 @@
                           IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="Left"/>
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <!-- 下载游戏数据 -->
+            <AppBarButton Icon="Download" x:Uid="LibraryPage_DownloadAllData"
+                          Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="D"/>
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
             <!-- 新增游戏库 -->
@@ -77,24 +91,105 @@
             </AppBarButton>
             <!-- <AppBarButton Icon="Share" Label="Share"/> -->
             <CommandBar.SecondaryCommands>
-                <AppBarButton Icon="Setting" Label="Settings" IsEnabled="False">
+                <!-- 显示导航栏 -->
+                <AppBarToggleButton x:Uid="LibraryPage_NavVisible" 
+                                    IsChecked="{x:Bind ViewModel.IsNavBarVisible, Mode=TwoWay}">
+                    <AppBarToggleButton.Icon>
+                        <control:ConditionalFontIcon Symbol="Setting" FluentGlyph="&#xE700;"/>
+                    </AppBarToggleButton.Icon>
+                </AppBarToggleButton>
+                <!-- 显示统计数据 -->
+                <AppBarToggleButton x:Uid="LibraryPage_StatisticsVisible" 
+                                    IsChecked="{x:Bind ViewModel.IsStatisticsVisible, Mode=TwoWay}">
+                    <AppBarToggleButton.Icon>
+                        <control:ConditionalFontIcon Symbol="Setting" FluentGlyph="&#xE8A1;"/>
+                    </AppBarToggleButton.Icon>
+                </AppBarToggleButton>
+                <AppBarSeparator/>
+                <AppBarButton Icon="Edit" x:Uid="LibraryPage_EditCurrentFolder_AppBarButton"
+                    Command="{x:Bind ViewModel.EditCurrentFolderCommand}"
+                    IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}">
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="I" />
+                        <KeyboardAccelerator Modifiers="Control" Key="E" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
             </CommandBar.SecondaryCommands>
         </CommandBar>
         
-        <GridView Grid.Row="1"
-                  ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                  IsItemClickEnabled="True" SelectionMode="None"
-                  ItemTemplateSelector="{StaticResource ObjectSelector}"
-                  PointerPressed="UIElement_OnPointerPressed">
-            <interactivity:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="ItemClick">
-                    <core:InvokeCommandAction Command="{x:Bind ViewModel.ItemClickCommand}" />
-                </core:EventTriggerBehavior>
-            </interactivity:Interaction.Behaviors>
-        </GridView>
+        <!-- 添加面包屑导航栏 -->
+        <BreadcrumbBar Grid.Row="1" 
+                       ItemsSource="{x:Bind ViewModel.PathNodes, Mode=OneWay}"
+                       ItemClicked="{x:Bind ViewModel.OnBreadcrumbBarItemClicked}"
+                       Visibility="{x:Bind ViewModel.IsNavBarVisible, Mode=OneWay}" 
+                       Margin="40,8,40,8">
+            <BreadcrumbBar.ItemTemplate>
+                <DataTemplate x:DataType="sources:GalgameSourceBase">
+                    <TextBlock Text="{x:Bind Name}"/>
+                </DataTemplate>
+            </BreadcrumbBar.ItemTemplate>
+        </BreadcrumbBar>
+
+        <ScrollViewer Grid.Row="2">
+            <StackPanel>
+                <!-- 游戏库列表 -->
+                <GridView x:Name="GridView"
+                          ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                          PointerPressed="UIElement_OnPointerPressed"
+                          SelectionMode="None"
+                          Visibility="{x:Bind ViewModel.SourceVisible, Mode=OneWay}">
+                    <behaviors:GridViewSpacingBehavior GridView="{x:Bind GridView}"
+                                                       TargetWidth="175"
+                                                       ItemSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                                                       Calc="{x:Bind ViewModel.UpdateGridSpacing, Mode=OneWay}" />
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="sources:GalgameSourceBase">
+                            <Button Style="{StaticResource TransparentButtonWithHover}"
+                                    DataContext="{x:Bind}"
+                                    Command="{Binding ElementName=Page, Path=ViewModel.NavigateToCommand}"
+                                    CommandParameter="{x:Bind}"
+                                    Width="175"
+                                    ContextFlyout="{StaticResource FolderFlyout}">
+                                <prefab:SourcePrefab Source="{x:Bind}" />
+                            </Button>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+
+                <!-- 游戏列表 -->
+                <GridView x:Name="GridView2"
+                          ItemsSource="{x:Bind ViewModel.Galgames, Mode=OneWay}"
+                          PointerPressed="UIElement_OnPointerPressed"
+                          SelectionMode="None"
+                          Visibility="{x:Bind ViewModel.GalgamesVisible,Mode=OneWay}">
+                    <behaviors:GridViewSpacingBehavior GridView="{x:Bind GridView2}"
+                                                       TargetWidth="175"
+                                                       ItemSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                                                       Calc="{x:Bind ViewModel.UpdateGridSpacing, Mode=OneWay}" />
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Galgame">
+                            <Button Style="{StaticResource TransparentButtonWithHover}"
+                                    DataContext="{x:Bind}"
+                                    Command="{Binding ElementName=Page, Path=ViewModel.NavigateToCommand}"
+                                    CommandParameter="{x:Bind}"
+                                    ContextFlyout="{StaticResource GameFlyout}">
+                                <prefab:GalgamePrefab Galgame="{x:Bind}" />
+                            </Button>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 添加统计信息悬浮窗 -->
+        <InfoBar Grid.Row="2"
+                 Visibility="{x:Bind ViewModel.IsStatisticsVisible, Mode=OneWay}"
+                 IsOpen="True"
+                 IsClosable="False"
+                 IsIconVisible="False"
+                 Severity="Informational"
+                 Message="{x:Bind ViewModel.StatisticsText, Mode=OneWay}"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Right"
+                 Margin="0,0,24,24"/>
     </Grid>
 </Page>

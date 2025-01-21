@@ -148,4 +148,13 @@ public static class FolderOperations
     {
         return new DirectoryInfo(path).LinkTarget is not null;
     }
+
+    public static DirectoryInfo CreateSubdirectoryEx(this DirectoryInfo directory, string subdirectory,
+        bool overWrite = false)
+
+    {
+        if (overWrite && Directory.Exists(Path.Combine(directory.FullName, subdirectory)))
+            Directory.Delete(Path.Combine(directory.FullName, subdirectory), true);
+        return directory.CreateSubdirectory(subdirectory);
+    }
 }

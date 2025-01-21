@@ -4,43 +4,42 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:converter="using:GalgameManager.Helpers.Converter"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converter:InverseVisibilityConverter x:Key="InverseVisibilityConverter" />
+    </Page.Resources>
 
     <Grid Margin="{ThemeResource PageButtonMargin}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
+
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                     Margin="0 -70 0 0">
-            <AppBarButton Icon="Flag" Label="{x:Bind ViewModel.CurrentVersion, Mode=OneWay}"/>
-            <AppBarButton Icon="Refresh" x:Uid="UpdateContentPage_Refresh"
-                          Command="{x:Bind ViewModel.DownloadClickCommand}" />
+            <AppBarButton Icon="Flag" Label="{x:Bind ViewModel.CurrentVersion, Mode=OneWay}" />
+            <AppBarButton Icon="Go" x:Uid="UpdateContentPage_SeeWebsite"
+                          Command="{x:Bind ViewModel.LaunchWebsiteCommand}"/>
         </CommandBar>
 
-        <ScrollViewer Grid.Row="1" Margin="{StaticResource MediumTopMargin}">
-            <controls:MarkdownTextBlock Text="{x:Bind ViewModel.UpdateContent, Mode=OneWay}"
-                                        Background="Transparent">
-                <interactivity:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="LinkClicked">
-                        <core:InvokeCommandAction Command="{x:Bind ViewModel.LinkClickCommand}" />
-                    </core:EventTriggerBehavior>
-                </interactivity:Interaction.Behaviors>
-            </controls:MarkdownTextBlock>
-        </ScrollViewer>
+        <WebView2 Grid.Row="1" Visibility="{x:Bind ViewModel.WebView2Ok, Mode=OneWay}"
+                  Source="https://potatovn.net/raw/upgrade-log.html" />
 
-        <ProgressRing Grid.Row="1" Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                      Width="100" Height="100" />
-
-        <InfoBar Grid.Row="2" IsOpen="{x:Bind ViewModel.InfoBarOpen, Mode= OneWay}" 
-                 Severity="{x:Bind ViewModel.InfoBarSeverity, Mode=OneWay}"
-                 Message="{x:Bind ViewModel.InfoBarMsg, Mode=OneWay}" />
+        <Grid Grid.Row="1"
+              Visibility="{x:Bind ViewModel.WebView2Ok, Mode=OneWay, 
+                Converter={StaticResource InverseVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Spacing="10">
+                <TextBlock x:Uid="UpdateContentPage_WebView2IsNeeded" 
+                           Style="{StaticResource TitleTextBlockStyle}" 
+                           HorizontalAlignment="Center"/>
+                <HyperlinkButton x:Uid="UpdateContentPage_DownloadWebview2" 
+                                 HorizontalAlignment="Center"
+                                 NavigateUri="https://go.microsoft.com/fwlink/p/?LinkId=2124703"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 
 </Page>

@@ -14,23 +14,25 @@
         <converter:SourcesToStringConverter x:Key="SourcesToStringConverter" />
     </UserControl.Resources>
 
-    <Grid Width="175" Height="300" 
+    <Grid MinWidth="{x:Bind CalcValue(175)}" 
+          MinHeight="{x:Bind CalcValue(300)}" 
           ContextFlyout="{x:Bind Flyout}" Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
         <StackPanel HorizontalAlignment="Center">
             <Grid
                 Opacity="{x:Bind Galgame, Mode=OneWay,
                             Converter={StaticResource GameToOpacityConverter}}"
-                x:Name="ConnectedElement">
+                x:Name="ConnectedElement"
+                CornerRadius="10">
                 <Rectangle
-                    Height="209"
+                    Height="{x:Bind CalcValue(209)}"
+                    Width="{x:Bind CalcValue(150)}"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Width="150">
+                    VerticalAlignment="Center">
                     <Rectangle.Fill>
                         <ImageBrush
                             ImageSource="{x:Bind Galgame.ImagePath.Value, Mode=OneWay, 
                             Converter={StaticResource ImagePathConverter}, FallbackValue={x:Null}}"
-                            Stretch="{x:Bind ImageStretch, Mode=OneWay}" />
+                            Stretch="{x:Bind ImageStretch, Mode=OneWay}"/>
                     </Rectangle.Fill>
                 </Rectangle>
                 <!--  游玩状态标记(右上角)  -->
@@ -50,7 +52,8 @@
                     CornerRadius="4"
                     HorizontalAlignment="Right"
                     Padding="5,2,5,2"
-                    VerticalAlignment="Bottom">
+                    VerticalAlignment="Bottom"
+                    Visibility="{x:Bind SourceVisibility, Mode=OneWay}">
                     <Border.Shadow>
                         <ThemeShadow />
                     </Border.Shadow>
@@ -67,9 +70,11 @@
             <TextBlock
                 HorizontalAlignment="Center"
                 Margin="{StaticResource XXSmallTopMargin}"
-                MaxHeight="85"
+                Height="{x:Bind CalcValue(TextHeight), Mode=OneWay}" 
+                MaxWidth="{x:Bind CalcValue(150)}"
                 Style="{ThemeResource BodyTextStyle}"
-                Text="{x:Bind Galgame.Name, Mode=OneWay, FallbackValue={x:Null}}" />
+                Text="{x:Bind Galgame.Name, Mode=OneWay, FallbackValue={x:Null}}" 
+                FontSize="{x:Bind MediumFontSize, Mode=OneWay}"/>
         </StackPanel>
         
         <!-- 透明控件，确保右键时射线检测能够打到Item上 -->

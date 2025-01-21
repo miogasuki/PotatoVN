@@ -14,21 +14,21 @@
         <x:Double x:Key="ToggleSwitchWidth">20</x:Double>
         <converter:EnumToStringConverter x:Key="EnumStringConverter" />
         <converter:BoolToVisibilityConverter x:Key="BoolVisibilityConverter" />
-        <Style x:Key="AccountStackPanelStyle" TargetType="control:StackPanelWithSpacing">
-            <Setter Property="Space" Value="13" />
+        <Style x:Key="AccountStackPanelStyle" TargetType="StackPanel">
+            <Setter Property="Spacing" Value="13" />
             <Setter Property="Orientation" Value="Vertical" />
         </Style>
     </Page.Resources>
 
     <Grid Margin="{ThemeResource PageButtonMargin}">
         <ScrollViewer Grid.Row="0" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Auto">
-            <control:StackPanelWithSpacing Margin="0 10 25 0">
+            <StackPanel Margin="0 10 25 0">
                 <!-- PotatoVN -->
                 <control:AccountPanel Title="PotatoVN" Expand="True"
                                       Avatar="{x:Bind ViewModel.PvnAvatar, Mode=OneWay}"
                                       UserName="{x:Bind ViewModel.PvnDisplayName, Mode=OneWay}"
                                       Description="{x:Bind ViewModel.PvnStateMsg, Mode=OneWay}">
-                    <control:StackPanelWithSpacing Style="{StaticResource AccountStackPanelStyle}">
+                    <StackPanel Style="{StaticResource AccountStackPanelStyle}">
                         <!-- 账号状态 -->
                         <control:Panel>
                             <control:Setting x:Uid="AccountPage_AccountStatus"
@@ -93,7 +93,7 @@
                                 </ComboBox>
                             </control:Setting>
                         </control:Panel>
-                    </control:StackPanelWithSpacing>
+                    </StackPanel>
                 </control:AccountPanel>
 
                 <!-- Bangumi -->
@@ -103,7 +103,7 @@
                                       DefaultAvatar="ms-appx:///Assets/Pictures/bangumi.png"
                                       Description="{x:Bind ViewModel.BgmDescription, Mode=OneWay}"
                                       Expand="True">
-                    <control:StackPanelWithSpacing Style="{StaticResource AccountStackPanelStyle}">
+                    <StackPanel Style="{StaticResource AccountStackPanelStyle}">
                         <!-- 账号状态 -->
                         <control:Panel>
                             <control:Setting x:Uid="AccountPage_AccountStatus"
@@ -120,7 +120,7 @@
                                         Command="{x:Bind ViewModel.BgmRefreshTokenCommand}" />
                             </control:Setting>
                         </control:Panel>
-                    </control:StackPanelWithSpacing>
+                    </StackPanel>
                 </control:AccountPanel>
                 <!-- Vndb -->
                 <control:AccountPanel Title="Vndb"
@@ -128,7 +128,7 @@
                                       DefaultAvatar="ms-appx:///Assets/Pictures/vndb.png"
                                       Description="{x:Bind ViewModel.VndbDescription, Mode=OneWay}"
                                       Expand="True">
-                    <control:StackPanelWithSpacing Style="{StaticResource AccountStackPanelStyle}">
+                    <StackPanel Style="{StaticResource AccountStackPanelStyle}">
                         <!-- 账号状态 -->
                         <control:Panel>
                             <control:Setting x:Uid="AccountPage_AccountStatus"
@@ -138,9 +138,9 @@
                                         Command="{x:Bind ViewModel.VndbLoginBtnCommand, Mode=OneWay}" />
                             </control:Setting>
                         </control:Panel>
-                    </control:StackPanelWithSpacing>
+                    </StackPanel>
                 </control:AccountPanel>
-            </control:StackPanelWithSpacing>
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </Page>

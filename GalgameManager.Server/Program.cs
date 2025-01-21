@@ -97,7 +97,16 @@ public class Program
         // DataBase Migration
         using (IServiceScope scope = app.Services.CreateScope())
         {
-            scope.ServiceProvider.GetRequiredService<DataContext>().Database.Migrate();
+            try
+            {
+                scope.ServiceProvider.GetRequiredService<DataContext>().Database.Migrate();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to migrate database:\n{e.Message}{e.StackTrace}");
+                return;
+            }
+            
         }
 
         // Configure the HTTP request pipeline.
@@ -125,7 +134,6 @@ public class Program
         result = Check("AppSettings:Minio:EndPoint") && result;
         result = Check("AppSettings:Minio:AccessKey") && result;
         result = Check("AppSettings:Minio:SecretKey") && result;
-        result = Check("AppSettings:Minio:EventToken") && result;
         
         result = CheckBoolValue("AppSettings:Minio:UseSSL", out _) && result;
         result = CheckBoolValue("AppSettings:Bangumi:OAuth2Enable", out var isBgmOAuth2Enable) && result;

@@ -1,15 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using System.Globalization;
-using Windows.Foundation.Metadata;
 using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Contracts;
-using GalgameManager.Core.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using GalgameManager.Helpers.Phrase;
 using GalgameManager.Models.Sources;
 using Newtonsoft.Json;
-using SystemPath = System.IO.Path;
 
 namespace GalgameManager.Models;
 
@@ -18,21 +13,11 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public const string DefaultImagePath = "ms-appx:///Assets/WindowIcon.ico";
     public const string DefaultString = "——";
     public const string MetaPath = ".PotatoVN";
-    public static readonly int PhraserNumber = 6;
+    public static readonly int PhraserNumber = 7;
     
-    public event GenericDelegate<(Galgame, string)>? GalPropertyChanged;
-    public event GenericDelegate<Exception>? ErrorOccurred; //非致命异常产生时触发
+    public event Action<Galgame, string, object>? GalPropertyChanged;
+    public event Action<Exception>? ErrorOccurred; //非致命异常产生时触发
     
-    public string Path
-    {
-        get;
-        set;
-    } = "";
-    
-    public GalgameSourceType SourceType { get; set; }=GalgameSourceType.UnKnown;
-    
-    public string Url => $"{SourceType.SourceTypeToString()}://{Path}";
-
     [JsonIgnore] public GalgameUid Uid => new()
     {
         Name = Name.Value!,
@@ -41,7 +26,9 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         VndbId = Ids[(int)RssType.Vndb],
         PvnId = Ids[(int)RssType.PotatoVn],
     };
-
+    /// 唯一标识， 若要判断两个游戏是否为同一个游戏，应使用<see cref="GalgameUid"/>
+    public Guid Uuid  = Guid.NewGuid();
+    
     [ObservableProperty] private LockableProperty<string> _imagePath = DefaultImagePath;
 
     [JsonIgnore] public string? ImageUrl;
@@ -56,12 +43,15 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private LockableProperty<float> _rating = 0;
     [ObservableProperty] private LockableProperty<DateTime> _releaseDate = DateTime.MinValue;
     [ObservableProperty] private DateTime _lastFetchInfoTime = DateTime.MinValue; //上次搜刮信息时间(i.e.当前信息是什么时候搜刮产生的)
+    [ObservableProperty] private DateTime _addTime = DateTime.MinValue; //游戏添加时间
     [ObservableProperty] private ObservableCollection<GalgameCharacter> _characters = new();
     [JsonIgnore][ObservableProperty] private string _savePosition = string.Empty;
     [ObservableProperty] private string? _exePath;
     [ObservableProperty] private LockableProperty<ObservableCollection<string>> _tags;
     [ObservableProperty] private int _totalPlayTime; //单位：分钟
     [ObservableProperty] private bool _runAsAdmin; //是否以管理员权限运行
+    [ObservableProperty] private bool _runInLocaleEmulator; //是否转区运行
+    [ObservableProperty] private bool _highDpi; //是否高DPI替代缩放
     private RssType _rssType = RssType.None;
     [ObservableProperty] private PlayType _playType;
     // ReSharper disable once MemberCanBePrivate.Global
@@ -77,14 +67,20 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public string? TextPath; //记录的要打开的文本的路径
     public bool PvnUpdate; //是否需要更新
     public PvnUploadProperties PvnUploadProperties; // 要更新到Pvn的属性
+    [ObservableProperty] private string _startup_parameters = string.Empty;//启动参数
+
+    #region OBSOLETE_PROPERTIES //已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据）
     
-    // 已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据）
-    [Deprecated($"use {nameof(LastPlayTime)} instead", DeprecationType.Deprecate, 0)]
+    [Obsolete($"use {nameof(LastPlayTime)} instead")]
     [JsonProperty]
     public LockableProperty<string> LastPlay
     {
         set => LastPlayTime = Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
     }
+    
+    [Obsolete($"Use {nameof(LocalPath)} instead")]
+    public string Path { get; set; } = "";
+    #endregion
 
     [JsonIgnore] public string? Id
     {
@@ -96,8 +92,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
             {
                Ids[(int)RssType] = value;
                OnPropertyChanged();
-               if (_rssType == RssType.Mixed)
-                   UpdateIdFromMixed();
+               if (_rssType == RssType.Mixed) UpdateIdFromMixed();
+               else UpdateMixedId();
             }
         }
     }
@@ -132,23 +128,12 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public Galgame()
     {
         _tags = new ObservableCollection<string>();
-        _developer.OnValueChanged += _ => GalPropertyChanged?.Invoke((this, "developer"));
+        _developer.OnValueChanged += _ => GalPropertyChanged?.Invoke(this, nameof(Developer), Developer);
     }
 
-    public Galgame(GalgameSourceType sourceType, string name, string path)
-    {
-        SourceType = sourceType;
-        Name = name;
-        Path = path;
-        _tags = new ObservableCollection<string>();
-        _developer.OnValueChanged += _ => GalPropertyChanged?.Invoke((this, "developer"));
-    }
-
-    public Galgame(string name)
+    public Galgame(string name) : this()
     {
         Name = name;
-        _tags = new ObservableCollection<string>();
-        _developer.OnValueChanged += _ => GalPropertyChanged?.Invoke((this, "developer"));
     }
 
     public override string ToString() => Name.Value ?? string.Empty;
@@ -161,42 +146,26 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         GalgameSourceBase? s = Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder);
         return s != null && Directory.Exists(s.GetPath(this));
     }
-    
-    public bool CheckIsZip()
-    {
-        return SourceType == GalgameSourceType.LocalZip;
-    }
 
     /// <summary>
     /// 该游戏是否是本地游戏（存在于某个本地文件夹库中）
     /// </summary>
-    public bool IsLocalGame => Sources.Any(s => s.SourceType == GalgameSourceType.LocalFolder);
+    [JsonIgnore] public bool IsLocalGame => Sources.Any(s => s.SourceType == GalgameSourceType.LocalFolder);
 
     /// <summary>
     /// 删除游戏文件夹
     /// </summary>
     public void Delete()
     {
-        new DirectoryInfo(Path).Delete(true);
+        if (LocalPath is not { } path) return;
+        new DirectoryInfo(path).Delete(true);
     }
-    
-    /// <summary>
-    /// 时间转换
-    /// </summary>
-    /// <param name="time">年/月/日</param>
-    /// <returns></returns>
-    public static long GetTime(string time)
-    {
-        if (time == DefaultString)
-            return 0;
-        if (DateTime.TryParseExact(time, "yyyy/M/d", CultureInfo.InvariantCulture, DateTimeStyles.None,
-                out DateTime dateTime))
-        {
-            return (long)(dateTime - DateTime.MinValue).TotalDays;
-        }
 
-        return 0;
-    }
+    /// <summary>
+    /// 获取该游戏的本地文件夹路径，若其不是本地游戏则返回null
+    /// </summary>
+    [JsonIgnore] public string? LocalPath =>
+        Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(this);
 
     /// <summary>
     /// 获取游戏文件夹下的所有exe以及bat文件
@@ -204,9 +173,11 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <returns>所有exe以及bat文件地址</returns>
     public List<string> GetExesAndBats()
     {
-        List<string> result = Directory.GetFiles(Path).Where(file => file.ToLower().EndsWith(".exe")).ToList();
-        result.AddRange(Directory.GetFiles(Path).Where(file => file.ToLower().EndsWith(".bat")));
-        result.AddRange(Directory.GetFiles(Path).Where(file => file.ToLower().EndsWith(".lnk")));
+        var path = LocalPath;
+        if (path is null) return new List<string>();
+        List<string> result = Directory.GetFiles(path).Where(file => file.ToLower().EndsWith(".exe")).ToList();
+        result.AddRange(Directory.GetFiles(path).Where(file => file.ToLower().EndsWith(".bat")));
+        result.AddRange(Directory.GetFiles(path).Where(file => file.ToLower().EndsWith(".lnk")));
         return result;
     }
     
@@ -216,140 +187,9 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <returns>子文件夹地址</returns>
     public List<string> GetSubFolders()
     {
-        List<string> result = Directory.GetDirectories(Path).ToList();
+        if (LocalPath is null) return [];
+        List<string> result = Directory.GetDirectories(LocalPath).ToList();
         return result;
-    }
-
-    /// <summary>
-    /// 获取该游戏信息文件夹地址
-    /// </summary>
-    /// <returns></returns>
-    public string GetMetaPath()
-    {
-        return SourceType switch
-        {
-            GalgameSourceType.LocalFolder => SystemPath.Combine(Path, MetaPath),
-            GalgameSourceType.LocalZip when SystemPath.GetDirectoryName(Path) is { } p => 
-                SystemPath.Combine(p, MetaPath, SystemPath.GetFileNameWithoutExtension(Path)),
-            _ => ""
-        };
-    }
-
-    /// <summary>
-    /// 获取用来保存meta信息的galgame，用于序列化
-    /// </summary>
-    /// <param name="metaPath">meta文件夹路径</param>
-    /// <param name="gamePath">游戏文件夹路径</param>
-    /// <returns></returns>
-    public Galgame GetMetaCopy(string metaPath, string gamePath)
-    {
-        Dictionary<string, int> playTime = new();
-        foreach (var (key, value) in PlayedTime)
-            playTime.Add(key, value);
-        ObservableCollection<GalgameCharacter> characters = new();
-        foreach (var character in Characters)
-        {
-            characters.Add(new GalgameCharacter
-            {
-                Name = character.Name,
-                Relation = character.Relation,
-                PreviewImagePath = $".{SystemPath.DirectorySeparatorChar}" +
-                                   SystemPath.GetFileName(character.PreviewImagePath),
-                ImagePath = $".{SystemPath.DirectorySeparatorChar}" + SystemPath.GetFileName(character.ImagePath),
-                Summary = character.Summary,
-                Gender = character.Gender,
-                BirthYear = character.BirthYear,
-                BirthMon = character.BirthMon,
-                BirthDay = character.BirthDay,
-                BirthDate = character.BirthDate,
-                BloodType = character.BloodType,
-                Height = character.Height,
-                Weight = character.Weight,
-                BWH = character.BWH,
-            });
-        }
-        Galgame result = new()
-        {
-            SourceType = SourceType, 
-            ImagePath = ImagePath.Value is null or DefaultImagePath ? DefaultImagePath :
-                $".{SystemPath.DirectorySeparatorChar}" + SystemPath.GetFileName(ImagePath),
-            PlayedTime = playTime,
-            Name = Name.Value ?? string.Empty,
-            Characters = characters, 
-            CnName = CnName,
-            Description = Description.Value ?? string.Empty,
-            Developer = Developer.Value ?? DefaultString,
-            LastPlayTime = LastPlayTime,
-            ExpectedPlayTime = ExpectedPlayTime.Value ?? DefaultString,
-            Rating = Rating.Value,
-            ReleaseDate = ReleaseDate.Value,
-            ExePath = ExePath is null ? null : SystemPath.GetRelativePath(metaPath, ExePath),
-            Tags = new ObservableCollection<string>(Tags.Value!.ToList()),
-            TotalPlayTime = TotalPlayTime,
-            RunAsAdmin = RunAsAdmin,
-            PlayType = PlayType,
-            Ids = Ids,
-            RssType = RssType,
-            Comment = Comment,
-            MyRate = MyRate,
-            PrivateComment = PrivateComment,
-            SavePath = SavePath,
-            ProcessName = ProcessName,
-            TextPath =  TextPath,
-        };
-        return result;
-    }
-
-    /// <summary>
-    /// 从meta信息中恢复游戏信息
-    /// </summary>
-    /// <param name="meta">待恢复的数据</param>
-    /// <param name="metaFolderPath">meta文件夹路径</param>
-    /// <returns>恢复过后的信息</returns>
-    public static Galgame ResolveMetaFromLocalFolder(Galgame meta,string metaFolderPath)
-    {
-        if(meta.SourceType is not (GalgameSourceType.LocalFolder or GalgameSourceType.LocalZip))return meta;
-        meta = App.GetService<IFileService>().Read<Galgame>(metaFolderPath, "meta.json")!;
-        meta.Path = SystemPath.GetFullPath(SystemPath.Combine(metaFolderPath, meta.Path));
-        if (meta.Path.EndsWith('\\')) meta.Path = meta.Path[..^1];
-        if (meta.ImagePath.Value != DefaultImagePath)
-        {
-            meta.ImagePath.Value = SystemPath.GetFullPath(SystemPath.Combine(metaFolderPath, meta.ImagePath.Value!));
-            if(File.Exists(meta.ImagePath) == false)
-                meta.ImagePath.Value = DefaultImagePath;
-        }
-        foreach (GalgameCharacter character in meta.Characters)
-        {
-            character.ImagePath = SystemPath.GetFullPath(SystemPath.Combine(metaFolderPath, character.ImagePath));
-            if (!File.Exists(character.ImagePath))
-                character.ImagePath = DefaultImagePath;
-            character.PreviewImagePath = SystemPath.GetFullPath(SystemPath.Combine(metaFolderPath, character.PreviewImagePath));
-            if (!File.Exists(character.PreviewImagePath))
-                character.PreviewImagePath = DefaultImagePath;
-        }
-        meta.UpdateIdFromMixed();
-        if (meta.SourceType == GalgameSourceType.LocalFolder)
-        {
-            if (meta.ExePath != null)
-            {
-                meta.ExePath = SystemPath.GetFullPath(SystemPath.Combine(metaFolderPath, meta.ExePath));
-                if (!File.Exists(meta.ExePath))
-                    meta.ExePath = null;
-            }
-            meta.SavePath = Directory.Exists(meta.SavePath) ? meta.SavePath : null; //检查存档路径是否存在并设置SavePosition字段
-            meta.FindSaveInPath();
-        }
-        else
-        {
-            meta.ExePath = null;
-        }
-        return meta;
-    }
-
-    // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnPlayTypeChanged(PlayType value)
-    {
-        GalPropertyChanged?.Invoke((this, "playType"));
     }
 
     /// <summary>
@@ -357,19 +197,32 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// </summary>
     public void UpdateIdFromMixed()
     {
-        Dictionary<string, string?> tmp = MixedPhraser.Id2IdDict(Ids[(int)RssType.Mixed] ?? "");
-        if (tmp.TryGetValue("bgm", out var bgm) && bgm != "null" && bgm != null)
+        foreach (RssType rss in RssTypeHelper.UsablePhrasers)
+            Ids[(int)rss] = null;
+        var ids = Ids[(int)RssType.Mixed] ?? string.Empty.Replace("，", ",").Replace(" ", "");
+        foreach (var id in ids.Split(",").Where(s => s.Contains(':')))
         {
-            Ids[(int)RssType.Bangumi] = bgm;
+            var parts = id.Split(":");
+            if (parts.Length != 2) continue;
+            if (parts[0].GetRssType() is not { } type) continue;
+            Ids[(int)type] = parts[1] == "null" ? null : parts[1];
         }
-        if (tmp.TryGetValue("vndb", out var vndb) && vndb != "null"&& vndb != null)
+    }
+
+    /// <summary>
+    /// 从其他数据源的id更新混合数据源的id
+    /// </summary>
+    public void UpdateMixedId()
+    {
+        // 更新id
+        var mixedId = string.Empty;
+        foreach (RssType rss in RssTypeHelper.UsablePhrasers)
         {
-            Ids[(int)RssType.Vndb] = vndb;
+            var id = Ids[(int)rss];
+            mixedId += $"{rss.GetAbbr()}:{id ?? "null"},";
+            Ids[(int)rss] = id == "null" ? null : id;
         }
-        if (tmp.TryGetValue("ymgal", out var ymgal) && ymgal != "null"&& ymgal != null)
-        {
-            Ids[(int)RssType.Ymgal] = ymgal;
-        }
+        Ids[(int)RssType.Mixed] = mixedId.TrimEnd(',');
     }
 
     /// <summary>
@@ -377,12 +230,12 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// </summary>
     public void FindSaveInPath()
     {
-        if (!CheckExistLocal()) return;
+        if (!CheckExistLocal() || LocalPath is not { } path) return;
         try
         {
             var cnt = 0;
             string? result = null;
-            foreach (var subDir in Directory.GetDirectories(Path))
+            foreach (var subDir in Directory.GetDirectories(path))
                 if (FolderOperations.IsSymbolicLink(subDir))
                 {
                     cnt++;
@@ -399,8 +252,31 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     
     /// 检查是否所有的id都为空
     public bool IsIdsEmpty() => Ids.All(string.IsNullOrEmpty);
-    
-    public string GetLogName() => $"Galgame_{Url.ToBase64().Replace("/", "").Replace("=", "")}.txt";
+
+    /// <summary>
+    /// 合并各种时间信息<br/>
+    /// PlayedTime, LastPlayTime, ReleaseDate
+    /// </summary>
+    public void MergeTime(Galgame? other)
+    {
+        if (other is null) return;
+        // 合并PlayedTime
+        foreach (var (key, value) in other.PlayedTime)
+        {
+            if (!PlayedTime.TryAdd(key, value))
+                PlayedTime[key] = int.Max(value, PlayedTime[key]);
+        }
+        // 排序PlayedTime
+        PlayedTime = PlayedTime.OrderBy(pair => Utils.TryParseDateGuessCulture(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+        TotalPlayTime = PlayedTime.Values.Sum();
+        LastPlayTime = PlayedTime.Count > 0
+            ? PlayedTime.Keys.Select(Utils.TryParseDateGuessCulture).Max()
+            : DateTime.MinValue;
+        ReleaseDate.Value = other.ReleaseDate.Value > ReleaseDate.Value ? other.ReleaseDate.Value : ReleaseDate.Value;
+    }
+
+    public string GetLogName() => $"Galgame_{(Name.Value ?? string.Empty).RemoveInvalidChars()}.txt";
     
     public bool ApplySearchKey(string searchKey)
     {
@@ -408,6 +284,12 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
                Developer.Value!.ContainX(searchKey) || 
                Tags.Value!.Any(str => str.ContainX(searchKey));
     }
+
+    /// 触发属性变更事件，用于手动更新页面
+    public void RaisePropertyChanged(string propertyName) => OnPropertyChanged(propertyName);
+
+    partial void OnLastPlayTimeChanged(DateTime value) => GalPropertyChanged?.Invoke(this, nameof(LastPlayTime), value);
+    partial void OnPlayTypeChanged(PlayType value) => GalPropertyChanged?.Invoke(this, nameof(PlayType), value);
 }
 
 
@@ -419,4 +301,5 @@ public enum SortKeys
     Rating,
     ReleaseDate,
     LastFetchInfoTime,
+    AddTime,
 }

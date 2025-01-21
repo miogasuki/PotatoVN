@@ -44,7 +44,6 @@ public sealed partial class ShellPage : Page
     {
         if(App.Status == WindowMode.Close) return;
         WindowMode closeMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.CloseMode).Result;
-        if (closeMode == WindowMode.Close) return;
         if (closeMode == WindowMode.Normal)
         {
             appWindowClosingEventArgs.Cancel = true;

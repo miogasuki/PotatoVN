@@ -2,19 +2,12 @@
 
 namespace GalgameManager.Models.Filters;
 
-public class SourceFilter : FilterBase
+public class SourceFilter(GalgameSourceBase source) : FilterBase
 {
-    private readonly GalgameSourceBase _source;
+    public GalgameSourceBase Source { get; } = source;
 
-    public SourceFilter(GalgameSourceBase source)
-    {
-        Name = source.Name;
-        SuggestName = $"{source.Name}/Source";
-        _source = source;
-    }
+    public override bool Apply(Galgame galgame) => Source.Contain(galgame);
 
-    public override bool Apply(Galgame galgame) => _source.Contain(galgame);
-
-    public override string Name { get; }
-    protected override string SuggestName { get; }
+    public override string Name { get; } = source.Name;
+    protected override string SuggestName { get; } = $"{source.Name}/Source";
 }

@@ -38,6 +38,13 @@
                                         Command="{x:Bind ViewModel.PvnLoginButtonCommand, Mode=OneWay}" />
                             </control:Setting>
                         </control:Panel>
+                        <!-- 刷新登录 -->
+                        <control:Panel Visibility="{x:Bind ViewModel.IsPvnLogin, Mode=OneWay}">
+                            <control:Setting x:Uid="AccountPage_Pvn_RefreshToken">
+                                <Button MinWidth="{StaticResource ToggleSwitchWidth}" Content="Go"
+                                        Command="{x:Bind ViewModel.PvnRefreshTokenCommand}" />
+                            </control:Setting>
+                        </control:Panel>
                         <!-- 同步游戏 -->
                         <control:Panel>
                             <views:SettingToggleSwitch
@@ -81,7 +88,8 @@
                         </control:Panel>
                         <!-- 服务器类型 -->
                         <control:Panel>
-                            <control:Setting x:Uid="AccountPage_Pvn_ServerType">
+                            <control:Setting x:Uid="AccountPage_Pvn_ServerType"
+                                             Description="{x:Bind ViewModel.PvnServerTypeMsg, Mode=OneWay}">
                                 <ComboBox MinWidth="{StaticResource ToggleSwitchWidth}"
                                           ItemsSource="{x:Bind ViewModel.PvnServerTypes}"
                                           SelectedItem="{x:Bind ViewModel.PvnServerType, Mode=TwoWay}">
@@ -122,6 +130,7 @@
                         </control:Panel>
                     </StackPanel>
                 </control:AccountPanel>
+                
                 <!-- Vndb -->
                 <control:AccountPanel Title="Vndb"
                                       UserName="{x:Bind ViewModel.VndbUsername, Mode=OneWay}"

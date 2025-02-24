@@ -70,6 +70,12 @@ public interface IGalgameSourceCollectionService
     public void ScanAll();
 
     /// <summary>
+    /// 保存某个库
+    /// </summary>
+    /// <param name="source"></param>
+    public void Save(GalgameSourceBase source);
+
+    /// <summary>
     /// 将一个游戏移入某个库，不进行物理移动操作（如复制文件节、上传游戏等）
     /// </summary>
     /// <param name="target"></param>
@@ -82,12 +88,12 @@ public interface IGalgameSourceCollectionService
     /// </summary>
     /// <param name="target"></param>
     /// <param name="game"></param>
-    public void MoveOutOperate(GalgameSourceBase target, Galgame game);
+    public void MoveOutNoOperate(GalgameSourceBase target, Galgame game);
 
     /// <summary>
     /// 移动游戏，<b>会进行物理操作</b>（如删除文件夹、复制文件夹、上传游戏到云端等）<br/>
     /// 可以组合移入和移出操作，例如可以不移入任何库，只移出；也可以不移出任何库，只移入；也可以同时移入和移出 <br/>
-    /// 若不需要物理移动位置，请用<see cref="MoveInNoOperate"/>与<see cref="MoveOutOperate"/>>>
+    /// 若不需要物理移动位置，请用<see cref="MoveInNoOperate"/>与<see cref="MoveOutNoOperate"/>>>
     /// </summary>
     /// <param name="moveInSrc">要移入的库，若设为null则表示不移入任何库</param>
     /// <param name="moveInPath">要移入的路径，若设置为null则表示让service自行决定路径</param>

@@ -4,6 +4,7 @@ using GalgameManager.Contracts;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models.Sources;
+using LiteDB;
 using Newtonsoft.Json;
 
 namespace GalgameManager.Models;
@@ -18,7 +19,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public event Action<Galgame, string, object>? GalPropertyChanged;
     public event Action<Exception>? ErrorOccurred; //非致命异常产生时触发
     
-    [JsonIgnore] public GalgameUid Uid => new()
+    [JsonIgnore][BsonIgnore]
+    public GalgameUid Uid => new()
     {
         Name = Name.Value!,
         CnName = CnName,
@@ -27,13 +29,13 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         PvnId = Ids[(int)RssType.PotatoVn],
     };
     /// 唯一标识， 若要判断两个游戏是否为同一个游戏，应使用<see cref="GalgameUid"/>
-    public Guid Uuid  = Guid.NewGuid();
+    [BsonId] public Guid Uuid { get; set; }  = Guid.NewGuid();
     
     [ObservableProperty] private LockableProperty<string> _imagePath = DefaultImagePath;
 
-    [JsonIgnore] public string? ImageUrl;
+    [JsonIgnore][BsonIgnore] public string? ImageUrl;
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public Dictionary<string, int> PlayedTime = new(); //ShortDateString() -> PlayedTime, 分钟
+    public Dictionary<string, int> PlayedTime { get; set; }= new(); //ShortDateString() -> PlayedTime, 分钟
     [ObservableProperty] private LockableProperty<string> _name = "";
     [ObservableProperty] private string _cnName = "";
     [ObservableProperty] private LockableProperty<string> _description = "";
@@ -45,7 +47,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private DateTime _lastFetchInfoTime = DateTime.MinValue; //上次搜刮信息时间(i.e.当前信息是什么时候搜刮产生的)
     [ObservableProperty] private DateTime _addTime = DateTime.MinValue; //游戏添加时间
     [ObservableProperty] private ObservableCollection<GalgameCharacter> _characters = new();
-    [JsonIgnore][ObservableProperty] private string _savePosition = string.Empty;
+    [JsonIgnore][BsonIgnore][ObservableProperty] private string _savePosition = string.Empty;
     [ObservableProperty] private string? _exePath;
     [ObservableProperty] private LockableProperty<ObservableCollection<string>> _tags;
     [ObservableProperty] private int _totalPlayTime; //单位：分钟
@@ -56,21 +58,24 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private PlayType _playType;
     // ReSharper disable once MemberCanBePrivate.Global
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public string?[] Ids = new string?[PhraserNumber]; //magic number: 钦定了一个最大Phraser数目
-    [JsonIgnore] public readonly ObservableCollection<Category> Categories = new();
-    [JsonIgnore] public ObservableCollection<GalgameSourceBase> Sources { get; } = new(); //所属的源
+    public string?[] Ids { get; set; } = new string?[PhraserNumber]; //magic number: 钦定了一个最大Phraser数目
+    [JsonIgnore][BsonIgnore] public readonly ObservableCollection<Category> Categories = new();
+    [JsonIgnore][BsonIgnore] public ObservableCollection<GalgameSourceBase> Sources { get; } = new(); //所属的源
     [ObservableProperty] private string _comment = string.Empty; //吐槽（评论）
     [ObservableProperty] private int _myRate; //我的评分
     [ObservableProperty] private bool _privateComment; //是否私密评论
     private string? _savePath; //云端存档本地路径
-    public string? ProcessName; //手动指定的进程名，用于正确获取游戏进程
-    public string? TextPath; //记录的要打开的文本的路径
-    public bool PvnUpdate; //是否需要更新
-    public PvnUploadProperties PvnUploadProperties; // 要更新到Pvn的属性
-    [ObservableProperty] private string _startup_parameters = string.Empty;//启动参数
+
+    public string? ProcessName { get; set; } //手动指定的进程名，用于正确获取游戏进程
+    public string? TextPath { get; set; } //记录的要打开的文本的路径
+    public bool PvnUpdate { get; set; } //是否需要更新
+    public PvnUploadProperties PvnUploadProperties { get; set; } // 要更新到Pvn的属性
+    [ObservableProperty] private string _startup_parameters = string.Empty;//启动文件
+    [ObservableProperty] private string _startup_parameters_arguments = string.Empty;//启动参数
+
 
     #region OBSOLETE_PROPERTIES //已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据）
-    
+
     [Obsolete($"use {nameof(LastPlayTime)} instead")]
     [JsonProperty]
     public LockableProperty<string> LastPlay
@@ -78,11 +83,12 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         set => LastPlayTime = Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
     }
     
-    [Obsolete($"Use {nameof(LocalPath)} instead")]
+    [Obsolete($"Use {nameof(LocalPath)} instead")][BsonIgnore]
     public string Path { get; set; } = "";
     #endregion
 
-    [JsonIgnore] public string? Id
+    [JsonIgnore][BsonIgnore]
+    public string? Id
     {
         get => Ids[(int)RssType];
 
@@ -129,6 +135,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     {
         _tags = new ObservableCollection<string>();
         _developer.OnValueChanged += _ => GalPropertyChanged?.Invoke(this, nameof(Developer), Developer);
+        Sources.CollectionChanged += (_, _) => OnPropertyChanged(nameof(LocalPath));
     }
 
     public Galgame(string name) : this()
@@ -150,7 +157,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <summary>
     /// 该游戏是否是本地游戏（存在于某个本地文件夹库中）
     /// </summary>
-    [JsonIgnore] public bool IsLocalGame => Sources.Any(s => s.SourceType == GalgameSourceType.LocalFolder);
+    [JsonIgnore][BsonIgnore] public bool IsLocalGame => Sources.Any(s => s.SourceType == GalgameSourceType.LocalFolder);
 
     /// <summary>
     /// 删除游戏文件夹
@@ -164,7 +171,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <summary>
     /// 获取该游戏的本地文件夹路径，若其不是本地游戏则返回null
     /// </summary>
-    [JsonIgnore] public string? LocalPath =>
+    [JsonIgnore][BsonIgnore]
+    public string? LocalPath =>
         Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(this);
 
     /// <summary>

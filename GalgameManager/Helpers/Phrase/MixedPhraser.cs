@@ -7,7 +7,7 @@ using GalgameManager.Models;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser
+public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser
 {
     private MixedPhraserData _data;
     private IEnumerable<string> _developerList;
@@ -183,13 +183,37 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser
             return (ObservableCollection<RssType>)prop.GetValue(_data.Order)!;
         }
     }
+
+    public Task<Staff?> GetStaffAsync(Staff staff)
+    {
+        foreach (RssType phraserType in _data.Order.StaffOrder)
+        {
+            if (staff.Ids[(int)phraserType] != null &&
+                _phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
+                phraser is IGalStaffParser staffParser)
+                return staffParser.GetStaffAsync(staff);
+        }
+        return Task.FromResult<Staff?>(null);
+    }
+
+    public Task<List<StaffRelation>> GetStaffsAsync(Galgame game)
+    {
+        foreach (RssType phraserType in _data.Order.StaffOrder)
+        {
+            if (game.Ids[(int)phraserType] != null &&
+                _phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
+                phraser is IGalStaffParser staffParser)
+                return staffParser.GetStaffsAsync(game);
+        }
+        return Task.FromResult(new List<StaffRelation>());
+    }
 }
 
 public class MixedPhraserOrder
 {
     // 版本号，每次添加新搜刮器/添加新字段的时候都应该把这个数字+1，以便galgameCollectionService能够更新配置中已有的顺序配置
     // 更新配置不需要手动编写，已经在GalgameCollectionService中使用反射实现，会自动添加新的默认配置
-    public const int Version = 5;
+    public const int Version = 6;
     
     // 为什么使用ObservableCollection：为了能够在MixedPhraserOrderDialog中使顺序能够drag&drop
     // 所有变量都应该命名为：{字段名}Order，此处字段名应该与Galgame中对应的字段名一致（为了让GetValue中的反射能够找到对应的字段）
@@ -203,6 +227,7 @@ public class MixedPhraserOrder
     public ObservableCollection<RssType> CnNameOrder { get; set; } = new();
     public ObservableCollection<RssType> DeveloperOrder { get; set; } = new();
     public ObservableCollection<RssType> TagsOrder { get; set; } = new();
+    public ObservableCollection<RssType> StaffOrder { get; set; } = new();
 
     public MixedPhraserOrder SetToDefault()
     {
@@ -216,6 +241,7 @@ public class MixedPhraserOrder
         CnNameOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
         DeveloperOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
         TagsOrder = new() { RssType.Bangumi, RssType.Vndb };
+        StaffOrder = new() { RssType.Bangumi, RssType.Vndb};
         return this;
     }
 }

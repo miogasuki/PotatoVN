@@ -1,4 +1,5 @@
-﻿using Windows.Storage;
+﻿using System.Net;
+using Windows.Storage;
 
 namespace GalgameManager.Helpers;
 
@@ -56,7 +57,7 @@ public static class DownloadHelper
         }
         catch (HttpRequestException e)
         {
-            if (retry < 3)
+            if (retry < 3 && e.StatusCode != HttpStatusCode.NotFound)
             {
                 await Task.Delay(5000);
                 return await DownloadAndSaveImageAsync(imageUrl, retry + 1);

@@ -6,6 +6,7 @@ using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.Phrase;
 using GalgameManager.Models;
+using LiteDB;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 
@@ -23,6 +24,8 @@ public class CategoryService : ICategoryService
     private readonly BlockingCollection<Category> _queue = new();
     private readonly BgmPhraser _bgmPhraser;
     private readonly DispatcherQueue? _dispatcher;
+    private ILiteCollection<CategoryGroup> _groupDbSet = null!;
+    private ILiteCollection<Category> _categoryDbSet = null!;
 
     public CategoryGroup? GetGroup(Guid id) => _categoryGroups.FirstOrDefault(group => group.Id == id);
 
@@ -35,17 +38,7 @@ public class CategoryService : ICategoryService
         _localSettings = localSettings;
         _infoService = infoService;
         _galgameService = (galgameService as GalgameCollectionService)!;
-        _galgameService.GalgameAddedEvent += UpdateCategory;
-        _galgameService.GalgameDeletedEvent += galgame =>
-        {
-            List<Category> toRemove = galgame.Categories.ToList();
-            toRemove.ForEach(c => c.Remove(galgame));
-        };
         _bgmPhraser = (BgmPhraser)_galgameService.PhraserList[(int)RssType.Bangumi];
-
-        async void OnAppClosing() => await SaveAsync();
-
-        App.OnAppClosing += OnAppClosing;
         _dispatcher = DispatcherQueue.GetForCurrentThread();
         Thread worker = new(Worker)
         {
@@ -57,13 +50,11 @@ public class CategoryService : ICategoryService
     public async Task Init()
     {
         if (_isInit) return;
-        
-        _categoryGroups = await _localSettings.ReadSettingAsync<ObservableCollection<CategoryGroup>>
-                              (KeyValues.CategoryGroups, true, converters: new() { new GalgameAndUidConverter() }) 
-                          ?? new ObservableCollection<CategoryGroup>();
-        foreach(CategoryGroup group in _categoryGroups)
-            group.Categories.ForEach(c => c.GalgamesX.RemoveNull());
-        
+
+        _groupDbSet = _localSettings.Database.GetCollection<CategoryGroup>("category_group");
+        _categoryDbSet = _localSettings.Database.GetCollection<Category>("category");
+        await LiteDbUpgrade();
+        await LoadDataAsync();
         await Upgrade();
         await ImportAsync();
         
@@ -75,6 +66,7 @@ public class CategoryService : ICategoryService
         _galgameService.GalgameAddedEvent += galgame =>
         {
             if (_isInit == false) return;
+            galgame.GalPropertyChanged += HandleGalPropertyChanged;
             HandleGalPropertyChanged(galgame, nameof(Galgame.Developer), galgame.Developer.Value);
             HandleGalPropertyChanged(galgame, nameof(Galgame.PlayType), galgame.PlayType);
             HandleGalPropertyChanged(galgame, nameof(Galgame.LastPlayTime), galgame.LastPlayTime);
@@ -82,9 +74,13 @@ public class CategoryService : ICategoryService
         _galgameService.GalgameDeletedEvent += galgame =>
         {
             galgame.GalPropertyChanged -= HandleGalPropertyChanged;
-            foreach (Category category in galgame.Categories)
+            List<Category> categories = galgame.Categories.ToList();
+            foreach (Category category in categories)
+            {
                 category.Remove(galgame);
-        }; // 避免内存泄漏
+                Save(category);
+            }
+        }; 
 
         // 给Galgame注入Category
         foreach (Category category in _categoryGroups.SelectMany(group => group.Categories))
@@ -102,17 +98,46 @@ public class CategoryService : ICategoryService
             switch (name)
             {
                 case nameof(Galgame.Developer):
-                    UpdateCategory(gal);
+                    Task __ = UpdateCategory(gal, updateDeveloper: true);
                     break;
                 case nameof(Galgame.PlayType):
-                    GetStatusCategory(gal)?.Remove(gal);
-                    _statusCategory[(int)gal.PlayType].Add(gal);
+                    Task ___ = UpdateCategory(gal, updateStatus: true);
                     break;
                 case nameof(Galgame.LastPlayTime):
                     foreach (Category category in gal.Categories)
+                    {
                         category.UpdateLastPlayed();
+                        Save(category);
+                    }
                     break;
             }
+        }
+        
+        async Task LoadDataAsync()
+        {
+            await Task.Run(() =>
+            {
+                List<Category> categories = _categoryDbSet.FindAll().ToList();
+                foreach(Category category in categories)
+                foreach (Guid uuid in category.GetLoadedGalgameIds())
+                {
+                    Galgame? galgame = _galgameService.GetGalgameFromUuid(uuid);
+                    if (galgame is not null) category.GalgamesX.Add(galgame);
+                    else //不应该发生
+                        _infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error,
+                            $"Galgame {uuid} not found");
+                }
+                _categoryGroups = new ObservableCollection<CategoryGroup>(_groupDbSet.FindAll());
+                foreach (CategoryGroup group in _categoryGroups)
+                foreach (Guid id in group.GetLoadedCategoryIds())
+                {
+                    Category? category = categories.FirstOrDefault(c => c.Id == id);
+                    if (category is not null) group.Categories.Add(category);
+                    else //不应该发生
+                        _infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error,
+                            $"Category {id} not found");
+                }
+            });
         }
     }
 
@@ -132,6 +157,7 @@ public class CategoryService : ICategoryService
     {
         CategoryGroup newGroup = new(name, CategoryGroupType.Custom);
         _categoryGroups.Add(newGroup);
+        Save(categoryGroup: newGroup);
         return newGroup;
     }
     
@@ -144,9 +170,13 @@ public class CategoryService : ICategoryService
         foreach (Category category in categoryGroup.Categories) // 删除分类组里的分类（如果没有其他分类组在用的话）
         {
             if (_categoryGroups.Count(group => group.Categories.Contains(category)) == 1)
+            {
                 category.Delete();
+                _categoryDbSet.Delete(category.Id);
+            }
         }
         _categoryGroups.Remove(categoryGroup);
+        _groupDbSet.Delete(categoryGroup.Id);
     }
     
     /// <summary>
@@ -159,6 +189,7 @@ public class CategoryService : ICategoryService
     {
         if (target == source) return;
         target.Add(source);
+        Save(target);
         DeleteCategory(source);
     }
 
@@ -180,7 +211,11 @@ public class CategoryService : ICategoryService
     {
         category.Delete();
         foreach (CategoryGroup categoryGroup in _categoryGroups)
-            categoryGroup.Categories.Remove(category);
+        {
+            var result = categoryGroup.Categories.Remove(category);
+            if (result) Save(categoryGroup: categoryGroup);
+        }
+        _categoryDbSet.Delete(category.Id);
     }
 
     /// <summary>
@@ -199,21 +234,30 @@ public class CategoryService : ICategoryService
     {
         IList<Galgame> games = _galgameService.Galgames;
         foreach (Galgame game in games)
-            UpdateCategory(game);
-        await SaveAsync();
+            await UpdateCategory(game, updateDeveloper: true, updateStatus: true);
         //todo:空Category删除
     }
-
-    private async void UpdateCategory(Galgame galgame)
+    
+    /// <summary>
+    /// 根据某个游戏的信息更新各种分类（受设置中自动分类控制，若关闭自动分类则什么都不做）
+    /// </summary>
+    /// <param name="galgame">游戏</param>
+    /// <param name="updateDeveloper">是否根据开发商信息更新开发商分类组</param>
+    /// <param name="updateStatus">是否根据游玩状态信息更新游玩状态分类组</param>
+    private async Task UpdateCategory(Galgame galgame, bool updateDeveloper = false, bool updateStatus = false)
     {
         if (_isInit == false) await Init();
         // 更新开发商分类组
-        if (await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory) 
+        if (updateDeveloper && await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory) 
             && galgame.Developer.Value != Galgame.DefaultString && galgame.Developer.Value != string.Empty)
         {
             //移除旧的开发商分类
             Category? old = GetDeveloperCategory(galgame);
-            old?.Remove(galgame);
+            if (old is not null)
+            {
+                old.Remove(galgame);
+                Save(category: old);
+            }
             
             var developerStrings = galgame.Developer.Value!.Split(',');
             foreach (var developerStr in developerStrings)
@@ -227,17 +271,25 @@ public class CategoryService : ICategoryService
                     developer = new Category(producer.Name);
                     _queue.Add(developer);
                     _developerGroup!.Categories.Add(developer);
+                    Save(category: developer);
+                    Save(categoryGroup: _developerGroup);
                 }
                 developer.Add(galgame);
+                Save(category: developer);
             }
         }
         // 更新游玩状态分类
-        if (await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory))
+        if (updateStatus && await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory))
         {
             Category? playType = GetStatusCategory(galgame);
             if (playType == _statusCategory[(int)galgame.PlayType]) return;
-            playType?.Remove(galgame);
+            if (playType is not null)
+            {
+                playType.Remove(galgame);
+                Save(category: playType);
+            }
             _statusCategory[(int)galgame.PlayType].Add(galgame);
+            Save(category: _statusCategory[(int)galgame.PlayType]);
         }
 
     }
@@ -249,18 +301,44 @@ public class CategoryService : ICategoryService
             var imgUrl = await _bgmPhraser.GetDeveloperImageUrlAsync(category.Name);
             if (imgUrl is null) continue;
             var imagPath = await DownloadHelper.DownloadAndSaveImageAsync(imgUrl);
-            if(imagPath is not null && _dispatcher is not null)
-                await _dispatcher.EnqueueAsync(() =>
-                {
-                    category.ImagePath = imagPath;
-                });
+            if (imagPath is not null && _dispatcher is not null)
+            {
+                await _dispatcher.EnqueueAsync(() => { category.ImagePath = imagPath; });
+                Save(category: category);
+            }
         }
     }
 
-    private async Task SaveAsync()
+    /// <summary>
+    /// 保存分类信息
+    /// </summary>
+    /// <param name="category">要保存的分类</param>
+    /// <param name="categoryGroup">要保存的分类组</param>
+    public void Save(Category? category = null, CategoryGroup? categoryGroup = null)
     {
-        await _localSettings.SaveSettingAsync(KeyValues.CategoryGroups, _categoryGroups, true,
-            converters: new() { new GalgameAndUidConverter() });
+        if (!_localSettings.IsDatabaseUsable) return;
+        if (category is not null)
+            _categoryDbSet.Upsert(category);
+        else if (categoryGroup is not null)
+        {
+            _groupDbSet.Upsert(categoryGroup);
+            foreach (Category c in categoryGroup.Categories)
+                _categoryDbSet.Upsert(c);
+        }
+    }
+    
+    /// <summary>
+    /// 保存所有分类信息
+    /// </summary>
+    private async Task SaveAllAsync()
+    {
+        if (!_localSettings.IsDatabaseUsable) return;
+        await Task.Run(() =>
+        {
+            _groupDbSet.Upsert(_categoryGroups);
+            foreach (CategoryGroup group in _categoryGroups)
+                _categoryDbSet.Upsert(group.Categories);
+        }); //防止阻塞UI线程
     }
     
     public async Task ExportAsync(Action<string, int, int>? progress)
@@ -322,7 +400,10 @@ public class CategoryService : ICategoryService
                     if (group.GamesCount > toKeep.GamesCount)
                         toKeep = group;
                 foreach (CategoryGroup group in status.Where(g => g != toKeep))
+                {
                     _categoryGroups.Remove(group);
+                    _groupDbSet.Delete(group.Id);
+                }
             }
         }
         catch (Exception e)
@@ -363,6 +444,8 @@ public class CategoryService : ICategoryService
                 {
                     category = new Category(type.GetLocalized()) { Id = guid };
                     _statusGroup.Categories.Add(category);
+                    Save(category: category);
+                    Save(categoryGroup: _statusGroup);
                 }
                 _statusCategory[(int)type] = category;
             }
@@ -381,6 +464,7 @@ public class CategoryService : ICategoryService
             _developerGroup = new CategoryGroup(ResourceExtensions.GetLocalized("CategoryService_Developer"),
                 CategoryGroupType.Developer);
             _categoryGroups.Add(_developerGroup);
+            Save(categoryGroup: _developerGroup);
         }
     }
 
@@ -396,7 +480,7 @@ public class CategoryService : ICategoryService
                 category.ImagePath = path;
         }
         status.ImportCategory = true;
-        await SaveAsync();
+        await SaveAllAsync();
         await _localSettings.SaveSettingAsync(KeyValues.DataStatus, status, true);
     }
 
@@ -420,7 +504,7 @@ public class CategoryService : ICategoryService
             foreach (CategoryGroup group in _categoryGroups)
             foreach (Category category in group.Categories)
                 category.UpdateLastPlayed();
-            await SaveAsync();
+            await SaveAllAsync();
             status.CategoryAddLastPlayed = true;
             await _localSettings.SaveSettingAsync(KeyValues.DataStatus, status, true);
         }
@@ -465,7 +549,7 @@ public class CategoryService : ICategoryService
                     }
                 }
             }
-            await SaveAsync();
+            await SaveAllAsync();
             status.CategoryGameIndexUpgrade = true;
             await _localSettings.SaveSettingAsync(KeyValues.DataStatus, status, true);
         }
@@ -489,7 +573,7 @@ public class CategoryService : ICategoryService
                 {
                     statusGroup.Categories.Add(new Category(PlayType.WantToPlay.GetLocalized())
                         { Id = new Guid("00000000-0000-0000-0000-000000000006") });
-                    await SaveAsync();
+                    await SaveAllAsync();
                 }
             }
             status.CategoryAddWantToPlay = true;
@@ -499,6 +583,36 @@ public class CategoryService : ICategoryService
         {
             _infoService.Event(EventType.UpgradeError, InfoBarSeverity.Warning, "添加“想玩”分类失败", e);
         }
+    }
+
+    private async Task LiteDbUpgrade()
+    {
+        LocalSettingStatus status =
+            await _localSettings.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true) ?? new();
+        if (status.CategoryLiteDbUpgrade) return;
+        try
+        {
+            //读取旧JSON格式数据
+            _categoryGroups = await _localSettings.ReadSettingAsync<ObservableCollection<CategoryGroup>>
+                                  (KeyValues.CategoryGroups, true, converters: new() { new GalgameAndUidConverter() })
+                              ?? new ObservableCollection<CategoryGroup>();
+            foreach (CategoryGroup group in _categoryGroups)
+                group.Categories.ForEach(c => c.GalgamesX.RemoveNull());
+            //升级为LiteDB保存
+            await Task.Run(() =>
+            {
+                _groupDbSet.Upsert(_categoryGroups);
+                foreach (CategoryGroup group in _categoryGroups)
+                    _categoryDbSet.Upsert(group.Categories);
+                _localSettings.RemoveSettingAsync(KeyValues.CategoryGroups, true);
+            });
+        }
+        catch (Exception e)
+        {
+            _infoService.Event(EventType.AppError, InfoBarSeverity.Error, "升级为LiteDB失败", e);
+        }
+        status.CategoryLiteDbUpgrade = true;
+        await _localSettings.SaveSettingAsync(KeyValues.DataStatus, status, true);
     }
     
     #endregion

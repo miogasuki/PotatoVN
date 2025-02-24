@@ -1174,4 +1174,7 @@ If play time can record correctly, just cancel this popup.
   <data name="Shell_AnnualReport.Content" xml:space="preserve">
     <value>AnnualReport</value>
   </data>
+  <data name="Shell_Staff.Content" xml:space="preserve">
+    <value>Staff</value>
+  </data>
 </root>

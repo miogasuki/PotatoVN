@@ -6,44 +6,37 @@ using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Sources;
+using LiteDB;
 using Microsoft.UI.Xaml.Controls;
 using Newtonsoft.Json;
 
 namespace GalgameManager.Services;
 
-public class GalgameSourceCollectionService : IGalgameSourceCollectionService
+public class GalgameSourceCollectionService(
+    ILocalSettingsService localSettingsService,
+    IBgTaskService bgTaskService,
+    IInfoService infoService)
+    : IGalgameSourceCollectionService
 {
     public Action<GalgameSourceBase>? OnSourceDeleted { get; set; }
     public Action? OnSourceChanged { get; set; }
 
     private ObservableCollection<GalgameSourceBase> _galgameSources = new();
-    private readonly ILocalSettingsService _localSettingsService;
-    private readonly IBgTaskService _bgTaskService;
-    private readonly IInfoService _infoService;
-    private readonly List<JsonConverter> _converters;
 
-    public GalgameSourceCollectionService(ILocalSettingsService localSettingsService, IBgTaskService bgTaskService,
-        IInfoService infoService)
-    {
-        _localSettingsService = localSettingsService;
-        _bgTaskService = bgTaskService;
-        _infoService = infoService;
-        App.OnAppClosing += async () => await Save();
-        _converters =
-        [
-            new GalgameAndUidConverter(),
-            new GalgameSourceCustomConverter(),
-        ];
-    }
-    
+    private readonly List<JsonConverter> _converters =
+    [
+        new GalgameAndUidConverter(),
+        new GalgameSourceCustomConverter(),
+    ];
+    private ILiteCollection<GalgameSourceBase> _dbSet = null!;
+
     public async Task InitAsync()
     {
-        _galgameSources = await _localSettingsService.ReadSettingAsync<ObservableCollection<GalgameSourceBase>>(
-                              KeyValues.GalgameSources, true,
-                              converters: _converters)
-                          ?? new ObservableCollection<GalgameSourceBase>();
-        LocalSettingStatus settingStatus = await _localSettingsService.ReadSettingAsync<LocalSettingStatus>
+        _dbSet = localSettingsService.Database.GetCollection<GalgameSourceBase>("source");
+        LocalSettingStatus settingStatus = await localSettingsService.ReadSettingAsync<LocalSettingStatus>
             (KeyValues.DataStatus, true) ?? new();
+        await LiteDbUpgrade(settingStatus);
+        LoadData();
         await SourceUpgradeAsync(settingStatus);
         foreach (GalgameSourceBase source in _galgameSources) // 部分崩溃的情况可能导致source里面部分galgame为null
         {
@@ -52,7 +45,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
             foreach (GalgameAndPath g in tmp)
             {
                 source.Galgames.Remove(g);
-                _infoService.DeveloperEvent(InfoBarSeverity.Error,
+                infoService.DeveloperEvent(InfoBarSeverity.Error,
                     "GalgameSourceCollectionService_InitAsync_GalgameIsNull".GetLocalized(g.Path, source.Url));
             }
         }
@@ -62,7 +55,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         {
             foreach (GalgameSourceBase source in toRemove)
                 _galgameSources.Remove(source);
-            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning,
+            infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning,
                 "GalgameSourceCollectionService_RemoveNonExist_Title".GetLocalized(),
                 msg: "GalgameSourceCollectionService_RemoveNonExist_Msg".GetLocalized(
                     $"\n{string.Join('\n', toRemove.Select(s => s.Path))}"));
@@ -80,6 +73,30 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
             s.DetectChanged += DetectionChanged;
             DetectionChanged(s); // 手动触发一次，挂上监听（如果这个库之前有设置监听需求）
         }
+        return;
+
+        void LoadData()
+        {
+            _galgameSources.Clear();
+            _galgameSources.SyncCollection(_dbSet.FindAll().ToList());
+            IGalgameCollectionService gameService = App.GetService<IGalgameCollectionService>();
+            foreach (GalgameSourceBase source in _galgameSources)
+            {
+                foreach (GalgameAndPathDbDto dto in source.GetLoadedGalgames())
+                {
+                    if (gameService.GetGalgameFromUuid(dto.GalgameId) is { } game)
+                        source.Galgames.Add(new GalgameAndPath(game, dto.Path));
+                    else
+                    {
+                        infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Warning,
+                            title: "GalgameSourceCollectionService_NotSuchGameUUID_Title".GetLocalized(),
+                            msg: "GalgameSourceCollectionService_NotSuchGameUUID_Msg".GetLocalized(dto.Path,
+                                source.Name));
+                        Save(source);
+                    }
+                }
+            }
+        }
     }
 
     public async Task StartAsync()
@@ -94,21 +111,21 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
             {
                 List<Galgame> removedGames = await t.task;
                 if (removedGames.Count > 0)
-                    _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning,
+                    infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning,
                         "GalgameSourceCollectionService_CheckGamesInSource_Title".GetLocalized(t.source.Name),
                         msg: "GalgameSourceCollectionService_CheckGamesInSource_Msg".GetLocalized(
                             $"\n{string.Join('\n', removedGames.Select(g => g.Name.Value))}"));
             }
             catch (Exception e)
             {
-                _infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error,
+                infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error,
                     title: "GalgameSourceCollectionService_CheckGamesInSourceFailed".GetLocalized(t.source.Name),
                     exception: e);
             }
         }
         
         foreach (GalgameSourceBase source in _galgameSources.Where(f => f.ScanOnStart)) 
-            _ = _bgTaskService.AddBgTask(new GetGalgameInSourceTask(source));
+            _ = bgTaskService.AddBgTask(new GetGalgameInSourceTask(source));
     }
     
     public ObservableCollection<GalgameSourceBase> GetGalgameSources() => _galgameSources;
@@ -122,7 +139,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         }
         catch (Exception e)
         {
-            _infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error, e.Message, e);
+            infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error, e.Message, e);
             return null;
         }
         
@@ -166,10 +183,10 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
                 throw new ArgumentOutOfRangeException(nameof(sourceType), sourceType, null);
         }
         _galgameSources.Add(galgameSource);
-        await Save();
+        Save(galgameSource);
         if (tryGetGalgame)
         {
-            await _bgTaskService.AddBgTask(new GetGalgameInSourceTask(galgameSource));
+            await bgTaskService.AddBgTask(new GetGalgameInSourceTask(galgameSource));
         }
         
         CalcSubSources();
@@ -200,17 +217,17 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         {
             List<Galgame> srcGames = source.GetGalgameList().ToList();
             foreach (Galgame galgame in srcGames) 
-                MoveOutOperate(source, galgame);
+                MoveOutNoOperate(source, galgame);
         }
         catch (Exception e)
         {
-            _infoService.DeveloperEvent(InfoBarSeverity.Error,
+            infoService.DeveloperEvent(InfoBarSeverity.Error,
                 msg: $"Failed to move game out of source {source.Url}\n{e.StackTrace}");
         }
         _galgameSources.Remove(source);
+        _dbSet.Delete(source.Id);
         CalcSubSources();
         source.Detect = false; // 关掉监听，触发取消监听事件
-        await Save();
         OnSourceDeleted?.Invoke(source);
         OnSourceChanged?.Invoke();
     }
@@ -219,39 +236,41 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
     {
         if (game.Sources.Any(s => s == target))
         {
-            _infoService.DeveloperEvent(
+            infoService.DeveloperEvent(
                 e: new PvnException($"Can not move game {game.Name.Value} into source {target.Path}: already there"));
             return;
         }
         target.AddGalgame(game, path);
+        Save(target);
     }
 
-    public void MoveOutOperate(GalgameSourceBase target, Galgame game)
+    public void MoveOutNoOperate(GalgameSourceBase target, Galgame game)
     {
         if (game.Sources.All(s => s != target))
         {
-            _infoService.DeveloperEvent(e: new PvnException($"Can not move game {game.Name} " +
+            infoService.DeveloperEvent(e: new PvnException($"Can not move game {game.Name} " +
                                                             $"out of source {target.Path}: not in source"));
             return;
         }
         target.DeleteGalgame(game);
+        Save(target);
     }
 
     public BgTaskBase MoveAsync(GalgameSourceBase? moveInSrc, string? moveInPath, GalgameSourceBase? moveOutSrc, Galgame game)
     {
         if (game.Sources.Any(s => s == moveInSrc))
         {
-            _infoService.DeveloperEvent(e: new PvnException($"{game.Name.Value} is already in {moveInSrc!.Url}"));
+            infoService.DeveloperEvent(e: new PvnException($"{game.Name.Value} is already in {moveInSrc!.Url}"));
             moveInSrc = null;
             moveInPath = null;
         }
         if (moveOutSrc is not null && game.Sources.All(s => s != moveOutSrc))
         {
-            _infoService.DeveloperEvent(e: new PvnException($"{game.Name.Value} is not in {moveOutSrc.Url}"));
+            infoService.DeveloperEvent(e: new PvnException($"{game.Name.Value} is not in {moveOutSrc.Url}"));
             moveOutSrc = null;
         }
         SourceMoveTask task = new(game, moveInSrc, moveInPath, moveOutSrc);
-        _bgTaskService.AddBgTask(task);
+        bgTaskService.AddBgTask(task);
         return task;
     }
 
@@ -275,11 +294,11 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
             progress?.Invoke("GalgameSourceCollectionService_Export_Progress".GetLocalized(source.Name), i + 1,
                 _galgameSources.Count);
             GalgameSourceBase clone = source.DeepClone(new JsonSerializerSettings { Converters = _converters });
-            clone.ImagePath = await _localSettingsService.AddImageToExportAsync(clone.ImagePath);
+            clone.ImagePath = await localSettingsService.AddImageToExportAsync(clone.ImagePath);
             exportData.Add(clone);
         }
 
-        await _localSettingsService.AddToExportAsync(KeyValues.GalgameSources, exportData, converters: _converters);
+        await localSettingsService.AddToExportAsync(KeyValues.GalgameSources, exportData, converters: _converters);
     }
 
     /// <summary>
@@ -288,14 +307,15 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
     public void ScanAll()
     {
         foreach(GalgameSourceBase b in _galgameSources)
-            _bgTaskService.AddBgTask(new GetGalgameInSourceTask(b));
+            bgTaskService.AddBgTask(new GetGalgameInSourceTask(b));
     }
     
-    private async Task Save()
-    {
-        await _localSettingsService.SaveSettingAsync(KeyValues.GalgameSources, _galgameSources, true,
-            converters: _converters);
-    }
+    /// <summary>
+    /// 保存所有游戏库
+    /// </summary>
+    private async Task SaveAllAsync() => await Task.Run(() => { _dbSet.Upsert(_galgameSources); });
+
+    public void Save(GalgameSourceBase source) => _dbSet.Upsert(source);
 
     /// <summary>
     /// 重新计算所有库的归属关系
@@ -335,7 +355,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
                         select gal.Galgame;
                     List<Galgame> toRemove = gamesToRemove.ToList();
                     foreach (Galgame g in toRemove)
-                        MoveOutOperate(source, g);
+                        MoveOutNoOperate(source, g);
                     return toRemove;
                 });
             case GalgameSourceType.LocalZip:
@@ -350,11 +370,11 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
         if (status.ImportGalgameSource) return;
         foreach (GalgameSourceBase source in _galgameSources)
         {
-            source.ImagePath = await _localSettingsService.GetImageFromImportAsync(source.ImagePath);
+            source.ImagePath = await localSettingsService.GetImageFromImportAsync(source.ImagePath);
         }
         status.ImportGalgameSource = true;
-        await Save();
-        await _localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+        await SaveAllAsync();
+        await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
     }
 
     #region DETECTION SOURCE CHANGE
@@ -401,7 +421,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
                     ScanOnStart = false,
                 },
             };
-            var tmp = await _localSettingsService.ReadOldSettingAsync(KeyValues.GalgameFolders, template);
+            var tmp = await localSettingsService.ReadOldSettingAsync(KeyValues.GalgameFolders, template);
             if (tmp is not null)
             {
                 foreach (var folder in tmp.Where(f => !string.IsNullOrEmpty(f.Path)))
@@ -410,11 +430,11 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
                     _galgameSources.Add(source);
                 }
             }
-            await _localSettingsService.RemoveSettingAsync(KeyValues.GalgameFolders, true);
+            await localSettingsService.RemoveSettingAsync(KeyValues.GalgameFolders, true);
         }
         catch (Exception e) //不应该发生
         {
-            _infoService.Event(EventType.UpgradeError, InfoBarSeverity.Warning, "升级游戏库数据库结构失败", e);
+            infoService.Event(EventType.UpgradeError, InfoBarSeverity.Warning, "升级游戏库数据库结构失败", e);
         }
         // 给各库命名
         {
@@ -434,7 +454,7 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
                     var folderPath = Path.GetDirectoryName(gamePath);
                     if (string.IsNullOrEmpty(folderPath))
                     {
-                        _infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error,
+                        infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Error,
                             "UnexpectedEvent".GetLocalized(),
                             new PvnException($"Can not get the parent folder of the game{gamePath}"));
                         continue;
@@ -447,11 +467,32 @@ public class GalgameSourceCollectionService : IGalgameSourceCollectionService
             }
         }
         
-        await Save();
+        await SaveAllAsync();
         status.GalgameSourceFormatUpgrade = true;
-        await _localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+        await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
     }
-
+    
+    /// <summary>
+    /// 升级为Litedb存储数据，since v1.9.0
+    /// </summary>
+    private async Task LiteDbUpgrade(LocalSettingStatus status)
+    {
+        if (status.SourceLiteDbUpgrade) return;
+        try
+        {
+            _galgameSources = await localSettingsService.ReadSettingAsync<ObservableCollection<GalgameSourceBase>>
+                (KeyValues.GalgameSources, true, converters: _converters) ?? new();
+            await SaveAllAsync();
+            await localSettingsService.RemoveSettingAsync(KeyValues.GalgameSources, true);
+        }
+        catch (Exception e)
+        {
+            infoService.Event(EventType.AppError, InfoBarSeverity.Error, "Source LiteDB upgrade failed", e);
+        }
+        status.SourceLiteDbUpgrade = true;
+        await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+    }
+    
     #endregion
 }
 

@@ -6,54 +6,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:GalgameManager.Helpers.Converter"
     xmlns:local="using:GalgameManager.Helpers"
-    xmlns:cmtkControls="using:CommunityToolkit.WinUI.Controls"
-    xmlns:cmtkAnimations="using:CommunityToolkit.WinUI.Animations"
     xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:models="using:GalgameManager.Models"
-    xmlns:viewModels="using:GalgameManager.ViewModels"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:control="using:GalgameManager.Views.Control"
-    mc:Ignorable="d"
-    x:Name="Page">
+    xmlns:galgamePagePanel="using:GalgameManager.Views.GalgamePagePanel"
+    mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:TimeToDisplayTimeConverter x:Key="TimeToDisplayTimeConverter" />
-        <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
-        <converters:ImagePathConverter x:Key="ImagePathConverter"/>
     </Page.Resources>
 
     <Grid>
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <!--641 is the default CompactModeThresholdWidth in NavigationView -->
-                        <AdaptiveTrigger MinWindowWidth="641" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="GameInfoBlock.(RelativePanel.RightOf)" Value="ImageBlock" />
-                        <Setter Target="GameInfoBlock.(RelativePanel.Below)" Value="TitleBlock" />
-                        <Setter Target="GameInfoBlock.Width" Value="180" />
-                        <Setter Target="PlayInfoBlock.(RelativePanel.RightOf)" Value="GameInfoBlock" />
-                        <Setter Target="PlayInfoBlock.(RelativePanel.Below)" Value="TitleBlock" />
-                        <Setter Target="PlayInfoBlock.Width" Value="180" />
-                        <Setter Target="RatingBlock.(RelativePanel.RightOf)" Value="PlayInfoBlock" />
-                        <Setter Target="RatingBlock.(RelativePanel.Below)" Value="TitleBlock" />
-                        <Setter Target="RatingBlock.Width" Value="180" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
+        <Grid RowDefinitions="Auto,*,Auto">
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
                 <!-- 开始游戏 -->
                 <AppBarButton x:Uid="GalgamePage_Play" Command="{x:Bind ViewModel.PlayCommand}"
@@ -77,8 +40,6 @@
                         </Flyout>
                     </AppBarButton.ContextFlyout>
                 </AppBarButton>
-
-
                 <!-- 设置本地路径 -->
                 <AppBarButton x:Uid="GalgamePage_SetLocalPath" Command="{x:Bind ViewModel.SetLocalPathCommand}"
                               Visibility="{x:Bind ViewModel.IsLocalGame, 
@@ -231,189 +192,27 @@
 
             <ScrollViewer Grid.Row="1" IsTabStop="True">
                 <StackPanel>
-                    <RelativePanel x:Name="InfoPanel">
-                        <Grid
-                            x:Name="ImageBlock"
-                            Height="250"
-                            Margin="{StaticResource SmallRightMargin}"
-                            Padding="{StaticResource XSmallLeftTopRightBottomMargin}"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            RelativePanel.AlignTopWithPanel="True"
-                            RelativePanel.AlignLeftWithPanel="True">
-                            <Image
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                MaxWidth="250"
-                                MaxHeight="250"
-                                Source="{x:Bind ViewModel.Item.ImagePath.Value, Mode=OneWay, FallbackValue={}}" 
-                                x:Name="DetailImage"/>
-                        </Grid>
-
-                        <TextBlock
-                            x:Name="TitleBlock"
-                            Margin="{StaticResource XXSmallTopMargin}"
-                            RelativePanel.AlignTopWithPanel="True"
-                            RelativePanel.RightOf="ImageBlock"
-                            Style="{ThemeResource TitleTextBlockStyle}"
-                            Text="{x:Bind ViewModel.Item.Name.Value, Mode=OneWay, FallbackValue={}}" 
-                            />
-
-                        <StackPanel x:Name="GameInfoBlock" RelativePanel.Below="ImageBlock">
-                            <!-- 开发商 -->
-                            <StackPanel Margin="{StaticResource SmallTopMargin}">
-                                <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
-                                           x:Uid="GalgamePage_Developers" />
-                                <HyperlinkButton
-                                    Content="{x:Bind ViewModel.Item.Developer.Value, Mode=OneWay, FallbackValue={}}"
-                                    Padding="0 0 0 0" 
-                                    Command="{x:Bind ViewModel.JumpToHomePageWithDeveloperFilterCommand}"/>
-                            </StackPanel>
-                            <!-- 上次游玩时间 -->
-                            <StackPanel Margin="{StaticResource SmallTopMargin}">
-                                <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
-                                           x:Uid="GalgamePage_LastPlayTime" />
-                                <TextBlock Style="{ThemeResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.Item.LastPlayTime, Mode=OneWay, FallbackValue={},
-                                           Converter={StaticResource DateTimeToStringConverter}}" />
-                            </StackPanel>
-                            <!-- 游戏总时长 -->
-                            <StackPanel Margin="{StaticResource SmallTopMargin}">
-                                <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
-                                           x:Uid="GalgamePage_TotalPlayTime" />
-                                <HyperlinkButton
-                                    Content="{x:Bind ViewModel.Item.TotalPlayTime, Mode=OneWay, 
-                                           FallbackValue={}, Converter={StaticResource TimeToDisplayTimeConverter}}"
-                                    Padding="0 0 0 0" Command="{x:Bind ViewModel.JumpToPlayedTimePageCommand}">
-                                    <interactivity:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="RightTapped">
-                                            <core:InvokeCommandAction Command="{x:Bind ViewModel.ChangeTimeFormatCommand}" />
-                                        </core:EventTriggerBehavior>
-                                    </interactivity:Interaction.Behaviors>
-                                </HyperlinkButton>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel x:Name="PlayInfoBlock" RelativePanel.Below="GameInfoBlock">
-                            <StackPanel Margin="{StaticResource SmallTopMargin}">
-                                <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
-                                           x:Uid="GalgamePage_SavePosition" />
-                                <TextBlock Style="{ThemeResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.Item.SavePosition, Mode=OneWay, FallbackValue={}}" />
-                            </StackPanel>
-
-                            <StackPanel Margin="{StaticResource SmallTopMargin}">
-                                <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
-                                           x:Uid="GalgamePage_ExpectedPlayTime" />
-                                <TextBlock Style="{ThemeResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.Item.ExpectedPlayTime, Mode=OneWay, FallbackValue={}}" />
-                            </StackPanel>
-                            
-                            <!-- 发布日期 -->
-                            <StackPanel Margin="{StaticResource SmallTopMargin}">
-                                <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
-                                           x:Uid="GalgamePage_ReleaseDate" />
-                                <TextBlock Style="{ThemeResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.Item.ReleaseDate.Value, Mode=OneWay, FallbackValue={}, 
-                                           Converter={StaticResource DateTimeToStringConverter}}" />
-                            </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel x:Name="RatingBlock" RelativePanel.Below="PlayInfoBlock">
-                            <StackPanel>
-                                <TextBlock Style="{ThemeResource DisplayTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.Item.Rating.Value, Mode=OneWay, FallbackValue={}}" />
-                            </StackPanel>
-                        </StackPanel>
-
-                    </RelativePanel>
-
+                    <!--Layout TypeA -->
+                    <StackPanel Visibility="Collapsed">
+                        <galgamePagePanel:GameHeaderOldPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                        <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                        <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                        <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                    </StackPanel>
+                    <!--Layout TypeB -->
                     <StackPanel>
-                        <StackPanel.ChildrenTransitions>
-                            <TransitionCollection>
-                                <EntranceThemeTransition FromVerticalOffset="200"/>
-                            </TransitionCollection>
-                        </StackPanel.ChildrenTransitions>
-                        <TextBlock
-                            Margin="{StaticResource SmallTopBottomMargin}"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            x:Uid="GalgamePage_Description"
-                            Visibility="{x:Bind ViewModel.IsDescriptionVisible, Mode=OneWay}" />
-                        <TextBlock
-                            Style="{ThemeResource BodyTextBlockStyle}"
-                            Text="{x:Bind ViewModel.Item.Description.Value, Mode=OneWay, FallbackValue={}}"
-                            IsTextSelectionEnabled="True"
-                            Visibility="{x:Bind ViewModel.IsDescriptionVisible, Mode=OneWay}" />
-
-                        <TextBlock
-                            Margin="{StaticResource SmallTopBottomMargin}"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Tags"
-                            Visibility="{x:Bind ViewModel.IsTagVisible, Mode=OneWay}" />
-                        <ItemsRepeater
-                            ItemsSource="{x:Bind ViewModel.Tags}"
-                            Visibility="{x:Bind ViewModel.IsTagVisible, Mode=OneWay}">
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="viewModels:GalgameViewModelTag">
-                                    <Button 
-                                            CornerRadius="10" Padding="0" BorderBrush="{x:Null}"
-                                            Margin="5 7 5 7"
-                                            BorderThickness="0"
-                                            Command="{x:Bind ClickCommand}">
-                                        <TextBlock Padding="5" Text="{x:Bind Tag}" />
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                            <ItemsRepeater.Layout>
-                                <cmtkControls:WrapLayout Orientation="Horizontal" />
-                            </ItemsRepeater.Layout>
-                        </ItemsRepeater>
-                        
-                        <TextBlock
-                            Margin="{StaticResource SmallTopBottomMargin}"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Visibility="{x:Bind ViewModel.IsCharacterVisible, Mode=OneWay}"
-                            x:Uid="GalgamePage_Characters" />
-
-                        <ItemsRepeater Visibility="{x:Bind ViewModel.IsCharacterVisible, Mode=OneWay}"
-                                       ItemsSource="{x:Bind ViewModel.Item.Characters,Mode=OneWay,FallbackValue={}}"
-                                       cmtkAnimations:Connected.ListItemKey="galgameCharacter"
-                                       cmtkAnimations:Connected.ListItemElementName="ConnectedElement">
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="models:GalgameCharacter">
-                                    <Button Style="{ThemeResource TransparentButtonWithHover}"
-                                            DataContext="{x:Bind}"
-                                            Command="{Binding ElementName=Page, Path=ViewModel.CharacterClickCommand}"
-                                            CommandParameter="{x:Bind}" Height="130">
-                                        <Grid
-                                            Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
-                                            <StackPanel HorizontalAlignment="Center">
-                                                <Rectangle Height="75" Width="75"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"
-                                                           x:Name="ConnectedElement">
-                                                    <Rectangle.Fill>
-                                                        <ImageBrush
-                                                            ImageSource="{x:Bind PreviewImagePath, Mode=OneWay,
-                                                Converter={StaticResource ImagePathConverter}}"
-                                                            Stretch="UniformToFill" />
-                                                    </Rectangle.Fill>
-                                                </Rectangle>
-                                                <TextBlock
-                                                    MaxHeight="40"
-                                                    Margin="{StaticResource XXSmallTopMargin}"
-                                                    HorizontalAlignment="Center"
-                                                    Style="{ThemeResource BodyTextStyle}"
-                                                    Text="{x:Bind Name, Mode=OneWay}" />
-                                            </StackPanel>
-                                        </Grid>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                            <ItemsRepeater.Layout>
-                                <UniformGridLayout ItemsStretch="Fill" MinItemWidth="100" MinRowSpacing="10"/>
-                            </ItemsRepeater.Layout>
-                        </ItemsRepeater>
+                        <Grid ColumnDefinitions="5*,2*">
+                            <StackPanel Grid.Column="0">
+                                <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                                <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                            </StackPanel>
+                            <!-- 右侧游戏状态部分 -->
+                            <galgamePagePanel:GamePlayStatusPanel 
+                                Grid.Column="1" Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                        </Grid>
+                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                        <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

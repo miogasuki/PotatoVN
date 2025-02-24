@@ -40,7 +40,7 @@ public class ExportTask (string targetPath) : BgTaskBase
             LocalSettingStatus status = await _settingService
                 .ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true) ?? new();
             status = status.Clone(); // 防止修改原数据
-            status.SetImportToFalse();
+            status.SetToExport();
             await _settingService.AddToExportAsync(KeyValues.DataStatus, status);
             // 导出主页设置
             await _settingService.AddToExportDirectlyAsync(KeyValues.MultiStreamPageList);

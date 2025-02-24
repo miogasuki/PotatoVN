@@ -65,6 +65,12 @@ jobs:
           $xml.Package.Identity.Name = "37126GoldenPotato137.PotatoVN.sideload"
           $xml.Package.Identity.Publisher = "${{ vars.PUBLISHER }}"
           $xml.Save($manifestPath)
+          
+      - name: Update app icon
+        shell: pwsh
+        run: |
+          xcopy "GalgameManager\Assets\Pictures\icon-sideload\*" "GalgameManager\Assets\" /s /e /y
+          echo "Updated app icon"
 
       - name: Create the app package
         run: |

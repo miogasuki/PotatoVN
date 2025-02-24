@@ -252,7 +252,7 @@ public class LocalFolderSourceService : IGalgameSourceService
                 return;
             }
 
-            sourceService.MoveOutOperate(source, game.Galgame);
+            sourceService.MoveOutNoOperate(source, game.Galgame);
 
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Success,
                 "LocalFolderSourceService_OnFolderDelete".GetLocalized(), msg: e.FullPath);

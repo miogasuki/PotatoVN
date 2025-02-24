@@ -13,6 +13,9 @@ public interface IVndbApi
 
     [Post("/character")]
     public Task<VndbResponse<VndbCharacter>> GetVnCharacterAsync([Body]VndbQuery vndbQuery);
+    
+    [Post("/staff")]
+    public Task<VndbResponse<VndbStaff>> GetStaffAsync([Body]VndbQuery vndbQuery);
 
     // [Headers("Authorization: Token")] 用于标记，以便插入header
     [Headers("Authorization: Token")]
@@ -50,6 +53,9 @@ public class VndbApi : IVndbApi
     public async Task<VndbResponse<VndbCharacter>> GetVnCharacterAsync(VndbQuery vndbQuery) => 
         await _vndbApiImplementation.GetVnCharacterAsync(vndbQuery);
 
+    public async Task<VndbResponse<VndbStaff>> GetStaffAsync(VndbQuery vndbQuery) => 
+        await _vndbApiImplementation.GetStaffAsync(vndbQuery);
+    
     public async Task<UserLabelsResponse> GetUserLabelsAsync(string id) => 
         await _vndbApiImplementation.GetUserLabelsAsync(id);
 

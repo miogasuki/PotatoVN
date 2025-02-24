@@ -5,21 +5,27 @@ using GalgameManager.Enums;
 using GalgameManager.Helpers.API;
 using GalgameManager.Models;
 using Newtonsoft.Json.Linq;
+using Staff = GalgameManager.Models.Staff;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
+public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser
 {
     private VndbApi _vndbApi;
 
     private readonly Dictionary<int, JToken> _tagDb = new();
     private bool _init;
     private const string TagDbFile = @"Assets\Data\vndb-tags-latest.json";
+    // 标签翻译文件来源: https://greasyfork.org/zh-CN/scripts/445990-vndbtranslatorlib
+    // 作者: rui li 2
+    // 协议: MIT
+    private const string TagTranslationFile = @"Assets\Data\vndb-tags-translation.json";
     /// <summary>
     /// id eg:g530[1..]=530=(int)530
     /// </summary>
     private const string VndbFields = "title, titles.title, titles.lang, description, image.url, id, rating, length, " +
                                       "length_minutes, tags.id, tags.rating, developers.original, developers.name, released";
+    private const string StaffFields = "id, aid, name, original, lang, gender, description";
 
     private bool _authed;
     private Task? _checkAuthTask;
@@ -70,6 +76,23 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         JToken json = JToken.Parse(await File.ReadAllTextAsync(file));
         List<JToken>? tags = json.ToObject<List<JToken>>();
         tags!.ForEach(tag => _tagDb.Add(int.Parse(tag["id"]!.ToString()), tag));
+
+        // 加载并应用翻译
+        var translationFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, TagTranslationFile);
+        if (!File.Exists(translationFile)) return;
+
+        JToken translationJson = JObject.Parse(await File.ReadAllTextAsync(translationFile));
+
+        // 遍历所有标签，应用翻译
+        foreach (var tag in _tagDb.Values)
+        {
+            string? originalName = tag["name"]?.ToString();
+            if (originalName != null && translationJson[originalName] != null)
+            {
+                tag["name"] = translationJson[originalName]!.ToString();
+            }
+        }
+
     }
 
     private static async Task TryGetId(Galgame galgame)
@@ -141,7 +164,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             
             if (vndbResponse.Results is null || vndbResponse.Results.Count == 0) return null;
             VndbVn rssItem = vndbResponse.Results[0];
-            result.Name = rssItem.Title ?? "";
+            result.Name = GetJapaneseName(rssItem.Titles) ?? rssItem.Title ?? Galgame.DefaultString;
             result.CnName = GetChineseName(rssItem.Titles);
             result.Description = rssItem.Description ?? Galgame.DefaultString;
             result.RssType = GetPhraseType();
@@ -174,7 +197,11 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
                 {
                     if (!int.TryParse(tag.Id![1..], out var i)) continue;
                     if (_tagDb.TryGetValue(i, out JToken? tagInfo))
+                    {
+                        // 仅保留一般性的tag，跳过sexual content 和 technical tags.
+                        if (tagInfo["cat"]!.ToString() != "cont") continue;
                         result.Tags.Value.Add(tagInfo["name"]!.ToString() ?? "");
+                    }
                 }
             }
             // Characters
@@ -270,7 +297,6 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         };
         return character;
     }
-
     private static string GetChineseName(IReadOnlyCollection<VndbTitle>? titles)
     {
         if (titles == null) return "";
@@ -278,6 +304,13 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
                            titles.FirstOrDefault(t => t.Lang == "zh-Hant");
         return title?.Title!;
     }
+    private static string GetJapaneseName(IReadOnlyCollection<VndbTitle>? titles)
+    {
+        if (titles == null) return "";
+        VndbTitle? title = titles.FirstOrDefault(t => t.Lang == "ja");
+        return title?.Title ?? "";
+    }
+    
     private static string GetLength(VndbVn.VnLenth? length, int? lengthMinutes)
     {
         if (lengthMinutes != null)
@@ -433,6 +466,112 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             return (GalStatusSyncResult.Other, e.Message);
         }
         return (GalStatusSyncResult.Ok, "VndbPhraser_DownloadAsync_Success".GetLocalized());
+    }
+
+    public async Task<Staff?> GetStaffAsync(Staff staff)
+    {
+        var id = staff.Ids[(int)GetPhraseType()];
+        if (id is null && staff.Name is null) return null;
+        VndbResponse<VndbStaff>? vndbResponse = await CallVndbApiAsync(() => _vndbApi.GetStaffAsync(new VndbQuery
+        {
+            Fields = StaffFields,
+            Filters = id is null ? VndbFilters.Equal("search", staff.Name!) : VndbFilters.Equal("id", id),
+        }));
+        if (vndbResponse is null) return null;
+        VndbStaff? rssItem = (vndbResponse.Results ?? []).FirstOrDefault(s => s.Id == id || s.Name == staff.Name
+            || s.Original == staff.Name);
+        if (rssItem is null) return null;
+        Staff result = new()
+        {
+            Ids = { [(int)GetPhraseType()] = rssItem.Id },
+            EnglishName = rssItem.Name,
+            JapaneseName = rssItem.Original,
+            Gender = rssItem.Gender switch
+            {
+                "f" => Gender.Female,
+                "m" => Gender.Male,
+                _ => Gender.Unknown
+            },
+            Description = rssItem.Description,
+        };
+        return result;
+    }
+
+    public async Task<List<StaffRelation>> GetStaffsAsync(Galgame game)
+    {
+        if (!_init) await Init();
+        if (string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) await TryGetId(game);
+        if (string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) return new List<StaffRelation>();
+
+        var id = game.Ids[(int)RssType.Vndb]!.StartsWith('v')
+            ? game.Ids[(int)RssType.Vndb]!
+            : "v" + game.Ids[(int)RssType.Vndb]!;
+        List<StaffRelation> result = [];
+
+        List<string> filter = StaffFields.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => $"staff.{s.Trim()}").ToList();
+        filter.AddRange(["staff.eid","staff.role", "staff.note"]);
+        filter.AddRange(StaffFields.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => $"va.staff.{s.Trim()}").Append("va.note"));
+        var fieldStr = string.Join(", ", filter);
+        VndbResponse<VndbVn>? vndbResponse = await CallVndbApiAsync(() => _vndbApi.GetVisualNovelAsync(new VndbQuery
+        {
+            Fields = fieldStr,
+            Filters = VndbFilters.Equal("id", id),
+        }));
+        if (!(vndbResponse is null || vndbResponse.Results is null || vndbResponse.Results.Count == 0))
+        {
+            VndbVn rssItem = vndbResponse.Results[0];
+            result.AddRange((rssItem.Staff ?? []).Select(staff => GetStaffRelation(staff,
+                staff.Role switch
+                {
+                    VnStaff.StaffRole.Scenario => Career.Writer, 
+                    VnStaff.StaffRole.Artist => Career.Painter,
+                    VnStaff.StaffRole.Vocals or VnStaff.StaffRole.Composer => Career.Musician, 
+                    _ => Career.Unknown,
+                })));
+            result.AddRange((rssItem.Va ?? []).Where(v => v.Staff is not null)
+                .Select(va => GetStaffRelation(va.Staff, Career.Seiyu)));
+        }
+        return result;
+
+        StaffRelation GetStaffRelation(VndbStaff? staff, Career relation)
+        {
+            return new StaffRelation
+            {
+                Ids = { [(int)GetPhraseType()] = staff?.Id },
+                EnglishName = staff?.Name,
+                JapaneseName = staff?.Original,
+                Gender = staff?.Gender switch
+                {
+                    "f" => Gender.Female,
+                    "m" => Gender.Male,
+                    _ => Gender.Unknown
+                },
+                Description = staff?.Description,
+                Relation = [relation],
+            };
+        }
+    }
+    
+    /// 一个简单的wrapper，自动处理throttle，返回值为null时表示失败
+    private static async Task<VndbResponse<T>?> CallVndbApiAsync<T>(Func<Task<VndbResponse<T>>> func)
+    {
+        do
+        {
+            try
+            {
+                return await func();
+            }
+            catch (ThrottledException)
+            {
+                Task.Delay(60 * 1000).Wait(); // 1 minute
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        } while (true);
     }
 }
 

@@ -74,7 +74,7 @@ public partial class PlayedTimeViewModel : ObservableObject, INavigationAware
     private async Task Edit()
     {
         await new EditPlayTimeDialog(Game).ShowAsync();
-        await _galgameCollectionService.SaveGalgamesAsync(Game);
+        await _galgameCollectionService.SaveGalgameAsync(Game);
         Update();
         _pvnService.Upload(Game, PvnUploadProperties.PlayTime);
     }

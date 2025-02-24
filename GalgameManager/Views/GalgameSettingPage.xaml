@@ -54,21 +54,56 @@
                         Value="{x:Bind ViewModel.Gal.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         IsLock="{x:Bind ViewModel.Gal.Name.IsLock, Mode=TwoWay}" 
                         AcceptsReturn="False"/>
-
+                    <!-- 游戏路径 -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Uid="GalgameSettingPage_GalgamePath"
                                     Margin="0 0 15 0" VerticalAlignment="Center"
                                     HorizontalAlignment="Stretch"/>
                         <TextBox Grid.Column="1" 
-                                     Text="{x:Bind ViewModel.Gal.LocalPath, Mode=OneTime}" 
+                                     Text="{x:Bind ViewModel.Gal.LocalPath, Mode=OneWay}" 
                                      VerticalAlignment="Center" 
                                      HorizontalAlignment="Stretch"
-                                     AcceptsReturn="False"/>
-                        
+                                     AcceptsReturn="False"
+                                     IsReadOnly="True"/>
+                        <HyperlinkButton Grid.Column="2" Command="{x:Bind ViewModel.SetGalgamePathCommand}" 
+                                        VerticalAlignment="Center"
+                                        Margin="10 0 0 0">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="Edit" />
+                                <TextBlock x:Uid="GalgameSettingPage_EditPath"/>
+                            </StackPanel>
+                        </HyperlinkButton>
+                    </Grid>
+
+                    <!-- 游戏Exe路径 -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Uid="GalgameSettingPage_GalgameExePath"
+                                    Margin="0 0 15 0" VerticalAlignment="Center"
+                                    HorizontalAlignment="Stretch"/>
+                        <TextBox Grid.Column="1" 
+                                     Text="{x:Bind ViewModel.Gal.ExePath, Mode=OneWay}" 
+                                     VerticalAlignment="Center" 
+                                     HorizontalAlignment="Stretch"
+                                     AcceptsReturn="False"
+                                     IsReadOnly="True"/>
+                        <HyperlinkButton Grid.Column="2" Command="{x:Bind ViewModel.SetGalgameExePathCommand}" 
+                                        VerticalAlignment="Center"
+                                        Margin="10 0 0 0">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="Edit" />
+                                <TextBlock x:Uid="GalgameSettingPage_EditExePath"/>
+                            </StackPanel>
+                        </HyperlinkButton>
                     </Grid>
 
                     <Grid>
@@ -107,7 +142,10 @@
                             <HyperlinkButton Grid.Column="2" VerticalAlignment="Center" 
                                              NavigateUri="{x:Bind ViewModel.SearchUri, Mode=OneWay}"
                                              Margin="20 0 0 0">
-                                <SymbolIcon Symbol="Find"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Find"/>
+                                    <TextBlock x:Uid="GalgameSettingPage_Search"/>
+                                </StackPanel>
                             </HyperlinkButton>
                         </Grid>
                     </Grid>
@@ -117,6 +155,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Uid="GalgameSettingPage_Startup_parameters"
                                     Margin="0 0 15 0" VerticalAlignment="Center"
@@ -125,8 +164,16 @@
                                      Text="{x:Bind ViewModel.Gal.Startup_parameters, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                      VerticalAlignment="Center" HorizontalAlignment="Stretch"
                                      AcceptsReturn="False"
-                                 ToolTipService.ToolTip="第一个参数为启动galgame的软件的绝对地值，比如”D:\Program Files\Locale.Emulator.2.5.0.1\LEProc.exe\“,剩下的参数按软件内部的使用，其实和cmd的方式差不多"
+                                 PlaceholderText="请输入启动项"
+                                 ToolTipService.ToolTip="就是你想用什么东西来启动galgame，支持系统环境变量，当然最好是文件的绝对地址"
                                  />
+                        <TextBox Grid.Column="2" 
+                                    Text="{x:Bind ViewModel.Gal.Startup_parameters_arguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                                    AcceptsReturn="False"
+                                    PlaceholderText="请输入启动项参数"
+                                    ToolTipService.ToolTip="就把他当成cmd来用就行了"
+                                  />
                         
                     </Grid>
                     

@@ -13,6 +13,7 @@ public class BangumiPhraserTest
     public void Init()
     {
         var token = Environment.GetEnvironmentVariable("BGM_TOKEN"); // 请在环境变量中设置 BGM_TOKEN
+        Assert.That(token, Is.Not.Null.Or.Empty, "请在环境变量中设置 BGM_TOKEN");
         BgmPhraserData data = new()
         {
             Token = string.IsNullOrEmpty(token) ? null : token
@@ -21,70 +22,42 @@ public class BangumiPhraserTest
     }
 
     [Test]
-    [TestCase("ambitious_mission")]
-    [TestCase("月に寄りそう乙女の作法")]
-    [TestCase("近月少女的礼仪2")]
-    public async Task PhraseTest(string name)
+    [TestCase("ambitious_mission", "360498")]
+    [TestCase("月に寄りそう乙女の作法", "44123", "月に寄りそう乙女の作法")]
+    [TestCase("近月少女的礼仪2", "105074")]
+    public async Task ParseGameTest(string name, string targetId, string? targetName = null)
     {
-        // Arrange
         Galgame? game = new(name);
-        // Act
         game = await _phraser.GetGalgameInfo(game);
-        // Assert
-        if(game == null)
-        {
-            Assert.Fail();
-            return;
-        }
-        
-        switch (name)
-        {
-            case "月に寄りそう乙女の作法":
-                if(game.Name != "月に寄りそう乙女の作法") Assert.Fail();
-                if(game.Id != "44123") Assert.Fail();
-                break;
-            case "近月少女的礼仪2":
-                if(game.Id != "105074") Assert.Fail();
-                break;
-            case "ambitious_mission":
-                if (game.Id != "360498") Assert.Fail();
-                break;
-        }
-        
-        Assert.Pass();
+        ParserTestUtil.CheckGame(game, targetId, expectedName: targetName);
     }
 
     [Test]
-    [TestCase("22423")] // 樱之诗 - 在樱花之森上飞舞
-    public async Task PhraseWithIdTest(string id)
+    [TestCase("22423", "サクラノ詩 —櫻の森の上を舞う—", "枕")] // 樱之诗 - 在樱花之森上飞舞
+    public async Task ParseGameWithIdTest(string id, string? targetName=null, string? targetDeveloper=null)
     {
-        // Arrange
         Galgame? game = new()
         {
             RssType = RssType.Bangumi,
             Id = id
         };
-        // Act
         game = await _phraser.GetGalgameInfo(game);
-        // Assert
-        if(game == null)
-        {
-            Assert.Fail();
-            return;
-        }
-
-        switch (id)
-        {
-            case "22423":
-                if (game.Id != "22423") Assert.Fail();
-                if (game.Name != "サクラノ詩 —櫻の森の上を舞う—") Assert.Fail();
-                if (game.Developer != "枕") Assert.Fail();
-                break;
-        }
-        
-        Assert.Pass();
+        ParserTestUtil.CheckGame(game, id, expectedName: targetName, expectedDeveloper: targetDeveloper);
     }
 
+    [Test]
+    [TestCase("34877", "八日なのか", null, "シナリオライター")]
+    [TestCase("7214", "天都", "アマト", "ASa Projectのディレ")]
+    [TestCase("11268", "柚子奈妃世", "柚子奈ひよ", "minori「夏空")]
+    public async Task ParseStaffWithIdTest(string id, string? targetName, string? targetJapaneseName, 
+        string? targetDescription)
+    {
+        Staff? staff = new Staff { Ids = { [(int)RssType.Bangumi] = id } };
+        staff = await _phraser.GetStaffAsync(staff);
+        ParserTestUtil.CheckStaff(staff, RssType.Bangumi, expectedId: id, expectedDescription: targetDescription,
+            expectedJapaneseName: targetJapaneseName);
+    }
+    
     [Test]
     [TestCase("ゆずソフト", "https://lain.bgm.tv/pic/crt/l/1c/fd/7175_prsn_k7z6x.jpg?r=1553269010")]
     public async Task GetDeveloperImageUrlAsyncTest(string name, string url)

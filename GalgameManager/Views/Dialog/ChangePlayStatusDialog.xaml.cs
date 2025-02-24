@@ -36,6 +36,7 @@ public sealed partial class ChangePlayStatusDialog
         {
             UploadToBgm = BgmCheckBox.IsChecked ?? false;
             UploadToVndb = VndbCheckBox.IsChecked ?? false;
+            _galgame.PlayType = PlayType.None; // 先清空（确保分类事件能被触发）
             _galgame.PlayType = PlayStatusBox.SelectedItem.ToString()?.CastToPlayTyped() ?? PlayType.None;
             _galgame.MyRate = RateBox.SelectedItem is int rate ? rate : 0;
             _galgame.PrivateComment = PrivateCheckBox.IsChecked ?? false;

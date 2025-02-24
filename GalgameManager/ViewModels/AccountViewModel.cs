@@ -37,6 +37,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         _localSettingsService.OnSettingChanged += OnLocalSettingsChanged;
         _bgmService.OnAuthResultChange += BgmAuthResultNotify;
         _pvnService.StatusChanged += HandelPvnServiceStatusChanged;
+        OnPropertyChanged(nameof(PvnServerTypeMsg));
 #pragma warning disable MVVMTK0034 //防止触发属性更改事件，该事件是手动切换服务器类型时才应该触发的
         _pvnServerType = await _localSettingsService.ReadSettingAsync<PvnServerType>(KeyValues.PvnServerType);
 #pragma warning restore MVVMTK0034
@@ -73,25 +74,8 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         VndbAccount? vndbAccount = await _localSettingsService.ReadSettingAsync<VndbAccount>(KeyValues.VndbAccount);
         await UiThreadInvokeHelper.InvokeAsync(() =>
         {
-            PvnAvatar = account?.Avatar;
-            PvnLoginButtonText = account is null ? "Login".GetLocalized() : "Logout".GetLocalized();
-            PvnLoginDescription = account is null
-                ? "AccountPage_Pvn_AccountStatus_Unlogin".GetLocalized()
-                : "AccountPage_Pvn_AccountStatus_Login".GetLocalized(account.Id, account.LoginMethod.GetLocalized());
-            PvnLoginButtonCommand = account is null ? new RelayCommand(PvnLogin) : new RelayCommand(PvnLogout);
-            PvnDisplayName = account?.UserDisplayName ?? "NoName".GetLocalized();
-            PvnStateMsg = "AccountPage_Pvn_ConnectTo".GetLocalized(_pvnService.BaseUri.ToString());
-            UsedSpace = $"{((double)(account?.UsedSpace ?? 0) / 1024 / 1024)
-                .ToString("F1", CultureInfo.InvariantCulture)} MB";
-            TotalSpace = $"{((double)(account?.TotalSpace ?? 0) / 1024 / 1024)
-                .ToString("F1", CultureInfo.InvariantCulture)} MB";
-            UsedPercentValue = (double)(account?.UsedSpace ?? 0) / (account?.TotalSpace ?? 1) * 100;
-            UsedPercent = "AccountPage_Pvn_SpaceUsedPercent".GetLocalized(UsedPercentValue
-                .ToString("F1", CultureInfo.InvariantCulture));
-            IsPvnLogin = account is not null;
-            
+            PvnAccount = account;
             BgmAccount = bgmAccount;
-
             VndbAccount = vndbAccount;
         });
     }
@@ -99,20 +83,44 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
     #region POTATOVN_ACCOUNT
 
     private readonly IPvnService _pvnService;
-    [ObservableProperty] private string _pvnDisplayName = string.Empty;
-    [ObservableProperty] private string _pvnStateMsg = string.Empty;
-    [ObservableProperty] private string? _pvnAvatar;
+    public string PvnDisplayName => PvnAccount?.UserDisplayName ?? "NoName".GetLocalized();
+    public string PvnStateMsg => PvnAccount is null
+        ? "AccountPage_Pvn_AccountStatus_Unlogin".GetLocalized()
+        : "AccountPage_Pvn_LoginedDescription".GetLocalized(PvnAccount.Id,
+            PvnAccount.ExpireTimestamp.ToDateTime().ToStringDefault(),
+            PvnAccount.RefreshTimestamp.ToDateTime().ToStringDefault());
+    public string? PvnAvatar => PvnAccount?.Avatar;
+    // ReSharper disable once CollectionNeverQueried.Global
     public readonly PvnServerType[] PvnServerTypes = { PvnServerType.OfficialServer, PvnServerType.CustomServer };
     [ObservableProperty] private PvnServerType _pvnServerType;
-    [ObservableProperty] private string _pvnLoginButtonText = string.Empty;
-    [ObservableProperty] private string _pvnLoginDescription = string.Empty;
-    [ObservableProperty] private ICommand? _pvnLoginButtonCommand;
-    [ObservableProperty] private bool _isPvnLogin;
+    public string PvnServerTypeMsg => "AccountPage_Pvn_ServerType_Description".GetLocalized(_pvnService.BaseUri.ToString());
+    public string PvnLoginButtonText => PvnAccount is null ? "Login".GetLocalized() : "Logout".GetLocalized();
+    public string PvnLoginDescription => PvnAccount is null
+        ? "AccountPage_Pvn_AccountStatus_Unlogin".GetLocalized()
+        : "AccountPage_Pvn_AccountStatus_Login".GetLocalized(PvnAccount.Id, PvnAccount.LoginMethod.GetLocalized());
+    public ICommand PvnLoginButtonCommand => PvnAccount is null ? new RelayCommand(PvnLogin) : new RelayCommand(PvnLogout);
+    public bool IsPvnLogin => PvnAccount is not null;
     [ObservableProperty] private bool _pvnSyncGames;
-    [ObservableProperty] private string? _usedSpace;
-    [ObservableProperty] private string? _totalSpace;
-    [ObservableProperty] private string? _usedPercent;
-    [ObservableProperty] private double _usedPercentValue;
+    public string UsedSpace => $"{((double)(PvnAccount?.UsedSpace ?? 0) / 1024 / 1024)
+        .ToString("F1", CultureInfo.InvariantCulture)} MB";
+    public string TotalSpace => $"{((double)(PvnAccount?.TotalSpace ?? 0) / 1024 / 1024)
+        .ToString("F1", CultureInfo.InvariantCulture)} MB";
+    public string UsedPercent => "AccountPage_Pvn_SpaceUsedPercent".GetLocalized(UsedPercentValue
+        .ToString("F1", CultureInfo.InvariantCulture));
+    public double UsedPercentValue => (double)(PvnAccount?.UsedSpace ?? 0) / (PvnAccount?.TotalSpace ?? 1) * 100;
+    
+    [NotifyPropertyChangedFor(nameof(IsPvnLogin))]
+    [NotifyPropertyChangedFor(nameof(PvnStateMsg))]
+    [NotifyPropertyChangedFor(nameof(PvnDisplayName))]
+    [NotifyPropertyChangedFor(nameof(PvnAvatar))]
+    [NotifyPropertyChangedFor(nameof(PvnLoginDescription))]
+    [NotifyPropertyChangedFor(nameof(PvnLoginButtonText))]
+    [NotifyPropertyChangedFor(nameof(PvnLoginButtonCommand))]
+    [NotifyPropertyChangedFor(nameof(UsedSpace))]
+    [NotifyPropertyChangedFor(nameof(TotalSpace))]
+    [NotifyPropertyChangedFor(nameof(UsedPercent))]
+    [NotifyPropertyChangedFor(nameof(UsedPercentValue))]
+    [ObservableProperty] private PvnAccount? _pvnAccount;
     
     async partial void OnPvnServerTypeChanged(PvnServerType value)
     {
@@ -123,6 +131,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         }
 
         await _localSettingsService.SaveSettingAsync(KeyValues.PvnServerType, value);
+        OnPropertyChanged(nameof(PvnServerTypeMsg));
     }
 
     private async Task<bool> TrySetCustomServer()
@@ -205,6 +214,28 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         _localSettingsService.SaveSettingAsync(KeyValues.SyncGames, value);
         if (value)
             _pvnService.SyncGames();
+    }
+
+    [RelayCommand]
+    private async Task PvnRefreshToken()
+    {
+        if (PvnAccount is null) return;
+        if (DateTime.Now.ToUnixTime() > PvnAccount.ExpireTimestamp)
+        {
+            _infoService.Info(InfoBarSeverity.Error, msg: "AccountPage_Pvn_TokenExpired".GetLocalized());
+            return;
+        }
+        
+        try
+        {
+            _infoService.Info(InfoBarSeverity.Informational, msg: "AccountPage_Pvn_Logging".GetLocalized());
+            await _pvnService.RefreshTokenAsync();
+            _infoService.Info(InfoBarSeverity.Success, msg: "AccountPage_Pvn_RefreshSuccess".GetLocalized());
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, msg: e.ToString());
+        }
     }
 
     #endregion

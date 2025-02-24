@@ -1,8 +1,8 @@
-﻿using GalgameManager.Contracts.Services;
+﻿using System.Runtime.InteropServices;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using GalgameManager.Helpers.Phrase;
 using GalgameManager.Services;
 using Microsoft.UI.Xaml.Controls;
 
@@ -68,68 +68,80 @@ public class PvnSyncTask : BgTaskBase
         ChangeProgress(0, 1, "PvnSyncTask_GettingModifiedList".GetLocalized());
         List<GalgameDto> changedGalgames = await pvnService.GetChangedGalgamesAsync();
         List<int> deletedGalgames = await pvnService.GetDeletedGalgamesAsync();
+        var isRetrying = false;
         for (var index = 0; index < changedGalgames.Count; index++)
         {
-            GalgameDto dto = changedGalgames[index];
-            Galgame? game = gameService.GetGalgameFromId(dto.id.ToString(), RssType.PotatoVn);
-            game ??= gameService.GetGalgameFromUid(new GalgameUid
+            try
             {
-                BangumiId = dto.bgmId,
-                VndbId = dto.vndbId,
-                Name = dto.name ?? string.Empty,
-                CnName = dto.cnName,
-            });
+                GalgameDto dto = changedGalgames[index];
+                Galgame? game = gameService.GetGalgameFromId(dto.id.ToString(), RssType.PotatoVn);
+                await UiThreadInvokeHelper.InvokeAsync(async Task () =>
+                {
+                    game ??= gameService.GetGalgameFromUid(new GalgameUid
+                    {
+                        BangumiId = dto.bgmId,
+                        VndbId = dto.vndbId,
+                        Name = dto.name ?? string.Empty,
+                        CnName = dto.cnName,
+                    });
+                    
+                    if (game is null) //同步进来的游戏
+                    {
+                        game = new Galgame();
+                        gameService.AddVirtualGalgame(game);
+                        Result += "PvnSyncTask_Pull_Added".GetLocalized(dto.name ?? string.Empty, dto.id) + "\n";
+                    }
+                    else
+                        Result += "PvnSyncTask_Pull_Updated".GetLocalized(dto.name ?? string.Empty, dto.id) + "\n";
 
-            await UiThreadInvokeHelper.InvokeAsync(async Task() =>
+                    ChangeProgress(index, changedGalgames.Count,
+                        "PvnSyncTask_Downloading".GetLocalized(dto.name ?? string.Empty, dto.id));
+
+                    game.Ids[(int)RssType.PotatoVn] = dto.id.ToString();
+                    game.Ids[(int)RssType.Bangumi] = dto.bgmId ?? game.Ids[(int)RssType.Bangumi];
+                    game.Ids[(int)RssType.Vndb] = dto.vndbId ?? game.Ids[(int)RssType.Vndb];
+                    game.UpdateMixedId();
+                    game.Name = dto.name ?? game.Name.Value ?? string.Empty;
+                    game.CnName = dto.cnName ?? game.CnName;
+                    game.Description = dto.description ?? game.Description.Value ?? string.Empty;
+                    game.Developer = dto.developer ?? game.Developer.Value ?? string.Empty;
+                    game.ExpectedPlayTime = dto.expectedPlayTime ?? game.ExpectedPlayTime.Value ?? string.Empty;
+                    game.Rating = dto.rating;
+                    if (dto.releasedDateTimeStamp is not null)
+                        game.ReleaseDate = (dto.releasedDateTimeStamp ?? 0).ToDateTime().ToLocalTime();
+                    if (dto.imageUrl is not null)
+                        game.ImagePath = await DownloadHelper.DownloadAndSaveImageAsync(dto.imageUrl, 0,
+                            $"pvn_{dto.id}") ?? game.ImagePath.Value ?? Galgame.DefaultImagePath;
+                    if (dto.tags is not null)
+                    {
+                        game.Tags.Value?.Clear();
+                        dto.tags.ForEach(tag => game.Tags.Value?.Add(tag));
+                    }
+                    if (dto.playTime is not null)
+                    {
+                        Dictionary<string, int> playTime = new();
+                        foreach (PlayLogDto time in dto.playTime)
+                            playTime[time.dateTimeStamp.ToDateTime().ToLocalTime().ToStringDefault()] = time.minute;
+                        game.MergeTime(new Galgame { PlayedTime = playTime });
+                    }
+                    game.PlayType = dto.playType;
+                    game.Comment = dto.comment ?? game.Comment;
+                    game.MyRate = dto.myRate;
+                    game.PrivateComment = dto.privateComment;
+                    game.PvnUpdate = false;
+
+                    await gameService.SaveGalgameAsync(game);
+                });
+            }
+            catch (COMException) //奇怪的UI异常，重试
             {
-                if (game is null) //同步进来的游戏
-                {
-                    game = new Galgame();
-                    gameService.AddVirtualGalgame(game);
-                    Result += "PvnSyncTask_Pull_Added".GetLocalized(dto.name ?? string.Empty, dto.id) + "\n";
-                }
-                else
-                    Result += "PvnSyncTask_Pull_Updated".GetLocalized(dto.name ?? string.Empty, dto.id) + "\n";
-
-                ChangeProgress(index, changedGalgames.Count,
-                    "PvnSyncTask_Downloading".GetLocalized(dto.name ?? string.Empty, dto.id));
-
-                game.Ids[(int)RssType.PotatoVn] = dto.id.ToString();
-                game.Ids[(int)RssType.Bangumi] = dto.bgmId ?? game.Ids[(int)RssType.Bangumi];
-                game.Ids[(int)RssType.Vndb] = dto.vndbId ?? game.Ids[(int)RssType.Vndb];
-                game.UpdateMixedId();
-                game.Name = dto.name ?? game.Name.Value ?? string.Empty;
-                game.CnName = dto.cnName ?? game.CnName;
-                game.Description = dto.description ?? game.Description.Value ?? string.Empty;
-                game.Developer = dto.developer ?? game.Developer.Value ?? string.Empty;
-                game.ExpectedPlayTime = dto.expectedPlayTime ?? game.ExpectedPlayTime.Value ?? string.Empty;
-                game.Rating = dto.rating;
-                if (dto.releasedDateTimeStamp is not null)
-                    game.ReleaseDate = (dto.releasedDateTimeStamp ?? 0).ToDateTime().ToLocalTime();
-                if (dto.imageUrl is not null)
-                    game.ImagePath = await DownloadHelper.DownloadAndSaveImageAsync(dto.imageUrl, 0,
-                        $"pvn_{dto.id}") ?? game.ImagePath.Value ?? Galgame.DefaultImagePath;
-
-                if (dto.tags is not null)
-                {
-                    game.Tags.Value?.Clear();
-                    dto.tags.ForEach(tag => game.Tags.Value?.Add(tag));
-                }
-
-                if (dto.playTime is not null)
-                {
-                    Dictionary<string, int> playTime = new();
-                    foreach(PlayLogDto time in dto.playTime)
-                        playTime[time.dateTimeStamp.ToDateTime().ToLocalTime().ToStringDefault()] = time.minute;
-                    game.MergeTime(new Galgame { PlayedTime = playTime });
-                }
-
-                game.PlayType = dto.playType;
-                game.Comment = dto.comment ?? game.Comment;
-                game.MyRate = dto.myRate;
-                game.PrivateComment = dto.privateComment;
-                game.PvnUpdate = false;
-            });
+                if (isRetrying) throw;
+                await Task.Delay(200);
+                index--;
+                isRetrying = true;
+                continue;
+            }
+            isRetrying = false;
         }
 
         foreach (long id in deletedGalgames)
@@ -140,7 +152,6 @@ public class PvnSyncTask : BgTaskBase
             await gameService.RemoveGalgame(game);
         }
 
-        await gameService.SaveGalgamesAsync();
         await settingsService.SaveSettingAsync(KeyValues.PvnSyncTimestamp, latest);
     }
 
@@ -184,6 +195,7 @@ public class PvnSyncTask : BgTaskBase
                         "PvnSyncTask_Uploading".GetLocalized(game.Name.Value!));
                     var id = await pvnService.UploadInternal(game);
                     game.Ids[(int)RssType.PotatoVn] = id.ToString();
+                    await gameService.SaveGalgameAsync(game);
                     await settingsService.SaveSettingAsync(KeyValues.PvnSyncTimestamp, DateTime.Now.ToUnixTime());
                     Result += "PvnSyncTask_Commit".GetLocalized(game.Name.Value!, id, uploadProperties.ToString()) + "\n";
                 }

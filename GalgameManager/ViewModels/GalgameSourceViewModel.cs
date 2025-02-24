@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Input;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -66,7 +67,11 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
 
         private set
         {
-            if (_item is not null) _item.GalgamesChanged -= ReloadGalgameList;
+            if (_item is not null)
+            {
+                _item.GalgamesChanged -= ReloadGalgameList;
+                _item.PropertyChanged -= Save;
+            }
             SetProperty(ref _item, value);
             if (value != null)
             {
@@ -100,6 +105,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                     });
                 }
                 value.GalgamesChanged += ReloadGalgameList;
+                value.PropertyChanged += Save;
             }
         }
     }
@@ -332,6 +338,12 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                 Item.ImagePath = file.Path;
         }
         OnPropertyChanged(nameof(ImagePathDes));
+    }
+
+    private void Save(object? sender, PropertyChangedEventArgs propertyChangedEventArgs)
+    {
+        if (Item is null) return;
+        _sourceService.Save(Item);
     }
     
     private bool IsLocalFolder()

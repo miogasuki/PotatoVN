@@ -69,6 +69,13 @@ public interface ICategoryService
     /// <param name="galgame"></param>
     /// <returns></returns>
     Category? GetDeveloperCategory(Galgame galgame);
+
+    /// <summary>
+    /// 保存分类信息
+    /// </summary>
+    /// <param name="category">要保存的分类</param>
+    /// <param name="categoryGroup">要保存的分类组</param>
+    public void Save(Category? category = null, CategoryGroup? categoryGroup = null);
     
     /// <summary>
     /// 导出数据

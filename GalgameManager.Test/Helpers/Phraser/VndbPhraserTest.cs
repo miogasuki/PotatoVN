@@ -14,47 +14,45 @@ public class VndbPhraserTest
     {
         _vndbPhraser = new VndbPhraser();
     }
-    
+
     [Test]
-    [TestCase("スタディ§ステディ")]
-    [TestCase("サノバウィッチ")]
-    [TestCase("喫茶ステラと死神の蝶")]
+    [TestCase("スタディ§ステディ", "24689", "Study § Steady", null, new string[] { })]
+    [TestCase("サノバウィッチ", "16044", null, null, new string[] { })]
+    [TestCase("喫茶ステラと死神の蝶", "26414", null, "星光咖啡馆与死神之蝶", new[] { "明月 栞那" })]
     // 特例：Description为空
-    [TestCase("妹調教日記～こんなツンデレが俺の妹なわけない!～")]
-    public async Task PhraseTest(string name)
+    [TestCase("妹調教日記～こんなツンデレが俺の妹なわけない!～", "9303", null, "妹调教日记", new string[] { })]
+    public async Task ParseGameWithNameTest(
+        string inputGameName,
+        string expectedId,
+        string? expectedName,
+        string? expectedCnName,
+        string[] expectedCharacterNames)
     {
-        // Arrange
-        Galgame? game = new(name);
-        // Act
+        Galgame? game = new(inputGameName);
         game = await _vndbPhraser.GetGalgameInfo(game);
-        // Assert
-        if(game == null)
-        {
-            Assert.Fail();
-            return;
-        }
-        
-        
-        switch (name)
-        {
-            case "スタディ§ステディ":
-                if(game.Name != "Study § Steady") Assert.Fail();
-                if(game.Id != "24689") Assert.Fail();
-                break;
-            case "サノバウィッチ":
-                if(game.Id != "16044") Assert.Fail();
-                break;
-            case "喫茶ステラと死神の蝶":
-                if (game.Id != "26414" || game.CnName != "星光咖啡馆与死神之蝶") Assert.Fail();
-                // ReSharper disable once SimplifyLinqExpressionUseAll
-                if (!game.Characters.Any(
-                        c => _vndbPhraser.GetGalgameCharacter(c).Result?.Name == "明月 栞那")) Assert.Fail();
-                break;
-            case "妹調教日記～こんなツンデレが俺の妹なわけない!～":
-                if (game.Id != "9303" || game.CnName != "妹调教日记") Assert.Fail();
-                break;
-        }
-        
-        Assert.Pass();
+        ParserTestUtil.CheckGame(game, expectedId, expectedName: expectedName, expectedCnName: expectedCnName,
+            characterPhraser: _vndbPhraser, expectedCharacterNames: expectedCharacterNames);
+    }
+
+    [Test]
+    [TestCase("八日 なのか", "s4808", null)]
+    [TestCase("Amamiya Ritsu", "s2883", "Amamiya Ritsu is a Japanese")]
+    public async Task ParseStaffWithNameTest(string name, string expectedId, string? expectedDescription)
+    {
+        Staff? staff = new() { JapaneseName = name };
+        staff = await _vndbPhraser.GetStaffAsync(staff);
+        ParserTestUtil.CheckStaff(staff, RssType.Vndb, expectedId, expectedDescription);
+    }
+
+    [Test]
+    [TestCase("s4883", "冬壱 もんめ", "Fuyuichi Monme", null)]
+    public async Task ParseStaffWithIdTest(string id, string? expectedJapaneseName, string? expectedEnglishName,
+        string? expectedDescription)
+    {
+        Staff? staff = new() { Ids = { [(int)RssType.Vndb] = id } };
+        staff = await _vndbPhraser.GetStaffAsync(staff);
+        ParserTestUtil.CheckStaff(staff, RssType.Vndb, id, expectedDescription,
+            expectedJapaneseName: expectedJapaneseName,
+            expectedEnglishName: expectedEnglishName);
     }
 }

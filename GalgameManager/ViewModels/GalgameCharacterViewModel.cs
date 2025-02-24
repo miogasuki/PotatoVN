@@ -53,3 +53,8 @@ public partial class GalgameCharacterViewModel : ObservableObject, INavigationAw
         IsSummaryVisible = Character?.Summary! != string.Empty ? Visibility.Visible : Visibility.Collapsed;
     }
 }
+
+public class GalgameCharacterParameter
+{
+    [Required] public GalgameCharacter GalgameCharacter = null!;
+}

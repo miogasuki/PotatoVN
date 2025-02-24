@@ -31,6 +31,7 @@ public class PageService : IPageService
         Configure<InfoViewModel, InfoPage>();
         Configure<MultiStreamViewModel, Views.MultiStreamPage>();
         Configure<AnnualReportViewModel, AnnualReportPage>();
+        Configure<StaffViewModel, StaffPage>();
     }
     
     private readonly Dictionary<string, Type> _pages = new();

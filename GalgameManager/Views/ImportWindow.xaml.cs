@@ -54,7 +54,7 @@ public sealed partial class ImportWindow
         {
             _tmp = _localSettingsService.TemporaryFolder.CreateSubdirectory("ImportBackup");
             _tmp.Delete(true);
-            Directory.Move(_localSettingsService.LocalFolder.FullName, _tmp.FullName);
+            Move(_localSettingsService.LocalFolder.FullName, _tmp.FullName);
         });
     }
 
@@ -64,5 +64,17 @@ public sealed partial class ImportWindow
         {
             ZipFile.ExtractToDirectory(_zip.FullName, _localSettingsService.LocalFolder.FullName);
         });
+    }
+
+
+    /// 在系统指定软件数据位置后，所有的软件数据会被加密，无法直接移动一整个文件夹，只能手动移动文件
+    private static void Move(string src, string dest)
+    {
+        if(!Directory.Exists(dest))
+            Directory.CreateDirectory(dest);
+        foreach(var file in Directory.GetFiles(src))
+            File.Move(file, Path.Combine(dest, Path.GetFileName(file)), true);
+        foreach(var subDir in Directory.GetDirectories(src)) 
+            Directory.Move(subDir, Path.Combine(dest, Path.GetFileName(subDir)));
     }
 }

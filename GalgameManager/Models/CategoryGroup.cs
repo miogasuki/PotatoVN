@@ -1,14 +1,27 @@
 ﻿using GalgameManager.Enums;
 using GalgameManager.Helpers;
+using LiteDB;
 
 namespace GalgameManager.Models;
 
 public class CategoryGroup
 {
-    public Guid Id = Guid.NewGuid();
-    public string Name = string.Empty;
-    public List<Category> Categories = new();
-    public CategoryGroupType Type;
+    [BsonId] public Guid Id { get; set; } = Guid.NewGuid();
+    public string Name { get; set; } = string.Empty;
+    [BsonIgnore] public List<Category> Categories { get; set; }= new();
+    public CategoryGroupType Type { get; set; }
+
+    #region LITEDB_MAPPING
+
+    public List<Guid> CategoryIds
+    {
+        get => Categories.Select(c => c.Id).ToList();
+        set => _categoryIds = value;
+    }
+    public List<Guid> GetLoadedCategoryIds() => _categoryIds;
+    private List<Guid> _categoryIds = new();
+
+    #endregion
 
     public CategoryGroup()
     {
@@ -17,11 +30,6 @@ public class CategoryGroup
     public CategoryGroup(string name, CategoryGroupType type)
     {
         Type = type;
-        Name = name;
-    }
-
-    public CategoryGroup(string name)
-    {
         Name = name;
     }
 

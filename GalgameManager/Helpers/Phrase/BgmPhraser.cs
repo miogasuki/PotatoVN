@@ -1,19 +1,22 @@
 ﻿using System.Collections.ObjectModel;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
 using GalgameManager.Contracts.Phrase;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
+using GalgameManager.Helpers.API.Bgm;
 using GalgameManager.Models;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Exception = System.Exception;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
+public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser
 {
     private HttpClient _httpClient;
+    private IBgmApi _bgmApi = null!;
     private bool _authed;
     private string _userId = string.Empty;
     private string _userName = string.Empty;
@@ -36,6 +39,7 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         _authed = false;
         var bgmToken = data.Token;
         _httpClient = Utils.GetDefaultHttpClient().WithApplicationJson();
+        _bgmApi = BgmApi.GetApi(bgmToken);
         if (!string.IsNullOrEmpty(bgmToken))
         {
             _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + bgmToken);
@@ -94,45 +98,6 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             return null;
         }
     }
-
-    #region tempDisable
-
-    // private async Task<int?> SendPostRequestAsync()
-    // {
-    //     try
-    //     {
-    //         var url = "https://api.bgm.tv/v0/search/subjects?";
-    //         var keyword = "糖调！-sugarfull tempering-";
-    //         int[] typeFilter = { 4 };
-    //         var requestData = new
-    //         {
-    //             keyword,
-    //             filter = new
-    //             {
-    //                 type = typeFilter
-    //             }
-    //         };
-    //         // _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
-    //         var content = new StringContent(JsonConvert.SerializeObject(requestData), Encoding.UTF8, "application/json");
-    //         var response = await _httpClient.PostAsync(url, content);
-    //         if (!response.IsSuccessStatusCode)
-    //             return null;
-    //
-    //         var jToken = JToken.Parse(await response.Content.ReadAsStringAsync());
-    //         var games = jToken["data"];
-    //         if (games[0] != null)
-    //             return games[0]["id"].ToObject<int>();
-    //
-    //         return null;
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         Console.WriteLine(e);
-    //         throw;
-    //     }
-    // }
-
-    #endregion
     
     public async Task<Galgame?> GetGalgameInfo(Galgame galgame)
     {
@@ -148,75 +113,71 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         }
         
         if (id == null) return null;
-        HttpResponseMessage response = await _httpClient.GetAsync($"https://api.bgm.tv/v0/subjects/{id}");
-        if (!response.IsSuccessStatusCode) return null;
+        GameDto gameDto;
+        try
+        {
+            gameDto = await _bgmApi.GetGameAsync(id.Value);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
         
-        JToken jsonToken = JToken.Parse(await response.Content.ReadAsStringAsync());
-
         Galgame result = new()
         {
-            // rssType
             RssType = RssType.Bangumi,
-            // id
-            Id = jsonToken["id"]?.ToObject<string>() ?? "",
-            // name
-            Name = jsonToken["name"]?.ToObject<string>() ?? "",
-            // Chinese name
-            CnName = jsonToken["name_cn"]?.ToObject<string>() ?? "",
-            // description
-            Description = jsonToken["summary"]!.ToObject<string>() ?? "",
-            // imageUrl
-            ImageUrl = jsonToken["images"]?["large"]?.ToObject<string>() ?? "",
-            // rating
-            Rating = jsonToken["rating"]?["score"]?.ToObject<float>() ?? 0,
-            ReleaseDate = (jsonToken["date"] != null
-                ? IGalInfoPhraser.GetDateTimeFromString(jsonToken["date"]?.ToObject<string>())
-                : null) ?? DateTime.MinValue
+            Id = gameDto.id.ToString(),
+            Name = gameDto.name,
+            CnName = gameDto.name_cn,
+            Description = gameDto.summary,
+            ImageUrl = gameDto.images.large,
+            Rating = (float)gameDto.rating.score,
+            ReleaseDate = DateTimeExtensions.ToDateTime(gameDto.date ?? string.Empty),
+            Tags = new ObservableCollection<string>(gameDto.tags.Select(t => t.name)),
         };
-        // tags
-        List<JToken>? tags = jsonToken["tags"]?.ToObject<List<JToken>>();
-        result.Tags.Value = new ObservableCollection<string>();
-        tags?.ForEach(tag => result.Tags.Value.Add(tag["name"]!.ToObject<string>()!));
         // developer
-        List<JToken>? infoBox = jsonToken["infobox"]?.ToObject<List<JToken>>();
-        JToken? developerInfoBox = infoBox?.Find(x => x["key"]?.ToObject<string>()?.Contains("开发") ?? false);
-        if (developerInfoBox?["value"] != null)
+        JToken? developerInfoBox = gameDto.infobox?.FirstOrDefault(x => x.key.Contains("开发"))?.value;
+        if (developerInfoBox is not null)
         {
-            switch (developerInfoBox["value"]?.Type)
+            switch (developerInfoBox.Type)
             {
                 case JTokenType.Array:
                 {
-                    IEnumerable<char> tmp = developerInfoBox["value"]!.SelectMany(dev => dev["v"]!.ToString());
+                    IEnumerable<char> tmp = developerInfoBox.SelectMany(dev => dev["v"]!.ToString());
                     result.Developer = string.Join(",", tmp);
                     break;
                 }
                 case JTokenType.String:
-                    result.Developer = developerInfoBox["value"]!.ToString();
+                    result.Developer = developerInfoBox.ToString();
                     break;
                 default:
                     result.Developer = Galgame.DefaultString;
                     break;
             }
         }
-        var charactersUrl = $"https://api.bgm.tv/v0/subjects/{id}/characters";
-        HttpResponseMessage charactersResponse = await _httpClient.GetAsync(charactersUrl);
-        if (!charactersResponse.IsSuccessStatusCode) return result;
-        List<JToken>? charactersList = JToken.Parse(await charactersResponse.Content.ReadAsStringAsync()).ToObject<List<JToken>>();
-        result.Characters = new ObservableCollection<GalgameCharacter>();
-        if (charactersList == null) return result;
-        foreach (JToken character in charactersList)
+        // characters
+        List<RelatedCharacterDto> characters = new();
+        try
         {
-            var cid = character["id"]?.ToObject<string>();
-            if (cid == null) continue;
-            GalgameCharacter c = new GalgameCharacter()
+            characters = await _bgmApi.GetGameCharactersAsync(id.Value);
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+        foreach (RelatedCharacterDto characterDto in characters.Where(c => c.id is not null))
+        {
+            GalgameCharacter c = new GalgameCharacter
             {
-                Name = character["name"]?.ToObject<string>() ?? "", 
-                Relation = character["relation"]?.ToObject<string>() ?? ""
+                Name = characterDto.name,
+                Relation = characterDto.relation,
+                Ids =
+                {
+                    [(int)GetPhraseType()] = characterDto.id.ToString(),
+                },
             };
-            c.Ids[(int)GetPhraseType()] = cid;
             result.Characters.Add(c);
         }
-
         return result;
     }
 
@@ -495,6 +456,118 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         galgame.MyRate = json["rate"]!.ToObject<int>();
         galgame.PrivateComment = json["private"]!.ToObject<bool>();
         return (GalStatusSyncResult.Ok, "BgmPhraser_DownloadAsync_Success".GetLocalized());
+    }
+
+    public async Task<Staff?> GetStaffAsync(Staff staff)
+    {
+        var id = await GetStaffIdAsync(staff);
+        if (id is null) return null;
+        Staff result = new();
+        PersonDetailDto tmp = await _bgmApi.GetPersonAsync(id.Value);
+        result.Ids[(int)GetPhraseType()] = id.ToString();
+        result.ChineseName = tmp.name;
+        // Names
+        foreach (InfoBoxItemDto token in tmp.infobox)
+        {
+            if (token is { key: "简体中文名", value.Type: JTokenType.String })
+                result.ChineseName = token.value.ToObject<string>();
+            if (token is not { key: "别名", value.Type: JTokenType.Array }) continue;
+            foreach (JToken alias in token.value)
+            {
+                try
+                {
+                    InfoBoxItemKVDto? tmp2 = alias.ToObject<InfoBoxItemKVDto>();
+                    if (tmp2 is null) continue;
+                    if (tmp2.k == "日文名") result.JapaneseName = tmp2.v;
+                    if (tmp2.k == "罗马字") result.EnglishName = tmp2.v;
+                    if (tmp2.k == "纯假名") result.JapaneseName ??= tmp2.v;
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
+        }
+        result.Gender = tmp.gender switch
+        {
+            "female" => Gender.Female,
+            "male" => Gender.Male,
+            _ => result.Gender,
+        };
+        result.Career = new (tmp.career.Select(c => c.ToCareer()));
+        result.ImageUrl = tmp.images?.large;
+        result.Description = tmp.summary;
+        result.BirthDate = new DateTime(tmp.birth_year ?? 1, tmp.birth_mon ?? 1, tmp.birth_day ?? 1);
+        if (result.BirthDate == new DateTime(1, 1, 1))
+            result.BirthDate = null;
+        return result;
+    }
+
+    public async Task<List<StaffRelation>> GetStaffsAsync(Galgame game)
+    {
+        int? gameId = null;
+        try
+        {
+            gameId = Convert.ToInt32(game.Ids[(int)GetPhraseType()] ?? string.Empty);
+        }
+        catch (Exception)
+        {
+            if (game.Name.Value is not null)
+                gameId = await GetId(game.Name.Value);
+        }
+        if (gameId is null) return [];
+        List<StaffRelation> result = [];
+        List<RelatedPersonDto> staffs = await _bgmApi.GetGamePersonsAsync(gameId.Value);
+        result.AddRange(staffs.Select(person => new StaffRelation
+        {
+            ChineseName = person.name,
+            ImageUrl = person.images?.large,
+            Ids = { [(int)GetPhraseType()] = person.id.ToString() },
+            Relation = person.relation switch
+            {
+                "音乐" => [Career.Musician],
+                "剧本" => [Career.Writer],
+                "原画" => [Career.Painter],
+                _ => [Career.Unknown],
+            },
+            Career = new(person.career.Distinct().Select(dto => dto.ToCareer())),
+        }));
+        // bgm上声优是单独在character里的，需要额外获取
+        List<RelatedCharacterDto> characters = await _bgmApi.GetGameCharactersAsync(gameId.Value);
+        foreach (RelatedCharacterDto character in characters.Where(dto => dto.actors is not null))
+            result.AddRange((character.actors ?? []).Select(seiyu => new StaffRelation
+            {
+                ChineseName = seiyu.name,
+                ImageUrl = seiyu.images?.large,
+                Ids = { [(int)GetPhraseType()] = seiyu.id.ToString() },
+                Relation = [Career.Seiyu],
+                Career = new(seiyu.career.Distinct().Select(dto => dto.ToCareer())),
+            }));
+        return result;
+    }
+
+    private async Task<int?> GetStaffIdAsync(Staff staff)
+    {
+        int? id = null;
+        try
+        {
+            id = Convert.ToInt32(staff.Ids[(int)GetPhraseType()] ?? string.Empty);
+        }
+        catch (Exception)
+        {
+            // ignore
+        }
+        if (id is not null || staff.Name is null) return id;
+        try
+        {
+            Paged<PersonDto> tmp = await _bgmApi.SearchPersonAsync(new SearchPersonPayload { keyword = staff.Name });
+            if (tmp.data.Count > 0) id = tmp.data[0].id;
+        }
+        catch (Exception)
+        {
+            //ignore
+        }
+        return id;
     }
 }
 

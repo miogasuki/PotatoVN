@@ -9,6 +9,9 @@ public class DateTimeToStringConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, string language) => 
         value is DateTime dateTime && dateTime != DateTime.MinValue ? dateTime.ToString("yyyy-MM-dd") : Galgame.DefaultString;
 
-    public object ConvertBack(object value, Type targetType, object parameter, string language) => 
-        DateTime.ParseExact((string)value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        if (value is Galgame.DefaultString) return DateTime.MinValue;
+        return DateTime.ParseExact((string)value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+    }
 }

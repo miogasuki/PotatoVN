@@ -25,17 +25,29 @@ public class LocalSettingStatus
     public bool CategoryAddWantToPlay = false;
 
 
+    // 数据存储数据库化，对于导出的数据永远为false（导出数据采用json格式），v1.9
+    /// gameService是否已升级为LiteDB
+    public bool GameLiteDbUpgrade;
+    public bool CategoryLiteDbUpgrade;
+    public bool SourceLiteDbUpgrade;
+    public bool MultiStreamPageLiteDbUpgrade;
+
+
     /// galgameCollectionService是否已处理过导入
     public bool ImportGalgame = true;
     /// galgameSourceCollectionService是否已处理过导入
     public bool ImportGalgameSource = true;
     /// categoryService是否已处理过导入
     public bool ImportCategory = true;
-    public void SetImportToFalse()
+    public void SetToExport()
     {
         ImportGalgame = false;
         ImportGalgameSource = false;
         ImportCategory = false;
+        GameLiteDbUpgrade = false;
+        CategoryLiteDbUpgrade = false;
+        SourceLiteDbUpgrade = false;
+        MultiStreamPageLiteDbUpgrade = false;
     }
 
     public LocalSettingStatus Clone() => (LocalSettingStatus)MemberwiseClone();

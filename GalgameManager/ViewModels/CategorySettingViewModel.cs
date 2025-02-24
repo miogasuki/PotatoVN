@@ -103,6 +103,10 @@ public partial class CategorySettingViewModel : ObservableObject, INavigationAwa
             else if (gameChecker.IsSelect == false && Category.Belong(gameChecker.Game))
                 Category.Remove(gameChecker.Game);
         }
+        
+        _categoryService.Save(category: Category);
+        foreach (CategoryGroup group in CategoryGroups.Select(g => g.Group))
+            _categoryService.Save(categoryGroup: group);
     }
 
     /// <summary>

@@ -71,4 +71,10 @@ public class NavigationHelper
     {
         navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, target);
     }
+
+    public static void NavigateToStaffPage(INavigationService navigationService,
+        StaffViewModel.StaffPageNavigationParameter parameter)
+    {
+        navigationService.NavigateTo(typeof(StaffViewModel).FullName!, parameter);
+    }
 }

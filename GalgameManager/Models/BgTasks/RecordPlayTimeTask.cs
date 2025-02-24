@@ -47,6 +47,7 @@ public class RecordPlayTimeTask : BgTaskBase
         Task t = Task.Run(async () =>
         {
             await _process.WaitForExitAsync();
+            var windowMode = await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode);
             await UiThreadInvokeHelper.InvokeAsync(() =>
             {
                 GalgamePageParameter parma = new()
@@ -55,13 +56,14 @@ public class RecordPlayTimeTask : BgTaskBase
                     SelectProgress = DateTime.Now - StartTime < TimeSpan.FromSeconds(ManuallySelectProcessSec) 
                                      && Galgame.ProcessName is null
                 };
-                App.GetService<INavigationService>().NavigateTo(typeof(GalgameViewModel).FullName!, parma);
+                if (windowMode == WindowMode.SystemTray)
+                    App.GetService<INavigationService>().NavigateTo(typeof(GalgameViewModel).FullName!, parma);
                 App.SetWindowMode(WindowMode.Normal);
                 ChangeProgress(1, 1,
                     "RecordPlayTimeTask_Done".GetLocalized(Galgame.Name.Value ?? string.Empty,
                         TimeToDisplayTimeConverter.Convert(CurrentPlayTime)));
             });
-            await (App.GetService<IGalgameCollectionService>() as GalgameCollectionService)!.SaveGalgamesAsync(Galgame);
+            await App.GetService<IGalgameCollectionService>().SaveGalgameAsync(Galgame);
             if(await App.GetService<ILocalSettingsService>().ReadSettingAsync<bool>(KeyValues.SyncGames))
                 App.GetService<IPvnService>().Upload(Galgame, PvnUploadProperties.PlayTime);
         });

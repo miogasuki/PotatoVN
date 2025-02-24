@@ -61,6 +61,11 @@ public class VndbVn
     
     public int? Spoiler { get; set; }
     
+    // Only with staff
+    public List<VnStaff>? Staff { get; set; }
+    // Only with Va
+    public List<VnVa>? Va { get; set; }
+    
     public enum VnLenth
     {
         VeryShort = 1,
@@ -337,5 +342,53 @@ public class VndbUserListItem
     //TODO: Add releases
 }
 
+public class VndbStaff
+{
+    public string? Id { get; set; }
+    public string? Aid { get; set; }
+    public string? Name { get; set; }
+    /// String, possibly null, name in original script.
+    public string? Original { get; set; }
+    public string? Gender { get; set; }
+    public string? Description { get; set; }
+    public List<string>? ExtLinks { get; set; }
+}
 
+public class VnStaff : VndbStaff
+{
+    /// Integer, edition identifier or null when the staff has worked on the “original” version of the visual novel.
+    public int? Eid { get; set; }
+    public StaffRole? Role { get; set; }
+    public string? Note { get; set; }
+    
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum StaffRole
+    {
+        [EnumMember(Value = "scenario")]
+        Scenario, 
+        [EnumMember(Value = "director")]
+        Director,
+        [EnumMember(Value = "chardesign")]
+        CharacterDesign,
+        [EnumMember(Value = "art")]
+        Artist,
+        [EnumMember(Value = "music")]
+        Composer,
+        [EnumMember(Value = "songs")]
+        Vocals,
+        [EnumMember(Value = "translator")]
+        Translator,
+        [EnumMember(Value = "editor")]
+        Editor,
+        [EnumMember(Value = "qa")]
+        QualityAssurance,
+        [EnumMember(Value = "staff")]
+        Staff,
+    }
+}
 
+public class VnVa
+{
+    public VndbStaff? Staff { get; set; }
+    public string? Note { get; set; }
+}

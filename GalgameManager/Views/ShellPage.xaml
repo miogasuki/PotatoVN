@@ -61,6 +61,8 @@
                                     Visibility="Collapsed"/>
                 <NavigationViewItem x:Uid="Shell_GalgamePage" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.GalgameViewModel"
                                     Visibility="Collapsed"/>
+                <NavigationViewItem x:Uid="Shell_Staff" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.StaffViewModel"
+                                    Visibility="Collapsed"/>
             </NavigationView.MenuItems>
             
             <NavigationView.FooterMenuItems>

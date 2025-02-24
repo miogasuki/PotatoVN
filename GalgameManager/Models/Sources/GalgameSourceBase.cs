@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Contracts;
 using GalgameManager.Helpers;
+using LiteDB;
 using Newtonsoft.Json;
 using StdPath = System.IO.Path;
 
@@ -12,18 +13,20 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
     public event Action<Galgame, bool>? GalgamesChanged;
     /// 当监听需求改变时触发，对于各个实现的具体触发时机（比如说具体什么监听目标发生改变）由具体实现决定，应手动triger
     public event Action<GalgameSourceBase>? DetectChanged;
-    [JsonIgnore] public bool IsRunning;
+    [BsonId] public Guid Id { get; set; } = Guid.NewGuid();
+    [BsonIgnore] [JsonIgnore] public bool IsRunning;
     /// 所有游戏和路径，只用于序列化，任何时候都不应该直接操作这个列表
-    public List<GalgameAndPath> Galgames { get; } = new();
+    [BsonIgnore] public List<GalgameAndPath> Galgames { get; } = new();
     /// 子库列表；由Service初始化时计算，不在json中存储
-    [JsonIgnore] public List<GalgameSourceBase> SubSources { get; } = new();
+    [BsonIgnore] [JsonIgnore] public List<GalgameSourceBase> SubSources { get; } = new();
     /// 父库，若为null则表示这是根库；由Service初始化时计算，不在json中存储
-    [JsonIgnore] public GalgameSourceBase? ParentSource { get; set; }
+    [BsonIgnore] [JsonIgnore] public GalgameSourceBase? ParentSource { get; set; }
 
-    [JsonIgnore] public string Url => CalcUrl(SourceType, Path);
+    [BsonIgnore] [JsonIgnore] public string Url => CalcUrl(SourceType, Path);
     public string Path { get; set; } = "";
     public virtual GalgameSourceType SourceType => throw new NotImplementedException();
-    public bool ScanOnStart { get; set; }
+    [ObservableProperty] private bool _scanOnStart;
+    public virtual string? ExtraData { get; set; }
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string? _imagePath;
     [ObservableProperty] private DateTime _lastPlayed = DateTime.MinValue;
@@ -32,6 +35,16 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
     [ObservableProperty] private bool _detect;
     [ObservableProperty] private bool _detectFolderAdd;
     [ObservableProperty] private bool _detectFolderRemove = true;
+    
+    # region LITEDB_MAPPING
+    public List<GalgameAndPathDbDto> GalgamesDto
+    {
+        get => Galgames.Select(t => new GalgameAndPathDbDto(t.Galgame.Uuid, t.Path)).ToList();
+        set => _galgamesDto = value;
+    }
+    public List<GalgameAndPathDbDto> GetLoadedGalgames() => _galgamesDto;
+    private List<GalgameAndPathDbDto> _galgamesDto = [];
+    # endregion
     
     public static string CalcUrl(GalgameSourceType type, string path) => $"{type.SourceTypeToString()}://{path}";
 

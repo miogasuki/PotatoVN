@@ -1,7 +1,6 @@
-﻿using Windows.Foundation.Metadata;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Helpers;
-using Newtonsoft.Json;
+using LiteDB;
 
 namespace GalgameManager.Models;
 
@@ -9,11 +8,23 @@ public partial class Category : ObservableObject
 {
     public event Action? OnGalgamesChanged;
     public string Name { get; set; }= string.Empty;
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public List<Galgame> GalgamesX { get; }= new();
+    [BsonId] public Guid Id { get; set; } = Guid.NewGuid();
+    [BsonIgnore] public List<Galgame> GalgamesX { get; }= new();
     [ObservableProperty] private string _imagePath = string.Empty;
     [ObservableProperty] private DateTime _lastPlayed = DateTime.MinValue; // 所有游戏中最后一次玩的时间
     [ObservableProperty] private DateTime _lastClicked = DateTime.MinValue; // 上次点击该分类的时间
+
+    # region LITEDB_MAPPING
+
+    public List<Guid> GalgameIds
+    {
+        get => GalgamesX.Select(g => g.Uuid).ToList();
+        set => _galgameIds = value;
+    }
+    public List<Guid> GetLoadedGalgameIds() => _galgameIds;
+    private List<Guid> _galgameIds = new();
+
+    # endregion
 
     public bool Belong(Galgame galgame) => GalgamesX.Contains(galgame);
 

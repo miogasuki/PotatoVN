@@ -98,7 +98,8 @@
             <AppBarButton x:Uid="MultiStreamPageSettingDialog_CommandBar_Reset" Icon="Undo" Command="{x:Bind ResetCommand}" />
         </CommandBar>
 
-        <ListView Grid.Row="1" ItemsSource="{x:Bind Result}">
+        <ListView Grid.Row="1" ItemsSource="{x:Bind Result}"
+                  CanDragItems="True" CanReorderItems="True" AllowDrop="True">
             <ListView.ItemTemplateSelector>
                 <multiStreamPageSettingDialog:TemplateSelector>
                     <!-- 游戏列表 -->

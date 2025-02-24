@@ -10,6 +10,7 @@ using GalgameManager.Helpers.Converter;
 using GalgameManager.Models;
 using GalgameManager.Services;
 using Microsoft.UI.Xaml.Controls;
+using System.Linq;
 
 namespace GalgameManager.ViewModels;
 
@@ -21,6 +22,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     public List<RssType> RssTypes { get; }= new() { RssType.Bangumi, RssType.Vndb, RssType.Mixed, RssType.Ymgal, RssType.Cngal };
 
     private readonly GalgameCollectionService _galService;
+    private readonly GalgameSourceCollectionService _sourceService;
     private readonly INavigationService _navigationService;
     private readonly IPvnService _pvnService;
     private readonly IInfoService _infoService;
@@ -31,10 +33,11 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [ObservableProperty] private string _lastFetchInfoStr = string.Empty;
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
-        IPvnService pvnService, IInfoService infoService)
+        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService)
     {
         Gal = new Galgame();
         _galService = (GalgameCollectionService)galCollectionService;
+        _sourceService = (GalgameSourceCollectionService)sourceService;
         _navigationService = navigationService;
         _pvnService = pvnService;
         _infoService = infoService;
@@ -50,7 +53,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     {
         if (Gal.ImagePath.Value != Galgame.DefaultImagePath && !File.Exists(Gal.ImagePath.Value))
             Gal.ImagePath.Value = Galgame.DefaultImagePath;
-        await _galService.SaveGalgamesAsync(Gal);
+        await _galService.SaveGalgameAsync(Gal);
         _pvnService.Upload(Gal, PvnUploadProperties.Infos | PvnUploadProperties.ImageLoc);
         _galService.PhrasedEvent -= Update;
     }
@@ -138,5 +141,64 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         StorageFile newFile = await file.CopyAsync(await FileHelper.GetFolderAsync(FileHelper.FolderType.Images), 
             $"{Gal.Name.Value}{file.FileType}", NameCollisionOption.ReplaceExisting);
         Gal.ImagePath.Value= newFile.Path;
+    }
+
+    [RelayCommand]
+    private async Task SetGalgamePathAsync()
+    {
+        try
+        {
+            FileOpenPicker openPicker = new();
+            WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
+            openPicker.ViewMode = PickerViewMode.Thumbnail;
+            openPicker.FileTypeFilter.Add(".exe");
+            openPicker.FileTypeFilter.Add(".bat");
+            openPicker.FileTypeFilter.Add(".EXE");
+            StorageFile? file = await openPicker.PickSingleFileAsync();
+            if (file is not null)
+            {
+                // 从库中移除该游戏，再设置路径
+                var source = _sourceService.GetGalgameSources().FirstOrDefault(s => s.Galgames.Any(g => g.Galgame == Gal));
+                if (source != null)
+                {
+                    _sourceService.MoveOutNoOperate(source, Gal);
+                }
+
+                var folder = file.Path[..file.Path.LastIndexOf('\\')];
+                Gal.ExePath = file.Path;
+                await _galService.SetLocalPathAsync(Gal, folder);
+                
+
+                _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_PathSetSuccess".GetLocalized());
+
+            }
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgameSettingPage_PathSetFailed".GetLocalized(), e.Message);
+            _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task SetGalgameExePathAsync()
+    {
+        if(!Gal.IsLocalGame)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgameSettingPage_NotLocalGame".GetLocalized());
+            return;
+        }
+        try
+        {
+            // 先清空ExePath，再调用函数来设置
+            // Gal.ExePath = null;
+            await _galService.GetGalgameExeAsync(Gal);
+            _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_ExePathSetSuccess".GetLocalized());
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgameSettingPage_ExePathSetFailed".GetLocalized(), e.Message);
+            _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
+        }
     }
 }

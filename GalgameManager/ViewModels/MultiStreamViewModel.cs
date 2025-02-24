@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -15,6 +16,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using GalgameManager.MultiStreamPage.Lists;
 using GalgameManager.ViewModels;
+using LiteDB;
 using Newtonsoft.Json;
 using SourceFilter = GalgameManager.Models.Filters.SourceFilter;
 
@@ -27,6 +29,7 @@ namespace GalgameManager.ViewModels
         [ObservableProperty][NotifyPropertyChangedFor(nameof(ScrollMode))] 
         private bool _allowScroll;
         private bool _isRetry;
+        private ILiteCollection<ListDbDto> _dbSet = null!;
         public ScrollMode ScrollMode => AllowScroll ? ScrollMode.Enabled : ScrollMode.Disabled;
 
         private readonly IGalgameCollectionService _gameService;
@@ -60,15 +63,42 @@ namespace GalgameManager.ViewModels
         {
             try
             {
-                List<IList> tmp = await _settingsService.ReadSettingAsync<List<IList>>(
-                    KeyValues.MultiStreamPageList,
-                    true, _converters, true) ?? GetInitList();
-                tmp = tmp.Count == 0 ? GetInitList() : tmp; // 崩溃时会保存空表，重新初始化
-                foreach (IList list in tmp)
-                    list.Refresh();
-                Lists.SyncCollection(tmp);
-
+                _dbSet = _settingsService.Database.GetCollection<ListDbDto>("homepage_list");
+                await LiteDbUpgrade();
+                List<ListDbDto> tmp = _dbSet.FindAll().OrderBy(l => l.Order).ToList();
+                foreach (ListDbDto list in tmp)
+                {
+                    IList? target = null;
+                    if (list is GameListDbDto gameList)
+                    {
+                        Category? category = LoadObj(list, gameList.CategoryId,
+                            () => _categoryService.GetCategory(gameList.CategoryId!.Value));
+                        GalgameSourceBase? source = LoadObj(list, gameList.SourceId,
+                            () => _sourceService.GetGalgameSources().FirstOrDefault(s => s.Id == gameList.SourceId));
+                        target = new GameList(list.Title, list.Sort, category, source);
+                    }
+                    else if (list is CategoryListDbDto categoryList)
+                    {
+                        CategoryGroup? group = LoadObj(list, categoryList.GroupId, () => _categoryService
+                            .GetCategoryGroupsAsync().Result.FirstOrDefault(g => g.Id == categoryList.GroupId));
+                        if (group is null) continue;
+                        target = new CategoryList(group);
+                    }
+                    else if (list is SourceListDbDto sourceList)
+                    {
+                        GalgameSourceBase? source = LoadObj(list, sourceList.RootId,
+                            () => _sourceService.GetGalgameSources().FirstOrDefault(s => s.Id == sourceList.RootId));
+                        target = new SourceList(source);
+                    }
+                    Debug.Assert(target is not null);
+                    target.Id = list.Id;
+                    target.Title = list.Title;
+                    target.Sort = list.Sort;
+                    target.Refresh();
+                    Lists.Add(target);
+                }
                 AllowScroll = await _settingsService.ReadSettingAsync<bool>(KeyValues.MultiStreamPageAllowScroll);
+                Lists.CollectionChanged += ListsOnCollectionChanged;
             }
             catch (COMException e) // 奇怪bug，暂时无法解决，重新加载界面
             {
@@ -83,6 +113,18 @@ namespace GalgameManager.ViewModels
             {
                 _infoService.Event(EventType.PageError, InfoBarSeverity.Error, title: "Something went wrong", e);
             }
+            return;
+            
+            T? LoadObj<T> (ListDbDto dto, Guid? id, Func<T?> func) where T : class
+            {
+                if (id is null) return null;
+                T? result = func();
+                if (result is null)
+                    _infoService.Event(EventType.PageError, InfoBarSeverity.Warning,
+                        title: "MultiStreamPage_LoadFailed".GetLocalized(),
+                        msg: "MultiStreamPage_LoadFailed_CanNotFindById".GetLocalized(dto.Title));
+                return result;
+            }
         }
         
         public void OnNavigatedTo(object parameter)
@@ -90,16 +132,9 @@ namespace GalgameManager.ViewModels
             if (parameter is bool b) _isRetry = b;
         }
 
-        public async void OnNavigatedFrom()
+        public void OnNavigatedFrom()
         {
-            try
-            {
-                await SaveList();
-            }
-            catch (Exception e) // 不应该发生
-            {
-                _infoService.Event(EventType.PageError, InfoBarSeverity.Error, title: "Something went wrong", e);
-            }
+            Lists.CollectionChanged -= ListsOnCollectionChanged;
         }
 
         public static List<IList> GetInitList()
@@ -132,12 +167,14 @@ namespace GalgameManager.ViewModels
         {
             NavigationHelper.NavigateToHomePage(_navigationService, _filterService,
                 new[] { new CategoryFilter(category) });
+            _categoryService.Save(category);
         }
 
         [RelayCommand]
         private void ClickSource(GalgameSourceBase source)
         {
             NavigationHelper.NavigateToHomePage(_navigationService, _filterService, new[] { new SourceFilter(source) });
+            _sourceService.Save(source);
         }
 
         [RelayCommand]
@@ -148,22 +185,32 @@ namespace GalgameManager.ViewModels
             ContentDialogResult status = await dialog.ShowAsync();
             IsSetting = false;
             if (status != ContentDialogResult.Primary) return;
-            Lists.SyncCollection(dialog.Result);
+            Lists.SyncCollection(dialog.Result, true);
             foreach (IList list in Lists)
                 list.Refresh();
-            await SaveList();
+            SaveList(Lists.ToList());
         }
         
-        private async Task SaveList()
+        private void SaveList(List<IList> lists)
         {
-            await _settingsService.SaveSettingAsync(KeyValues.MultiStreamPageList, Lists.ToList(), true,
-                converters: _converters, typeNameHandling: true);
+            for (var i = 0; i < lists.Count; i++)
+            {
+                IList list = lists[i];
+                list.Order = i;
+                _dbSet.Upsert(list.ToDbDto());
+            }
+            List<ListDbDto> tmp = _dbSet.FindAll().ToList();
+            foreach (ListDbDto dto in tmp.Where(dto => lists.All(l => l.Id != dto.Id)))
+                _dbSet.Delete(dto.Id);
         }
 
         partial void OnAllowScrollChanged(bool value)
         {
             _settingsService.SaveSettingAsync(KeyValues.MultiStreamPageAllowScroll, value);
         }
+        
+        private void ListsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
+            SaveList(Lists.ToList());
 
         #region SEARCH
 
@@ -187,6 +234,32 @@ namespace GalgameManager.ViewModels
                 return;
             }
             _infoService.Info(InfoBarSeverity.Error, msg:"MultiStreamPage_SearchFailed".GetLocalized());
+        }
+
+        #endregion
+
+        #region UPGRADE
+
+        private async Task LiteDbUpgrade()
+        {
+            LocalSettingStatus status =
+                await _settingsService.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true) ?? new();
+            if (status.MultiStreamPageLiteDbUpgrade) return;
+            try
+            {
+                List<IList> tmp = await _settingsService.ReadSettingAsync<List<IList>>(
+                    KeyValues.MultiStreamPageList,
+                    true, _converters, true) ?? GetInitList();
+                tmp = tmp.Count == 0 ? GetInitList() : tmp; // 崩溃时会保存空表，重新初始化
+                SaveList(tmp);
+                await _settingsService.RemoveSettingAsync(KeyValues.MultiStreamPageList, true);
+            }
+            catch (Exception e)
+            {
+                _infoService.Event(EventType.PageError, InfoBarSeverity.Error, "LiteDb upgrade failed", e);
+            }
+            status.MultiStreamPageLiteDbUpgrade = true;
+            await _settingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
         }
 
         #endregion
@@ -228,7 +301,12 @@ namespace GalgameManager.MultiStreamPage.Lists
 
     public interface IList
     {
+        public Guid Id { get; set; }
+        public string Title { get; set; }
+        public MultiStreamPageSortKeys Sort { get; set; }
+        public int Order { get; set; }
         public void Refresh();
+        public ListDbDto ToDbDto();
     }
     
     public partial class GameList : ObservableRecipient, IList
@@ -237,6 +315,8 @@ namespace GalgameManager.MultiStreamPage.Lists
         [JsonIgnore] public AdvancedCollectionView Games;
         [ObservableProperty] private string _title = string.Empty;
         [ObservableProperty] private MultiStreamPageSortKeys _sort;
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public int Order { get; set; }
 
         [ObservableProperty] private Category? _category; // 如果设置了则为某分类下的游戏列表 
         [ObservableProperty] private GalgameSourceBase? _source; // 如果设置了则为某源下的游戏列表
@@ -272,7 +352,7 @@ namespace GalgameManager.MultiStreamPage.Lists
             else
                 NavigationHelper.NavigateToHomePage(service);
         }
-
+        
         public void Refresh()
         {
             // 更新游戏列表
@@ -297,6 +377,16 @@ namespace GalgameManager.MultiStreamPage.Lists
             }, SortDirection.Descending));
         }
 
+        public ListDbDto ToDbDto() => new GameListDbDto
+        {
+            Id = Id,
+            Title = Title,
+            Sort = Sort,
+            Order = Order,
+            CategoryId = Category?.Id,
+            SourceId = Source?.Id,
+        };
+
         partial void OnCategoryChanged(Category? value)
         {
             if (!MultiStreamViewModel.IsSetting) return;
@@ -314,6 +404,8 @@ namespace GalgameManager.MultiStreamPage.Lists
     {
         [JsonIgnore] public IRelayCommand ClickTitleCommand; //为什么不直接用[RelayCommand]:因为没法JsonIgnore
         [JsonIgnore] public AdvancedCollectionView Categories;
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public int Order { get; set; }
         [ObservableProperty] private string _title = string.Empty;
         [ObservableProperty] private MultiStreamPageSortKeys _sort;
         [ObservableProperty] private CategoryGroup _group = null!;
@@ -336,7 +428,7 @@ namespace GalgameManager.MultiStreamPage.Lists
             INavigationService service = App.GetService<INavigationService>();
             service.NavigateTo(typeof(CategoryViewModel).FullName!, Group);
         }
-
+        
         public void Refresh()
         {
             (Categories.Source as ObservableCollection<Category>)?.SyncCollection(Group.Categories);
@@ -350,7 +442,16 @@ namespace GalgameManager.MultiStreamPage.Lists
                 _ => throw new ArgumentOutOfRangeException(),
             }, SortDirection.Descending));
         }
-        
+
+        public ListDbDto ToDbDto() => new CategoryListDbDto
+        {
+            Id = Id,
+            Title = Title,
+            Sort = Sort,
+            Order = Order,
+            GroupId = Group.Id,
+        };
+
         partial void OnGroupChanged(CategoryGroup value)
         {
             if (!MultiStreamViewModel.IsSetting) return;
@@ -364,6 +465,8 @@ namespace GalgameManager.MultiStreamPage.Lists
         [JsonIgnore] public AdvancedCollectionView Sources;
         [ObservableProperty] private string _title = string.Empty;
         [ObservableProperty] private MultiStreamPageSortKeys _sort;
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public int Order { get; set; }
         [ObservableProperty] private GalgameSourceBase? _root;
 
         private readonly IGalgameSourceCollectionService _sourceService =
@@ -411,12 +514,45 @@ namespace GalgameManager.MultiStreamPage.Lists
                 _ => throw new ArgumentOutOfRangeException(),
             }, SortDirection.Descending));
         }
-        
+
+        public ListDbDto ToDbDto() => new SourceListDbDto
+        {
+            Id = Id,
+            Title = Title,
+            Sort = Sort,
+            Order = Order,
+            RootId = Root?.Id,
+        };
+
         partial void OnRootChanged(GalgameSourceBase? value)
         {
             if (!MultiStreamViewModel.IsSetting) return;
             Title = value?.Name ?? "MultiStreamPage_AllSources".GetLocalized();
         }
+    }
+
+    public abstract class ListDbDto
+    {
+        [BsonId] public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public MultiStreamPageSortKeys Sort { get; set; }
+        public int Order { get; set; }
+    }
+
+    public class GameListDbDto : ListDbDto
+    {
+        public Guid? CategoryId { get; set; }
+        public Guid? SourceId { get; set; }
+    }
+    
+    public class CategoryListDbDto : ListDbDto
+    {
+        public Guid GroupId { get; set; }
+    }
+
+    public class SourceListDbDto : ListDbDto
+    {
+        public Guid? RootId { get; set; }
     }
 }
 

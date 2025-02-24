@@ -158,7 +158,8 @@ public partial class LibraryViewModel(
                 foreach (GalgameAndPath game in source.Galgames)
                     Galgames.Add(game.Galgame);
             }
-
+            source.LastClicked = DateTime.Now;
+            galSourceService.Save(source);
             CurrentSource = source;
         }
         else if (clickedItem is null)

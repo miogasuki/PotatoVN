@@ -1217,8 +1217,8 @@
   <data name="AccountPage_Pvn_ServerType.Title" xml:space="preserve">
     <value>服务器</value>
   </data>
-  <data name="AccountPage_Pvn_ServerType.Description" xml:space="preserve">
-    <value>选择要连接至哪一个服务器</value>
+  <data name="AccountPage_Pvn_ServerType_Description" xml:space="preserve">
+    <value>选择要连接至哪一个服务器，当前连接至：{0}</value>
   </data>
   <data name="AccountPage_AccountStatus.Title" xml:space="preserve">
     <value>账号状态</value>
@@ -1249,9 +1249,6 @@
   </data>
   <data name="PvnService_ServerUnavailable" xml:space="preserve">
     <value>服务器不允许此方式登录或注册</value>
-  </data>
-  <data name="AccountPage_Pvn_ConnectTo" xml:space="preserve">
-    <value>连接至服务器：{0}</value>
   </data>
   <data name="AccountPage_Pvn_LoginSuccess" xml:space="preserve">
     <value>登录成功 </value>
@@ -1802,8 +1799,35 @@
   <data name="GalgameSettingPage_GalgamePath.Text" xml:space="preserve">
     <value>游戏路径</value>
   </data>
+  <data name="GalgameSettingPage_GalgameExePath.Text" xml:space="preserve">
+    <value>游戏启动文件</value>
+  </data>
+  <data name="GalgameSettingPage_EditPath.Text" xml:space="preserve">
+    <value>修改游戏路径</value>
+  </data>
+  <data name="GalgameSettingPage_EditExePath.Text" xml:space="preserve">
+    <value>修改游戏启动文件</value>
+  </data>
+  <data name="GalgameSettingPage_Search.Text" xml:space="preserve">
+    <value>在线搜索游戏</value>
+  </data>
   <data name="GalgameSettingPage_GalgameReleaseDate.Title" xml:space="preserve">
     <value>发行日期</value>
+  </data>
+  <data name="GalgameSettingPage_NotLocalGame" xml:space="preserve">
+    <value>游戏不是本地游戏，无法修改启动文件，请先设置游戏路径</value>
+  </data>
+  <data name="GalgameSettingPage_ExePathSetSuccess" xml:space="preserve">
+    <value>成功设置游戏启动文件</value>
+  </data>
+  <data name="GalgameSettingPage_ExePathSetFailed" xml:space="preserve">
+    <value>设置游戏启动文件失败</value>
+  </data>
+  <data name="GalgameSettingPage_PathSetSuccess" xml:space="preserve">
+    <value>修改游戏路径成功</value>
+  </data>
+  <data name="GalgameSettingPage_PathSetFailed" xml:space="preserve">
+    <value>修改游戏路径失败</value>
   </data>
   <data name="GalgameSourcePage_NotInSource" xml:space="preserve">
     <value>该游戏不属于这个库（游戏必须在库文件夹里面）</value>
@@ -2234,5 +2258,122 @@
   </data>
   <data name="SettingsPage_Start_AutoStartFail" xml:space="preserve">
     <value>修改自动启动设置失败</value>
+  </data>
+  <data name="AccountPage_Pvn_LoginedDescription" xml:space="preserve">
+    <value>用户ID:{0}, 登录有效至:{1}, 下次刷新登录:{2}</value>
+  </data>
+  <data name="AccountPage_Pvn_RefreshToken.Title" xml:space="preserve">
+    <value>刷新登录</value>
+  </data>
+  <data name="AccountPage_Pvn_RefreshToken.Description" xml:space="preserve">
+    <value>立刻刷新登录，并更新账户信息。</value>
+  </data>
+  <data name="AccountPage_Pvn_TokenExpired" xml:space="preserve">
+    <value>该账户登录已过期，无法直接刷新登录，请重新登录此账号（先登出再登录）</value>
+  </data>
+  <data name="PvnService_TokenRefreshed" xml:space="preserve">
+    <value>已成功刷新PotatoVN账户登录~</value>
+  </data>
+  <data name="PvnService_TokenRefreshFailed" xml:space="preserve">
+    <value>刷新PotatoVN账户登录失败</value>
+  </data>
+  <data name="AccountPage_Pvn_RefreshSuccess" xml:space="preserve">
+    <value>已成功刷新PotatoVN账户登录~</value>
+  </data>
+  <data name="GalgameCollectionService_UpgradeToLiteDB_Failed" xml:space="preserve">
+    <value>数据升级失败 （游戏列表）</value>
+  </data>
+  <data name="GalgameSourceCollectionService_NotSuchGameUUID_Title" xml:space="preserve">
+    <value>读取游戏库时发生意料外错误</value>
+  </data>
+  <data name="GalgameSourceCollectionService_NotSuchGameUUID_Msg" xml:space="preserve">
+    <value>无法根据游戏UUID找到相应的游戏，游戏 {0} 已被移除出库 {1}</value>
+  </data>
+  <data name="MultiStreamPage_LoadFailed" xml:space="preserve">
+    <value>读取列表时出现错误</value>
+  </data>
+  <data name="MultiStreamPage_LoadFailed_CanNotFindById" xml:space="preserve">
+    <value>没有找到列表 {0} 所对应的分类组，是不是已经删除了该分类组？</value>
+  </data>
+  <data name="GetStaffFromRssTask_Title" xml:space="preserve">
+    <value>获取游戏制作人任务</value>
+  </data>
+  <data name="GetStaffFromRssTask_Progress" xml:space="preserve">
+    <value>正在获取以下staff信息：</value>
+  </data>
+  <data name="GetStaffFromRssTask_Progress_Waiting" xml:space="preserve">
+    <value>还有{0}位staff信息获取任务排队中</value>
+  </data>
+  <data name="GalgamePage_Staffs.Text" xml:space="preserve">
+    <value>制作人员</value>
+  </data>
+  <data name="Career_Relation_Unknown" xml:space="preserve">
+    <value>制作</value>
+  </data>
+  <data name="Career_Relation_Writer" xml:space="preserve">
+    <value>剧本</value>
+  </data>
+  <data name="Career_Relation_Painter" xml:space="preserve">
+    <value>原画</value>
+  </data>
+  <data name="Career_Relation_Musician" xml:space="preserve">
+    <value>音乐</value>
+  </data>
+  <data name="Career_Relation_Seiyu" xml:space="preserve">
+    <value>声优</value>
+  </data>
+  <data name="Career_Relation_Producer" xml:space="preserve">
+    <value>开发</value>
+  </data>
+  <data name="Career_Relation_Programmer" xml:space="preserve">
+    <value>程序</value>
+  </data>
+  <data name="Shell_Staff.Content" xml:space="preserve">
+    <value>制作人员</value>
+  </data>
+  <data name="StaffPage_Gender.Text" xml:space="preserve">
+    <value>性别</value>
+  </data>
+  <data name="Career_Writer" xml:space="preserve">
+    <value>作家</value>
+  </data>
+  <data name="Career_Unknow" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Career_Painter" xml:space="preserve">
+    <value>绘师</value>
+  </data>
+  <data name="Career_Musician" xml:space="preserve">
+    <value>音乐家</value>
+  </data>
+  <data name="Career_Seiyu" xml:space="preserve">
+    <value>声优</value>
+  </data>
+  <data name="Career_Producer" xml:space="preserve">
+    <value>制作人</value>
+  </data>
+  <data name="Career_Programmer" xml:space="preserve">
+    <value>程序</value>
+  </data>
+  <data name="StaffPage_Career.Text" xml:space="preserve">
+    <value>职业</value>
+  </data>
+  <data name="StaffPage_Birthday.Text" xml:space="preserve">
+    <value>生日</value>
+  </data>
+  <data name="StaffPage_Description.Text" xml:space="preserve">
+    <value>人物简介</value>
+  </data>
+  <data name="StaffPage_Games.Content" xml:space="preserve">
+    <value>参与作品</value>
+  </data>
+  <data name="GalgamePage_HeaderPanel_ExpectedPlayTime.Text" xml:space="preserve">
+    <value>预计时长</value>
+  </data>
+  <data name="GalgamePage_GamePlayStatusPanel_MyRating.Text" xml:space="preserve">
+    <value>我的评分</value>
+  </data>
+  <data name="GalgamePage_GamePlayStatusPanel_MyComment.Text" xml:space="preserve">
+    <value>我的评价</value>
   </data>
 </root>

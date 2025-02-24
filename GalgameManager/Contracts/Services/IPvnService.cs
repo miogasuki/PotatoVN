@@ -22,6 +22,8 @@ public interface IPvnService
     public Task<PvnAccount?> RegisterAsync(string username, string password);
 
     public Task<PvnAccount?> LoginViaBangumiAsync();
+    
+    public Task<PvnAccount?> RefreshTokenAsync();
 
     public Task<PvnAccount?> ModifyAccountAsync(string? userDisplayName = null, string? avatarPath = null,
         string? newPassword = null, string? oldPassword = null);

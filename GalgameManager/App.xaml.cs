@@ -93,6 +93,7 @@ public partial class App : Application
             services.AddSingleton<IFaqService, FaqService>();
             services.AddSingleton<IFilterService, FilterService>();
             services.AddSingleton<ICategoryService, CategoryService>();
+            services.AddSingleton<IStaffService, StaffService>();
             services.AddSingleton<IUpdateService, UpdateService>();
             services.AddSingleton<IAppCenterService, AppCenterService>();
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
@@ -146,6 +147,8 @@ public partial class App : Application
             services.AddTransient<ShellViewModel>();
             services.AddTransient<GalgameCharacterPage>();
             services.AddTransient<GalgameCharacterViewModel>();
+            services.AddTransient<StaffViewModel>();
+            services.AddTransient<StaffPage>();
 
             // Configuration
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));

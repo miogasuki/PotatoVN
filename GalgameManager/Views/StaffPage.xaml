@@ -1,0 +1,131 @@
+﻿<Page
+    x:Class="GalgameManager.Views.StaffPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converter="using:GalgameManager.Helpers.Converter"
+    xmlns:cmtkConverters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:models="using:GalgameManager.Models"
+    xmlns:prefab="using:GalgameManager.Views.Prefab"
+    mc:Ignorable="d"
+    x:Name="Page">
+
+    <Page.Resources>
+        <converter:EnumToStringConverter x:Key="EnumToStringConverter" />
+        <converter:ImagePathConverter x:Key="ImagePathConverter" />
+        <converter:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
+        <cmtkConverters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
+        <cmtkConverters:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
+    </Page.Resources>
+
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
+                        Margin="0 -67 0 0">
+                <!-- 编辑 -->
+                <!-- <AppBarButton Icon="Edit" x:Uid="GalgamePage_Edit" Command="{x:Bind ViewModel.SettingCommand}" /> -->
+                <!-- <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}" 
+                              Visibility="{x:Bind ViewModel.CanOpenInBgm, 
+                                  Mode=OneWay}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="GalgamePage_OpenInVndb" Command="{x:Bind ViewModel.OpenInVndbCommand}" 
+                              Visibility="{x:Bind ViewModel.CanOpenInVndb, 
+                                  Mode=OneWay}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                -->
+            </CommandBar>
+
+            <ScrollViewer Grid.Row="1" IsTabStop="True">
+                <StackPanel Spacing="20" Margin="0 0 20 0">
+                    <!-- 信息面板 -->
+                    <StackPanel Orientation="Horizontal" Spacing="20">
+                        <Grid CornerRadius="20">
+                            <Image Height="200" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Source="{x:Bind ViewModel.Staff.ImagePath, Mode=OneWay, FallbackValue={},
+                                                Converter={StaticResource ImagePathConverter},
+                                                ConverterParameter=ms-appx:///Assets/Pictures/Akkarin.webp }"
+                                   Stretch="UniformToFill"/>
+                        </Grid>
+                        <StackPanel Spacing="10">
+                            <!-- 姓名 -->
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 5"
+                                       Text="{x:Bind ViewModel.Staff.Name, Mode=OneWay, FallbackValue={}}"/>
+                            <!-- 性别 -->
+                            <StackPanel Style="{StaticResource KeyValue}">
+                                <TextBlock x:Uid="StaffPage_Gender" 
+                                           Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock
+                                    Text="{x:Bind ViewModel.Staff.Gender,Mode=OneWay, FallbackValue={},
+                                    Converter={StaticResource EnumToStringConverter}}" />
+                            </StackPanel>
+                            <!-- 职业 -->
+                            <StackPanel Style="{StaticResource KeyValue}">
+                                <TextBlock x:Uid="StaffPage_Career" 
+                                           Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{x:Bind ViewModel.CareerString, Mode=OneWay}"/>
+                            </StackPanel>
+                            <!-- 生日 -->
+                            <StackPanel Style="{StaticResource KeyValue}">
+                                <TextBlock x:Uid="StaffPage_Birthday" 
+                                           Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Style="{ThemeResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.Staff.BirthDate, Mode=OneWay, FallbackValue={},
+                                            Converter={StaticResource DateTimeToStringConverter}}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <!-- 人物简介 -->
+                    <StackPanel Visibility="{x:Bind ViewModel.Staff.Description, FallbackValue={}, Mode=OneWay,
+                                Converter={StaticResource StringVisibilityConverter} }">
+                        <TextBlock x:Uid="StaffPage_Description"
+                                   Margin="{StaticResource SmallTopBottomMargin}"
+                                   Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <TextBlock Text="{x:Bind ViewModel.Staff.Description, Mode=OneWay, FallbackValue={}}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                    
+                    <!-- 参与作品 -->
+                    <StackPanel Visibility="{x:Bind ViewModel.Staff.Games, Mode=OneWay, FallbackValue={},
+                        Converter={StaticResource CollectionVisibilityConverter}}">
+                        <HyperlinkButton x:Uid="StaffPage_Games" 
+                                         Margin="{StaticResource SmallTopBottomMargin}"
+                                         Padding="0" FontSize="19" FontWeight="SemiBold"
+                                         Command="{x:Bind ViewModel.NaviToHomeCommand}"/>
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Staff.Games, Mode=OneWay, FallbackValue={}}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="models:StaffGame">
+                                    <Button Style="{ThemeResource TransparentButtonWithHover}"
+                                            DataContext="{x:Bind}"
+                                            Command="{Binding ElementName=Page, Path=ViewModel.NaviToGameCommand}"
+                                            CommandParameter="{x:Bind}">
+                                        <prefab:GalgamePrefab
+                                            Galgame="{x:Bind Game}"
+                                            ImageStretch="UniformToFill"
+                                            PlayTypeVisibility="Collapsed" />
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout ItemsStretch="Fill" MinItemWidth="175" MinRowSpacing="1" />
+                            </ItemsRepeater.Layout>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

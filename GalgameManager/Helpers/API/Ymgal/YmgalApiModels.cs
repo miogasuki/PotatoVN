@@ -3,9 +3,9 @@
 
 public class OauthRequest
 {
-    public required string AccessToken { get; set; }
-    public required string TokenType { get; set; }
-    public required int ExpiresIn { get; set; }
+    public required string Access_token { get; set; }
+    public required string Token_type { get; set; }
+    public required int Expires_in { get; set; }
     public required string Scope { get; set; }
 }
 

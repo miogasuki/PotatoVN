@@ -1,136 +1,142 @@
 ﻿using GalgameManager.Contracts.Phrase;
 using GalgameManager.Enums;
 using GalgameManager.Models;
-using GalgameManager.Helpers.API;
+using GalgameManager.Helpers.API.Ymgal;
+
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Refit;
+
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace GalgameManager.Helpers.Phrase;
 
 public class YmgalPhraser: IGalInfoPhraser
 {
-    private HttpClient _httpClient;
-    private static string _baseUrl = "https://www.ymgal.games/";
-    private static string _publicClientId = "ymgal";
-    private static string _publicClientSecret = "luna0327";
-    private Task? _getOAuthTask;
-
-    private readonly JsonSerializerSettings _snakeCaseSerializerSettings = new()
-    {
-        ContractResolver = new DefaultContractResolver()
-        {
-            NamingStrategy = new SnakeCaseNamingStrategy()
-        }
-    };
-
-    private readonly JsonSerializerSettings _camelCaseSerializerSettings = new()
-    {
-        ContractResolver = new CamelCasePropertyNamesContractResolver()
-    };
-    
+    private IYmgalApi _ymgalApi;
+    private Task<IYmgalApi>? _apiInitTask;
 
     public YmgalPhraser()
     {
-        _httpClient = Utils.GetDefaultHttpClient().WithApplicationJson();;
-        GetHttpClient();
+        // 初始化一个未认证的API实例
+        _ymgalApi = YmgalApi.GetApi();
+        // 后台任务获取认证的API实例
+        _apiInitTask = YmgalApi.GetAuthenticatedApiAsync();
     }
 
     public async Task<Galgame?> GetGalgameInfo(Galgame galgame)
     {
-        if (_getOAuthTask != null) await _getOAuthTask;
+        // 确保先初始化API
+        await EnsureApiInitialized();
+
         var name = galgame.Name.Value ?? "";
         int? id;
         try
         {
             if (galgame.RssType != RssType.Ymgal) throw new Exception();
             id = Convert.ToInt32(galgame.Id ?? "");
-            
         }
         catch (Exception)
         {
-            var url = _baseUrl + 
-                  $"open/archive/search-game?mode=list&keyword={name}&pageNum=1&pageSize=20";
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-            if (!response.IsSuccessStatusCode) return null;
-            ApiResponse<Page<Game>>? gameResponse =
-                JsonConvert.DeserializeObject<ApiResponse<Page<Game>>>(
-                    await response.Content.ReadAsStringAsync(),
-                    _camelCaseSerializerSettings
-                );
-            if (gameResponse?.Data?.Result.Count != 0) id = gameResponse?.Data?.Result[0].Id;
-            else return null;
+            try
+            {
+                var searchResponse = await ExecuteWithTokenRefreshAsync(async () => 
+                    await _ymgalApi.SearchGameAsync(name));
+                    
+                if (!searchResponse.Success || searchResponse.Data?.Result.Count == 0) 
+                    return null;
+                
+                id = searchResponse.Data?.Result?.FirstOrDefault()?.Id;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
-        
 
         try
         {
-            var url = _baseUrl + $"open/archive/?gid={id}";
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-            if (response.IsSuccessStatusCode)
+            var gameResponse = await ExecuteWithTokenRefreshAsync(async () => 
+                await _ymgalApi.GetGameAsync(id ?? throw new InvalidOperationException("ID cannot be null")));
+                
+            if (!gameResponse.Success || gameResponse.Data?.Game == null)
+                return null;
+                
+            var g = gameResponse.Data.Game;
+            Galgame result = new()
             {
-                ApiResponse<GameResponse>? gameResponse =
-                    JsonConvert.DeserializeObject<ApiResponse<GameResponse>>(
-                        await response.Content.ReadAsStringAsync(),
-                        _camelCaseSerializerSettings
-                    );
-                if (gameResponse?.Data?.Game is { } g){
-                    Galgame result = new()
-                    {
-                        Name = g.Name,
-                        CnName = g.ChineseName ?? "",
-                        Description = g.Introduction,
-                        ReleaseDate = IGalInfoPhraser.GetDateTimeFromString(g.ReleaseDate) ?? DateTime.MinValue, 
-                        ImageUrl = g.MainImg,
-                        Id = g.Gid != 0 ? g.Gid.ToString() : g.Id.ToString()
-                    };
-                    var organizationUrl = _baseUrl + $"open/archive/?orgId={g.DeveloperId}";
-                    HttpResponseMessage dResponse = await _httpClient.GetAsync(organizationUrl);
-                    if (dResponse.IsSuccessStatusCode)
-                    {
-                        ApiResponse<OrganizationResponse>? developerResponse =
-                            JsonConvert.DeserializeObject<ApiResponse<OrganizationResponse>>(
-                                await dResponse.Content.ReadAsStringAsync(),
-                                _camelCaseSerializerSettings
-                            );
-                        result.Developer = developerResponse?.Data?.Org.Name ?? Galgame.DefaultString;
-                    }
-                    return result;
+                Name = g.Name,
+                CnName = g.ChineseName ?? "",
+                Description = g.Introduction,
+                ReleaseDate = IGalInfoPhraser.GetDateTimeFromString(g.ReleaseDate) ?? DateTime.MinValue, 
+                ImageUrl = g.MainImg,
+                Id = g.Gid != 0 ? g.Gid.ToString() : g.Id.ToString()
+            };
+            
+            try
+            {
+                var developerResponse = await ExecuteWithTokenRefreshAsync(async () => 
+                    await _ymgalApi.GetOrganizationAsync(g.DeveloperId));
+                    
+                if (developerResponse.Success && developerResponse.Data?.Org != null)
+                {
+                    result.Developer = developerResponse.Data.Org.Name;
+                }
+                else
+                {
+                    result.Developer = Galgame.DefaultString;
                 }
             }
+            catch
+            {
+                result.Developer = Galgame.DefaultString;
+            }
             
+            return result;
         }
         catch (Exception)
         {
             return null;
         }
-        return null;
+    }
+
+    // 确保API已初始化
+    private async Task EnsureApiInitialized()
+    {
+        if (_apiInitTask != null)
+        {
+            _ymgalApi = await _apiInitTask;
+            _apiInitTask = null; // 初始化完成后清除任务引用
+        }
+    }
+
+    // 带有token刷新逻辑的API调用执行器
+    private async Task<T> ExecuteWithTokenRefreshAsync<T>(Func<Task<T>> apiCall, int retryCount = 0)
+    {
+        // 最大重试次数为2，防止死循环
+        const int maxRetries = 2;
+        
+        try
+        {
+            // 确保API已初始化
+            await EnsureApiInitialized();
+            
+            // 执行API调用
+            return await apiCall();
+        }
+        catch (ApiException ex) when ((ex.StatusCode == System.Net.HttpStatusCode.Unauthorized || 
+                                      ex.StatusCode == System.Net.HttpStatusCode.Forbidden) &&
+                                      retryCount < maxRetries)
+        {
+            // 如果是401(Unauthorized)或403(Forbidden)，且未超过最大重试次数，尝试刷新token
+            _ymgalApi = await YmgalApi.GetAuthenticatedApiAsync();
+            
+            // 递增重试计数，并重试API调用
+            return await ExecuteWithTokenRefreshAsync(apiCall, retryCount + 1);
+        }
     }
 
     public RssType GetPhraseType() => RssType.Ymgal;
-
-    public async Task<string> OauthGet()
-    {
-        HttpResponseMessage request = await _httpClient.GetAsync(
-            _baseUrl +
-            $"oauth/token?grant_type=client_credentials&client_id={_publicClientId}&client_secret={_publicClientSecret}&scope=public");
-        request.EnsureSuccessStatusCode();
-        return JsonConvert.
-            DeserializeObject<OauthRequest>
-                (await request.Content.ReadAsStringAsync(), _snakeCaseSerializerSettings)?.AccessToken ?? "";
-    }
-    
-    private void GetHttpClient()
-    {
-        _getOAuthTask = Task.Run(async () =>
-        {
-            var accessToken = await OauthGet();
-            _httpClient = Utils.GetDefaultHttpClient().WithApplicationJson();
-            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + accessToken);
-            _httpClient.DefaultRequestHeaders.Add("version", "1");
-        });
-    }
 }
 
 

@@ -160,7 +160,7 @@
     <value>游戏库</value>
   </data>
   <data name="Shell_GalgameSetting.Content" xml:space="preserve">
-    <value>GalgameSetting</value>
+    <value>编辑游戏</value>
   </data>
   <data name="HomePage_Edit" xml:space="preserve">
     <value>修改游戏信息</value>
@@ -848,7 +848,7 @@
   <data name="GalgameSettingPage_GalgameRssType.Text" xml:space="preserve">
     <value>数据源</value>
   </data>
-  <data name="GalgameSettingPage_GalgameSavePosition.Text" xml:space="preserve">
+  <data name="GalgameSettingPage_GameSetting_SavePosition.Title" xml:space="preserve">
     <value>存档位置</value>
   </data>
   <data name="GalgameSettingPage_GalgameRating.Title" xml:space="preserve">
@@ -1811,13 +1811,10 @@
   <data name="GalgameSourceCollectionService_CheckGamesInSource_Msg" xml:space="preserve">
     <value>由于无法在该库中检测到下列游戏，已将下列游戏移出了该库：{0}</value>
   </data>
-  <data name="GalgameSettingPage_Startup_parameters.Text" xml:space="preserve">
-    <value>启动参数设置</value>
+  <data name="GalgameSettingPage_GameSetting_Parameter.Text" xml:space="preserve">
+    <value>游戏启动参数</value>
   </data>
-  <data name="GalgameSettingPage_GalgamePath.Text" xml:space="preserve">
-    <value>游戏路径</value>
-  </data>
-  <data name="GalgameSettingPage_GalgameExePath.Text" xml:space="preserve">
+  <data name="GalgameSettingPage_GameSetting_ExePath.Title" xml:space="preserve">
     <value>游戏启动文件</value>
   </data>
   <data name="GalgameSettingPage_EditPath.Text" xml:space="preserve">
@@ -1829,11 +1826,11 @@
   <data name="GalgameSettingPage_Search.Text" xml:space="preserve">
     <value>在线搜索游戏</value>
   </data>
-  <data name="GalgameSettingPage_GalgameReleaseDate.Title" xml:space="preserve">
+  <data name="GalgameSettingPage_GameInfo_ReleaseDate.Text" xml:space="preserve">
     <value>发行日期</value>
   </data>
   <data name="GalgameSettingPage_NotLocalGame" xml:space="preserve">
-    <value>游戏不是本地游戏，无法修改启动文件，请先设置游戏路径</value>
+    <value>本游戏不是本地游戏，请设置该游戏文件夹路径~</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetSuccess" xml:space="preserve">
     <value>成功设置游戏启动文件</value>
@@ -2432,5 +2429,38 @@
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowMusician.Text" xml:space="preserve">
     <value>显示音乐</value>
+  </data>
+  <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
+    <value>游戏信息</value>
+  </data>
+  <data name="GalgameSettingPage_GameInfo_SettingDescription" xml:space="preserve">
+    <value>修改游戏的信息，如游戏名/id/简介/封面图等</value>
+  </data>
+  <data name="GalgameSettingPage_GameSetting.SettingTitle" xml:space="preserve">
+    <value>游戏设置</value>
+  </data>
+  <data name="GalgameSettingPage_GameSetting.SettingDescription" xml:space="preserve">
+    <value>修改游戏的路径/可执行文件/运行参数等设置</value>
+  </data>
+  <data name="GalgameSettingPage_GameSetting_Path.Title" xml:space="preserve">
+    <value>游戏路径</value>
+  </data>
+  <data name="GalgameSettingPage_GameSetting_Parameter_Input.PlaceholderText" xml:space="preserve">
+    <value>无特殊需求建议置空</value>
+  </data>
+  <data name="GalgameSettingPage_GameInfo_GalgameId_Input.PlaceholderText" xml:space="preserve">
+    <value>填入ID前请先选择信息源</value>
+  </data>
+  <data name="GalgameSettingPage_ToggleSwitch.OnContent" xml:space="preserve">
+    <value>已锁定</value>
+  </data>
+  <data name="GalgameSettingPage_ToggleSwitch.OffContent" xml:space="preserve">
+    <value>未锁定</value>
+  </data>
+  <data name="GalgameSettingPage_NoExe" xml:space="preserve">
+    <value>还没设置启动文件呢</value>
+  </data>
+  <data name="GalgameSettingPage_GameInfo_Tag_Description.Text" xml:space="preserve">
+    <value>为了防止较低配电脑打开本界面卡顿，Tag设置默认折起来了</value>
   </data>
 </root>

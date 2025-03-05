@@ -217,15 +217,8 @@ public partial class LibraryViewModel(
             // 获取当前库及其所有子库
             sources.Add(CurrentSource);
             var allSources = galSourceService.GetGalgameSources();
-            void AddSubSources(GalgameSourceBase parent)
-            {
-                foreach (var source in allSources.Where(s => s.ParentSource == parent))
-                {
-                    sources.Add(source);
-                    AddSubSources(source);
-                }
-            }
-            AddSubSources(CurrentSource);
+            
+            AddSubSources(CurrentSource, allSources);
         }
 
         // 对于这个列表，每个库都创建一个GetGalgameInfoFromRssTask，并加入到BgTaskService中
@@ -242,6 +235,17 @@ public partial class LibraryViewModel(
                     });
             };
             _ = bgTaskService.AddBgTask(getGalgameInfoFromRss);
+        }
+        
+        return;
+        
+        void AddSubSources(GalgameSourceBase parent, IEnumerable<GalgameSourceBase> allSources)
+        {
+            foreach (var source in allSources.Where(s => s.ParentSource == parent))
+            {
+                sources.Add(source);
+                AddSubSources(source, allSources);
+            }
         }
     }
 
@@ -302,21 +306,25 @@ public partial class LibraryViewModel(
             List<GalgameSourceBase> sources = new();
             sources.Add(CurrentSource);
             var allSources = galSourceService.GetGalgameSources();
-            void AddSubSources(GalgameSourceBase parent)
-            {
-                foreach (var source in allSources.Where(s => s.ParentSource == parent))
-                {
-                    sources.Add(source);
-                    AddSubSources(source);
-                }
-            }   
-            AddSubSources(CurrentSource);
+            
+            AddSubSources(CurrentSource, allSources);
+            
             foreach (var source in sources)
             {
                 galSourceService.Scan(source);
                 infoService.Info(InfoBarSeverity.Success, msg: "LibraryPage_Scan_Success".GetLocalized(source.Name));
             }
             
+            return;
+            
+            void AddSubSources(GalgameSourceBase parent, IEnumerable<GalgameSourceBase> allSources)
+            {
+                foreach (var source in allSources.Where(s => s.ParentSource == parent))
+                {
+                    sources.Add(source);
+                    AddSubSources(source, allSources);
+                }
+            }
         }
     }
 

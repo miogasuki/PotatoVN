@@ -80,7 +80,6 @@
                                 <Button DataContext="{Binding}"
                                         Style="{StaticResource TransparentButtonWithHover}"
                                         HorizontalAlignment="Left" VerticalAlignment="Top"
-                                        Width="175"
                                         Click="ClickSource">
                                     <prefab:SourcePrefab Source="{Binding}" Height="200"/>
                                 </Button>

@@ -80,13 +80,21 @@
                             VerticalAlignment="Top"
                             RelativePanel.AlignTopWithPanel="True"
                             RelativePanel.AlignLeftWithPanel="True">
-                            <Image
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                MaxWidth="250"
-                                MaxHeight="250"
-                                Source="{x:Bind ViewModel.Character.ImagePath, Mode=OneWay, FallbackValue={}}" 
-                                x:Name="DetailImage"/>
+                            <Button Command="{x:Bind ViewModel.PickImageCommand}"
+                                    IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"
+                                    Style="{ThemeResource ButtonRevealStyle}"
+                                    Padding="0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch">
+                                <Image
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    MaxWidth="250"
+                                    MaxHeight="250"
+                                    Source="{x:Bind ViewModel.Character.ImagePath, Mode=OneWay, FallbackValue={}}" 
+                                    x:Name="DetailImage"
+                                    Stretch="Uniform"/>
+                            </Button>
                         </Grid>
 
                         <!-- 姓名 -->

@@ -40,7 +40,6 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
 
         LoadSettings();
         PrimaryButtonClick += ManageGalgamePageLayoutDialog_PrimaryButtonClick;
-        SecondaryButtonClick += ManageGalgamePageLayoutDialog_SecondaryButtonClick;
     }
 
     private async void LoadSettings()
@@ -61,11 +60,6 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowMusician, GalgamePageNewLayout_ShowMusician);
 
         deferral.Complete();
-    }
-
-    private void ManageGalgamePageLayoutDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-    {
-        // 取消按钮不需要执行任何操作，对话框会自动关闭
     }
 }
 

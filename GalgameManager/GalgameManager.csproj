@@ -142,9 +142,6 @@
     <Page Update="Views\Dialog\ManageGalgamePageLayoutDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\Dialog\ManageGalgamePageLayoutDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Update="Views\Dialog\SelectGameDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

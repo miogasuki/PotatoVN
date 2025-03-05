@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
+using GalgameManager.Helpers;
 using GalgameManager.Models;
 using Microsoft.UI.Xaml;
 
@@ -70,6 +71,18 @@ public partial class GalgameCharacterViewModel (
         }
         
         IsEditing = false;
+    }
+
+    [RelayCommand]
+    private async Task PickImageAsync()
+    {
+        if (Character is null) return;
+        
+        var imagePath = await DownloadHelper.PickImageAsync();
+        if (imagePath is null) return;
+        
+        Character.ImagePath = imagePath;
+        Character.PreviewImagePath = imagePath;
     }
 
     partial void OnSelectedDateChanged(DateTimeOffset? oldValue, DateTimeOffset? newValue)

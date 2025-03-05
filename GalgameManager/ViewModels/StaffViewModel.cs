@@ -158,23 +158,10 @@ public partial class StaffViewModel(
     private async Task PickImageAsync()
     {
         if (Staff is null) return;
-        FileOpenPicker openPicker = new()
-        {
-            ViewMode = PickerViewMode.Thumbnail,
-            SuggestedStartLocation = PickerLocationId.PicturesLibrary
-        };
-        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
-        openPicker.FileTypeFilter.Add(".jpg");
-        openPicker.FileTypeFilter.Add(".jpeg");
-        openPicker.FileTypeFilter.Add(".png");
-        openPicker.FileTypeFilter.Add(".bmp");
-        StorageFile? file = await openPicker.PickSingleFileAsync();
-        if (file == null) return;
-        StorageFile newFile = await file.CopyAsync(await FileHelper.GetFolderAsync(FileHelper.FolderType.Images),
-            $"{Staff.Name}{file.FileType}", NameCollisionOption.ReplaceExisting);
+        var imagePath = await DownloadHelper.PickImageAsync();
+        if (imagePath is null) return;
         Staff.ImagePath = string.Empty;
-        Staff.ImagePath = newFile.Path;
-
+        Staff.ImagePath = imagePath;
     }
 
 }

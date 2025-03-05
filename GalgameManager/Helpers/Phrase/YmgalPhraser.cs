@@ -100,6 +100,7 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
 
             // 获取人物信息
 
+
             foreach (var c in g.Characters)
             {
                 GalgameCharacter character = new()
@@ -109,6 +110,7 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
                         [(int)RssType.Ymgal] = c.Cid.ToString()
                     },
                     Relation = c.CharacterPosition == 1 ? "主角" : "配角",
+                    Name = gameResponse.Data.CidMapping.TryGetValue(c.Cid.ToString(), out var mapping) ? mapping.Name ?? "" : "",
                 };
                 result.Characters.Add(character);
             }

@@ -27,14 +27,17 @@
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE72B;" />
                 </AppBarButton.Icon>
             </AppBarButton>
-            <AppBarButton x:Uid="GalgameSettingPage_GetInfoFromRss" Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
+            <AppBarButton x:Uid="GalgameSettingPage_GetInfoFromRss" 
+                Command="{x:Bind ViewModel.GetInfoFromRssCommand}"
+                AllowFocusOnInteraction="True">
                 <AppBarButton.Icon>
                     <control:ConditionalFontIcon Symbol="Download" FluentGlyph="&#xE896;" />
                 </AppBarButton.Icon>
             </AppBarButton>
             <AppBarButton x:Uid="GalgameSettingPage_GetInfoFromRssWithName"
                           Command="{x:Bind ViewModel.GetInfoFromRssCommand}"
-                          CommandParameter="True">
+                          CommandParameter="True"
+                          AllowFocusOnInteraction="True">
                 <AppBarButton.Icon>
                     <control:ConditionalFontIcon Symbol="Download" FluentGlyph="&#xE896;" />
                 </AppBarButton.Icon>

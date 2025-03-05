@@ -12,6 +12,12 @@ public interface IYmgalApi
     
     [Get("/open/archive/game")]
     Task<ApiResponse<OrganizationResponse>> GetOrganizationAsync(int orgId);
+
+    [Get("/open/archive")]
+    Task<ApiResponse<CharacterResponse>> GetCharacterAsync(int cid);
+
+    [Get("/open/archive")]
+    Task<ApiResponse<StaffResponse>> GetStaffAsync(int pid);
     
     [Get("/oauth/token")]
     Task<OauthRequest> GetOauthTokenAsync(string grant_type, string client_id, string client_secret, string scope);

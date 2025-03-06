@@ -8,7 +8,9 @@
     xmlns:dialog="using:GalgameManager.Views.Dialog" xmlns:models="using:GalgameManager.Models"
     xmlns:enums="using:GalgameManager.Enums"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
+    xmlns:control="using:GalgameManager.Views.Control"
     mc:Ignorable="d"
+    Style="{ThemeResource DefaultContentDialogStyle}"
     DefaultButton="Close">
 
     <ContentDialog.Resources>
@@ -21,11 +23,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <TextBox x:Name="SearchBox"
-                 Grid.Row="0" 
-                 Text="{x:Bind SearchKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                 Margin="0,0,0,10"/>
+        
+        <control:SearchAutoSuggestBox Grid.Row="0" x:Uid="SelectGameDialog_Search"
+                                      SearchCommand="{x:Bind SearchCommand}" 
+                                      SearchKey="{x:Bind SearchKey, Mode=TwoWay}"
+                                      SearchSuggestionsProvider="{x:Bind SearchSuggestionsProvider}"
+                                      Margin="0,0,0,10"/>
 
         <ItemsRepeater Grid.Row="1" 
                       ItemsSource="{x:Bind Careers}"

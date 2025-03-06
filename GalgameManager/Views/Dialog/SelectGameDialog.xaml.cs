@@ -6,6 +6,8 @@ using System.Collections.ObjectModel;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using GalgameManager.ViewModels;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -14,24 +16,20 @@ namespace GalgameManager.Views.Dialog;
 
 public sealed partial class SelectGameDialog : ContentDialog
 {
+    public ObservableCollection<CareerCheckBox> Careers { get; } = [];
+    public RelayCommand SearchCommand => new(() =>
+    {
+        if (string.IsNullOrEmpty(SearchKey))
+            _games.Filter = _ => true;
+        else
+            _games.Filter = item => (item as Galgame)?.ApplySearchKey(SearchKey) ?? false;
+    });
+    public readonly GalgameSearchSuggestionsProvider SearchSuggestionsProvider = new();
+    public string SearchKey { get; set; } = string.Empty;
     private readonly TaskCompletionSource<(Galgame?, List<Career>)> _selectGameTcs = new();
     private readonly AdvancedCollectionView _games;
-    private string _searchKey = string.Empty;
     
-    public ObservableCollection<CareerCheckBox> Careers { get; } = new();
     
-    public string SearchKey
-    {
-        get => _searchKey;
-        set
-        {
-            _searchKey = value;
-            _games.Filter = item => string.IsNullOrEmpty(_searchKey) || 
-                ((item as Galgame)?.Name?.Value?.Contains(_searchKey, StringComparison.OrdinalIgnoreCase) ?? false);
-        }
-    }
-
-
     public SelectGameDialog()
     {
         InitializeComponent();
@@ -40,8 +38,7 @@ public sealed partial class SelectGameDialog : ContentDialog
         Title = "SelectGameDialog_Title".GetLocalized();
         PrimaryButtonText = "SelectGameDialog_Confirm".GetLocalized();
         CloseButtonText = "SelectGameDialog_Cancel".GetLocalized();
-        SearchBox.PlaceholderText = "SelectGameDialog_SearchPlaceholder".GetLocalized();
-        
+
         // 安全地设置 XamlRoot
         if (App.MainWindow?.Content?.XamlRoot != null)
         {

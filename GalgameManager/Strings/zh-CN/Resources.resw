@@ -2403,7 +2403,7 @@
   <data name="SelectGameDialog_Title" xml:space="preserve">
     <value>选择游戏</value>
   </data>
-    <data name="SelectGameDialog_SearchPlaceholder" xml:space="preserve">
+    <data name="SelectGameDialog_Search.PlaceholderText" xml:space="preserve">
       <value>搜索游戏...</value>
   </data>
     <data name="SelectGameDialog_Confirm" xml:space="preserve">

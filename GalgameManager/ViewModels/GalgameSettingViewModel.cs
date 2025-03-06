@@ -62,6 +62,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         await _galService.SaveGalgameAsync(Gal);
         _pvnService.Upload(Gal, PvnUploadProperties.Infos | PvnUploadProperties.ImageLoc);
         _galService.PhrasedEvent -= Update;
+        Gal.PropertyChanged -= HandleGalPropertyChanged;
     }
 
     public void OnNavigatedTo(object parameter)
@@ -74,7 +75,8 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         Gal = galgame;
         Gal.PropertyChanged += HandleGalPropertyChanged;
         SelectedRss = Gal.RssType;
-        ReleasedDate = Gal.ReleaseDate.Value;
+        if (Gal.ReleaseDate.Value > DateTime.MinValue)
+            ReleasedDate = Gal.ReleaseDate.Value;
         _galService.PhrasedEvent += Update;
         Update();
     }

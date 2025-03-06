@@ -144,21 +144,9 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [RelayCommand]
     private async Task PickImageAsync()
     {
-        FileOpenPicker openPicker = new()
-        {
-            ViewMode = PickerViewMode.Thumbnail,
-            SuggestedStartLocation = PickerLocationId.PicturesLibrary
-        };
-        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
-        openPicker.FileTypeFilter.Add(".jpg");
-        openPicker.FileTypeFilter.Add(".jpeg");
-        openPicker.FileTypeFilter.Add(".png");
-        openPicker.FileTypeFilter.Add(".bmp");
-        StorageFile? file = await openPicker.PickSingleFileAsync();
-        if (file == null) return;
-        StorageFile newFile = await file.CopyAsync(await FileHelper.GetFolderAsync(FileHelper.FolderType.Images), 
-            $"{Gal.Name.Value}{file.FileType}", NameCollisionOption.ReplaceExisting);
-        Gal.ImagePath.Value= newFile.Path;
+        var newFile = await DownloadHelper.PickImageAsync();
+        if (newFile is null) return;
+        Gal.ImagePath.Value= newFile;
     }
 
     [RelayCommand]

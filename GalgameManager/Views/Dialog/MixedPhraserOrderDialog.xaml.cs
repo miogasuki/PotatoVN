@@ -30,6 +30,7 @@ public sealed partial class MixedPhraserOrderDialog
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_CnName".GetLocalized(), order.CnNameOrder),
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Dev".GetLocalized(), order.DeveloperOrder),
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Tag".GetLocalized(), order.TagsOrder),
+            new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Staff".GetLocalized(), order.StaffOrder),
         };
     }
 }

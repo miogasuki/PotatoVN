@@ -1742,6 +1742,9 @@
   <data name="MixedPhraserOrderDialog_It_Tag" xml:space="preserve">
     <value>Tag</value>
   </data>
+  <data name="MixedPhraserOrderDialog_It_Staff" xml:space="preserve">
+    <value>制作人员</value>
+  </data>
   <data name="BgmAuthDialog_Title" xml:space="preserve">
     <value>选择登录方式</value>
   </data>

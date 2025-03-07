@@ -296,6 +296,13 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
     partial void OnLastPlayTimeChanged(DateTime value) => GalPropertyChanged?.Invoke(this, nameof(LastPlayTime), value);
     partial void OnPlayTypeChanged(PlayType value) => GalPropertyChanged?.Invoke(this, nameof(PlayType), value);
+
+    // 监控游戏exe路径变化，如果exe路径变化则设置HighDpi为false
+    partial void OnExePathChanged(string? value)
+    {
+        if (value != null)
+            HighDpi = false;
+    }
 }
 
 

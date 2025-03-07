@@ -281,6 +281,7 @@ public partial class LibraryViewModel(
     private void EditLibrary(GalgameSourceBase? source)
     {
         if (source is null) return;
+        if (source is VirtualSource virtualSource) virtualSource.UpdateGames(galgameService.Galgames);
         _beforeNavigateFromSource = CurrentSource;
         navigationService.NavigateTo(typeof(GalgameSourceViewModel).FullName!, source.Url);
     }
@@ -289,6 +290,11 @@ public partial class LibraryViewModel(
     private async Task DeleteFolder(GalgameSourceBase? galgameFolder)
     {
         if (galgameFolder is null) return;
+        if (!galgameFolder.IsDelectable)
+        {
+            infoService.Info(InfoBarSeverity.Error, msg: "LibraryPage_CannotDelete".GetLocalized());
+            return;
+        }
         await galSourceService.DeleteGalgameFolderAsync(galgameFolder);
     }
 
@@ -392,6 +398,7 @@ public partial class LibraryViewModel(
         if (newValue is not null)
         {
             newValue.GalgamesChanged += HandleGalgamesChanged;
+            if (newValue is VirtualSource virtualSource) virtualSource.UpdateGames(galgameService.Galgames); 
         }
     }
 

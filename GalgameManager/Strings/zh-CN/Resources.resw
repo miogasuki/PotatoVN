@@ -2463,4 +2463,13 @@
   <data name="GalgameSettingPage_GameInfo_Tag_Description.Text" xml:space="preserve">
     <value>为了防止较低配电脑打开本界面卡顿，Tag设置默认折起来了</value>
   </data>
+  <data name="VirtualSource" xml:space="preserve">
+    <value>非本地游戏</value>
+  </data>
+  <data name="GalgameSourceType_Virtual" xml:space="preserve">
+    <value>虚拟游戏库</value>
+  </data>
+  <data name="LibraryPage_CannotDelete" xml:space="preserve">
+    <value>这个库不能被删除</value>
+  </data>
 </root>

@@ -110,7 +110,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
             if (_rssType != value)
             {
                 _rssType = value;
-                // OnPropertyChanged(); //信息源是通过Combobox选择的，不需要通知
+                OnPropertyChanged(); //通常情况下信息源是通过Combobox选择的，但更新游戏信息时需要手动触发
                 OnPropertyChanged(nameof(Id));
             }
         }

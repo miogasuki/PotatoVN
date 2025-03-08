@@ -2472,4 +2472,7 @@
   <data name="LibraryPage_CannotDelete" xml:space="preserve">
     <value>这个库不能被删除</value>
   </data>
+  <data name="StaffService_Export" xml:space="preserve">
+    <value>正在导出staff：{0}</value>
+  </data>
 </root>

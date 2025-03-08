@@ -42,11 +42,14 @@ public class LocalSettingStatus
     public bool ImportGalgameSource = true;
     /// categoryService是否已处理过导入
     public bool ImportCategory = true;
+    /// staffService是否已处理过导入
+    public bool ImportStaff = true;
     public void SetToExport()
     {
         ImportGalgame = false;
         ImportGalgameSource = false;
         ImportCategory = false;
+        ImportStaff = false;
         GameLiteDbUpgrade = false;
         CategoryLiteDbUpgrade = false;
         SourceLiteDbUpgrade = false;

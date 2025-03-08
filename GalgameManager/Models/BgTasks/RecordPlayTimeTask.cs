@@ -22,6 +22,7 @@ public class RecordPlayTimeTask : BgTaskBase
     private Process? _process;
 
     private readonly ILocalSettingsService _localSettingsService = App.GetService<ILocalSettingsService>();
+    private readonly IGalgameCollectionService _gameService = App.GetService<IGalgameCollectionService>();
     
     public RecordPlayTimeTask(){}
 
@@ -50,6 +51,7 @@ public class RecordPlayTimeTask : BgTaskBase
             var windowMode = await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode);
             await UiThreadInvokeHelper.InvokeAsync(() =>
             {
+                _gameService.SaveGalgameAsync(Galgame);
                 GalgamePageParameter parma = new()
                 {
                     Galgame = Galgame,
@@ -93,6 +95,7 @@ public class RecordPlayTimeTask : BgTaskBase
                     {
                         Galgame!.TotalPlayTime++;
                         CurrentPlayTime++;
+                        _gameService.SaveGalgameAsync(Galgame);
                     });
                     var now = DateTime.Now.ToStringDefault();
                     if (!Galgame!.PlayedTime.TryAdd(now, 1))

@@ -251,6 +251,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 else
                     await SelectProcess();
             }
+            await _galgameService.SaveGalgameAsync(Item);
             _ = _bgTaskService.AddBgTask(new RecordPlayTimeTask(Item, process));
             await _jumpListService.AddToJumpListAsync(Item);
             

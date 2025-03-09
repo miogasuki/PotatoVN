@@ -163,7 +163,19 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     
     public async Task RemoveGalgame(Galgame galgame, bool removeFromDisk = false)
     {
-        await UiThreadInvokeHelper.InvokeAsync(() => _galgames.Remove(galgame));
+        if (!_galgames.Contains(galgame)) return;
+        await UiThreadInvokeHelper.InvokeAsync(() =>
+        {
+            try
+            {
+                _galgames.Remove(galgame);
+            }
+            catch (COMException)
+            {
+                //框架bug：在试图更新UI界面的时候抛出异常，不影响逻辑正常运行
+                //暂时忽略
+            }
+        });
         List<GalgameSourceBase> tmpList = new(galgame.Sources);
         foreach (GalgameSourceBase s in tmpList)
             _galSrcService.MoveOutNoOperate(s, galgame);

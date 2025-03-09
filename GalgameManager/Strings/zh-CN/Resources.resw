@@ -2475,4 +2475,7 @@
   <data name="StaffService_Export" xml:space="preserve">
     <value>正在导出staff：{0}</value>
   </data>
+  <data name="PvnService_AccountTokenExpire" xml:space="preserve">
+    <value>该账户登录已过期，请重新登录。</value>
+  </data>
 </root>

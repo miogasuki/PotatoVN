@@ -1883,8 +1883,14 @@
   <data name="ConfirmGalInfoDialog_Hint" xml:space="preserve">
     <value>若填入ID，软件将直接使用ID在对应源上索引对应的游戏；否则按照游戏名搜索游戏。</value>
   </data>
-  <data name="SettingsPage_Game_LocaleEmulator.Text" xml:space="preserve">
+  <data name="SettingsPage_Game_LocaleEmulator.Title" xml:space="preserve">
     <value>LocaleEmulator 可执行文件路径</value>
+  </data>
+  <data name="SettingsPage_Game_LocaleEmulator.Description" xml:space="preserve">
+    <value>设置LocaleEmulator的路径，用于转区运行游戏，请选择LEProc.exe</value>
+  </data>
+  <data name="SettingsPage_Game_LocaleEmulator_PathDescription.Text" xml:space="preserve">
+    <value>当前路径：</value>
   </data>
   <data name="Select.Content" xml:space="preserve">
     <value>更改</value>

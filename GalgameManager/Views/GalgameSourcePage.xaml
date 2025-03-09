@@ -11,6 +11,8 @@
     xmlns:views="using:GalgameManager.Views"
     xmlns:viewModels="using:GalgameManager.ViewModels"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:sources="using:GalgameManager.Models.Sources"
+    xmlns:enums="using:GalgameManager.Enums"
     mc:Ignorable="d"
     x:Name="Page">
 
@@ -209,7 +211,7 @@
                                     </Grid>
                                 </ListView.Header>
                                 <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="viewModels:GalgameSourcePageCustomGalgameViewModel">
+                                    <DataTemplate x:DataType="sources:GalgameAndPath">
                                         <Grid>
                                             <!-- 透明控件，确保右键时射线检测能够打到Item上 -->
                                             <Rectangle Fill="Transparent" /> 

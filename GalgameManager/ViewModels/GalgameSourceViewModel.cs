@@ -30,7 +30,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private readonly INavigationService _navigationService;
     
     private GalgameSourceBase? _item;
-    public ObservableCollection<GalgameSourcePageCustomGalgameViewModel> Galgames { get; } = new();
+    public ObservableCollection<GalgameAndPath> Galgames { get; } = new();
+    public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None};
     private readonly List<Galgame> _selectedGalgames = new();
     private BgTaskBase? _getGalTask;
     private GetGalgameInfoFromRssTask? _getGalgameInfoFromRss;
@@ -77,11 +78,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             {
                 foreach (GalgameAndPath g in value.Galgames)
                 {
-                    Galgames.Add(new GalgameSourcePageCustomGalgameViewModel
-                    {
-                        Galgame = g.Galgame,
-                        Path = g.Path
-                    });
+                    Galgames.Add(g);
                 }
                 value.GalgamesChanged += ReloadGalgameList;
                 value.PropertyChanged += Save;
@@ -107,11 +104,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             Galgames.Remove(tmp);
         else if (!isDeleted && _item.GetPath(game) is {} path)
         {
-            Galgames.Add(new GalgameSourcePageCustomGalgameViewModel
-            {
-                Galgame = game, 
-                Path = path
-            });
+            Galgames.Add(new GalgameAndPath(game, path));
         }
     }
 
@@ -340,9 +333,9 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private void OnSelectionChanged(object et)
     {
         SelectionChangedEventArgs e = (SelectionChangedEventArgs) et;
-        foreach(GalgameSourcePageCustomGalgameViewModel g in e.AddedItems)
+        foreach(GalgameAndPath g in e.AddedItems)
             _selectedGalgames.Add(g.Galgame);
-        foreach (GalgameSourcePageCustomGalgameViewModel g in e.RemovedItems)
+        foreach (GalgameAndPath g in e.RemovedItems)
             _selectedGalgames.Remove(g.Galgame);
         UiDownloadInfo = _selectedGalgames.Count == 0
             ? "GalgameFolderPage_DownloadInfo".GetLocalized()
@@ -384,42 +377,35 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    private void EditGame(GalgameSourcePageCustomGalgameViewModel gameViewModel)
+    private void EditGame(GalgameAndPath gameAndPath)
     {
-        if (gameViewModel?.Galgame == null) return;
-        NavigationHelper.NavigateToGalgameSettingPage(_navigationService, gameViewModel.Galgame);
+        if (gameAndPath?.Galgame == null) return;
+        NavigationHelper.NavigateToGalgameSettingPage(_navigationService, gameAndPath.Galgame);
     }
 
     [RelayCommand]
-    private void CopyGameName(GalgameSourcePageCustomGalgameViewModel gameViewModel)
+    private void CopyGameName(GalgameAndPath gameAndPath)
     {
-        if (gameViewModel?.Galgame == null) return;
+        if (gameAndPath?.Galgame == null) return;
         var dataPackage = new DataPackage();
-        dataPackage.SetText(gameViewModel.Galgame.Name.Value);
+        dataPackage.SetText(gameAndPath.Galgame.Name.Value);
         Clipboard.SetContent(dataPackage);
     }
 
     [RelayCommand]
-    private void CopyGamePath(GalgameSourcePageCustomGalgameViewModel gameViewModel)
+    private void CopyGamePath(GalgameAndPath gameAndPath)
     {
-        if (gameViewModel?.Galgame == null) return;
+        if (gameAndPath?.Galgame == null) return;
         var dataPackage = new DataPackage();
-        dataPackage.SetText(gameViewModel.Path);
+        dataPackage.SetText(gameAndPath.Path);
         Clipboard.SetContent(dataPackage);
     }
 
     [RelayCommand]
-    private async Task OpenGameInExplorer(GalgameSourcePageCustomGalgameViewModel gameViewModel)
+    private async Task OpenGameInExplorer(GalgameAndPath gameAndPath)
     {
-        if (gameViewModel?.Galgame == null) return;
-        var folder = await StorageFolder.GetFolderFromPathAsync(gameViewModel.Galgame.LocalPath);
+        if (gameAndPath?.Galgame == null) return;
+        var folder = await StorageFolder.GetFolderFromPathAsync(gameAndPath.Galgame.LocalPath);
         await Launcher.LaunchFolderAsync(folder);
     }
-}
-
-public partial class GalgameSourcePageCustomGalgameViewModel : ObservableObject
-{
-    public Galgame Galgame = null!;
-    public string Path = null!;
-    public RssType[] RssTypes { get; } = [RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None];
 }

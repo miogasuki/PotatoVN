@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Helpers;
 using GalgameManager.Server.Models;
@@ -9,7 +10,7 @@ namespace GalgameManager.Server.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class GalgameController (IGalgameService galService, IOssService ossService): ControllerBase
+public class GalgameController (IGalgameService galService, IOssService ossService, IMapper mapper): ControllerBase
 {
     /// <summary>获取galgame列表</summary>
     /// <remarks>获取最后一次更新时间严格晚于给定时间戳的galgame列表</remarks>
@@ -23,10 +24,10 @@ public class GalgameController (IGalgameService galService, IOssService ossServi
             return BadRequest("Invalid pageIndex or pageSize.");
         var userId = this.GetUserId();
         PagedResult<Galgame> tmp = await galService.GetGalgamesAsync(userId, timestamp, pageIndex, pageSize);
-        PagedResult<GalgameDto> result = new(tmp.Items.ToDtoList(g => new GalgameDto(g)), tmp.PageIndex, 
+        PagedResult<GalgameDto> result = new(tmp.Items.ToDtoList(g => new GalgameDto(g)), tmp.PageIndex,
             tmp.PageSize, tmp.Cnt);
         foreach(GalgameDto dto in result.Items)
-            await dto.WithImgAsync(ossService, userId);
+            await dto.WithImgAsync(ossService, userId, mapper);
         return Ok(result);
     }
 
@@ -64,7 +65,7 @@ public class GalgameController (IGalgameService galService, IOssService ossServi
         try
         {
             Galgame galgame = await galService.AddOrUpdateGalgameAsync(userId, payload);
-            return Ok(new GalgameDto(galgame));
+            return Ok(await new GalgameDto(galgame).WithImgAsync(ossService, userId, mapper));
         }
         catch (ArgumentException)
         {

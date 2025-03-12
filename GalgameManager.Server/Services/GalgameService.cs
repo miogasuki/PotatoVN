@@ -1,11 +1,13 @@
-﻿using GalgameManager.Core.Helpers;
+﻿using AutoMapper;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Models;
 
 namespace GalgameManager.Server.Services;
 
 public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository galDeletedRep, 
-    IPlayLogRepository playLogRep, IUserService userService, IOssService ossService)
+    IPlayLogRepository playLogRep, ICharacterRepository characterRep, IUserService userService, IOssService ossService,
+    IMapper mapper)
     : IGalgameService
 {
     public async Task<Galgame?> GetGalgameAsync(int id)
@@ -69,6 +71,20 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         galgame.MyRate = payload.MyRate ?? galgame.MyRate;
         galgame.PrivateComment = payload.PrivateComment ?? galgame.PrivateComment;
 
+        if (payload.Characters is not null)
+        {
+            List<Character> characters = [];
+            foreach (CharacterUpdateDto dto in payload.Characters)
+            {
+                Character? tmp = mapper.Map<Character>(dto);
+                if (tmp is null) continue;
+                tmp.GalgameId = galgame.Id;
+                characters.Add(tmp);
+            }
+            await characterRep.UpdateCharacterAsync(userId, galgame.Id, characters);
+            galgame.CharacterLastChangedTimeStamp = DateTime.Now.ToUnixTime();
+        }
+        
         galgame.LastChangedTimeStamp = DateTime.Now.ToUnixTime();
         await galRep.AddOrUpdateGalgameAsync(galgame);
         await userService.UpdateLastModifiedAsync(userId, galgame.LastChangedTimeStamp);

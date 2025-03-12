@@ -35,6 +35,7 @@ public class Program
         builder.Services.AddScoped<IGalgameDeletedRepository, GalgameDeletedRepository>();
         builder.Services.AddScoped<IPlayLogRepository, PlayLogRepository>();
         builder.Services.AddScoped<IOssRecordRepository, OssRecordRepository>();
+        builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IOssService, OssService>();
         builder.Services.AddScoped<IBangumiService, BangumiService>();
@@ -51,6 +52,7 @@ public class Program
         {
             options.Conventions.Add(new RouteConvention());
         });
+        builder.Services.AddAutoMapper(typeof(Program).Assembly);
         
         // Enable logging
         builder.Logging.AddConsole();
@@ -68,7 +70,7 @@ public class Program
                 
             options.OperationFilter<SecurityRequirementsOperationFilter>();
                 
-            options.SwaggerDoc("v1", new OpenApiInfo {Title = "PotatoVN.Server", Version = "v1"});
+            options.SwaggerDoc("v1", new OpenApiInfo {Title = "PotatoVN.Server", Version = "v1.1"});
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PotatoVN.Server.xml"));
         });
         builder.Services.AddAuthentication().AddJwtBearer(x =>

@@ -25,6 +25,7 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         var count = await query.CountAsync();
         List<Galgame> data = await query
             .Include(g => g.PlayTime)
+            .Include(g => g.Characters)
             .OrderByDescending(g => g.Id)
             .Skip(pageIndex * pageSize)
             .Take(pageSize)

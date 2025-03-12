@@ -198,7 +198,12 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         {
             // 先清空ExePath，再调用函数来设置
             // Gal.ExePath = null;
-            await _galService.GetGalgameExeAsync(Gal);
+            var result = await _galService.GetGalgameExeAsync(Gal);
+            if (result is null)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, "GalgameSettingPage_ExePathSetCanceled".GetLocalized());
+                return;
+            }
             _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_ExePathSetSuccess".GetLocalized());
         }
         catch (Exception e)

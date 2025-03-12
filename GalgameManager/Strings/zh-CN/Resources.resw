@@ -912,7 +912,13 @@
     <value>分类名</value>
   </data>
   <data name="HomePage_DragDrop.Text" xml:space="preserve">
-    <value>把游戏可执行文件拖到这里来添加游戏</value>
+    <value>把游戏exe可执行文件或文件夹拖到这里来添加游戏</value>
+  </data>
+  <data name="HomePage_Drop_TooManyItems" xml:space="preserve">
+    <value>只能同时添加一个游戏</value>
+  </data>
+  <data name="HomePage_Drop_InvalidItem" xml:space="preserve">
+    <value>仅支持拖拽exe可执行文件或文件夹</value>
   </data>
   <data name="Shell_UpdateContent.Content" xml:space="preserve">
     <value>更新记录</value>
@@ -1838,6 +1844,9 @@
   <data name="GalgameSettingPage_ExePathSetSuccess" xml:space="preserve">
     <value>成功设置游戏启动文件</value>
   </data>
+    <data name="GalgameSettingPage_ExePathSetCanceled" xml:space="preserve">
+        <value>用户取消了操作</value>
+  </data>
   <data name="GalgameSettingPage_ExePathSetFailed" xml:space="preserve">
     <value>设置游戏启动文件失败</value>
   </data>
@@ -1865,6 +1874,15 @@
   <data name="PackGameTask_GamePathNotExist" xml:space="preserve">
     <value>文件夹 {0} 不存在</value>
   </data>
+  <data name="ConfirmGalInfoDialog_GalgameName.Text" xml:space="preserve">
+    <value>游戏名称</value>
+  </data>
+  <data name="ConfirmGalInfoDialog_GalgameRssType.Text" xml:space="preserve">
+    <value>信息源</value>
+  </data>
+  <data name="ConfirmGalInfoDialog_GalgameId.Text" xml:space="preserve">
+    <value>游戏ID</value>
+  </data>
   <data name="ConfirmGalInfoDialog_Title_Correct" xml:space="preserve">
     <value>搜刮到的信息正确吗？</value>
   </data>
@@ -1875,13 +1893,13 @@
     <value>用户取消了操作</value>
   </data>
   <data name="ConfirmGalInfoDialog_NoID" xml:space="preserve">
-    <value>目前没有填入ID</value>
+    <value>目前没有找到游戏数据，请尝试修改游戏ID或游戏名重新搜索。</value>
   </data>
   <data name="ConfirmGalInfoDialog_ID" xml:space="preserve">
-    <value>目前设置ID的源有：{0}</value>
+    <value>目前找到的游戏数据源有：{0}</value>
   </data>
   <data name="ConfirmGalInfoDialog_Hint" xml:space="preserve">
-    <value>若填入ID，软件将直接使用ID在对应源上索引对应的游戏；否则按照游戏名搜索游戏。</value>
+    <value>若修改了游戏ID，优先使用游戏ID进行搜索，否则使用游戏名称与当前信息源进行搜索。</value>
   </data>
   <data name="SettingsPage_Game_LocaleEmulator.Title" xml:space="preserve">
     <value>LocaleEmulator 可执行文件路径</value>

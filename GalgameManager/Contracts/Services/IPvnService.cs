@@ -2,6 +2,7 @@
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.Services;
+using PotatoVN.Client.Model;
 
 namespace GalgameManager.Contracts.Services;
 

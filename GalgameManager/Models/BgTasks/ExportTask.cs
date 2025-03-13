@@ -14,6 +14,7 @@ public class ExportTask (string targetPath) : BgTaskBase
     private readonly IGalgameCollectionService _gameService = App.GetService<IGalgameCollectionService>();
     private readonly IGalgameSourceCollectionService _sourceService = App.GetService<IGalgameSourceCollectionService>();
     private readonly ICategoryService _categoryService = App.GetService<ICategoryService>();
+    private readonly IStaffService _staffService = App.GetService<IStaffService>();
     private readonly IFileService _fileService = App.GetService<IFileService>();
     private readonly string _fileName = $"PotatoVN_{DateTime.Now:yy-MM-dd}.pvnExport.zip";
     
@@ -36,6 +37,8 @@ public class ExportTask (string targetPath) : BgTaskBase
             await _sourceService.ExportAsync((msg, current, total) => { ChangeProgress(current, total, msg); });
             // 导出分类（组）
             await _categoryService.ExportAsync((msg, current, total) => { ChangeProgress(current, total, msg); });
+            // 导出staff库
+            await _staffService.ExportAsync((msg, current, total) => { ChangeProgress(current, total, msg); });
             // 导出数据状态
             LocalSettingStatus status = await _settingService
                 .ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true) ?? new();

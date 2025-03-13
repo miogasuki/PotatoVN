@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using GalgameManager.Contracts.Phrase;
@@ -162,7 +163,19 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     
     public async Task RemoveGalgame(Galgame galgame, bool removeFromDisk = false)
     {
-        await UiThreadInvokeHelper.InvokeAsync(() => _galgames.Remove(galgame));
+        if (!_galgames.Contains(galgame)) return;
+        await UiThreadInvokeHelper.InvokeAsync(() =>
+        {
+            try
+            {
+                _galgames.Remove(galgame);
+            }
+            catch (COMException)
+            {
+                //框架bug：在试图更新UI界面的时候抛出异常，不影响逻辑正常运行
+                //暂时忽略
+            }
+        });
         List<GalgameSourceBase> tmpList = new(galgame.Sources);
         foreach (GalgameSourceBase s in tmpList)
             _galSrcService.MoveOutNoOperate(s, galgame);
@@ -316,10 +329,15 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             galgame.Rating.Value = tmp.Rating.Value;
             if (!galgame.Tags.IsLock && tmp.Tags.Value?.Count > 0) // Tags不能直接赋值，直接替换容器会抛出奇怪的绑定异常
             {
-                galgame.Tags.Value ??= new ObservableCollection<string>(); //不应该发生
-                galgame.Tags.Value.Clear();
-                foreach (var tag in tmp.Tags.Value)
-                    galgame.Tags.Value.Add(tag);
+                try
+                {
+                    galgame.Tags.Value ??= new ObservableCollection<string>(); //不应该发生
+                    galgame.Tags.Value.SyncCollection(tmp.Tags.Value);
+                }
+                catch (COMException)
+                {
+                    //可能会在某些界面触发ComException（怀疑是框架bug），但不影响正常赋值，暂时忽略
+                }
             }
             galgame.Characters = tmp.Characters;
             galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageAsync(galgame.ImageUrl) ?? Galgame.DefaultImagePath;

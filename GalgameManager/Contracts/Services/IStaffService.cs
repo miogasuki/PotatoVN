@@ -40,4 +40,6 @@ public interface IStaffService
     public void Save(Staff staff);
     
     public void Delete(Staff staff);
+    
+    public Task ExportAsync(Action<string, int, int>? progress);
 }

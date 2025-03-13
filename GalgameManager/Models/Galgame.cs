@@ -49,6 +49,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private ObservableCollection<GalgameCharacter> _characters = new();
     [JsonIgnore][BsonIgnore][ObservableProperty] private string _savePosition = string.Empty;
     [ObservableProperty] private string? _exePath;
+    [ObservableProperty] private string? _exeArguments;
     [ObservableProperty] private LockableProperty<ObservableCollection<string>> _tags;
     [ObservableProperty] private int _totalPlayTime; //单位：分钟
     [ObservableProperty] private bool _runAsAdmin; //是否以管理员权限运行
@@ -70,9 +71,6 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public string? TextPath { get; set; } //记录的要打开的文本的路径
     public bool PvnUpdate { get; set; } //是否需要更新
     public PvnUploadProperties PvnUploadProperties { get; set; } // 要更新到Pvn的属性
-    [ObservableProperty] private string _startup_parameters = string.Empty;//启动文件
-    [ObservableProperty] private string _startup_parameters_arguments = string.Empty;//启动参数
-
 
     #region OBSOLETE_PROPERTIES //已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据）
 

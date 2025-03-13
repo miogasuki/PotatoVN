@@ -1,10 +1,13 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Services;
 using Microsoft.UI.Xaml.Controls;
+using PotatoVN.Client.Model;
+using PlayType = GalgameManager.Enums.PlayType;
 
 namespace GalgameManager.Models.BgTasks;
 
@@ -62,6 +65,8 @@ public class PvnSyncTask : BgTaskBase
 
     public override bool OnSearch(string key) => true;
 
+    [SuppressMessage("ReSharper", "NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract")]
+    [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract")]
     private async Task PullUpdates(IPvnService pvnService, GalgameCollectionService gameService,
         ILocalSettingsService settingsService, long latest)
     {
@@ -74,60 +79,59 @@ public class PvnSyncTask : BgTaskBase
             try
             {
                 GalgameDto dto = changedGalgames[index];
-                Galgame? game = gameService.GetGalgameFromId(dto.id.ToString(), RssType.PotatoVn);
+                Galgame? game = gameService.GetGalgameFromId(dto.Id.ToString(), RssType.PotatoVn);
                 await UiThreadInvokeHelper.InvokeAsync(async Task () =>
                 {
                     game ??= gameService.GetGalgameFromUid(new GalgameUid
                     {
-                        BangumiId = dto.bgmId,
-                        VndbId = dto.vndbId,
-                        Name = dto.name ?? string.Empty,
-                        CnName = dto.cnName,
+                        BangumiId = dto.BgmId,
+                        VndbId = dto.VndbId,
+                        Name = dto.Name ?? string.Empty,
+                        CnName = dto.CnName,
                     });
                     
                     if (game is null) //同步进来的游戏
                     {
                         game = new Galgame();
                         gameService.AddVirtualGalgame(game);
-                        Result += "PvnSyncTask_Pull_Added".GetLocalized(dto.name ?? string.Empty, dto.id) + "\n";
+                        Result += "PvnSyncTask_Pull_Added".GetLocalized(dto.Name ?? string.Empty, dto.Id) + "\n";
                     }
                     else
-                        Result += "PvnSyncTask_Pull_Updated".GetLocalized(dto.name ?? string.Empty, dto.id) + "\n";
+                        Result += "PvnSyncTask_Pull_Updated".GetLocalized(dto.Name ?? string.Empty, dto.Id) + "\n";
 
                     ChangeProgress(index, changedGalgames.Count,
-                        "PvnSyncTask_Downloading".GetLocalized(dto.name ?? string.Empty, dto.id));
+                        "PvnSyncTask_Downloading".GetLocalized(dto.Name ?? string.Empty, dto.Id));
 
-                    game.Ids[(int)RssType.PotatoVn] = dto.id.ToString();
-                    game.Ids[(int)RssType.Bangumi] = dto.bgmId ?? game.Ids[(int)RssType.Bangumi];
-                    game.Ids[(int)RssType.Vndb] = dto.vndbId ?? game.Ids[(int)RssType.Vndb];
+                    game.Ids[(int)RssType.PotatoVn] = dto.Id.ToString();
+                    game.Ids[(int)RssType.Bangumi] = dto.BgmId ?? game.Ids[(int)RssType.Bangumi];
+                    game.Ids[(int)RssType.Vndb] = dto.VndbId ?? game.Ids[(int)RssType.Vndb];
                     game.UpdateMixedId();
-                    game.Name = dto.name ?? game.Name.Value ?? string.Empty;
-                    game.CnName = dto.cnName ?? game.CnName;
-                    game.Description = dto.description ?? game.Description.Value ?? string.Empty;
-                    game.Developer = dto.developer ?? game.Developer.Value ?? string.Empty;
-                    game.ExpectedPlayTime = dto.expectedPlayTime ?? game.ExpectedPlayTime.Value ?? string.Empty;
-                    game.Rating = dto.rating;
-                    if (dto.releasedDateTimeStamp is not null)
-                        game.ReleaseDate = (dto.releasedDateTimeStamp ?? 0).ToDateTime().ToLocalTime();
-                    if (dto.imageUrl is not null)
-                        game.ImagePath = await DownloadHelper.DownloadAndSaveImageAsync(dto.imageUrl, 0,
-                            $"pvn_{dto.id}") ?? game.ImagePath.Value ?? Galgame.DefaultImagePath;
-                    if (dto.tags is not null)
+                    game.Name = dto.Name ?? game.Name.Value ?? string.Empty;
+                    game.CnName = dto.CnName ?? game.CnName;
+                    game.Description = dto.Description ?? game.Description.Value ?? string.Empty;
+                    game.Developer = dto.Developer ?? game.Developer.Value ?? string.Empty;
+                    game.ExpectedPlayTime = dto.ExpectedPlayTime ?? game.ExpectedPlayTime.Value ?? string.Empty;
+                    game.Rating = dto.Rating;
+                    game.ReleaseDate = dto.ReleasedDateTimeStamp.ToDateTime().ToLocalTime();
+                    if (dto.ImageUrl is not null)
+                        game.ImagePath = await DownloadHelper.DownloadAndSaveImageAsync(dto.ImageUrl, 0,
+                            $"pvn_{dto.Id}") ?? game.ImagePath.Value ?? Galgame.DefaultImagePath;
+                    if (dto.Tags is not null)
                     {
                         game.Tags.Value?.Clear();
-                        dto.tags.ForEach(tag => game.Tags.Value?.Add(tag));
+                        dto.Tags.ForEach(tag => game.Tags.Value?.Add(tag));
                     }
-                    if (dto.playTime is not null)
+                    if (dto.PlayTime is not null)
                     {
                         Dictionary<string, int> playTime = new();
-                        foreach (PlayLogDto time in dto.playTime)
-                            playTime[time.dateTimeStamp.ToDateTime().ToLocalTime().ToStringDefault()] = time.minute;
+                        foreach (PlayLogDto time in dto.PlayTime)
+                            playTime[time.DateTimeStamp.ToDateTime().ToLocalTime().ToStringDefault()] = time.Minute;
                         game.MergeTime(new Galgame { PlayedTime = playTime });
                     }
-                    game.PlayType = dto.playType;
-                    game.Comment = dto.comment ?? game.Comment;
-                    game.MyRate = dto.myRate;
-                    game.PrivateComment = dto.privateComment;
+                    game.PlayType = (PlayType)(int)(dto.PlayType ?? 0);
+                    game.Comment = dto.Comment ?? game.Comment;
+                    game.MyRate = dto.MyRate;
+                    game.PrivateComment = dto.PrivateComment;
                     game.PvnUpdate = false;
 
                     await gameService.SaveGalgameAsync(game);
@@ -169,13 +173,19 @@ public class PvnSyncTask : BgTaskBase
                 ChangeProgress(index, toDeleteCopy.Count, "PvnSyncTask_Deleting".GetLocalized(id));
                 await pvnService.DeleteInternal(id);
                 toDelete.Remove(id);
-                await settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, toDelete);
                 Result += "PvnSyncTask_Commit_Delete".GetLocalized(id) + "\n";
             }
             catch (Exception e)
             {
-                infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning,
-                    "PvnSyncTask_Error_Delete".GetLocalized(id), e);
+                if (e is InvalidOperationException) toDelete.Remove(id); //游戏不属于该用户或游戏不存在
+                // 否则为网络异常等因素，不应该移出删除列表，等待下次同步重试
+                else
+                    infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning,
+                        "PvnSyncTask_Error_Delete".GetLocalized(id), e);
+            }
+            finally
+            {
+                await settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, toDelete);
             }
         }
 

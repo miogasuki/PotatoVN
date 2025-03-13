@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Enums;
 using LiteDB;
+using Newtonsoft.Json;
 
 namespace GalgameManager.Models;
 
@@ -66,18 +67,19 @@ public partial class Staff : ObservableObject
 
 public class StaffGame
 {
-    [BsonIgnore] public Galgame Game { get; set; } = null!;
+    [BsonIgnore][JsonIgnore] public Galgame Game { get; set; } = null!;
     public List<Career> Relation { get; set; } = [];
 
     #region LiteDB
 
     public Guid GameId
     {
-        get => Game.Uuid;
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        get => Game?.Uuid ?? LoadedGameId; //导出到Json时是直接读数据库的，不会去加载Game，直接输出LoadedGameId
         set => LoadedGameId = value;
     }
 
-    [BsonIgnore] public Guid LoadedGameId { get; private set; } = Guid.Empty;
+    [BsonIgnore][JsonIgnore] public Guid LoadedGameId { get; private set; } = Guid.Empty;
 
     #endregion
 }

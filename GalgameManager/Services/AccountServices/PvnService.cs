@@ -9,7 +9,10 @@ using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.UI.Xaml.Controls;
-using Newtonsoft.Json.Linq;
+using PotatoVN.Client.Api;
+using PotatoVN.Client.Client;
+using PotatoVN.Client.Model;
+using PlayType = PotatoVN.Client.Model.PlayType;
 
 namespace GalgameManager.Services;
 
@@ -87,14 +90,13 @@ public class PvnService : IPvnService
     {
         if (_serverInfo is null)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(new Uri(BaseUri, "server/info"));
-            response.EnsureSuccessStatusCode();
-            JToken jsonToken = JToken.Parse(await response.Content.ReadAsStringAsync());
+            ServerApi api = new(_httpClient, await GetConfigAsync());
+            ServerInfoDto result = await api.ServerInfoGetAsync();
             _serverInfo = new PvnServerInfo
             {
-                BangumiOauth2Enable = jsonToken["bangumiOAuth2Enable"]!.Value<bool>(),
-                DefaultLoginEnable = jsonToken["defaultLoginEnable"]!.Value<bool>(),
-                BangumiLoginEnable = jsonToken["bangumiLoginEnable"]!.Value<bool>()
+                BangumiOauth2Enable = result.BangumiOAuth2Enable,
+                DefaultLoginEnable = result.DefaultLoginEnable,
+                BangumiLoginEnable = result.BangumiLoginEnable,
             };
         }
         
@@ -103,36 +105,40 @@ public class PvnService : IPvnService
 
     public async Task<PvnAccount?> LoginAsync(string username, string password)
     {
-        Dictionary<string, string> payload = new()
+        UserApi api = new(_httpClient, await GetConfigAsync());
+        try
         {
-            { "userName", username },
-            { "passWord", password }
-        };
-        HttpResponseMessage response = await _httpClient.PostAsync(new Uri(BaseUri, "user/session"), 
-            payload.ToJsonContent());
-        if(response.StatusCode == HttpStatusCode.BadRequest)
-            throw new InvalidOperationException("PvnService_PasswordIncorrect".GetLocalized());
-        if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
-            throw new InvalidOperationException("PvnService_ServerUnavailable".GetLocalized());
-        response.EnsureSuccessStatusCode();
-        return await ResolveAccount(response, PvnAccount.LoginMethodEnum.Default);
+            UserWithTokenDto dto = await api.UserSessionPostAsync(new UserLoginDto(username, password));
+            return await ResolveAccount(dto, PvnAccount.LoginMethodEnum.Default);
+        }
+        catch (ApiException e)
+        {
+            if (e.ErrorCode == 400) throw new InvalidOperationException("PvnService_PasswordIncorrect".GetLocalized());
+            if (e.ErrorCode == 503) throw new InvalidOperationException("PvnService_ServerUnavailable".GetLocalized());
+            throw;
+        }
     }
     
     public async Task<PvnAccount?> RegisterAsync(string username, string password)
     {
-        Dictionary<string, string> payload = new()
+        UserApi api = new(_httpClient, await GetConfigAsync());
+        try
         {
-            { "userName", username },
-            { "passWord", password }
-        };
-        HttpResponseMessage response = await _httpClient.PostAsync(new Uri(BaseUri, "user"), 
-            payload.ToJsonContent());
-        if(response.StatusCode == HttpStatusCode.BadRequest)
-            throw new InvalidOperationException("PvnService_UserNameAlreadyTaken".GetLocalized());
-        if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
-            throw new InvalidOperationException("PvnService_ServerUnavailable".GetLocalized());
-        response.EnsureSuccessStatusCode();
-        return await ResolveAccount(response, PvnAccount.LoginMethodEnum.Default);
+            UserWithTokenDto result =  await api.UserPostAsync(new UserRegisterDto(username, password));
+            return await ResolveAccount(result, PvnAccount.LoginMethodEnum.Default);
+        }
+        catch (ApiException e)
+        {
+            switch (e.ErrorCode)
+            {
+                case 400:
+                    throw new InvalidOperationException("PvnService_UserNameAlreadyTaken".GetLocalized());
+                case 503:
+                    throw new InvalidOperationException("PvnService_ServerUnavailable".GetLocalized());
+                default:
+                    throw;
+            }
+        }
     }
 
     public async Task<PvnAccount?> LoginViaBangumiAsync()
@@ -156,32 +162,44 @@ public class PvnService : IPvnService
         if (bgmAccount is null)
             throw new AuthenticationException("PvnService_NoBgmAccount".GetLocalized());
 
-        Dictionary<string, string> payload = new()
+        UserApi api = new(_httpClient, await GetConfigAsync());
+        try
         {
-            {"bgmToken", bgmAccount.BangumiAccessToken}
-        };
-        HttpResponseMessage response = await _httpClient.PostAsync(new Uri(BaseUri, "user/session/bgm"), 
-            payload.ToJsonContent());
-        if(response.StatusCode == HttpStatusCode.BadRequest)
-            throw new InvalidOperationException("Bangumi token invalid."); //不应该发生
-        if (response.StatusCode == HttpStatusCode.BadGateway)
-            throw new InvalidOperationException("PvnService_ServerCannotConnectBgm".GetLocalized());
-        if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
-            throw new InvalidOperationException("PvnService_ServerUnavailable".GetLocalized());
-        response.EnsureSuccessStatusCode();
-        return await ResolveAccount(response, PvnAccount.LoginMethodEnum.Bangumi);
+            UserWithTokenDto result = await api.UserSessionBgmPostAsync(new UserLoginViaBgmDto(bgmAccount.BangumiAccessToken));
+            return await ResolveAccount(result, PvnAccount.LoginMethodEnum.Bangumi);
+        }
+        catch (ApiException e)
+        {
+            switch (e.ErrorCode)
+            {
+                case 400:
+                    throw new InvalidOperationException("Bangumi token invalid."); //不应该发生
+                case 502:
+                    throw new InvalidOperationException("PvnService_ServerCannotConnectBgm".GetLocalized());
+                case 503:
+                    throw new InvalidOperationException("PvnService_ServerUnavailable".GetLocalized());
+                default:
+                    throw;
+            }
+        }
     }
 
     public async Task<PvnAccount?> RefreshTokenAsync()
     {
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         if (account is null) throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        HttpClient client = Utils.GetDefaultHttpClient().AddToken(account.Token);
-        HttpResponseMessage response = await client.GetAsync(new Uri(BaseUri, "user/session/refresh"));
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
-            throw new AuthenticationException("该账户已过期，请重新登录。");
-        response.EnsureSuccessStatusCode();
-        return await ResolveAccount(response, account.LoginMethod);
+        UserApi api = new(_httpClient, await GetConfigAsync());
+        try
+        {
+            UserWithTokenDto result = await api.UserSessionRefreshGetAsync();
+            return await ResolveAccount(result, account.LoginMethod);
+        }
+        catch (ApiException e)
+        {
+            if (e.ErrorCode == (int)HttpStatusCode.Unauthorized)
+                throw new AuthenticationException("PvnService_AccountTokenExpire".GetLocalized());
+            throw;
+        }
     }
 
     public async Task<PvnAccount?> ModifyAccountAsync(string? userDisplayName, string? avatarPath, string? newPassword,
@@ -190,14 +208,13 @@ public class PvnService : IPvnService
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         if (account is null)
             throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        HttpClient client = Utils.GetDefaultHttpClient().AddToken(account.Token);
         var ossFilePath = string.Empty;
         if (avatarPath is not null)
         {
             try
             {
                 StatusChanged?.Invoke(PvnServiceStatus.UploadingAvatar);
-                (string presignedUrl, string ossFilePath) result = await GetPresignedUrl(avatarPath, "Avatar", client);
+                (string presignedUrl, string ossFilePath) result = await GetPresignedUrl(avatarPath, "Avatar");
                 ossFilePath = result.ossFilePath;
                 await UploadFileAsync(result.presignedUrl, avatarPath);
             }
@@ -209,29 +226,34 @@ public class PvnService : IPvnService
             }
             finally
             {
-                await AfterUploadFileAsync(ossFilePath, client);
+                await AfterUploadFileAsync(ossFilePath);
             }
         }
 
-        Dictionary<string, string> payload = new();
-        if(string.IsNullOrEmpty(userDisplayName) == false)
-            payload["userDisplayName"] = userDisplayName;
-        if(string.IsNullOrEmpty(newPassword) == false)
+        try
         {
-            payload["newPassWord"] = newPassword;
-            payload["oldPassWord"] = oldPassword ?? throw new ArgumentNullException(nameof(oldPassword));
+            UserApi api = new(_httpClient, await GetConfigAsync());
+            UserModifyDto payload = new();
+            if(string.IsNullOrEmpty(userDisplayName) == false)
+                payload.UserDisplayName = userDisplayName;
+            if(string.IsNullOrEmpty(newPassword) == false)
+            {
+                payload.NewPassword = newPassword;
+                payload.OldPassword = oldPassword ?? throw new ArgumentNullException(nameof(oldPassword));
+            }
+            if(string.IsNullOrEmpty(avatarPath) == false)
+                payload.AvatarLoc = ossFilePath;
+            StatusChanged?.Invoke(PvnServiceStatus.UploadingUserInfo);
+            UserDto result = await api.UserMePatchAsync(payload);
+            account.UserDisplayName = result.UserDisplayName;
+            account.Avatar = avatarPath;
+            await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
+            return account;
         }
-        if(string.IsNullOrEmpty(avatarPath) == false)
-            payload["avatarLoc"] = ossFilePath;
-        StatusChanged?.Invoke(PvnServiceStatus.UploadingUserInfo);
-        HttpResponseMessage response = await client.PatchAsync(new Uri(BaseUri, "user/me"), payload.ToJsonContent());
-        if(response.IsSuccessStatusCode == false)
-            throw new Exception(await response.Content.ReadAsStringAsync());
-        JToken jsonToken = JToken.Parse(await response.Content.ReadAsStringAsync());
-        account.UserDisplayName = jsonToken["userDisplayName"]!.Value<string>()!;
-        account.Avatar = avatarPath;
-        await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
-        return account;
+        catch (ApiException e)
+        {
+            throw new Exception(e.ErrorContent.ToString());
+        }
     }
     
     public async Task<long> GetLastGalChangedTimeStampAsync()
@@ -239,21 +261,25 @@ public class PvnService : IPvnService
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         if (account is null)
             throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        HttpClient client = Utils.GetDefaultHttpClient().AddToken(account.Token);
-        HttpResponseMessage response =
-            await client.GetAsync(new Uri(BaseUri, "user/me").AddQuery("withAvatar", "false"));
-        if(response.StatusCode == HttpStatusCode.Unauthorized)
-            throw new AuthenticationException("PotatoVN account token invalid.");
-        response.EnsureSuccessStatusCode();
-        JToken jsonToken = JToken.Parse(await response.Content.ReadAsStringAsync());
-        //顺便更新用户信息
-        account.UserName = jsonToken["userName"]!.Value<string>()!;
-        account.UserDisplayName = jsonToken["userDisplayName"]!.Value<string>()!;
-        account.TotalSpace = jsonToken["totalSpace"]!.Value<long>();
-        account.UsedSpace = jsonToken["usedSpace"]!.Value<long>();
-        await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
-        
-        return jsonToken["lastGalChangedTimeStamp"]!.Value<long>();
+        try
+        {
+            UserApi api = new (_httpClient, await GetConfigAsync());
+            UserDto result = await api.UserMeGetAsync(false);
+            //顺便更新用户信息
+            account.UserName = result.UserName;
+            account.UserDisplayName = result.UserDisplayName;
+            account.TotalSpace = result.TotalSpace;
+            account.UsedSpace = result.UsedSpace;
+            await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
+
+            return result.LastGalChangedTimeStamp;
+        }
+        catch (ApiException e)
+        {
+            if (e.ErrorCode == (int)HttpStatusCode.Unauthorized)
+                throw new AuthenticationException("PvnService_AccountTokenExpire".GetLocalized());
+            throw;
+        }
     }
 
     public async Task<List<GalgameDto>> GetChangedGalgamesAsync()
@@ -261,20 +287,15 @@ public class PvnService : IPvnService
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         if (account is null)
             throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        HttpClient client = Utils.GetDefaultHttpClient().AddToken(account.Token);
+        GalgameApi api = new (_httpClient, await GetConfigAsync());
         List<GalgameDto> result = new();
         int pageCnt, pageIndex = 0;
         var timestamp = await _settingsService.ReadSettingAsync<long>(KeyValues.PvnSyncTimestamp);
         do
         {
-            HttpResponseMessage response = await client.GetAsync(new Uri(BaseUri, "galgame")
-                .AddQuery("timestamp", timestamp.ToString())
-                .AddQuery("pageIndex", pageIndex.ToString()).AddQuery("pageSize", "25"));
-            response.EnsureSuccessStatusCode();
-            JToken jsonToken = JToken.Parse(await response.Content.ReadAsStringAsync());
-            pageCnt = jsonToken["pageCnt"]!.Value<int>();
-            List<GalgameDto> tmp = jsonToken["items"]!.ToObject<List<GalgameDto>>()!;
-            result.AddRange(tmp);
+            GalgameDtoPagedResult tmp = await api.GalgameGetAsync(timestamp, pageIndex, 25);
+            pageCnt = tmp.PageCnt;
+            result.AddRange(tmp.Items);
         } while (++pageIndex < pageCnt);
         return result;
     }
@@ -284,20 +305,15 @@ public class PvnService : IPvnService
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         if (account is null)
             throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        HttpClient client = Utils.GetDefaultHttpClient().AddToken(account.Token);
+        GalgameApi api = new (_httpClient, await GetConfigAsync());
         List<int> result = new();
         int pageCnt, pageIndex = 0;
         var timestamp = await _settingsService.ReadSettingAsync<long>(KeyValues.PvnSyncTimestamp);
         do
         {
-            HttpResponseMessage response = await client.GetAsync(new Uri(BaseUri, "galgame/deleted")
-                .AddQuery("timestamp", timestamp.ToString())
-                .AddQuery("pageIndex", pageIndex.ToString()).AddQuery("pageSize", "25"));
-            response.EnsureSuccessStatusCode();
-            JToken jsonToken = JToken.Parse(await response.Content.ReadAsStringAsync());
-            pageCnt = jsonToken["pageCnt"]!.Value<int>();
-            List<GalgameDeleteDto> tmp = jsonToken["items"]!.ToObject<List<GalgameDeleteDto>>()!;
-            result.AddRange(tmp.Select(dto => dto.galgameId));
+            GalgameDeletedDtoPagedResult tmp = await api.GalgameDeletedGetAsync(timestamp, pageIndex, 25);
+            pageCnt = tmp.PageCnt;
+            result.AddRange(tmp.Items.Select(dto => dto.GalgameId));
         } while (++pageIndex < pageCnt);
         return result;
     }
@@ -325,24 +341,24 @@ public class PvnService : IPvnService
         if (galgame.PvnUpdate == false) throw new Exception("Galgame not marked as updated."); //不应该发生
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         if (account is null) throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        HttpClient client = Utils.GetDefaultHttpClient().AddToken(account.Token);
-        Dictionary<string, object?> payload = new();
-        
-        if (galgame.Ids[(int)RssType.PotatoVn].IsNullOrEmpty() == false)
-            payload["id"] = galgame.Ids[(int)RssType.PotatoVn]!;
+        GalgameUpdateDto payload = new();
+
+        if (galgame.Ids[(int)RssType.PotatoVn].IsNullOrEmpty() == false &&
+            int.TryParse(galgame.Ids[(int)RssType.PotatoVn], out var id)) 
+            payload.Id = id;
 
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Infos))
         {
-            payload["bgmId"] = galgame.Ids[(int)RssType.Bangumi];
-            payload["vndbId"] = galgame.Ids[(int)RssType.Vndb];
-            payload["name"] = galgame.Name.Value;
-            payload["cnName"] = galgame.CnName;
-            payload["description"] = galgame.Description.Value;
-            payload["developer"] = galgame.Developer.Value;
-            payload["expectedPlayTime"] = galgame.ExpectedPlayTime.Value;
-            payload["rating"] = galgame.Rating.Value;
-            payload["releaseDateTimeStamp"] = galgame.ReleaseDate.Value.Date.ToUnixTime();
-            payload["tags"] = galgame.Tags.Value;
+            payload.BgmId = galgame.Ids[(int)RssType.Bangumi]!;
+            payload.VndbId = galgame.Ids[(int)RssType.Vndb]!;
+            payload.Name = galgame.Name.Value!;
+            payload.CnName = galgame.CnName;
+            payload.Description = galgame.Description.Value!;
+            payload.Developer = galgame.Developer.Value!;
+            payload.ExpectedPlayTime = galgame.ExpectedPlayTime.Value!;
+            payload.Rating = galgame.Rating.Value;
+            payload.ReleaseDateTimeStamp = galgame.ReleaseDate.Value.Date.ToUnixTime();
+            payload.Tags = (galgame.Tags.Value ?? []).ToList();
         }
         
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.ImageLoc) &&
@@ -351,10 +367,10 @@ public class PvnService : IPvnService
             string? ossPath = null;
             try
             {
-                (string url, string path) tmp = await GetPresignedUrl(galgame.ImagePath!, galgame.Name!, client);
+                (string url, string path) tmp = await GetPresignedUrl(galgame.ImagePath!, galgame.Name!);
                 ossPath = tmp.path;
                 await UploadFileAsync(tmp.url, galgame.ImagePath!);
-                payload["imageLoc"] = tmp.path;
+                payload.ImageLoc = tmp.path;
             }
             catch (Exception e)
             {
@@ -363,48 +379,65 @@ public class PvnService : IPvnService
             }
             finally
             {
-                await AfterUploadFileAsync(ossPath, client);
+                await AfterUploadFileAsync(ossPath);
             }
         }
 
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Review))
         {
-            payload["playType"] = galgame.PlayType;
-            payload["comment"] = galgame.Comment;
-            payload["myRate"] = galgame.MyRate;
-            payload["privateComment"] = galgame.PrivateComment;
+            payload.PlayType = (PlayType)(int)galgame.PlayType;
+            payload.Comment = galgame.Comment;
+            payload.MyRate = galgame.MyRate;
+            payload.PrivateComment = galgame.PrivateComment;
         }
         
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.PlayTime))
         {
-            payload["totalPlayTime"] = galgame.TotalPlayTime;
+            payload.TotalPlayTime = galgame.TotalPlayTime;
             List<PlayLogDto> logs = new();
             foreach (KeyValuePair<string, int> pair in galgame.PlayedTime)
                 if(DateTimeExtensions.ToDateTime(pair.Key) != DateTime.MinValue)
                     logs.Add(new PlayLogDto
                     {
-                        dateTimeStamp = DateTimeExtensions.ToDateTime(pair.Key).Date.ToUnixTime(),
-                        minute = pair.Value
+                        DateTimeStamp = DateTimeExtensions.ToDateTime(pair.Key).Date.ToUnixTime(),
+                        Minute = pair.Value
                     });
-            payload["playTime"] = logs;
+            payload.PlayTime = logs;
         }
 
-        HttpResponseMessage result =
-            await client.PatchAsync(new Uri(BaseUri, "galgame"), payload.ToJsonContent());
-        if (result.IsSuccessStatusCode == false)
-            throw new HttpRequestException(await result.Content.ReadAsStringAsync());
-
-        galgame.PvnUpdate = false;
-        galgame.PvnUploadProperties = PvnUploadProperties.None;
-        return JToken.Parse(await result.Content.ReadAsStringAsync())["id"]!.Value<int>();
+        GalgameApi api = new(_httpClient, await GetConfigAsync());
+        try
+        {
+            GalgameDto result = await api.GalgamePatchAsync(payload);
+            galgame.PvnUpdate = false;
+            galgame.PvnUploadProperties = PvnUploadProperties.None;
+            return result.Id;
+        }
+        catch (ApiException e)
+        {
+            throw new HttpRequestException(e.ErrorContent.ToString());
+        }
     }
 
     public async Task DeleteInternal(int pvnId)
     {
         PvnAccount? account = _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount).Result;
         if (account is null) throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        HttpClient client = Utils.GetDefaultHttpClient().AddToken(account.Token);
-        await client.DeleteAsync(new Uri(BaseUri, $"galgame/{pvnId}"));
+        try
+        {
+            GalgameApi api = new(_httpClient, await GetConfigAsync());
+            await api.GalgameGalgameIdDeleteAsync(pvnId);
+        }
+        catch (ApiException e)
+        {
+            switch (e.ErrorCode)
+            {
+                case 400:
+                case 404:
+                    throw new InvalidOperationException();
+            }
+            throw;
+        }
     }
 
     public async Task LogOutAsync()
@@ -426,26 +459,25 @@ public class PvnService : IPvnService
             ? _config["Urls:PotatoVNOfficialServer"]!
             : _settingsService.ReadSettingAsync<string>(KeyValues.PvnServerEndpoint).Result)!);
     }
-    
-    private async Task<PvnAccount?> ResolveAccount(HttpResponseMessage response, PvnAccount.LoginMethodEnum loginType)
+
+    private async Task<PvnAccount?> ResolveAccount(UserWithTokenDto dto, PvnAccount.LoginMethodEnum loginType)
     {
-        JToken jsonToken = JToken.Parse(await response.Content.ReadAsStringAsync());
         PvnAccount account = new()
         {
-            Token = jsonToken["token"]!.Value<string>()!,
-            Id = jsonToken["user"]!["id"]!.Value<int>(),
-            UserName = jsonToken["user"]!["userName"]!.Value<string>()!,
-            UserDisplayName = jsonToken["user"]!["userDisplayName"]!.Value<string>()!,
-            ExpireTimestamp = jsonToken["expire"]!.Value<long>(),
+            Token = dto.Token,
+            Id = dto.User.Id,
+            UserName = dto.User.UserName,
+            UserDisplayName = dto.User.UserDisplayName,
+            ExpireTimestamp = dto.Expire,
             LoginMethod = loginType,
-            TotalSpace = jsonToken["user"]!["totalSpace"]!.Value<long>(),
-            UsedSpace = jsonToken["user"]!["usedSpace"]!.Value<long>(),
+            TotalSpace = dto.User.TotalSpace,
+            UsedSpace = dto.User.UsedSpace,
         };
-        if (jsonToken["user"]!["avatar"]?.Value<string>() is not null)
+        if (dto.User.Avatar is { } str)
         {
             StatusChanged?.Invoke(PvnServiceStatus.DownloadingAvatar);
             Exception? failedException = null;
-            account.Avatar = await DownloadHelper.DownloadAndSaveImageAsync(jsonToken["user"]!["avatar"]!.Value<string>(),
+            account.Avatar = await DownloadHelper.DownloadAndSaveImageAsync(str,
                 0, "PvnAvatar", onException: e => failedException = e);
             if (account.Avatar is null)
             {
@@ -453,11 +485,10 @@ public class PvnService : IPvnService
                     "PvnService_DownloadAvatarFailed".GetLocalized(), failedException);
             }
         }
-        
         await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
         return account;
     }
-
+    
     private async Task UploadFileAsync(string presignedUrl, string filePath)
     {
         await using FileStream fileStream = File.OpenRead(filePath);
@@ -469,35 +500,34 @@ public class PvnService : IPvnService
             throw new Exception(await response.Content.ReadAsStringAsync());
     }
 
-    private async Task<(string presignedUrl, string ossFilePath)> GetPresignedUrl(string filePath, string saveName,
-        HttpClient client)
+    private async Task<(string presignedUrl, string ossFilePath)> GetPresignedUrl(string filePath, string saveName)
     {
         if (!Path.Exists(filePath)) throw new FileNotFoundException("File not found.", filePath);
         var size = new FileInfo(filePath).Length;
-        HttpResponseMessage tmp = await client.GetAsync(
-            new Uri(BaseUri, "oss/put")
-                .AddQuery("objectFullName", $"{saveName}{Path.GetExtension(filePath)}")
-                .AddQuery("requireSpace", size.ToString()));
-        if (tmp.IsSuccessStatusCode == false)
-            throw new Exception($"Get Oss presigned url failed with code {tmp.StatusCode}.");
-        var presignedUrl = await tmp.Content.ReadAsStringAsync();
-        return (presignedUrl, $"{saveName}{Path.GetExtension(filePath)}");
+        OssApi api = new(_httpClient, await GetConfigAsync());
+        try
+        {
+            var presignedUrl = await api.OssPutGetAsync($"{saveName}{Path.GetExtension(filePath)}", size);
+            presignedUrl = presignedUrl.Trim('\"').TrimEnd('\"');
+            return (presignedUrl, $"{saveName}{Path.GetExtension(filePath)}");
+        }
+        catch (ApiException e)
+        {
+            throw new Exception($"Get Oss presigned url failed with code {e.ErrorCode}.");
+        }
     }
     
-    private async Task AfterUploadFileAsync(string? ossFilePath, HttpClient client)
+    private async Task AfterUploadFileAsync(string? ossFilePath)
     {
         if (ossFilePath.IsNullOrEmpty()) return;
         try
         {
-            HttpResponseMessage response =
-                await client.PutAsync(new Uri(BaseUri, "oss/update").AddQuery("objectFullName", ossFilePath!), null);
-            if (response.IsSuccessStatusCode == false) return;
-            // 更新用户空间
-            JToken token = JToken.Parse(await response.Content.ReadAsStringAsync());
+            OssApi api = new(_httpClient, await GetConfigAsync());
+            UserDto result = await api.OssUpdatePutAsync(ossFilePath!);
             PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
-            if (account is null || token["usedSpace"] is null || token["totalSpace"] is null) return;
-            account.UsedSpace = token["usedSpace"]!.Value<long>();
-            account.TotalSpace = token["totalSpace"]!.Value<long>();
+            if (account is null) return;
+            account.UsedSpace = result.UsedSpace;
+            account.TotalSpace = result.TotalSpace;
             await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
         }
         catch (Exception e)
@@ -515,6 +545,18 @@ public class PvnService : IPvnService
         if (SyncTask is not null && SyncTask.IsRunning) return;
         SyncTask = new PvnSyncTask();
         _bgTaskService.AddBgTask(SyncTask);
+    }
+
+    private async Task<Configuration> GetConfigAsync()
+    {
+        PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
+        Configuration result = new()
+        {
+            BasePath = BaseUri.ToString().TrimEnd('/'),
+        };
+        if (account is not null)
+            result.ApiKey["Authorization"] = $"Bearer {account.Token}";
+        return result;
     }
 }
 

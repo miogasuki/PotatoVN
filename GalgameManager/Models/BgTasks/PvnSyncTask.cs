@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using AutoMapper;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
@@ -13,6 +14,8 @@ namespace GalgameManager.Models.BgTasks;
 
 public class PvnSyncTask : BgTaskBase
 {
+    private readonly ILocalSettingsService _settingsService = App.GetService<ILocalSettingsService>();
+    
     public string Result { get; set; } = string.Empty;
     
     protected override Task RecoverFromJsonInternal() => Task.CompletedTask;
@@ -70,6 +73,7 @@ public class PvnSyncTask : BgTaskBase
     private async Task PullUpdates(IPvnService pvnService, GalgameCollectionService gameService,
         ILocalSettingsService settingsService, long latest)
     {
+        IMapper mapper = App.GetService<IMapper>();
         ChangeProgress(0, 1, "PvnSyncTask_GettingModifiedList".GetLocalized());
         List<GalgameDto> changedGalgames = await pvnService.GetChangedGalgamesAsync();
         List<int> deletedGalgames = await pvnService.GetDeletedGalgamesAsync();
@@ -120,6 +124,25 @@ public class PvnSyncTask : BgTaskBase
                     {
                         game.Tags.Value?.Clear();
                         dto.Tags.ForEach(tag => game.Tags.Value?.Add(tag));
+                    }
+                    if (dto.Characters is not null && dto.CharacterLastChangedTimeStamp > game.PvnLastCharacterFetchTime
+                        && await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGameCharacters))
+                    {
+                        UiThreadInvokeHelper.IgnoreComException(game.Characters.Clear);
+                        List<Task<string?>> fetchImageTask = [], fetchPreviewImageTask = [];
+                        foreach (CharacterDto c in dto.Characters)
+                        {
+                            fetchImageTask.Add(DownloadHelper.DownloadAndSaveImageWithDiffThread(c.ImageUrl));
+                            fetchPreviewImageTask.Add(DownloadHelper.DownloadAndSaveImageWithDiffThread(c.PreviewImageUrl));
+                        }
+                        for (var i = 0; i < dto.Characters.Count; i++)
+                        {
+                            GalgameCharacter newC = mapper.Map<GalgameCharacter>(dto.Characters[i]);
+                            newC.ImagePath = await fetchImageTask[i] ?? Galgame.DefaultImagePath;
+                            newC.PreviewImagePath = await fetchPreviewImageTask[i] ?? Galgame.DefaultImagePath;
+                            UiThreadInvokeHelper.IgnoreComException(game.Characters.Add, newC);
+                        }
+                        game.PvnLastCharacterFetchTime = DateTime.Now.ToUnixTime();
                     }
                     if (dto.PlayTime is not null)
                     {

@@ -43,8 +43,9 @@ public interface IPvnService
     /// 不要直接调用，上传游戏数据请使用<see cref="Upload"/>
     /// </summary>
     /// <param name="galgame"></param>
+    /// <param name="isRetry">是否为重试调用，保持默认的false即可</param>
     /// <returns>potatoVN id</returns>
-    public Task<int> UploadInternal(Galgame galgame);
+    public Task<int> UploadInternal(Galgame galgame, bool isRetry = false);
     
     /// <summary>
     /// 不要调用它，这个函数只有PvnSyncTask才能调用

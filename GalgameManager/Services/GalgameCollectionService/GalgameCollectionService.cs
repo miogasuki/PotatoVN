@@ -54,8 +54,6 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         _bgTaskService = bgTaskService;
         _galSrcService = galgameSourceService;
         PhrasedEvent2 += OnGameParsed;
-        GalgameAddedEvent += OnGameParsed;
-        
         
         BgmPhraser bgmPhraser = new(GetBgmData().Result);
         VndbPhraser vndbPhraser = new(GetVndbData().Result);

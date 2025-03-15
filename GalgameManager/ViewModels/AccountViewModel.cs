@@ -42,6 +42,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         _pvnServerType = await _localSettingsService.ReadSettingAsync<PvnServerType>(KeyValues.PvnServerType);
 #pragma warning restore MVVMTK0034
         PvnSyncGames = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncGames);
+        PvnSyncCharacters = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncGameCharacters);
         await UpdateAccountDisplay();
     }
 
@@ -101,6 +102,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
     public ICommand PvnLoginButtonCommand => PvnAccount is null ? new RelayCommand(PvnLogin) : new RelayCommand(PvnLogout);
     public bool IsPvnLogin => PvnAccount is not null;
     [ObservableProperty] private bool _pvnSyncGames;
+    [ObservableProperty] private bool _pvnSyncCharacters;
     public string UsedSpace => $"{((double)(PvnAccount?.UsedSpace ?? 0) / 1024 / 1024)
         .ToString("F1", CultureInfo.InvariantCulture)} MB";
     public string TotalSpace => $"{((double)(PvnAccount?.TotalSpace ?? 0) / 1024 / 1024)
@@ -215,6 +217,9 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         if (value)
             _pvnService.SyncGames();
     }
+
+    partial void OnPvnSyncCharactersChanged(bool value) =>
+        _localSettingsService.SaveSettingAsync(KeyValues.SyncGameCharacters, value);
 
     [RelayCommand]
     private async Task PvnRefreshToken()

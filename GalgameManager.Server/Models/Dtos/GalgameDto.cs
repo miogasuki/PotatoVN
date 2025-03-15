@@ -9,6 +9,8 @@ public class GalgameDto(Galgame galgame)
 {
     public int Id { get; set; } = galgame.Id;
 
+    public long CharacterLastChangedTimeStamp { get; set; } = galgame.CharacterLastChangedTimeStamp;
+
     #region GAMEINFO
 
     public string? BgmId { get; set; } = galgame.BgmId;

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using GalgameManager.Contracts.Services;
+using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.API;
 
@@ -13,6 +14,8 @@ public class GetGalgameCharactersFromRssTask : BgTaskBase
     private readonly object _runningTasksLock = new();
     private readonly ConcurrentDictionary<Galgame, string> _runningTasksMsg = new();
     private readonly object _changeMsgLock = new();
+    private static readonly ILocalSettingsService Settings = App.GetService<ILocalSettingsService>();
+    private static readonly IPvnService PvnService = App.GetService<IPvnService>();
     
     /// 添加一个galgame到解析队列中
     public void AddGalgame(Galgame? game)
@@ -100,6 +103,7 @@ public class GetGalgameCharactersFromRssTask : BgTaskBase
                     try
                     {
                         character = await galgameService.PhraseGalCharacterAsync(character, game.RssType);
+                        break;
                     }
                     catch (ThrottledException)
                     {
@@ -125,6 +129,9 @@ public class GetGalgameCharactersFromRssTask : BgTaskBase
             Message = "Galgame_GetCharacterInfo_Saving".GetLocalized(),
         });
         await galgameService.SaveGalgameAsync(game);
+        if (await Settings.ReadSettingAsync<bool>(KeyValues.SyncGames))
+            PvnService.Upload(game, PvnUploadProperties.Character);
+        
         FileHelper.SaveWithoutJson(game.GetLogName(), log, "Logs");
         await Task.Delay(1000); //等待文件保存
         onProgress.Invoke(new Progress

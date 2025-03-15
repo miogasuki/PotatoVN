@@ -73,6 +73,12 @@ public static class DownloadHelper
         }
     }
     
+    public static Task<string?> DownloadAndSaveImageWithDiffThread(string? imageUrl, int retry = 0, 
+        string? fileNameWithoutExtension = null, Action<Exception>? onException = null)
+    {
+        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException));
+    }
+    
     /// <summary>
     /// 试图识别图片格式
     /// </summary>

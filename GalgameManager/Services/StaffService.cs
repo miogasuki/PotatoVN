@@ -28,7 +28,6 @@ public class StaffService : IStaffService
         _infoService = infoService;
         
         galgameService.PhrasedEvent2 += OnGalgamePhrasedEvent;
-        galgameService.GalgameAddedEvent += OnGalgamePhrasedEvent;
         galgameService.GalgameDeletedEvent += OnGalgameDeletedEvent;
     }
     

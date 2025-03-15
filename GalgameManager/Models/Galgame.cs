@@ -71,6 +71,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public string? TextPath { get; set; } //记录的要打开的文本的路径
     public bool PvnUpdate { get; set; } //是否需要更新
     public PvnUploadProperties PvnUploadProperties { get; set; } // 要更新到Pvn的属性
+    [JsonIgnore] public long PvnLastCharacterFetchTime { get; set; } // 上次从Pvn下载角色信息的时间
 
     #region OBSOLETE_PROPERTIES //已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据）
 

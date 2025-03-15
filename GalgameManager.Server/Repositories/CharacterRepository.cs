@@ -22,9 +22,9 @@ public class CharacterRepository(DataContext context, IOssService oss) : ICharac
             if (old is not null)
             {
                 c.Id = old.Id;
-                if (!string.IsNullOrEmpty(old.ImageLoc) && string.IsNullOrEmpty(c.ImageLoc)) 
+                if (!string.IsNullOrEmpty(c.ImageLoc) && c.ImageLoc != old.ImageLoc) 
                     await oss.DeleteObjectAsync(userId, old.ImageLoc);
-                if (!string.IsNullOrEmpty(old.PreviewImageLoc) && string.IsNullOrEmpty(c.PreviewImageLoc))
+                if (!string.IsNullOrEmpty(c.PreviewImageLoc) && c.PreviewImageLoc != old.PreviewImageLoc)
                     await oss.DeleteObjectAsync(userId, old.PreviewImageLoc);
                 context.Entry(old).CurrentValues.SetValues(c);
             }

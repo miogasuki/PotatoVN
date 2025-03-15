@@ -250,7 +250,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.SpecialDisplayVirtualGame:
             case KeyValues.LibraryNavBar:
             case KeyValues.LibraryStatistics:
-                return (T?)(object)true;
+            case KeyValues.SyncGameCharacters:
             case KeyValues.GalgamePageNewLayout:
             case KeyValues.GalgamePageNewLayout_ShowPainter:
             case KeyValues.GalgamePageNewLayout_ShowSeiyu:

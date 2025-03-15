@@ -12,12 +12,14 @@ using Microsoft.UI.Xaml.Controls;
 using PotatoVN.Client.Api;
 using PotatoVN.Client.Client;
 using PotatoVN.Client.Model;
+using IMapper = AutoMapper.IMapper;
 using PlayType = PotatoVN.Client.Model.PlayType;
 
 namespace GalgameManager.Services;
 
 public class PvnService : IPvnService
 {
+    private readonly IMapper _mapper;
     private readonly ILocalSettingsService _settingsService;
     private readonly IBgmOAuthService _bgmService;
     private readonly IConfiguration _config;
@@ -32,8 +34,9 @@ public class PvnService : IPvnService
     private PvnServerInfo? _serverInfo;
 
     public PvnService(ILocalSettingsService settingsService, IConfiguration config, IBgmOAuthService bgmService,
-        IBgTaskService bgTaskService, IGalgameCollectionService gameService, IInfoService infoService)
+        IBgTaskService bgTaskService, IGalgameCollectionService gameService, IInfoService infoService, IMapper mapper)
     {
+        _mapper = mapper;
         _settingsService = settingsService;
         _bgmService = bgmService;
         _config = config;
@@ -211,23 +214,13 @@ public class PvnService : IPvnService
         var ossFilePath = string.Empty;
         if (avatarPath is not null)
         {
-            try
-            {
-                StatusChanged?.Invoke(PvnServiceStatus.UploadingAvatar);
-                (string presignedUrl, string ossFilePath) result = await GetPresignedUrl(avatarPath, "Avatar");
-                ossFilePath = result.ossFilePath;
-                await UploadFileAsync(result.presignedUrl, avatarPath);
-            }
-            catch (Exception e)
+            _infoService.Info(InfoBarSeverity.Informational,"PvnService_UploadingAvatar".GetLocalized());
+            ossFilePath = await UploadFileAsync(avatarPath, "Avatar", e =>
             {
                 _infoService.Event(EventType.PvnAccountEvent, InfoBarSeverity.Warning,
                     "PvnService_UploadAvatarFailed".GetLocalized(), e);
                 avatarPath = null;
-            }
-            finally
-            {
-                await AfterUploadFileAsync(ossFilePath);
-            }
+            }) ?? string.Empty;
         }
 
         try
@@ -336,7 +329,7 @@ public class PvnService : IPvnService
         StartSyncTask();
     }
 
-    public async Task<int> UploadInternal(Galgame galgame)
+    public async Task<int> UploadInternal(Galgame galgame, bool isRetry = false)
     {
         if (galgame.PvnUpdate == false) throw new Exception("Galgame not marked as updated."); //不应该发生
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
@@ -364,23 +357,12 @@ public class PvnService : IPvnService
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.ImageLoc) &&
             string.IsNullOrEmpty(galgame.ImagePath) == false && galgame.ImagePath != Galgame.DefaultImagePath)
         {
-            string? ossPath = null;
-            try
-            {
-                (string url, string path) tmp = await GetPresignedUrl(galgame.ImagePath!, galgame.Name!);
-                ossPath = tmp.path;
-                await UploadFileAsync(tmp.url, galgame.ImagePath!);
-                payload.ImageLoc = tmp.path;
-            }
-            catch (Exception e)
+            var ossPath = await UploadFileAsync(galgame.ImagePath.Value, $"{galgame.Name.Value}/cover", e =>
             {
                 _infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning,
                     "PvnService_UploadImageFailed".GetLocalized(galgame.Name.Value ?? string.Empty), e);
-            }
-            finally
-            {
-                await AfterUploadFileAsync(ossPath);
-            }
+            });
+            if (ossPath is not null) payload.ImageLoc = ossPath;
         }
 
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Review))
@@ -405,6 +387,24 @@ public class PvnService : IPvnService
             payload.PlayTime = logs;
         }
 
+        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Character) 
+            && await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGameCharacters))
+        {
+            payload.Characters = [];
+            List<Task> uploadImgTasks = [];
+            foreach (GalgameCharacter c in galgame.Characters)
+            {
+                CharacterUpdateDto dto = _mapper.Map<CharacterUpdateDto>(c);
+                payload.Characters.Add(dto);
+                uploadImgTasks.Add(Task.Run(() =>
+                {
+                    dto.ImageLoc = UploadFileAsync(c.ImagePath, $"{galgame.Name.Value}/{c.Name}").Result!;
+                    dto.PreviewImageLoc = UploadFileAsync(c.PreviewImagePath, $"{galgame.Name.Value}/{c.Name}_preview").Result!;
+                }));
+            }
+            Task.WaitAll(uploadImgTasks.ToArray());
+        }
+
         GalgameApi api = new(_httpClient, await GetConfigAsync());
         try
         {
@@ -415,7 +415,19 @@ public class PvnService : IPvnService
         }
         catch (ApiException e)
         {
-            throw new HttpRequestException(e.ErrorContent.ToString());
+            if (isRetry) throw new HttpRequestException(e.ErrorContent.ToString());
+            switch (e.ErrorCode)
+            {
+                //以下情况应该清除id后再重试
+                case 404: //Not Found：该id游戏不存在（导入了旧数据 or 来自其他服务器）
+                case 400: //Bad Request：不是该id游戏的拥有者（导入的数据是来自别人的or别的服务器的）
+                    galgame.Ids[(int)RssType.PotatoVn] = null;
+                    _infoService.DeveloperEvent(
+                        msg: $"Game {galgame.Name.Value} is not found on server, remove id and retry.");
+                    return await UploadInternal(galgame, true);
+                default:
+                    throw new HttpRequestException(e.ErrorContent.ToString());
+            }
         }
     }
 
@@ -448,6 +460,7 @@ public class PvnService : IPvnService
         foreach (Galgame gal in _gameService.Galgames)
         {
             gal.Ids[(int)RssType.PotatoVn] = null;
+            gal.PvnLastCharacterFetchTime = 0;
             await _gameService.SaveGalgameAsync(gal);
         }
     }
@@ -488,51 +501,79 @@ public class PvnService : IPvnService
         await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
         return account;
     }
-    
-    private async Task UploadFileAsync(string presignedUrl, string filePath)
-    {
-        await using FileStream fileStream = File.OpenRead(filePath);
-        StreamContent content = new(fileStream);
-        content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            
-        HttpResponseMessage response = await _httpClient.PutAsync(presignedUrl, content);
-        if(response.IsSuccessStatusCode == false)
-            throw new Exception(await response.Content.ReadAsStringAsync());
-    }
 
-    private async Task<(string presignedUrl, string ossFilePath)> GetPresignedUrl(string filePath, string saveName)
+    /// <summary>
+    /// 上传文件到OSS
+    /// </summary>
+    /// <param name="filePath">若为null或文件不存在则什么都不做</param>
+    /// <param name="targetName">OSS上目标文件名，不需要填拓展名，若不填则用原文件名</param>
+    /// <param name="onFailed"></param>
+    /// <returns>文件在OSS中的路径，若失败返回null</returns>
+    private async Task<string?> UploadFileAsync(string? filePath, string? targetName = null,
+        Action<Exception>? onFailed = null)
     {
-        if (!Path.Exists(filePath)) throw new FileNotFoundException("File not found.", filePath);
+        if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return null;
+        PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         var size = new FileInfo(filePath).Length;
-        OssApi api = new(_httpClient, await GetConfigAsync());
+        if (account is null || account.TotalSpace - account.UsedSpace <= size) return null;
+        string presignedUrl = string.Empty, ossFilePath = string.Empty;
         try
         {
-            var presignedUrl = await api.OssPutGetAsync($"{saveName}{Path.GetExtension(filePath)}", size);
-            presignedUrl = presignedUrl.Trim('\"').TrimEnd('\"');
-            return (presignedUrl, $"{saveName}{Path.GetExtension(filePath)}");
-        }
-        catch (ApiException e)
-        {
-            throw new Exception($"Get Oss presigned url failed with code {e.ErrorCode}.");
-        }
-    }
-    
-    private async Task AfterUploadFileAsync(string? ossFilePath)
-    {
-        if (ossFilePath.IsNullOrEmpty()) return;
-        try
-        {
-            OssApi api = new(_httpClient, await GetConfigAsync());
-            UserDto result = await api.OssUpdatePutAsync(ossFilePath!);
-            PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
-            if (account is null) return;
-            account.UsedSpace = result.UsedSpace;
-            account.TotalSpace = result.TotalSpace;
-            await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
+            await GetPresignedUrl(targetName ?? Path.GetFileName(filePath));
+            await UploadFile();
+            return ossFilePath;
         }
         catch (Exception e)
         {
-            _infoService.DeveloperEvent(msg: "Failed to update user space.", e: e);
+            onFailed?.Invoke(e);
+            return null;
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(ossFilePath))
+                await AfterUploadFileAsync();
+        }
+        
+        async Task GetPresignedUrl(string saveName)
+        {
+            OssApi api = new(_httpClient, await GetConfigAsync());
+            try
+            {
+                presignedUrl = await api.OssPutGetAsync($"{saveName}{Path.GetExtension(filePath)}", size);
+                presignedUrl = presignedUrl.Trim('\"').TrimEnd('\"');
+                ossFilePath = $"{saveName}{Path.GetExtension(filePath)}";
+            }
+            catch (ApiException e)
+            {
+                throw new Exception($"Get Oss presigned url failed with code {e.ErrorCode}.");
+            }
+        }
+
+        async Task UploadFile()
+        {
+            await using FileStream fileStream = File.OpenRead(filePath);
+            StreamContent content = new(fileStream);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            HttpResponseMessage response = await _httpClient.PutAsync(presignedUrl, content);
+            if (response.IsSuccessStatusCode == false)
+                throw new Exception(await response.Content.ReadAsStringAsync());
+        }
+
+        async Task AfterUploadFileAsync()
+        {
+            try
+            {
+                OssApi api = new(_httpClient, await GetConfigAsync());
+                UserDto result = await api.OssUpdatePutAsync(ossFilePath);
+                account.UsedSpace = result.UsedSpace;
+                account.TotalSpace = result.TotalSpace;
+                await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
+            }
+            catch (Exception e)
+            {
+                _infoService.DeveloperEvent(msg: "Failed to update user space.", e: e);
+            }
         }
     }
 

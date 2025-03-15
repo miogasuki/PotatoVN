@@ -2478,4 +2478,16 @@
   <data name="PvnService_AccountTokenExpire" xml:space="preserve">
     <value>该账户登录已过期，请重新登录。</value>
   </data>
+  <data name="PvnService_UploadingAvatar" xml:space="preserve">
+    <value>上传头像中，请稍等</value>
+  </data>
+  <data name="AccountPage_Pvn_SyncCharacter.Title" xml:space="preserve">
+    <value>同步游戏角色</value>
+  </data>
+  <data name="AccountPage_Pvn_SyncCharacter.Description" xml:space="preserve">
+    <value>是否在同步时上传/下载游戏的游戏角色</value>
+  </data>
+  <data name="AccountPage_Pvn_SyncOption.Text" xml:space="preserve">
+    <value>同步选项</value>
+  </data>
 </root>

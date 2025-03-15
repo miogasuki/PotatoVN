@@ -163,7 +163,9 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             {
                 // 只处理单个项目
                 IStorageItem storageItem = items[0];
-                if (storageItem is StorageFile file && file.FileType.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                if (storageItem is StorageFile file && 
+                    (file.FileType.Equals(".exe", StringComparison.OrdinalIgnoreCase) ||
+                        file.FileType.Equals(".bat", StringComparison.OrdinalIgnoreCase)))
                 {
                     var folder = file.Path.Substring(0, file.Path.LastIndexOf('\\'));
                     _ = AddGalgameInternal(folder);
@@ -204,7 +206,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     private void UpdateFilterPanelDisplay(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        UiFilter = "HomePage_Filter".GetLocalized() + (ContainNonVirtualGameFilter() ? " ●" : string.Empty);
+        UiFilter = "HomePage_Filter".GetLocalized() + (Filters.Count > 0 ? " ●" : string.Empty);
         Source.RefreshFilter();
     }
     
@@ -253,11 +255,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private void OnFilterFlyoutOpening(object arg)
     {
         UpdateFilterPanelDisplay(null, null!);
-    }
-    
-    private bool ContainNonVirtualGameFilter()
-    {
-        return Filters.Count > 0 && Filters.Any(f => f.GetType() != typeof(VirtualGameFilter));
     }
     
     partial void OnKeepFiltersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.KeepFilters, value);

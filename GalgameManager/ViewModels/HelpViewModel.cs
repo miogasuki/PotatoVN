@@ -42,7 +42,13 @@ public partial class HelpViewModel : ObservableObject, INavigationAware
         else
             _infoService.Info(InfoBarSeverity.Informational); // 关闭InfoBar
     }
+    
+    [RelayCommand]
+    private async Task OpenWeb()
+    {
+        await Launcher.LaunchUriAsync(new Uri("https://potatovn.net/usage/how-to-use/brief.html"));
 
+    }
     [RelayCommand]
     private async Task DownloadFaqs()
     {

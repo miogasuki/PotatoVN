@@ -414,6 +414,9 @@
   <data name="HelpPage_GettingFaq" xml:space="preserve">
     <value>正在从网络上获取最新FAQ中</value>
   </data>
+  <data name="HelpPage_Website.Label" xml:space="preserve">
+    <value>打开官网获取更多帮助</value>
+  </data>
   <data name="HelpPage_NewFeature.Label" xml:space="preserve">
     <value>新功能建议</value>
   </data>

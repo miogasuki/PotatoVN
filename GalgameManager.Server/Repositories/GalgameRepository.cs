@@ -15,6 +15,11 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         return await query.FirstOrDefaultAsync(g => g.Id == id);
     }
 
+    public Task<List<Galgame>> GetGalgamesAsync(List<int> ids)
+    {
+        return context.Galgame.Where(g => ids.Contains(g.Id)).ToListAsync();
+    }
+
     public async Task<PagedResult<Galgame>> GetGalgamesAsync(int userId, long timestamp, int pageIndex, int pageSize)
     {
         if(pageIndex < 0 || pageSize < 0)
@@ -26,6 +31,7 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         List<Galgame> data = await query
             .Include(g => g.PlayTime)
             .Include(g => g.Characters)
+            .Include(g => g.StaffGames)
             .OrderByDescending(g => g.Id)
             .Skip(pageIndex * pageSize)
             .Take(pageSize)

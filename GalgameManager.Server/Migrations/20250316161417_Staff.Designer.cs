@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GalgameManager.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GalgameManager.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250316161417_Staff")]
+    partial class Staff
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,10 +300,6 @@ namespace GalgameManager.Server.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("ExternalImageLink")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
                     b.Property<int>("Gender")
                         .HasColumnType("integer");
 
@@ -318,9 +317,6 @@ namespace GalgameManager.Server.Migrations
                     b.Property<long>("LastModifyTimestamp")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("VndbId")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -330,8 +326,6 @@ namespace GalgameManager.Server.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Staff");
                 });
@@ -377,9 +371,6 @@ namespace GalgameManager.Server.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<long>("LastGalChangedTimeStamp")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("LastStaffChangedTimeStamp")
                         .HasColumnType("bigint");
 
                     b.Property<string>("PasswordHash")
@@ -476,17 +467,6 @@ namespace GalgameManager.Server.Migrations
                     b.Navigation("Galgame");
                 });
 
-            modelBuilder.Entity("GalgameManager.Server.Models.Staff", b =>
-                {
-                    b.HasOne("GalgameManager.Server.Models.User", "User")
-                        .WithMany("Staffs")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("GalgameManager.Server.Models.StaffGame", b =>
                 {
                     b.HasOne("GalgameManager.Server.Models.Galgame", "Game")
@@ -523,8 +503,6 @@ namespace GalgameManager.Server.Migrations
             modelBuilder.Entity("GalgameManager.Server.Models.User", b =>
                 {
                     b.Navigation("Galgames");
-
-                    b.Navigation("Staffs");
                 });
 #pragma warning restore 612, 618
         }

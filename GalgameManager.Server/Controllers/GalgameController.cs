@@ -27,7 +27,7 @@ public class GalgameController (IGalgameService galService, IOssService ossServi
         PagedResult<GalgameDto> result = new(tmp.Items.ToDtoList(g => new GalgameDto(g)), tmp.PageIndex,
             tmp.PageSize, tmp.Cnt);
         foreach(GalgameDto dto in result.Items)
-            await dto.WithImgAsync(ossService, userId, mapper);
+            await dto.Init(ossService, userId, mapper);
         return Ok(result);
     }
 
@@ -65,7 +65,7 @@ public class GalgameController (IGalgameService galService, IOssService ossServi
         try
         {
             Galgame galgame = await galService.AddOrUpdateGalgameAsync(userId, payload);
-            return Ok(await new GalgameDto(galgame).WithImgAsync(ossService, userId, mapper));
+            return Ok(await new GalgameDto(galgame).Init(ossService, userId, mapper));
         }
         catch (ArgumentException)
         {

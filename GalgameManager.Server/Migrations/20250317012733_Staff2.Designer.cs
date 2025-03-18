@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GalgameManager.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GalgameManager.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250317012733_Staff2")]
+    partial class Staff2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,10 +300,6 @@ namespace GalgameManager.Server.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("ExternalImageLink")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
                     b.Property<int>("Gender")
                         .HasColumnType("integer");
 
@@ -377,9 +376,6 @@ namespace GalgameManager.Server.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<long>("LastGalChangedTimeStamp")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("LastStaffChangedTimeStamp")
                         .HasColumnType("bigint");
 
                     b.Property<string>("PasswordHash")

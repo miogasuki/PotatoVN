@@ -33,6 +33,7 @@ public class Galgame
     [MaxLength(220)] public string? ImageLoc { get; set; }
     public List<string>? Tags { get; set; }
     public List<Character> Characters { get; set; } = [];
+    public List<StaffGame> StaffGames { get; set; } = [];
     #endregion
 
     #region PLAY_STATUS

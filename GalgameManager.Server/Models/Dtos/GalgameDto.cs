@@ -25,6 +25,7 @@ public class GalgameDto(Galgame galgame)
     public string? ImageUrl { get; set; }
     public List<string>? Tags { get; set; } = galgame.Tags;
     public List<CharacterDto> Characters { get; set; } = [];
+    public List<StaffGameDto> Staffs { get; set; } = [];
 
     #endregion
 
@@ -39,7 +40,7 @@ public class GalgameDto(Galgame galgame)
 
     #endregion
 
-    public async Task<GalgameDto> WithImgAsync(IOssService ossService, int userId, IMapper mapper)
+    public async Task<GalgameDto> Init(IOssService ossService, int userId, IMapper mapper)
     {
         ImageUrl = await ossService.GetReadPresignedUrlAsync(userId, galgame.ImageLoc ?? string.Empty);
         foreach (Character c in galgame.Characters)
@@ -48,6 +49,7 @@ public class GalgameDto(Galgame galgame)
             await characterDto.WithImgAsync(c, ossService, userId);
             Characters.Add(characterDto);
         }
+        Staffs.AddRange(galgame.StaffGames.Select(mapper.Map<StaffGameDto>));
         return this;
     }
 }

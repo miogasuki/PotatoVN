@@ -111,7 +111,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
             if (_rssType != value)
             {
                 _rssType = value;
-                // OnPropertyChanged(); //信息源是通过Combobox选择的，不需要通知
+                OnPropertyChanged(); //通常情况下信息源是通过Combobox选择的，但更新游戏信息时需要手动触发
                 OnPropertyChanged(nameof(Id));
             }
         }
@@ -297,6 +297,13 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
     partial void OnLastPlayTimeChanged(DateTime value) => GalPropertyChanged?.Invoke(this, nameof(LastPlayTime), value);
     partial void OnPlayTypeChanged(PlayType value) => GalPropertyChanged?.Invoke(this, nameof(PlayType), value);
+
+    // 监控游戏exe路径变化，如果exe路径变化则设置HighDpi为false
+    partial void OnExePathChanged(string? value)
+    {
+        if (value != null)
+            HighDpi = false;
+    }
 }
 
 

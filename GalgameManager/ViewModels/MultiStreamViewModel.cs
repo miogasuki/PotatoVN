@@ -19,6 +19,7 @@ using GalgameManager.ViewModels;
 using LiteDB;
 using Newtonsoft.Json;
 using SourceFilter = GalgameManager.Models.Filters.SourceFilter;
+using GalgameManager.Helpers.Converter;
 
 namespace GalgameManager.ViewModels
 {
@@ -99,6 +100,7 @@ namespace GalgameManager.ViewModels
                 }
                 AllowScroll = await _settingsService.ReadSettingAsync<bool>(KeyValues.MultiStreamPageAllowScroll);
                 Lists.CollectionChanged += ListsOnCollectionChanged;
+                GameToOpacityConverter.SpecialDisplayVirtualGame = await _settingsService.ReadSettingAsync<bool>(KeyValues.SpecialDisplayVirtualGame);
             }
             catch (COMException e) // 奇怪bug，暂时无法解决，重新加载界面
             {

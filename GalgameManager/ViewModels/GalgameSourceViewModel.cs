@@ -30,7 +30,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private readonly INavigationService _navigationService;
     
     private GalgameSourceBase? _item;
-    public ObservableCollection<GalgameSourcePageCustomGalgameViewModel> Galgames { get; } = new();
+    public ObservableCollection<GalgameAndPath> Galgames { get; } = new();
+    public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None};
     private readonly List<Galgame> _selectedGalgames = new();
     private BgTaskBase? _getGalTask;
     private GetGalgameInfoFromRssTask? _getGalgameInfoFromRss;
@@ -77,33 +78,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             {
                 foreach (GalgameAndPath g in value.Galgames)
                 {
-                    Galgames.Add(new GalgameSourcePageCustomGalgameViewModel
-                    {
-                        Galgame = g.Galgame,
-                        Path = g.Path,
-                        EditCommand = new RelayCommand(() =>
-                        {
-                            NavigationHelper.NavigateToGalgameSettingPage(_navigationService, g.Galgame);
-                        }),
-                        CopyNameCommand = new RelayCommand(() =>
-                        {
-                            var dataPackage = new DataPackage();
-                            dataPackage.SetText(g.Galgame.Name.Value);
-                            Clipboard.SetContent(dataPackage);
-                        }),
-                        CopyPathCommand = new RelayCommand(() =>
-                        {
-                            var dataPackage = new DataPackage();
-                            dataPackage.SetText(g.Path);
-                            Clipboard.SetContent(dataPackage);
-                        }),
-                        OpenInExplorerCommand = new RelayCommand(async () =>
-                        {
-                            if (string.IsNullOrEmpty(g.Galgame.LocalPath)) return;
-                            var folder = await StorageFolder.GetFolderFromPathAsync(g.Galgame.LocalPath);
-                            await Launcher.LaunchFolderAsync(folder);
-                        })
-                    });
+                    Galgames.Add(g);
                 }
                 value.GalgamesChanged += ReloadGalgameList;
                 value.PropertyChanged += Save;
@@ -129,11 +104,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             Galgames.Remove(tmp);
         else if (!isDeleted && _item.GetPath(game) is {} path)
         {
-            Galgames.Add(new GalgameSourcePageCustomGalgameViewModel
-            {
-                Galgame = game, 
-                Path = path
-            });
+            Galgames.Add(new GalgameAndPath(game, path));
         }
     }
 
@@ -362,9 +333,9 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private void OnSelectionChanged(object et)
     {
         SelectionChangedEventArgs e = (SelectionChangedEventArgs) et;
-        foreach(GalgameSourcePageCustomGalgameViewModel g in e.AddedItems)
+        foreach(GalgameAndPath g in e.AddedItems)
             _selectedGalgames.Add(g.Galgame);
-        foreach (GalgameSourcePageCustomGalgameViewModel g in e.RemovedItems)
+        foreach (GalgameAndPath g in e.RemovedItems)
             _selectedGalgames.Remove(g.Galgame);
         UiDownloadInfo = _selectedGalgames.Count == 0
             ? "GalgameFolderPage_DownloadInfo".GetLocalized()
@@ -404,16 +375,37 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         if(FileHelper.Exists(path) == false) return; 
         await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(FileHelper.GetFullPath(path)));
     }
-}
 
-public partial class GalgameSourcePageCustomGalgameViewModel : ObservableObject
-{
-    public Galgame Galgame = null!;
-    public string Path = null!;
-    // 以下属性是共有的，写在这里而不是ViewModel里是因为没法Bind到ViewModel里（bug）
-    public ICommand EditCommand = null!;
-    public ICommand CopyNameCommand = null!;
-    public ICommand CopyPathCommand = null!;
-    public ICommand OpenInExplorerCommand = null!;
-    public RssType[] RssTypes { get; } = [RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None];
+    [RelayCommand]
+    private void EditGame(GalgameAndPath gameAndPath)
+    {
+        if (gameAndPath?.Galgame == null) return;
+        NavigationHelper.NavigateToGalgameSettingPage(_navigationService, gameAndPath.Galgame);
+    }
+
+    [RelayCommand]
+    private void CopyGameName(GalgameAndPath gameAndPath)
+    {
+        if (gameAndPath?.Galgame == null) return;
+        var dataPackage = new DataPackage();
+        dataPackage.SetText(gameAndPath.Galgame.Name.Value);
+        Clipboard.SetContent(dataPackage);
+    }
+
+    [RelayCommand]
+    private void CopyGamePath(GalgameAndPath gameAndPath)
+    {
+        if (gameAndPath?.Galgame == null) return;
+        var dataPackage = new DataPackage();
+        dataPackage.SetText(gameAndPath.Path);
+        Clipboard.SetContent(dataPackage);
+    }
+
+    [RelayCommand]
+    private async Task OpenGameInExplorer(GalgameAndPath gameAndPath)
+    {
+        if (gameAndPath?.Galgame == null) return;
+        var folder = await StorageFolder.GetFolderFromPathAsync(gameAndPath.Galgame.LocalPath);
+        await Launcher.LaunchFolderAsync(folder);
+    }
 }

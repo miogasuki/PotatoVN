@@ -113,23 +113,23 @@
                             </control:Panel>
                             <!-- LocaleEmulator -->
                             <control:Panel>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" x:Uid="SettingsPage_Game_LocaleEmulator" 
-                                               Margin="0 0 25 0" VerticalAlignment="Center" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Text="{x:Bind ViewModel.LocalEmulatorPath, Mode=OneWay}"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Center"
-                                        Margin="0 0 25 0" />
-                                    <Button Grid.Column="2" x:Uid="Select" MinWidth="75"
-                                            Command="{x:Bind ViewModel.SelectLocalEmulatorPathCommand}" />
-                                </Grid>
+                                <StackPanel>
+                                    <control:Setting  x:Uid="SettingsPage_Game_LocaleEmulator">
+                                        <Button Content="Go" MinWidth="{StaticResource ButtonMinWidth}"
+                                                Command="{x:Bind ViewModel.SelectLocalEmulatorPathCommand}"/>
+                                    </control:Setting>
+                                    <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                                        <TextBlock
+                                            x:Uid="SettingsPage_Game_LocaleEmulator_PathDescription"
+                                            Style="{ThemeResource BodyTextBlockStyle}"
+                                            TextWrapping="Wrap"/>
+                                        <TextBlock
+                                            Text="{x:Bind ViewModel.LocalEmulatorPath, Mode=OneWay}"
+                                            TextWrapping="Wrap"
+                                            Style="{ThemeResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                </StackPanel>
+
                             </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>

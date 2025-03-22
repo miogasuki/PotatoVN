@@ -224,7 +224,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GameFolderMustContain:
                 return (T?)(object)".exe";
             case KeyValues.GameFolderShouldContain:
-                return (T?)(object)".xp3\n.arc\n.dat\n.ini\n.dll\n.txt";
+                return (T?)(object)".xp3\n.arc\n.dat\n.ini\n.dll\n.txt\n.pac\n.noa\n.sh\n.bin\n.pck";
             case KeyValues.SaveBackupMetadata:
                 return (T?)(object)false;
             case KeyValues.FixHorizontalPicture:

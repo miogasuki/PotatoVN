@@ -28,16 +28,14 @@
                 </AppBarButton.Icon>
             </AppBarButton>
             <AppBarButton x:Uid="GalgameSettingPage_GetInfoFromRss" 
-                Command="{x:Bind ViewModel.GetInfoFromRssCommand}"
-                AllowFocusOnInteraction="True">
+                Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
                 <AppBarButton.Icon>
                     <control:ConditionalFontIcon Symbol="Download" FluentGlyph="&#xE896;" />
                 </AppBarButton.Icon>
             </AppBarButton>
             <AppBarButton x:Uid="GalgameSettingPage_GetInfoFromRssWithName"
                           Command="{x:Bind ViewModel.GetInfoFromRssCommand}"
-                          CommandParameter="True"
-                          AllowFocusOnInteraction="True">
+                          CommandParameter="True">
                 <AppBarButton.Icon>
                     <control:ConditionalFontIcon Symbol="Download" FluentGlyph="&#xE896;" />
                 </AppBarButton.Icon>

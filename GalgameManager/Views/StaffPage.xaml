@@ -44,12 +44,10 @@
                 <!-- 编辑 -->
                 <AppBarButton Icon="Edit" x:Uid="GalgamePage_Edit" 
                               Command="{x:Bind ViewModel.EditStaffCommand}"
-                              AllowFocusOnInteraction="True"
                               Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" />
                 <!-- 保存 -->
                 <AppBarButton Icon="Save" x:Uid="GalgamePage_Save" 
                               Command="{x:Bind ViewModel.SaveStaffCommand}"
-                              AllowFocusOnInteraction="True"
                               Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                
                 <!-- <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}" 

@@ -78,7 +78,7 @@
                     <KeyboardAccelerator Modifiers="Control" Key="R"/>
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}" AllowFocusOnInteraction="True">
+            <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}">
                 <AppBarButton.Flyout>
                     <Flyout Placement="Bottom">
                         <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}" 

@@ -26,6 +26,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 {
     private const int ProcessMaxWaitSec = 60; //(手动指定游戏进程)等待游戏进程启动的最大时间
     private readonly GalgameCollectionService _galgameService;
+    private readonly GalgameSourceCollectionService _sourceService;
     private readonly IStaffService _staffService;
     private readonly INavigationService _navigationService;
     private readonly ILocalSettingsService _localSettingsService;
@@ -68,9 +69,10 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     public GalgameViewModel(IGalgameCollectionService dataCollectionService, IStaffService staffService,
         INavigationService navigationService, IJumpListService jumpListService,
         ILocalSettingsService localSettingsService, IBgTaskService bgTaskService,
-        IPvnService pvnService, IInfoService infoService)
+        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService)
     {
         _galgameService = (GalgameCollectionService)dataCollectionService;
+        _sourceService = (GalgameSourceCollectionService)sourceService;
         _staffService = staffService;
         _navigationService = navigationService;
         _jumpListService = (JumpListService)jumpListService;
@@ -304,14 +306,46 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
             Title = "HomePage_Delete_Title".GetLocalized(),
-            Content = "HomePage_Delete_Message".GetLocalized(),
+            Content = new StackPanel
+            {
+                Children =
+                {
+                    new TextBlock { Text = "HomePage_Delete_Message".GetLocalized(), Margin = new Thickness(0, 0, 0, 30) },
+                    new CheckBox { Content = "HomePage_Delete_FromLibrary".GetLocalized(), IsChecked = true }
+                }
+            },
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
             DefaultButton = ContentDialogButton.Secondary
         };
         dialog.PrimaryButtonClick += async (_, _) =>
         {
-            await _galgameService.RemoveGalgame(Item, true);
+            var checkBox = (CheckBox)((StackPanel)dialog.Content).Children[1];
+            bool deleteFromLibrary = checkBox.IsChecked ?? false;
+            var path = Item.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(Item);
+            if (path is not null)
+            {
+                try
+                {
+                    var folder = await StorageFolder.GetFolderFromPathAsync(path);
+                    await folder.DeleteAsync(StorageDeleteOption.Default);
+                }
+                catch (Exception e)
+                {
+                    App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Error, "GalgamePage_Delete_Game_Error".GetLocalized() + e.Message);
+                }
+            }
+            if (deleteFromLibrary)
+            {
+                await _galgameService.RemoveGalgame(Item, true);
+            }
+            else
+            {
+                var source = _sourceService.GetGalgameSources().FirstOrDefault(s => s.Galgames.Any(g => g.Galgame == Item));
+                _sourceService.MoveOutNoOperate(source, Item);
+            }
+
+            App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Success, "GalgamePage_Delete_Game_Success".GetLocalized());
             _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
         };
         await dialog.ShowAsync();

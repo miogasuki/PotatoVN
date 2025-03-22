@@ -210,6 +210,9 @@
   <data name="HomePage_Delete_Message" xml:space="preserve">
     <value>确定要从硬盘上移除这个游戏吗，这个操作不可逆哦</value>
   </data>
+  <data name="HomePage_Delete_FromLibrary" xml:space="preserve">
+    <value>一并从游戏库中移除</value>
+  </data>
   <data name="SettingsPage_ThemeTitle" xml:space="preserve">
     <value>外观</value>
   </data>
@@ -1940,6 +1943,12 @@
   </data>
   <data name="GalgamePage_HighDpi_ExePathIsEmpty" xml:space="preserve">
     <value>未指定游戏exe路径，请先设置游戏路径</value>
+  </data>
+  <data name="GalgamePage_Delete_Game_Error" xml:space="preserve">
+    <value>删除游戏时发生错误：{0}</value>
+  </data>
+  <data name="GalgamePage_Delete_Game_Success" xml:space="preserve">
+    <value>成功删除游戏</value>
   </data>
   <data name="Shell_MultiStream.Content" xml:space="preserve">
     <value>主页</value>

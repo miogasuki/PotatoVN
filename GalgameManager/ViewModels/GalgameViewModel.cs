@@ -342,7 +342,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             else
             {
                 var source = _sourceService.GetGalgameSources().FirstOrDefault(s => s.Galgames.Any(g => g.Galgame == Item));
-                _sourceService.MoveOutNoOperate(source, Item);
+                if (source != null)
+                {
+                    _sourceService.MoveOutNoOperate(source, Item);
+                }
+                else
+                {
+                    App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgamePage_Delete_Game_Error".GetLocalized());
+                }
             }
 
             App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Success, "GalgamePage_Delete_Game_Success".GetLocalized());

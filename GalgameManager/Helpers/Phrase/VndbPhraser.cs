@@ -565,7 +565,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             }
             catch (ThrottledException)
             {
-                Task.Delay(60 * 1000).Wait(); // 1 minute
+                await Task.Delay(60 * 1000); // 1 minute
             }
             catch (Exception)
             {

@@ -18,7 +18,7 @@ public interface IOssService
     
     public Task<string?> GetWritePresignedUrlAsync(int userId, string objectFullName, long requireSpace);
     
-    public Task<string?> GetReadPresignedUrlAsync(int userId, string objectFullName);
+    public Task<string?> GetReadPresignedUrlAsync(int userId, string? objectFullName);
     
     /// <summary>
     /// 获取对象信息，若不存在则返回null
@@ -29,9 +29,10 @@ public interface IOssService
     public Task<ObjectEntity?> GetObjectAsync(int userId, string objectFullName);
     
     /// <summary>
+    /// 如果objectFullName为null则什么都不做
     /// 需要在外部捕获异常
     /// </summary>
-    public Task DeleteObjectAsync(int userId, string objectFullName);
+    public Task DeleteObjectAsync(int userId, string? objectFullName);
     
     /// <summary>
     /// 更新用户的已使用空间，若key中没有合法的userId前缀/用户不存在则什么都不做

@@ -50,6 +50,72 @@ namespace GalgameManager.Server.Migrations
                     b.ToTable("Category");
                 });
 
+            modelBuilder.Entity("GalgameManager.Server.Models.Character", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BirthDay")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BirthMonth")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BirthYear")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BloodType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("GalgameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Height")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ImageLoc")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PreviewImageLoc")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("Relation")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<string>("ThreeSize")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Weight")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GalgameId");
+
+                    b.ToTable("Character");
+                });
+
             modelBuilder.Entity("GalgameManager.Server.Models.Galgame", b =>
                 {
                     b.Property<int>("Id")
@@ -61,6 +127,9 @@ namespace GalgameManager.Server.Migrations
                     b.Property<string>("BgmId")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<long>("CharacterLastChangedTimeStamp")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CnName")
                         .IsRequired()
@@ -201,6 +270,91 @@ namespace GalgameManager.Server.Migrations
                     b.ToTable("GalPlayLog");
                 });
 
+            modelBuilder.Entity("GalgameManager.Server.Models.Staff", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BgmId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<long>("BirthDateTimestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ChineseName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<string>("EnglishName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ExternalImageLink")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ImageLoc")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JapaneseName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<long>("LastModifyTimestamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VndbId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("YmgalId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Staff");
+                });
+
+            modelBuilder.Entity("GalgameManager.Server.Models.StaffGame", b =>
+                {
+                    b.Property<int>("StaffId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("integer");
+
+                    b.Property<int[]>("Relation")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.HasKey("StaffId", "GameId");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("StaffGame");
+                });
+
             modelBuilder.Entity("GalgameManager.Server.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -223,6 +377,9 @@ namespace GalgameManager.Server.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<long>("LastGalChangedTimeStamp")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastStaffChangedTimeStamp")
                         .HasColumnType("bigint");
 
                     b.Property<string>("PasswordHash")
@@ -262,6 +419,17 @@ namespace GalgameManager.Server.Migrations
                         .HasForeignKey("GalgamesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("GalgameManager.Server.Models.Character", b =>
+                {
+                    b.HasOne("GalgameManager.Server.Models.Galgame", "Galgame")
+                        .WithMany("Characters")
+                        .HasForeignKey("GalgameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Galgame");
                 });
 
             modelBuilder.Entity("GalgameManager.Server.Models.Galgame", b =>
@@ -308,14 +476,55 @@ namespace GalgameManager.Server.Migrations
                     b.Navigation("Galgame");
                 });
 
+            modelBuilder.Entity("GalgameManager.Server.Models.Staff", b =>
+                {
+                    b.HasOne("GalgameManager.Server.Models.User", "User")
+                        .WithMany("Staffs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GalgameManager.Server.Models.StaffGame", b =>
+                {
+                    b.HasOne("GalgameManager.Server.Models.Galgame", "Game")
+                        .WithMany("StaffGames")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GalgameManager.Server.Models.Staff", "Staff")
+                        .WithMany("StaffGames")
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("GalgameManager.Server.Models.Galgame", b =>
                 {
+                    b.Navigation("Characters");
+
                     b.Navigation("PlayTime");
+
+                    b.Navigation("StaffGames");
+                });
+
+            modelBuilder.Entity("GalgameManager.Server.Models.Staff", b =>
+                {
+                    b.Navigation("StaffGames");
                 });
 
             modelBuilder.Entity("GalgameManager.Server.Models.User", b =>
                 {
                     b.Navigation("Galgames");
+
+                    b.Navigation("Staffs");
                 });
 #pragma warning restore 612, 618
         }

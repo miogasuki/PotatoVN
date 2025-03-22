@@ -8,5 +8,6 @@ public enum PvnUploadProperties
     ImageLoc = 1 << 1,
     Review = 1 << 2,
     PlayTime = 1 << 3,
+    Character = 1 << 4,
     All = int.MaxValue,
 }

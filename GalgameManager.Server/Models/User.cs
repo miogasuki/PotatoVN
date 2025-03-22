@@ -16,7 +16,9 @@ public class User
     public required long TotalSpace { get; set; }
     
     public long LastGalChangedTimeStamp { get; set; }
+    public long LastStaffChangedTimeStamp { get; set; }
     public List<Galgame>? Galgames { get; set; }
+    public List<Staff>? Staffs { get; set; }
 
     public int BangumiId { get; set; }
 }

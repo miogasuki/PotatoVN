@@ -17,6 +17,7 @@ public class UserDto(User user)
     public long TotalSpace { get; set; } = user.TotalSpace;
 
     public long LastGalChangedTimeStamp { get; set; } = user.LastGalChangedTimeStamp;
+    public long LastStaffChangedTimeStamp { get; set; } = user.LastStaffChangedTimeStamp;
 
     public async Task WithAvatarAsync(IOssService ossService)
     {

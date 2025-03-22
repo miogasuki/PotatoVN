@@ -69,6 +69,9 @@ public partial class App : Application
         UseContentRoot(AppContext.BaseDirectory).
         ConfigureServices((context, services) =>
         {
+            // Utils
+            services.AddAutoMapper(typeof(App).Assembly);
+            
             // 启动跳转处理
             // 从前往后依次处理，直到找到能处理的处理器
             // Launch Activation Handlers

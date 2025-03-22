@@ -25,8 +25,6 @@ public static class KeyValues
     public const string AutoCategory = "autoCategory"; // bool,是否自动分类
     public const string AuthenticationType = "authenticationType"; // AuthenticationType,身份验证类型
     public const string FontInstalled = "fontInstalled"; //bool, 是否安装了Segoe Fluent Icons字体
-    public const string SyncGames = "syncGames"; //bool, 是否同步游戏（游玩时长/状态/列表）
-    public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
     
     //账户相关
     public const string BangumiAccount= "bangumiAccount"; //BgmAccount?, Bangumi账户, 若为null则未登录
@@ -57,9 +55,15 @@ public static class KeyValues
     public const string Filters = "filters";
     public const string KeepFilters = "keepFilters"; //bool, 离开界面/关闭软件时是否保留筛选器
     public const string CategoryGroups = "categoryGroups"; // List<CategoryGroup>,分类组
-    public const string PvnSyncTimestamp = "pvnSyncTimestamp"; //long, 上一次同步时间戳
-    public const string ToDeleteGames = "toDeleteGames"; //List<int>, 待删除的游戏id
     public const string MultiStreamPageList = "multiStreamPageList"; //List<IGalgameManager.MultiStreamPage.Lists.IList>, 主页列表
+    //数据同步
+    public const string PvnSyncTimestamp = "pvnSyncTimestamp"; //long, 上一次同步时间戳
+    public const string PvnSyncStaffTimestamp = "pvnSyncStaffTimestamp"; //long, 上次同步staff的时间戳
+    public const string SyncGames = "syncGames"; //bool, 是否同步游戏（游玩时长/状态/列表）
+    public const string ToDeleteGames = "toDeleteGames"; //List<int>, 待删除的游戏id
+    public const string SyncGameCharacters = "syncGameCharacters"; //bool, 是否同步游戏角色
+    public const string SyncStaff = "syncStaff"; //bool, 是否同步staff
+    public const string ToDeleteStaff = "toDeleteStaff"; //List<int>, 待删除的staff pvn id
     
     //搜刮设置
     public const string RssType = "rssType";
@@ -115,4 +119,5 @@ public static class KeyValues
     public const string BangumiToken = "bangumiToken";
     public const string BangumiOAuthState= "bangumiOAuthState"; //BgmAccount?, Bangumi账户, 若为null则未登录
     public const string GalgameFolders = "galgameFolders"; //旧游戏文件夹，仅用于升级
+    public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
 }

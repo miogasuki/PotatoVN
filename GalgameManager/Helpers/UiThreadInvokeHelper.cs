@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.WinUI;
+﻿using System.Runtime.InteropServices;
+using CommunityToolkit.WinUI;
 
 namespace GalgameManager.Helpers;
 
@@ -29,5 +30,29 @@ public static class UiThreadInvokeHelper
     public static void Invoke(Action action)
     {
         App.DispatcherQueue.EnqueueAsync(action);
+    }
+
+    public static void IgnoreComException(Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (COMException)
+        {
+            // ignored
+        }
+    }
+    
+    public static void IgnoreComException<T1>(Action<T1> action, T1 arg1)
+    {
+        try
+        {
+            action(arg1);
+        }
+        catch (COMException)
+        {
+            // ignored
+        }
     }
 }

@@ -12,6 +12,8 @@ namespace GalgameManager.Services;
 public class StaffService : IStaffService
 {
     public event Action<Galgame>? OnGameStaffChanged;
+    public event Action<Staff>? OnStaffSaved;
+    public event Action<Staff>? OnStaffDeleted;
     private ILiteCollection<Staff> _dbSet = null!;
     private readonly ILocalSettingsService _settingsService;
     private readonly IGalgameCollectionService _galgameService;
@@ -28,13 +30,15 @@ public class StaffService : IStaffService
         _infoService = infoService;
         
         galgameService.PhrasedEvent2 += OnGalgamePhrasedEvent;
-        galgameService.GalgameAddedEvent += OnGalgamePhrasedEvent;
         galgameService.GalgameDeletedEvent += OnGalgameDeletedEvent;
     }
     
     public async Task InitAsync()
     {
         _dbSet = _settingsService.Database.GetCollection<Staff>("staff");
+        LocalSettingStatus status =
+            await _settingsService.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true) ?? new();
+        await ImportAsync(status);
         await Task.Run(() =>
         {
             foreach (Staff staff in _dbSet.Include(x => x.Games).FindAll())
@@ -74,6 +78,8 @@ public class StaffService : IStaffService
         return result;
     }
 
+    public List<Staff> GetStaffs() => _staffs.Values.ToList();
+
     public async Task<Staff> ParseStaffAsync(Staff staff, RssType rss)
     {
         if (_galgameService.PhraserList[(int)rss] is not IGalStaffParser phraser) return staff;
@@ -104,18 +110,36 @@ public class StaffService : IStaffService
         return staff;
     }
 
-    public void Save(Staff staff)
+    public void Save(Staff staff, bool sync = true)
     {
         _staffs[staff.Id] = staff;
         _dbSet.Upsert(staff);
+        if (sync) OnStaffSaved?.Invoke(staff);
     }
 
-    public void Delete(Staff staff)
+    public void Delete(Staff staff, bool sync = true)
     {
         _staffs.Remove(staff.Id);
         _dbSet.Delete(staff.Id);
+        if (sync) OnStaffDeleted?.Invoke(staff);
     }
-    
+
+    public Task ExportAsync(Action<string, int, int>? progress)
+    {
+        return Task.Run(async () =>
+        {
+            List<Staff> toExport = _dbSet.Include(x => x.Games).FindAll().ToList();
+            foreach (Staff staff in toExport)
+            {
+                staff.ImagePath = await _settingsService.AddImageToExportAsync(staff.ImagePath);
+                progress?.Invoke("StaffService_Export".GetLocalized(staff.Name ?? string.Empty),
+                    toExport.IndexOf(staff), toExport.Count);
+            }
+
+            await _settingsService.AddToExportAsync("staff", toExport);
+        });
+    }
+
     private async void OnGalgamePhrasedEvent(Galgame galgame)
     {
         try
@@ -206,5 +230,18 @@ public class StaffService : IStaffService
         {
             _infoService.DeveloperEvent(msg: "failed on listening galgame deleted event", e: e);
         }
+    }
+
+    private async Task ImportAsync(LocalSettingStatus status)
+    {
+        if (status.ImportStaff) return;
+        List<Staff> tmp = await _settingsService.ReadSettingAsync<List<Staff>>("staff", true) ?? [];
+        foreach (Staff staff in tmp)
+        {
+            staff.ImagePath = await _settingsService.GetImageFromImportAsync(staff.ImagePath);
+            Save(staff);
+        }
+        await _settingsService.RemoveSettingAsync("staff", true);
+        status.ImportStaff = true;
     }
 }

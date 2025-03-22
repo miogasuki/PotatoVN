@@ -9,6 +9,8 @@ public interface IStaffService
     /// 当某个游戏的staff列表发生变化时触发
     /// </summary>
     public event Action<Galgame> OnGameStaffChanged;
+    public event Action<Staff> OnStaffSaved;
+    public event Action<Staff> OnStaffDeleted;
     
     public Task InitAsync();
     
@@ -30,6 +32,12 @@ public interface IStaffService
     public List<Staff> GetStaffs(Galgame game);
 
     /// <summary>
+    /// 获取所有staff列表
+    /// </summary>
+    /// <returns></returns>
+    public List<Staff> GetStaffs();
+
+    /// <summary>
     /// 搜刮staff信息，直接修改传入的staff对象
     /// </summary>
     /// <param name="staff"></param>
@@ -37,7 +45,19 @@ public interface IStaffService
     /// <returns></returns>
     public Task<Staff> ParseStaffAsync(Staff staff, RssType rss);
     
-    public void Save(Staff staff);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="staff"></param>
+    /// <param name="sync">是否同步到pvn云端</param>
+    public void Save(Staff staff, bool sync = true);
     
-    public void Delete(Staff staff);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="staff"></param>
+    /// <param name="sync">是否同步到pvn云端</param>
+    public void Delete(Staff staff, bool sync = true);
+    
+    public Task ExportAsync(Action<string, int, int>? progress);
 }

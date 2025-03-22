@@ -12,6 +12,8 @@ namespace GalgameManager.Services;
 public class StaffService : IStaffService
 {
     public event Action<Galgame>? OnGameStaffChanged;
+    public event Action<Staff>? OnStaffSaved;
+    public event Action<Staff>? OnStaffDeleted;
     private ILiteCollection<Staff> _dbSet = null!;
     private readonly ILocalSettingsService _settingsService;
     private readonly IGalgameCollectionService _galgameService;
@@ -76,6 +78,8 @@ public class StaffService : IStaffService
         return result;
     }
 
+    public List<Staff> GetStaffs() => _staffs.Values.ToList();
+
     public async Task<Staff> ParseStaffAsync(Staff staff, RssType rss)
     {
         if (_galgameService.PhraserList[(int)rss] is not IGalStaffParser phraser) return staff;
@@ -106,16 +110,18 @@ public class StaffService : IStaffService
         return staff;
     }
 
-    public void Save(Staff staff)
+    public void Save(Staff staff, bool sync = true)
     {
         _staffs[staff.Id] = staff;
         _dbSet.Upsert(staff);
+        if (sync) OnStaffSaved?.Invoke(staff);
     }
 
-    public void Delete(Staff staff)
+    public void Delete(Staff staff, bool sync = true)
     {
         _staffs.Remove(staff.Id);
         _dbSet.Delete(staff.Id);
+        if (sync) OnStaffDeleted?.Invoke(staff);
     }
 
     public Task ExportAsync(Action<string, int, int>? progress)

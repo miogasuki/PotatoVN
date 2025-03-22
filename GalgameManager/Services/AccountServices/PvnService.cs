@@ -26,6 +26,7 @@ public class PvnService : IPvnService
     private readonly IBgTaskService _bgTaskService;
     private readonly HttpClient _httpClient;
     private readonly GalgameCollectionService _gameService;
+    private readonly IStaffService _staffService;
     private readonly IInfoService _infoService;
     public Uri BaseUri { get; private set; }
     public Action<PvnServiceStatus>? StatusChanged { get; set; }
@@ -34,7 +35,8 @@ public class PvnService : IPvnService
     private PvnServerInfo? _serverInfo;
 
     public PvnService(ILocalSettingsService settingsService, IConfiguration config, IBgmOAuthService bgmService,
-        IBgTaskService bgTaskService, IGalgameCollectionService gameService, IInfoService infoService, IMapper mapper)
+        IBgTaskService bgTaskService, IGalgameCollectionService gameService, IStaffService staffService,
+        IInfoService infoService, IMapper mapper)
     {
         _mapper = mapper;
         _settingsService = settingsService;
@@ -43,6 +45,7 @@ public class PvnService : IPvnService
         BaseUri = GetBaseUri();
         _bgTaskService = bgTaskService;
         _gameService = (GalgameCollectionService)gameService;
+        _staffService = staffService;
         _httpClient = Utils.GetDefaultHttpClient();
         _infoService = infoService;
 
@@ -62,6 +65,22 @@ public class PvnService : IPvnService
             if(galgame.Ids[(int)RssType.PotatoVn] is null) return;
             list.Add(Convert.ToInt32(galgame.Ids[(int)RssType.PotatoVn]));
             await _settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, list);
+            SyncGames();
+        };
+        _staffService.OnStaffSaved += staff =>
+        {
+            if (!_settingsService.ReadSettingAsync<bool>(KeyValues.SyncStaff).Result) return;
+            staff.RequirePvnSync = true;
+            _staffService.Save(staff, false);
+            SyncGames();
+        };
+        _staffService.OnStaffDeleted += staff =>
+        {
+            if (!_settingsService.ReadSettingAsync<bool>(KeyValues.SyncStaff).Result) return;
+            List<int> list = _settingsService.ReadSettingAsync<List<int>>(KeyValues.ToDeleteStaff).Result ?? [];
+            if(staff.Ids[(int)RssType.PotatoVn]?.ToInt() is not { } id) return;
+            list.Add(id);
+            _settingsService.SaveSettingAsync(KeyValues.ToDeleteStaff, list);
             SyncGames();
         };
     }
@@ -100,6 +119,8 @@ public class PvnService : IPvnService
                 BangumiOauth2Enable = result.BangumiOAuth2Enable,
                 DefaultLoginEnable = result.DefaultLoginEnable,
                 BangumiLoginEnable = result.BangumiLoginEnable,
+                GalgameStaffAvailable = result.GalgameStaffAvailable,
+                StaffEnable = result.StaffEnable,
             };
         }
         
@@ -328,109 +349,7 @@ public class PvnService : IPvnService
         galgame.PvnUploadProperties |= properties;
         StartSyncTask();
     }
-
-    public async Task<int> UploadInternal(Galgame galgame, bool isRetry = false)
-    {
-        if (galgame.PvnUpdate == false) throw new Exception("Galgame not marked as updated."); //不应该发生
-        PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
-        if (account is null) throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        GalgameUpdateDto payload = new();
-
-        if (galgame.Ids[(int)RssType.PotatoVn].IsNullOrEmpty() == false &&
-            int.TryParse(galgame.Ids[(int)RssType.PotatoVn], out var id)) 
-            payload.Id = id;
-
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Infos))
-        {
-            payload.BgmId = galgame.Ids[(int)RssType.Bangumi]!;
-            payload.VndbId = galgame.Ids[(int)RssType.Vndb]!;
-            payload.Name = galgame.Name.Value!;
-            payload.CnName = galgame.CnName;
-            payload.Description = galgame.Description.Value!;
-            payload.Developer = galgame.Developer.Value!;
-            payload.ExpectedPlayTime = galgame.ExpectedPlayTime.Value!;
-            payload.Rating = galgame.Rating.Value;
-            payload.ReleaseDateTimeStamp = galgame.ReleaseDate.Value.Date.ToUnixTime();
-            payload.Tags = (galgame.Tags.Value ?? []).ToList();
-        }
-        
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.ImageLoc) &&
-            string.IsNullOrEmpty(galgame.ImagePath) == false && galgame.ImagePath != Galgame.DefaultImagePath)
-        {
-            var ossPath = await UploadFileAsync(galgame.ImagePath.Value, $"{galgame.Name.Value}/cover", e =>
-            {
-                _infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning,
-                    "PvnService_UploadImageFailed".GetLocalized(galgame.Name.Value ?? string.Empty), e);
-            });
-            if (ossPath is not null) payload.ImageLoc = ossPath;
-        }
-
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Review))
-        {
-            payload.PlayType = (PlayType)(int)galgame.PlayType;
-            payload.Comment = galgame.Comment;
-            payload.MyRate = galgame.MyRate;
-            payload.PrivateComment = galgame.PrivateComment;
-        }
-        
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.PlayTime))
-        {
-            payload.TotalPlayTime = galgame.TotalPlayTime;
-            List<PlayLogDto> logs = new();
-            foreach (KeyValuePair<string, int> pair in galgame.PlayedTime)
-                if(DateTimeExtensions.ToDateTime(pair.Key) != DateTime.MinValue)
-                    logs.Add(new PlayLogDto
-                    {
-                        DateTimeStamp = DateTimeExtensions.ToDateTime(pair.Key).Date.ToUnixTime(),
-                        Minute = pair.Value
-                    });
-            payload.PlayTime = logs;
-        }
-
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Character) 
-            && await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGameCharacters))
-        {
-            payload.Characters = [];
-            List<Task> uploadImgTasks = [];
-            foreach (GalgameCharacter c in galgame.Characters)
-            {
-                CharacterUpdateDto dto = _mapper.Map<CharacterUpdateDto>(c);
-                payload.Characters.Add(dto);
-                uploadImgTasks.Add(Task.Run(() =>
-                {
-                    dto.ImageLoc = UploadFileAsync(c.ImagePath, $"{galgame.Name.Value}/{c.Name}").Result!;
-                    dto.PreviewImageLoc = UploadFileAsync(c.PreviewImagePath, $"{galgame.Name.Value}/{c.Name}_preview").Result!;
-                }));
-            }
-            Task.WaitAll(uploadImgTasks.ToArray());
-        }
-
-        GalgameApi api = new(_httpClient, await GetConfigAsync());
-        try
-        {
-            GalgameDto result = await api.GalgamePatchAsync(payload);
-            galgame.PvnUpdate = false;
-            galgame.PvnUploadProperties = PvnUploadProperties.None;
-            return result.Id;
-        }
-        catch (ApiException e)
-        {
-            if (isRetry) throw new HttpRequestException(e.ErrorContent.ToString());
-            switch (e.ErrorCode)
-            {
-                //以下情况应该清除id后再重试
-                case 404: //Not Found：该id游戏不存在（导入了旧数据 or 来自其他服务器）
-                case 400: //Bad Request：不是该id游戏的拥有者（导入的数据是来自别人的or别的服务器的）
-                    galgame.Ids[(int)RssType.PotatoVn] = null;
-                    _infoService.DeveloperEvent(
-                        msg: $"Game {galgame.Name.Value} is not found on server, remove id and retry.");
-                    return await UploadInternal(galgame, true);
-                default:
-                    throw new HttpRequestException(e.ErrorContent.ToString());
-            }
-        }
-    }
-
+    
     public async Task DeleteInternal(int pvnId)
     {
         PvnAccount? account = _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount).Result;
@@ -457,11 +376,18 @@ public class PvnService : IPvnService
         await _settingsService.SaveSettingAsync<PvnAccount?>(KeyValues.PvnAccount, null, false, true);
         await _settingsService.SaveSettingAsync(KeyValues.SyncGames, false);
         await _settingsService.SaveSettingAsync(KeyValues.PvnSyncTimestamp, 0);
+        await _settingsService.SaveSettingAsync(KeyValues.PvnSyncStaffTimestamp, 0);
+        await _settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, new List<int>());
         foreach (Galgame gal in _gameService.Galgames)
         {
             gal.Ids[(int)RssType.PotatoVn] = null;
             gal.PvnLastCharacterFetchTime = 0;
             await _gameService.SaveGalgameAsync(gal);
+        }
+        foreach (Staff staff in _staffService.GetStaffs())
+        {
+            staff.Ids[(int)RssType.PotatoVn] = null;
+            _staffService.Save(staff, false);
         }
     }
 
@@ -501,15 +427,8 @@ public class PvnService : IPvnService
         await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
         return account;
     }
-
-    /// <summary>
-    /// 上传文件到OSS
-    /// </summary>
-    /// <param name="filePath">若为null或文件不存在则什么都不做</param>
-    /// <param name="targetName">OSS上目标文件名，不需要填拓展名，若不填则用原文件名</param>
-    /// <param name="onFailed"></param>
-    /// <returns>文件在OSS中的路径，若失败返回null</returns>
-    private async Task<string?> UploadFileAsync(string? filePath, string? targetName = null,
+    
+    public async Task<string?> UploadFileAsync(string? filePath, string? targetName = null,
         Action<Exception>? onFailed = null)
     {
         if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return null;
@@ -588,7 +507,7 @@ public class PvnService : IPvnService
         _bgTaskService.AddBgTask(SyncTask);
     }
 
-    private async Task<Configuration> GetConfigAsync()
+    public async Task<Configuration> GetConfigAsync()
     {
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         Configuration result = new()
@@ -606,4 +525,6 @@ public class PvnServerInfo
     public required bool BangumiOauth2Enable;
     public required bool DefaultLoginEnable;
     public required bool BangumiLoginEnable;
+    public required bool GalgameStaffAvailable;
+    public required bool StaffEnable;
 }

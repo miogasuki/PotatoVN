@@ -162,6 +162,7 @@ public partial class StaffViewModel(
         if (imagePath is null) return;
         Staff.ImagePath = string.Empty;
         Staff.ImagePath = imagePath;
+        Staff.ImageUrl = null;
     }
 
 }

@@ -17,11 +17,13 @@ public partial class Staff : ObservableObject
     [ObservableProperty] private Gender _gender;
     public ObservableCollection<Career> Career { get; set; } = [];
     [ObservableProperty] private string? _imagePath;
+    /// 图片下载地址（来自搜刮源），若手动设置了图片，这个会被置为null（以确保pvn服务同步时使用手动设置的图片）
     public string? ImageUrl { get; set; }
     [ObservableProperty] private string? _description;
     [ObservableProperty] private DateTime? _birthDate;
     public ObservableCollection<StaffGame> Games { get; set; } = [];
-
+    public bool RequirePvnSync;
+    
     public string? Name => JapaneseName ?? ChineseName ?? EnglishName;
 
     public override string ToString() => Name ?? "Unknown";
@@ -105,5 +107,11 @@ public class StaffIdentifier
         for (var i = 0; i < Galgame.PhraserNumber; i++)
             score += Ids[i] is not null && staff.Ids[i] == Ids[i] ? 1 : 0;
         return score;
+    }
+
+    public StaffIdentifier SetId(RssType rss, string? id)
+    {
+        Ids[(int)rss] = id;
+        return this;
     }
 }

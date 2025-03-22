@@ -235,6 +235,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.DownloadCharacters:
                 return (T?)(object)true;
             case KeyValues.OverrideLocalNameWithChinese:
+            case KeyValues.GalgamePageNewLayout_ShowSeiyu:
                 return (T?)(object)false;
             case KeyValues.MemoryImprove:
                 return (T?)(object)true;
@@ -251,9 +252,9 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.LibraryNavBar:
             case KeyValues.LibraryStatistics:
             case KeyValues.SyncGameCharacters:
+            case KeyValues.SyncStaff:
             case KeyValues.GalgamePageNewLayout:
             case KeyValues.GalgamePageNewLayout_ShowPainter:
-            case KeyValues.GalgamePageNewLayout_ShowSeiyu:
             case KeyValues.GalgamePageNewLayout_ShowWriter:
             case KeyValues.GalgamePageNewLayout_ShowMusician:
                 return (T?)(object)true;

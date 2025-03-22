@@ -93,4 +93,20 @@ public static class StringExtensions
                       (c >= '\uF900' && c <= '\uFAFF')) &&
         !input.IsJapanese();
 
+    /// <summary>
+    /// 把字符串转成整数，如果转换失败则返回0
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static int ToInt(this string input)
+    {
+        try
+        {
+            return int.Parse(input);
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
+    }
 }

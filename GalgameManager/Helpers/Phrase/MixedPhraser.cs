@@ -95,6 +95,56 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         }
         if(metas.Count == 0) return null;
         
+        // 对比所有的phraser的游戏名
+        // 如果有一个phraser的游戏名和当前的游戏名不一样，就认为是不同的游戏，重新获取
+
+        // 创建一个与metas长度相同的bool数组，初始值为false
+        List<bool> isSameGame = new List<bool>(new bool[metas.Count]);
+        
+        for (int i = 0; i < metas.Count; i++)
+        {
+            for (int j = i + 1; j < metas.Count; j++)
+            {
+                var name1 = metas.ElementAt(i).Value.Name.Value ?? string.Empty;
+                var name2 = metas.ElementAt(j).Value.Name.Value ?? string.Empty;
+                int threshold = (int)(Math.Max(name1.Length, name2.Length) * 0.3);
+                if (name1.Levenshtein(name2) <= threshold)
+                {
+                    // 如果两个游戏名的相似度大于等于0.3，就认为是同一个游戏
+                    // 如果游戏名长度为10时，有超过三个字符不一致时则认为是不同的游戏
+                    isSameGame[i] = true;
+                    isSameGame[j] = true;
+                }
+            }
+        }
+
+        // 如果所有的游戏名都不一样, 仅保留第一条记录
+        // 否则删除游戏名不一样的记录
+        if (isSameGame.All(x => x == false))
+        {
+
+            while (metas.Count > 1)
+            {
+                var removedRssType = metas.ElementAt(metas.Count - 1).Key;
+                // 删除最后一个元素
+                metas.Remove(removedRssType);
+                result.Ids[(int)removedRssType] = null;
+            }
+        }
+        else if (isSameGame.Any(x => x == true))
+        {
+            // 无事发生
+        }
+        else
+        {
+            foreach (var rssType in metas.Keys.ToList())
+            {
+                if (!isSameGame[(int)rssType])
+                    metas.Remove(rssType);
+                    result.Ids[(int)rssType] = null;
+            }
+        }
+
         // 合并信息
         result.RssType = RssType.Mixed;
         result.UpdateMixedId();

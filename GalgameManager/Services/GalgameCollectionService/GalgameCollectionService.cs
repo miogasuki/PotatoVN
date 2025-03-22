@@ -288,9 +288,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         galgameCharacter.Weight = tmp.Weight;
         galgameCharacter.BWH = tmp.BWH;
         
-        galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageAsync(tmp.ImageUrl, 
+        galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.ImageUrl, 
             fileNameWithoutExtension:$"{galgameCharacter.Name}_Large") ?? Galgame.DefaultImagePath;
-        galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageAsync(tmp.PreviewImageUrl, 
+        galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.PreviewImageUrl, 
                                                 fileNameWithoutExtension:$"{galgameCharacter.Name}_Preview") ??
                                             Galgame.DefaultImagePath;
         return galgameCharacter;

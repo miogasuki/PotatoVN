@@ -88,6 +88,11 @@ public partial class LibraryViewModel(
 
     public void OnNavigatedTo(object parameter)
     {
+
+        // 加载排序设置
+        CurrentSortKey = (SortKeys)settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
+        SortDescending = settingsService.ReadSettingAsync<bool>(KeyValues.LibrarySortDescending).Result;
+
         Source = new AdvancedCollectionView(new ObservableCollection<IDisplayableGameObject>(), true);
         Source.Filter = s =>
         {
@@ -103,6 +108,7 @@ public partial class LibraryViewModel(
         NavigateTo(parameter as GalgameSourceBase); //显示根库 / 指定库
         _beforeNavigateFromSource = null;
         galSourceService.OnSourceChanged += HandleSourceCollectionChanged;
+
     }
 
     public void OnNavigatedFrom()
@@ -168,6 +174,9 @@ public partial class LibraryViewModel(
         SourceVisible = Source.Count > 0;
         GalgamesVisible = Galgames.Count > 0;
         UpdateStatistics();
+
+        // 应用排序
+        ApplySorting();
 
         // 更新路径节点
         PathNodes.Clear();
@@ -414,6 +423,76 @@ public partial class LibraryViewModel(
             Galgames.Add(galgame);
         }
         UpdateStatistics();
+
+        // 重新应用排序
+        ApplySorting();
     }
 
+    #region SORTING
+    // 为XAML绑定添加静态枚举值属性
+    public SortKeys NameSortKey => SortKeys.Name;
+    public SortKeys LastPlaySortKey => SortKeys.LastPlay;
+    public SortKeys DeveloperSortKey => SortKeys.Developer;
+    public SortKeys RatingSortKey => SortKeys.Rating;
+    public SortKeys ReleaseDateSortKey => SortKeys.ReleaseDate;
+    public SortKeys LastFetchInfoTimeSortKey => SortKeys.LastFetchInfoTime;
+    public SortKeys AddTimeSortKey => SortKeys.AddTime;
+
+    [ObservableProperty] private SortKeys _currentSortKey = SortKeys.Name;
+    [ObservableProperty] private bool _sortDescending = true;
+    
+    [RelayCommand]
+    private void Sort(SortKeys sortKey)
+    {
+        // 如果点击当前排序键，则切换排序方向
+        if (CurrentSortKey == sortKey)
+        {
+            SortDescending = !SortDescending;
+        }
+        else
+        {
+            CurrentSortKey = sortKey;
+        }
+        
+        ApplySorting();
+    }
+    [RelayCommand]
+    private void ApplySorting()
+    {
+        Galgames.SortDescriptions.Clear();
+
+        // 根据当前排序键和方向应用排序
+        var direction = SortDescending ? SortDirection.Descending : SortDirection.Ascending;
+
+        switch (CurrentSortKey)
+        {
+            case SortKeys.Name:
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), direction));
+                break;
+            case SortKeys.LastPlay:
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastPlayTime), direction));
+                break;
+            case SortKeys.Developer:
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), direction));
+                break;
+            case SortKeys.Rating:
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Rating), direction));
+                break;
+            case SortKeys.ReleaseDate:
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.ReleaseDate), direction));
+                break;
+            case SortKeys.AddTime:
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), direction));
+                break;
+        }
+
+        // 保存排序设置到本地设置
+        _ = Task.Run(async () =>
+        {
+            await settingsService.SaveSettingAsync(KeyValues.LibrarySortKey, (int)CurrentSortKey);
+            await settingsService.SaveSettingAsync(KeyValues.LibrarySortDescending, SortDescending);
+        });
+    }
+
+    #endregion
 }

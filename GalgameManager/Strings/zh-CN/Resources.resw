@@ -2580,4 +2580,28 @@
   <data name="ElementTheme_Dark" xml:space="preserve">
     <value>深色</value>
   </data>
+  <data name="LibraryPage_Sort.Label" xml:space="preserve">
+  <value>排序</value>
+</data>
+  <data name="LibraryPage_SortByName.Text" xml:space="preserve">
+  <value>按名称</value>
+</data>
+  <data name="LibraryPage_SortByLastPlay.Text" xml:space="preserve">
+  <value>按最近游玩时间</value>
+</data>
+  <data name="LibraryPage_SortByDeveloper.Text" xml:space="preserve">
+  <value>按开发商</value>
+</data>
+  <data name="LibraryPage_SortByRating.Text" xml:space="preserve">
+  <value>按评分</value>
+</data>
+  <data name="LibraryPage_SortByReleaseDate.Text" xml:space="preserve">
+  <value>按发行日期</value>
+</data>
+  <data name="LibraryPage_SortByAddTime.Text" xml:space="preserve">
+  <value>按添加时间</value>
+</data>
+  <data name="LibraryPage_SortDescending.Text" xml:space="preserve">
+  <value>降序排序</value>
+</data>
 </root>

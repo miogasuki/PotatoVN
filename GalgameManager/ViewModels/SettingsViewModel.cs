@@ -222,7 +222,6 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public readonly ElementTheme[] Themes = { ElementTheme.Default, ElementTheme.Light, ElementTheme.Dark };
     [ObservableProperty ]private ElementTheme _elementTheme;
 
-    // 添加语言相关属性
     public readonly LanguageEnum[] Languages = { LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English };
     [ObservableProperty] private LanguageEnum _language;
 

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using GalgameManager.Contracts.Phrase;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Models;
 
@@ -263,7 +264,7 @@ public class MixedPhraserOrder
 {
     // 版本号，每次添加新搜刮器/添加新字段的时候都应该把这个数字+1，以便galgameCollectionService能够更新配置中已有的顺序配置
     // 更新配置不需要手动编写，已经在GalgameCollectionService中使用反射实现，会自动添加新的默认配置
-    public const int Version = 7;
+    public const int Version = 8;
     
     // 为什么使用ObservableCollection：为了能够在MixedPhraserOrderDialog中使顺序能够drag&drop
     // 所有变量都应该命名为：{字段名}Order，此处字段名应该与Galgame中对应的字段名一致（为了让GetValue中的反射能够找到对应的字段）
@@ -281,17 +282,42 @@ public class MixedPhraserOrder
 
     public MixedPhraserOrder SetToDefault()
     {
-        NameOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
-        DescriptionOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
-        ExpectedPlayTimeOrder = new() { RssType.Vndb};
-        RatingOrder = new() { RssType.Bangumi, RssType.Vndb };
-        ImageUrlOrder = new() { RssType.Vndb, RssType.Bangumi, RssType.Ymgal };
-        ReleaseDateOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
-        CharactersOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
-        CnNameOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
-        DeveloperOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
-        TagsOrder = new() { RssType.Bangumi, RssType.Vndb };
-        StaffOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal };
+        LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+        bool isChineseCulture = language == LanguageEnum.ChineseSimplified ||
+                                (language == LanguageEnum.Auto &&
+                                 System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
+
+        if (isChineseCulture)
+        {
+            // 中文用户偏好的顺序设置
+            NameOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            DescriptionOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            ExpectedPlayTimeOrder = new() { RssType.Vndb };
+            RatingOrder = new() { RssType.Bangumi, RssType.Ymgal };
+            ImageUrlOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            ReleaseDateOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            CharactersOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            CnNameOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            DeveloperOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            TagsOrder = new() { RssType.Bangumi, RssType.Ymgal };
+            StaffOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+        }
+        else
+        {
+            // 非中文用户偏好的顺序设置
+            NameOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            DescriptionOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            ExpectedPlayTimeOrder = new() { RssType.Vndb };
+            RatingOrder = new() { RssType.Vndb, RssType.Ymgal };
+            ImageUrlOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            ReleaseDateOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            CharactersOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            CnNameOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            DeveloperOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            TagsOrder = new() { RssType.Vndb, RssType.Ymgal };
+            StaffOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+        }
+
         return this;
     }
 }

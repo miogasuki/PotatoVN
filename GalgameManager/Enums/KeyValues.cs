@@ -102,6 +102,7 @@ public static class KeyValues
     public const string CloseMode = "closeMode"; // WindowMode,关闭模式，Normal（表示未设定）/Close/SystemTray
     public const string DevelopmentMode = "developmentMode"; //bool, 是否开发模式
     public const string LastError = "lastError"; //string, 上次错误信息
+    public const string Language = "language"; //string, 语言设置，en-US/zh-CN/zh-TW
     
     //是否执行过某种升级, bool
     public const string DataStatus = "dataStatus"; //LocalSettingStatus, 用于描述某PotatoVN数据的状态

@@ -2553,4 +2553,31 @@
   <data name="PvnSyncTask_GettingServerInfo" xml:space="preserve">
     <value>正在获取服务器信息</value>
   </data>
+  <data name="SettingsPage_Theme_Language.Text" xml:space="preserve">
+    <value>软件语言</value>
+  </data>
+  <data name="SettingsPage_Theme_Language_Description.Text" xml:space="preserve">
+    <value>选择软件使用的语言</value>
+  </data>
+  <data name="LanguageEnum_English" xml:space="preserve">
+    <value>英语</value>
+  </data>
+  <data name="LanguageEnum_ChineseSimplified" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="LanguageEnum_Auto" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="SettingsPage_Language_RestartRequired" xml:space="preserve">
+    <value>请重启应用以应用新语言</value>
+  </data>
+  <data name="ElementTheme_Default" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="ElementTheme_Light" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="ElementTheme_Dark" xml:space="preserve">
+    <value>深色</value>
+  </data>
 </root>

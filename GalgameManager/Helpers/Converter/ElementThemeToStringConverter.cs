@@ -8,14 +8,16 @@ public class ElementThemeToStringConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is ElementTheme theme)
-            return theme.ToString();
+            return ("ElementTheme_" + theme).GetLocalized();
         return value;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
         if (value is string str)
-            return Enum.Parse(typeof(ElementTheme), str);
+            return Enum.Parse(typeof(ElementTheme), str.Replace("ElementTheme_", ""), true);
+        if (value is ElementTheme theme)
+            return theme;
         return value;
     }
 }

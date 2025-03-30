@@ -20,6 +20,7 @@ using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Sources;
 using GalgameManager.Views.Dialog;
 using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
+using Windows.Globalization;
 
 namespace GalgameManager.ViewModels;
 
@@ -105,6 +106,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         
         //THEME
         _elementTheme = themeSelectorService.Theme;
+        _language = _localSettingsService.ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
         _fixHorizontalPicture = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture).Result;
         TimeAsHour = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour).Result;
         GalgamePageNewLayout = _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout).Result;
@@ -219,10 +221,53 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region THEME
     public readonly ElementTheme[] Themes = { ElementTheme.Default, ElementTheme.Light, ElementTheme.Dark };
     [ObservableProperty ]private ElementTheme _elementTheme;
-    
+
+    // 添加语言相关属性
+    public readonly LanguageEnum[] Languages = { LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English };
+    [ObservableProperty] private LanguageEnum _language;
+
     partial void OnElementThemeChanged(ElementTheme value)
     {
         _themeSelectorService.SetThemeAsync(value);
+    }
+
+    partial void OnLanguageChanged(LanguageEnum value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.Language, value);
+
+        // 尝试立即改变当前应用的语言设置
+        try
+        {
+            // 根据选择的语言获取对应的语言标记
+            string languageTag = GetLanguageTag(value);
+
+            // 应用语言设置
+            ApplicationLanguages.PrimaryLanguageOverride = languageTag;
+
+
+            // 提醒用户完全应用新语言还需要重启应用
+            _infoService.Info(InfoBarSeverity.Informational,
+                "SettingsPage_Language_RestartRequired".GetLocalized(),
+                displayTimeMs: 5000);
+        }
+        catch (Exception ex)
+        {
+            _infoService.Info(InfoBarSeverity.Error,
+                "SettingsPage_Language_ChangeError".GetLocalized(),
+                ex.Message);
+        }
+    }
+
+    // 根据语言枚举获取对应的语言标记
+    private string GetLanguageTag(LanguageEnum language)
+    {
+        return language switch
+        {
+            LanguageEnum.ChineseSimplified => "zh-CN",
+            LanguageEnum.English => "en-US",
+            LanguageEnum.Auto => "", // 空字符串表示使用系统默认语言
+            _ => ""
+        };
     }
 
     [ObservableProperty] private bool _fixHorizontalPicture;

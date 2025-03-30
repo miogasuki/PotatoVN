@@ -22,18 +22,21 @@
     <Grid RowDefinitions="Auto,*">
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                     Margin="{StaticResource CommandBarMargin}">
-            <AppBarButton x:Uid="Back" Command="{x:Bind ViewModel.BackCommand}">
+            <AppBarButton x:Uid="Back" Command="{x:Bind ViewModel.BackCommand}"
+                          AllowFocusOnInteraction="True">
                 <AppBarButton.Icon>
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE72B;" />
                 </AppBarButton.Icon>
             </AppBarButton>
-            <AppBarButton x:Uid="GalgameSettingPage_GetInfoFromRss" 
-                Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
+            <AppBarButton x:Uid="GalgameSettingPage_GetInfoFromRss"
+                          AllowFocusOnInteraction="True"
+                          Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
                 <AppBarButton.Icon>
                     <control:ConditionalFontIcon Symbol="Download" FluentGlyph="&#xE896;" />
                 </AppBarButton.Icon>
             </AppBarButton>
             <AppBarButton x:Uid="GalgameSettingPage_GetInfoFromRssWithName"
+                          AllowFocusOnInteraction="True"
                           Command="{x:Bind ViewModel.GetInfoFromRssCommand}"
                           CommandParameter="True">
                 <AppBarButton.Icon>

@@ -55,10 +55,11 @@
                            Style="{ThemeResource TitleTextBlockStyle}"
                            MaxWidth="{x:Bind ViewModel.TitleMaxWidth, Mode=OneWay}" />
                 <CommandBar RelativePanel.AlignRightWithPanel="True" Background="Transparent" IsOpen="False"
-                            DefaultLabelPosition="Right">
+                            DefaultLabelPosition="Right" Margin="{StaticResource CommandBarMargin}">
                     <!-- 手动添加游戏 -->
                     <AppBarButton Icon="Add" x:Uid="GalgameFolderPage_AddManually" 
                                   Command="{x:Bind ViewModel.AddGalgameCommand}"
+                                  AllowFocusOnInteraction="True"
                                   IsEnabled="{x:Bind ViewModel.Item.IsGameAddable, FallbackValue=False, Mode=OneWay}">
                         <AppBarButton.KeyboardAccelerators>
                             <KeyboardAccelerator Modifiers="Control" Key="N" />
@@ -66,7 +67,8 @@
                     </AppBarButton>
                     <!-- 从压缩包添加游戏 -->
                     <AppBarButton x:Uid="GalgameFolderPage_AddFromZip"
-                                  Command="{x:Bind ViewModel.AddGalFromZipCommand}">
+                                  Command="{x:Bind ViewModel.AddGalFromZipCommand}"
+                                  AllowFocusOnInteraction="True">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xF012;" />
                         </AppBarButton.Icon>
@@ -76,6 +78,7 @@
                     </AppBarButton>
                     <!-- 扫描游戏 -->
                     <AppBarButton Icon="Refresh" x:Uid="GalgameFolderPage_Refresh"
+                                  AllowFocusOnInteraction="True"
                                   Command="{x:Bind ViewModel.GetGalInFolderCommand}"
                                   IsEnabled="{x:Bind ViewModel.Item.IsSourceScanable, FallbackValue=False, Mode=OneWay}">
                         <AppBarButton.KeyboardAccelerators>
@@ -84,17 +87,20 @@
                     </AppBarButton>
                     <!-- 下载游戏数据 -->
                     <AppBarButton Icon="Download" Label="{x:Bind ViewModel.UiDownloadInfo, Mode=OneWay}" 
-                                  Command="{x:Bind ViewModel.GetInfoFromRssCommand}" />
+                                  Command="{x:Bind ViewModel.GetInfoFromRssCommand}" 
+                                  AllowFocusOnInteraction="True" />
                     <!-- 从游戏名下载游戏数据 -->
                     <AppBarButton Icon="Download" x:Uid="GalgameFolderPage_DownloadSelectedInfoFromName"
                                 Visibility="{x:Bind ViewModel.IsDownloadFromNameVisible, Mode=OneWay}"
                                   Command="{x:Bind ViewModel.GetInfoFromRssCommand}" 
-                                  CommandParameter="True"/>
+                                  CommandParameter="True"
+                                  AllowFocusOnInteraction="True"/>
                     <CommandBar.SecondaryCommands>
                         <!-- 打开Log文件 -->
                         <AppBarButton x:Uid="GalgameFolderPage_Log" 
                                       IsEnabled="{x:Bind ViewModel.LogExists, Mode=OneWay}"
-                                      Command="{x:Bind ViewModel.ViewLogCommand}">
+                                      Command="{x:Bind ViewModel.ViewLogCommand}"
+                                      AllowFocusOnInteraction="True">
                             <AppBarButton.Icon>
                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                             </AppBarButton.Icon>

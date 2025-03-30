@@ -17,7 +17,8 @@
 
     <Grid>
         <Grid RowDefinitions="Auto,*,Auto">
-            <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
+            <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
+                        Margin="{StaticResource CommandBarMargin}">
                 <!-- 开始游戏 -->
                 <AppBarButton x:Uid="GalgamePage_Play" Command="{x:Bind ViewModel.PlayCommand}"
                               Visibility="{x:Bind ViewModel.IsLocalGame, 

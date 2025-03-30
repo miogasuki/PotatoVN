@@ -28,7 +28,7 @@
         </Grid.RowDefinitions>
         
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
-                    Margin="0 -67 0 0">
+                    Margin="{StaticResource CommandBarMargin}">
             <AppBarButton Icon="Add" x:Uid="CategoryPage_AddCategory" 
                           Command="{x:Bind ViewModel.AddCategoryCommand}"
                           IsEnabled="{x:Bind ViewModel.CanAddCategory, Mode=OneWay}"/>

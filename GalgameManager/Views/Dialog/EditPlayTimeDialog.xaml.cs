@@ -9,17 +9,20 @@ namespace GalgameManager.Views.Dialog;
 public sealed partial class EditPlayTimeDialog
 {
     private readonly ObservableCollection<DisplayPlayTime> _playTimes = new();
-    
+
+    private readonly Galgame _galgame = new();
+
     public EditPlayTimeDialog(Galgame galgame)
     {
+        _galgame = galgame;
         InitializeComponent();
 
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         Title = "EditPlayTimeDialog_Title".GetLocalized();
         PrimaryButtonText = "Yes".GetLocalized();
         SecondaryButtonText = "Cancel".GetLocalized();
-        
-        foreach(var (date, playedTime) in galgame.PlayedTime)
+
+        foreach (var (date, playedTime) in galgame.PlayedTime)
         {
             DisplayPlayTime displayPlayTime = new()
             {
@@ -29,18 +32,36 @@ public sealed partial class EditPlayTimeDialog
             _playTimes.Add(displayPlayTime);
         }
         ListView.ItemsSource = _playTimes;
-        
+
         PrimaryButtonClick += (_, _) =>
         {
             galgame.PlayedTime.Clear();
             var totalTime = 0;
+            DateTime lastPlayDate = DateTime.MinValue;
+            
             foreach (DisplayPlayTime time in _playTimes)
+            {
                 if (time.PlayedTime > 0)
                 {
                     galgame.PlayedTime.Add(time.Date, time.PlayedTime);
                     totalTime += time.PlayedTime;
+                    
+                    // 更新最后游玩时间
+                    DateTime currentDate = DateTime.ParseExact(time.Date, "yyyy/M/d", null);
+                    if (currentDate > lastPlayDate)
+                    {
+                        lastPlayDate = currentDate;
+                    }
                 }
+            }
+            
             galgame.TotalPlayTime = totalTime;
+            
+            // 如果找到有效的最后游玩日期，则更新LastPlayTime
+            if (lastPlayDate != DateTime.MinValue)
+            {
+                galgame.LastPlayTime = lastPlayDate;
+            }
         };
     }
 

@@ -117,7 +117,7 @@
         </CommandBar>
         
         <!-- 添加面包屑导航栏 -->
-        <BreadcrumbBar Grid.Row="1" 
+        <BreadcrumbBar Grid.Row="1"
                        ItemsSource="{x:Bind ViewModel.PathNodes, Mode=OneWay}"
                        ItemClicked="{x:Bind ViewModel.OnBreadcrumbBarItemClicked}"
                        Visibility="{x:Bind ViewModel.IsNavBarVisible, Mode=OneWay}" 

@@ -358,6 +358,7 @@ public partial class LibraryViewModel(
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "HomePage_Remove_Title".GetLocalized(),
             Content = "HomePage_Remove_Message".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),

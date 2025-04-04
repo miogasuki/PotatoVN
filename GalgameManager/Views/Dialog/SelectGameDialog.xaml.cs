@@ -33,7 +33,8 @@ public sealed partial class SelectGameDialog : ContentDialog
     public SelectGameDialog()
     {
         InitializeComponent();
-        
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
+
         // 设置本地化文本
         Title = "SelectGameDialog_Title".GetLocalized();
         PrimaryButtonText = "SelectGameDialog_Confirm".GetLocalized();

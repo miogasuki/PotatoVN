@@ -305,6 +305,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "HomePage_Delete_Title".GetLocalized(),
             Content = new StackPanel
             {

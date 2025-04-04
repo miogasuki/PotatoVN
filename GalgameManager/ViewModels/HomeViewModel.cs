@@ -360,6 +360,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "HomePage_Sort_Title".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
@@ -505,6 +506,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "HomePage_Remove_Title".GetLocalized(),
             Content = "HomePage_Remove_Message".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),

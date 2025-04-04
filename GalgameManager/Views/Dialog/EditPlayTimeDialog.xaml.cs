@@ -16,6 +16,7 @@ public sealed partial class EditPlayTimeDialog
     {
         _galgame = galgame;
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         Title = "EditPlayTimeDialog_Title".GetLocalized();

@@ -197,6 +197,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         ContentDialog updateDialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "SettingsPage_UpdateNotification_Title".GetLocalized(),
             Content = "SettingsPage_UpdateNotification_Msg".GetLocalized(),
             PrimaryButtonText = "SettingsPage_SeeWhatsNew".GetLocalized(),

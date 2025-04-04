@@ -15,6 +15,7 @@ public sealed partial class PvnSetAccountDialog
     public PvnSetAccountDialog(PvnAccount account)
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         PrimaryButtonText = "Yes".GetLocalized();

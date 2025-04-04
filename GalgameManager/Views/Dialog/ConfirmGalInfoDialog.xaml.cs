@@ -28,6 +28,7 @@ public partial class ConfirmGalInfoDialog
     public ConfirmGalInfoDialog(Galgame targetGame, Galgame? fetchedMeta, IGalgameCollectionService service)
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         
         Galgame = fetchedMeta ?? new Galgame(targetGame.Name.Value ?? string.Empty);

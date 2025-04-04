@@ -5,6 +5,7 @@
     xmlns:helpers="using:GalgameManager.Helpers"
     xmlns:viewmodels="using:GalgameManager.ViewModels"
     xmlns:control="using:GalgameManager.Views.Control"
+    ActualThemeChanged="{x:Bind OnActualThemeChanged}"
     Loaded="OnLoaded">
 
     <Grid>
@@ -13,7 +14,8 @@
               Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
               IsHitTestVisible="True"
               VerticalAlignment="Top">
-            <Image Source="/Assets/WindowIcon.ico"
+            <Image x:Name="AppTitleBarIcon"
+                   Source="/Assets/WindowIcon.ico"
                    HorizontalAlignment="Left"
                    Width="16"
                    Height="16" />

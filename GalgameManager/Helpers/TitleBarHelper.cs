@@ -4,6 +4,7 @@ using Windows.UI.ViewManagement;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Windowing;
 
 namespace GalgameManager.Helpers;
 
@@ -39,80 +40,56 @@ internal class TitleBarHelper
                 theme = Application.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
             }
 
-            Application.Current.Resources["WindowCaptionForeground"] = theme switch
-            {
-                ElementTheme.Dark => new SolidColorBrush(Colors.White),
-                ElementTheme.Light => new SolidColorBrush(Colors.Black),
-                _ => new SolidColorBrush(Colors.Transparent)
-            };
+            // 使用新的直接设置标题栏颜色的方法
+            SetTitleBarTheme(theme);
+        }
+    }
 
-            Application.Current.Resources["WindowCaptionForegroundDisabled"] = theme switch
-            {
-                ElementTheme.Dark => new SolidColorBrush(Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF)),
-                ElementTheme.Light => new SolidColorBrush(Color.FromArgb(0x66, 0x00, 0x00, 0x00)),
-                _ => new SolidColorBrush(Colors.Transparent)
-            };
+    /// <summary>
+    /// 设置标题栏按钮的主题色
+    /// </summary>
+    private static void SetTitleBarTheme(ElementTheme theme)
+    {
+        if (App.MainWindow == null) return;
+        
+        var appWindow = App.MainWindow.AppWindow;
+        if (appWindow == null) return;
+        
+        AppWindowTitleBar titleBar = appWindow.TitleBar;
 
-            Application.Current.Resources["WindowCaptionButtonBackgroundPointerOver"] = theme switch
-            {
-                ElementTheme.Dark => new SolidColorBrush(Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF)),
-                ElementTheme.Light => new SolidColorBrush(Color.FromArgb(0x33, 0x00, 0x00, 0x00)),
-                _ => new SolidColorBrush(Colors.Transparent)
-            };
+        titleBar.BackgroundColor = Colors.Transparent;
+        titleBar.ForegroundColor = Colors.Transparent;
+        titleBar.InactiveBackgroundColor = Colors.Transparent;
+        titleBar.InactiveForegroundColor = Colors.Transparent;
+        titleBar.ButtonBackgroundColor = Colors.Transparent;
+        titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-            Application.Current.Resources["WindowCaptionButtonBackgroundPressed"] = theme switch
-            {
-                ElementTheme.Dark => new SolidColorBrush(Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF)),
-                ElementTheme.Light => new SolidColorBrush(Color.FromArgb(0x66, 0x00, 0x00, 0x00)),
-                _ => new SolidColorBrush(Colors.Transparent)
-            };
-
-            Application.Current.Resources["WindowCaptionButtonStrokePointerOver"] = theme switch
-            {
-                ElementTheme.Dark => new SolidColorBrush(Colors.White),
-                ElementTheme.Light => new SolidColorBrush(Colors.Black),
-                _ => new SolidColorBrush(Colors.Transparent)
-            };
-
-            Application.Current.Resources["WindowCaptionButtonStrokePressed"] = theme switch
-            {
-                ElementTheme.Dark => new SolidColorBrush(Colors.White),
-                ElementTheme.Light => new SolidColorBrush(Colors.Black),
-                _ => new SolidColorBrush(Colors.Transparent)
-            };
-
-            Application.Current.Resources["WindowCaptionBackground"] = new SolidColorBrush(Colors.Transparent);
-            Application.Current.Resources["WindowCaptionBackgroundDisabled"] = new SolidColorBrush(Colors.Transparent);
-
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-            if (hwnd == GetActiveWindow())
-            {
-                SendMessage(hwnd, WMACTIVATE, WAINACTIVE, IntPtr.Zero);
-                SendMessage(hwnd, WMACTIVATE, WAACTIVE, IntPtr.Zero);
-            }
-            else
-            {
-                SendMessage(hwnd, WMACTIVATE, WAACTIVE, IntPtr.Zero);
-                SendMessage(hwnd, WMACTIVATE, WAINACTIVE, IntPtr.Zero);
-            }
+        
+        if (theme is ElementTheme.Light)
+        {
+            titleBar.ButtonForegroundColor = Color.FromArgb(255, 23, 23, 23);
+            titleBar.ButtonHoverBackgroundColor = Color.FromArgb(25, 0, 0, 0);
+            titleBar.ButtonHoverForegroundColor = Colors.Black;
+            titleBar.ButtonPressedBackgroundColor = Color.FromArgb(51, 0, 0, 0);
+            titleBar.ButtonPressedForegroundColor = Colors.Black;
+            titleBar.ButtonInactiveForegroundColor = Color.FromArgb(255, 153, 153, 153);
+        }
+        else
+        {
+            titleBar.ButtonForegroundColor = Color.FromArgb(255, 242, 242, 242);
+            titleBar.ButtonHoverBackgroundColor = Color.FromArgb(25, 255, 255, 255);
+            titleBar.ButtonHoverForegroundColor = Colors.White;
+            titleBar.ButtonPressedBackgroundColor = Color.FromArgb(51, 255, 255, 255);
+            titleBar.ButtonPressedForegroundColor = Colors.White;
+            titleBar.ButtonInactiveForegroundColor = Color.FromArgb(255, 102, 102, 102);
         }
     }
 
     public static void ApplySystemThemeToCaptionButtons()
     {
-        var res = Application.Current.Resources;
         var frame = App.AppTitlebar as FrameworkElement;
         if (frame != null)
         {
-            if (frame.ActualTheme == ElementTheme.Dark)
-            {
-                res["WindowCaptionForeground"] = Colors.White;
-            }
-            else
-            {
-                res["WindowCaptionForeground"] = Colors.Black;
-            }
-
             UpdateTitleBar(frame.ActualTheme);
         }
     }

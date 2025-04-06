@@ -107,6 +107,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         //THEME
         _elementTheme = themeSelectorService.Theme;
         _language = _localSettingsService.ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+        _backgroundMaterial = _localSettingsService.ReadSettingAsync<BackgroundMaterialEnum>(KeyValues.BackgroundMaterial).Result;
         _fixHorizontalPicture = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture).Result;
         TimeAsHour = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour).Result;
         GalgamePageNewLayout = _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout).Result;
@@ -225,6 +226,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     public readonly LanguageEnum[] Languages = { LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English };
     [ObservableProperty] private LanguageEnum _language;
+
+    public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic };
+    [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;
+
+    partial void OnBackgroundMaterialChanged(BackgroundMaterialEnum value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.BackgroundMaterial, value);
+        _themeSelectorService.SetBackgroundMaterialAsync();
+    }
 
     partial void OnElementThemeChanged(ElementTheme value)
     {

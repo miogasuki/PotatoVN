@@ -22,8 +22,10 @@
     <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
         <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing"
+  mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework
+  object]</value>
         <comment>This is a comment</comment>
     </data>
                 
@@ -59,7 +61,8 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -112,10 +115,12 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0,
+      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
+      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
     <value>PotatoVN</value>
@@ -1850,7 +1855,7 @@
   <data name="GalgameSettingPage_ExePathSetSuccess" xml:space="preserve">
     <value>成功设置游戏启动文件</value>
   </data>
-    <data name="GalgameSettingPage_ExePathSetCanceled" xml:space="preserve">
+  <data name="GalgameSettingPage_ExePathSetCanceled" xml:space="preserve">
         <value>用户取消了操作</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetFailed" xml:space="preserve">
@@ -2049,7 +2054,8 @@
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListFull.Text" xml:space="preserve">
     <value>游戏列表（全部游戏）</value>
   </data>
-  <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListCategory.Text" xml:space="preserve">
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListCategory.Text"
+    xml:space="preserve">
     <value>游戏列表（某分类中）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListSource.Text" xml:space="preserve">
@@ -2061,7 +2067,8 @@
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListFull.Text" xml:space="preserve">
     <value>库列表（全部库）</value>
   </data>
-  <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListSubSource.Text" xml:space="preserve">
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListSubSource.Text"
+    xml:space="preserve">
     <value>库列表（某库中）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_NewGameList" xml:space="preserve">
@@ -2442,13 +2449,13 @@
   <data name="SelectGameDialog_Title" xml:space="preserve">
     <value>选择游戏</value>
   </data>
-    <data name="SelectGameDialog_Search.PlaceholderText" xml:space="preserve">
+  <data name="SelectGameDialog_Search.PlaceholderText" xml:space="preserve">
       <value>搜索游戏...</value>
   </data>
-    <data name="SelectGameDialog_Confirm" xml:space="preserve">
+  <data name="SelectGameDialog_Confirm" xml:space="preserve">
       <value>确定</value>
   </data>
-    <data name="SelectGameDialog_Cancel" xml:space="preserve">
+  <data name="SelectGameDialog_Cancel" xml:space="preserve">
       <value>取消</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_Title" xml:space="preserve">
@@ -2581,27 +2588,42 @@
     <value>深色</value>
   </data>
   <data name="LibraryPage_Sort.Label" xml:space="preserve">
-  <value>排序</value>
-</data>
+    <value>排序</value>
+  </data>
   <data name="LibraryPage_SortByName.Text" xml:space="preserve">
-  <value>按名称</value>
-</data>
+    <value>按名称</value>
+  </data>
   <data name="LibraryPage_SortByLastPlay.Text" xml:space="preserve">
-  <value>按最近游玩时间</value>
-</data>
+    <value>按最近游玩时间</value>
+  </data>
   <data name="LibraryPage_SortByDeveloper.Text" xml:space="preserve">
-  <value>按开发商</value>
-</data>
+    <value>按开发商</value>
+  </data>
   <data name="LibraryPage_SortByRating.Text" xml:space="preserve">
-  <value>按评分</value>
-</data>
+    <value>按评分</value>
+  </data>
   <data name="LibraryPage_SortByReleaseDate.Text" xml:space="preserve">
-  <value>按发行日期</value>
-</data>
+    <value>按发行日期</value>
+  </data>
   <data name="LibraryPage_SortByAddTime.Text" xml:space="preserve">
-  <value>按添加时间</value>
-</data>
+    <value>按添加时间</value>
+  </data>
   <data name="LibraryPage_SortDescending.Text" xml:space="preserve">
-  <value>降序排序</value>
-</data>
+    <value>降序排序</value>
+  </data>
+  <data name="BackgroundMaterialEnum_Mica" xml:space="preserve">
+    <value>云母（默认）</value>
+  </data>
+  <data name="BackgroundMaterialEnum_MicaAlt" xml:space="preserve">
+    <value>云母Alt</value>
+  </data>
+  <data name="BackgroundMaterialEnum_DesktopAcrylic" xml:space="preserve">
+    <value>亚克力</value>
+  </data>
+  <data name="SettingsPage_Theme_WindowBackgroundMaterial.Text" xml:space="preserve">
+    <value>窗口背景材质</value>
+  </data>
+  <data name="SettingsPage_Theme_WindowBackgroundMaterial_Description.Text" xml:space="preserve">
+    <value>设置应用呈现的背景色，在部分系统中可能没有效果</value>
+  </data>
 </root>

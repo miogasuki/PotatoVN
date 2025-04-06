@@ -11,7 +11,6 @@
     mc:Ignorable="d">
     <Page.Resources>
         <converter:RssTypeToVisibilityConverter x:Key="RssTypeToVisibilityConverter"/>
-        <converter:ElementThemeToStringConverter x:Key="ElementThemeToStringConverter"/>
         <converter:LanguageEnumToStringConverter x:Key="LanguageEnumToStringConverter"/>
         <converter:AuthenticationTypeToStringConverter x:Key="AuthenticationTypeToStringConverter"/>
         <converter:WindowModeToStringConverter x:Key="WindowModeToStringConverter"/>
@@ -54,11 +53,31 @@
                                               RelativePanel.AlignRightWithPanel="True">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate x:DataType="ElementTheme">
-                                                <TextBlock Text="{x:Bind Converter={StaticResource ElementThemeToStringConverter}}" />
+                                                <TextBlock Text="{x:Bind Converter={StaticResource EnumToStringConverter}}" />
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
                                 </RelativePanel> 
+                            </control:Panel>
+                            <!--  窗口背景材质  -->
+                            <control:Panel>
+                                <RelativePanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBlock x:Uid="SettingsPage_Theme_WindowBackgroundMaterial"
+                                                   Style="{ThemeResource BodyTextBlockStyle}" />
+                                        <TextBlock x:Uid="SettingsPage_Theme_WindowBackgroundMaterial_Description"
+                                                   Style="{StaticResource DescriptionTextStyle}" />
+                                    </StackPanel>
+                                    <ComboBox ItemsSource="{x:Bind ViewModel.BackgroundMaterials}"
+                                              SelectedItem="{x:Bind ViewModel.BackgroundMaterial, Mode=TwoWay}"
+                                              RelativePanel.AlignRightWithPanel="True">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate x:DataType="enums:BackgroundMaterialEnum">
+                                                    <TextBlock Text="{x:Bind Converter={StaticResource EnumToStringConverter}}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </RelativePanel>
                             </control:Panel>
                             <!-- 软件语言 -->
                             <control:Panel>

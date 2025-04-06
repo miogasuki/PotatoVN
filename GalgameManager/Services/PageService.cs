@@ -58,6 +58,7 @@ public class PageService : IPageService
             UIElement shell = App.GetService<ShellPage>();
             App.MainWindow.Content = shell;
             await App.GetService<IThemeSelectorService>().SetRequestedThemeAsync();
+            await App.GetService<IThemeSelectorService>().SetBackgroundMaterialAsync();
             OnInit?.Invoke();
         }
     }

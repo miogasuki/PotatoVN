@@ -85,6 +85,7 @@ public static class KeyValues
     public const string GalgamePageNewLayout_ShowSeiyu = "galgamePageNewLayout_showSeiyu"; //bool, 游戏页是否显示声优
     public const string GalgamePageNewLayout_ShowWriter = "galgamePageNewLayout_showWriter"; //bool, 游戏页是否显示剧本
     public const string GalgamePageNewLayout_ShowMusician = "galgamePageNewLayout_showMusician"; //bool, 游戏页是否显示音乐
+    public const string GalgamePageNewLayout_CoverImage = "galgamePageNewLayout_coverImage"; //bool, 游戏页是否显示封面
 
     //库页面
     public const string LibraryNavBar = "libraryNavBar"; //bool, 是否显示库页面的导航栏

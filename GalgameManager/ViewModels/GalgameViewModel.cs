@@ -55,11 +55,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _canOpenInVndb;
     [ObservableProperty] private bool _canOpenInYmgal;
     [ObservableProperty] private bool _canOpenInCngal;
-
-    [ObservableProperty] private bool _infoBarOpen;
-    [ObservableProperty] private string _infoBarMsg = string.Empty;
-    [ObservableProperty] private InfoBarSeverity _infoBarSeverity = InfoBarSeverity.Informational;
-    private int _msgIndex;
     private bool IsNotLocalGame => !IsLocalGame;
 
     [ObservableProperty]
@@ -158,13 +153,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
     private async Task DisplayMsg(InfoBarSeverity severity, string msg, int displayTimeMs = 3000)
     {
-        var myIndex = ++_msgIndex;
-        InfoBarOpen = true;
-        InfoBarMsg = msg;
-        InfoBarSeverity = severity;
-        await Task.Delay(displayTimeMs);
-        if (myIndex == _msgIndex)
-            InfoBarOpen = false;
+        _infoService.Info(severity, msg: msg, displayTimeMs: displayTimeMs);
+        await Task.Delay(displayTimeMs); //保持兼容旧写法
     }
 
     #endregion

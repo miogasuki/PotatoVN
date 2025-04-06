@@ -17,7 +17,12 @@
         <local:CommentVisibilityConverter x:Key="CommentVisibilityConverter"/> 
     </UserControl.Resources>
 
-    <StackPanel Margin="50 30 30 0" Spacing="8" SizeChanged="OnSizeChanged">
+    <StackPanel Spacing="8" SizeChanged="OnSizeChanged">
+        <TextBlock
+            Margin="{StaticResource SmallTopBottomMargin}"
+            Style="{ThemeResource SubtitleTextBlockStyle}"
+            x:Uid="GalgamePage_PlayStatusPanel"/>
+        
         <!-- 第一行游玩信息列表 -->
         <StackPanel x:Name="InfoStackPanel" Margin="0 0 0 20">
             <!-- 上次游玩时间 -->

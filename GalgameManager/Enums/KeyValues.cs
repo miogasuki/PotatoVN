@@ -104,6 +104,9 @@ public static class KeyValues
     public const string LastError = "lastError"; //string, 上次错误信息
     public const string Language = "language"; //string, 语言设置，en-US/zh-CN/zh-TW
     public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic
+    public const string UpdateType = "updateType"; //string, 更新类型，stable/beta
+    public const string UpdateUrl = "updateUrl"; //string, 更新地址，stable/beta
+
 
     //是否执行过某种升级, bool
     public const string DataStatus = "dataStatus"; //LocalSettingStatus, 用于描述某PotatoVN数据的状态

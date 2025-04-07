@@ -1162,7 +1162,7 @@
   <data name="UpdateContentPage_Download_Success" xml:space="preserve">
     <value>已成功下载最新更新记录文档</value>
   </data>
-  <data name="SettingsPage_About_UpdateAvailable.Text" xml:space="preserve">
+  <data name="SettingsPage_About_UpdateAvailable.Content" xml:space="preserve">
     <value>有新版本 ヾ(✿ﾟ▽ﾟ)ノ</value>
   </data>
   <data name="GalgamePage_SelectThread.Label" xml:space="preserve">

@@ -658,6 +658,19 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #endregion
 
     #region ABOUT
+    [RelayCommand]
+    private async Task OpenUpdateWeb()
+    {
+
+        // 从设置中获取更新链接
+        string storeUrl = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateUrl) ?? "https://apps.microsoft.com/detail/9p9cbkd5hr3w";
+
+        // 打开链接
+        await Windows.System.Launcher.LaunchUriAsync(new Uri(storeUrl));
+    
+        
+    }
+
 
     [RelayCommand]
     private async Task Rate()

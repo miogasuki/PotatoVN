@@ -568,7 +568,8 @@
                         <Grid Grid.Column="1" Background="{ThemeResource  ControlAltFillColorSecondaryBrush}" 
                               CornerRadius="10" VerticalAlignment="Center" Margin="10 0 0 0"
                               Visibility="{x:Bind ViewModel.UpdateAvailable, Mode=OneWay}">
-                            <TextBlock Padding="10 0 10 0" x:Uid="SettingsPage_About_UpdateAvailable" />
+                            <HyperlinkButton x:Uid="SettingsPage_About_UpdateAvailable" Padding="10 0 10 0" 
+                                Command="{x:Bind ViewModel.OpenUpdateWebCommand}"/>
                     </Grid>
                     </Grid>
                     <StackPanel Orientation="Horizontal">

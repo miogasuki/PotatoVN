@@ -2623,4 +2623,7 @@
   <data name="SettingsPage_Theme_WindowBackgroundMaterial_Description.Text" xml:space="preserve">
     <value>设置应用呈现的背景色，在部分系统中可能没有效果</value>
   </data>
+  <data name="GalgamePage_ManageLayout.Label" xml:space="preserve">
+    <value>管理游戏页面布局</value>
+  </data>
 </root>

@@ -6,8 +6,6 @@ public static class KeyValues
     public const string RemoteFolder = "remoteFolder";
     public const string SortKeys = "sortKeys";
     public const string SortKeysAscending = "sortKeysAscending";
-    public const string SearchChildFolder = "searchChildFolder";
-    public const string SearchChildFolderDepth = "searchChildFolderDepth";
     public const string IgnoreFetchResult = "ignoreFetchResult";
     public const string RegexPattern = "regexPattern";
     public const string RegexIndex = "regexIndex";

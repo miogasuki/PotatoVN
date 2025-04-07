@@ -315,32 +315,6 @@
                                     </control:Setting>
                                 </StackPanel>
                             </control:Panel>
-                            <!-- 递归搜索子目录 -->
-                            <control:Panel>
-                                <StackPanel>
-                                    <local:SettingToggleSwitch
-                                        Title="{x:Bind ViewModel.UiLibrarySearchSubPath}"
-                                        Description="{x:Bind ViewModel.UiLibrarySearchSubPathDescription}"
-                                        IsOn="{x:Bind ViewModel.SearchSubFolder, Mode=TwoWay}" />
-                                    <RelativePanel Margin="{StaticResource XSmallTopMargin}"
-                                                   HorizontalAlignment="Stretch"
-                                                   Visibility="{x:Bind ViewModel.SearchSubFolder, Mode=OneWay}">
-                                        <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{x:Bind ViewModel.UiLibrarySearchSubPathDepth}"
-                                                       Style="{ThemeResource BodyTextBlockStyle}" />
-                                            <TextBlock Text="{x:Bind ViewModel.UiLibrarySearchSubPathDepthDescription}"
-                                                       Style="{StaticResource DescriptionTextStyle}"/>
-                                        </StackPanel>
-                                        <TextBox Text="{x:Bind ViewModel.SearchSubFolderDepth, Mode=TwoWay}"
-                                                 RelativePanel.AlignRightWithPanel="True" />
-                                        <RelativePanel.Transitions>
-                                            <TransitionCollection>
-                                                <RepositionThemeTransition/>
-                                            </TransitionCollection>
-                                        </RelativePanel.Transitions>
-                                    </RelativePanel>
-                                </StackPanel>
-                            </control:Panel>
                             <!-- 忽略游戏查询结果 -->
                             <control:Panel>
                                 <local:SettingToggleSwitch x:Uid="SettingsPage_Library_IgnoreFetchResult"

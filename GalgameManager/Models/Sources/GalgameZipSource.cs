@@ -30,14 +30,12 @@ public class GalgameZipSource : GalgameSourceBase
     {
         ILocalSettingsService localSettings = App.GetService<ILocalSettingsService>();
         
-        var searchSubFolder = await localSettings.ReadSettingAsync<bool>(KeyValues.SearchChildFolder);
-        var maxDepth = searchSubFolder ? await localSettings.ReadSettingAsync<int>(KeyValues.SearchChildFolderDepth) : 1;
-        
-        Queue<(string Path, int Depth)> pathToCheck = new();
-        pathToCheck.Enqueue((Path, 0));
+
+        Queue<string> pathToCheck = new();
+        pathToCheck.Enqueue(Path);
         while (pathToCheck.Count > 0)
         {
-            var (currentPath, currentDepth) = pathToCheck.Dequeue();
+            var currentPath = pathToCheck.Dequeue();
             
             foreach (var f in Directory.GetFiles(currentPath))
             {
@@ -46,13 +44,15 @@ public class GalgameZipSource : GalgameSourceBase
                 {
                     yield return (new (f), $"successfully add {f}\n");
                 }
-
-                yield return (null, $"{f} is not zip\n");
-
+                else
+                {
+                    yield return (null, $"{f} is not zip\n");
+                }
             }
-            if (currentDepth == maxDepth) continue;
+            
+            // 删除深度检查，持续扫描所有子目录
             foreach (var subPath in Directory.GetDirectories(currentPath))
-                pathToCheck.Enqueue((subPath, currentDepth + 1));
+                pathToCheck.Enqueue(subPath);
         }
     }
 }

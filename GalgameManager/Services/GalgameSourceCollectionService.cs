@@ -203,38 +203,89 @@ public class GalgameSourceCollectionService(
     
     public async Task DeleteGalgameFolderAsync(GalgameSourceBase source)
     {
-        var delete = false;
+        var removeFromLibrary = false;
+        
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
             RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "GalgameFolderCollectionService_DeleteGalgameFolderAsync_Title".GetLocalized(),
-            Content = "GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content".GetLocalized(),
+            Content = new StackPanel
+            {
+                Children =
+                {
+                    new TextBlock { Text = "GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content".GetLocalized(), TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap },
+                    new CheckBox { Content = "GalgameFolderCollectionService_DeleteGalgameFolderAsync_RemoveFromLibrary".GetLocalized(), Margin = new Microsoft.UI.Xaml.Thickness(0, 10, 0, 0), IsChecked = false },
+                }
+            },
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
-            PrimaryButtonCommand = new RelayCommand(() => delete = true),
             DefaultButton = ContentDialogButton.Secondary
         };
-        await dialog.ShowAsync();
-        if (!delete || !_galgameSources.Contains(source)) return;
         
-        try
+        dialog.PrimaryButtonClick += async (_, _) =>
         {
-            List<Galgame> srcGames = source.GetGalgameList().ToList();
-            foreach (Galgame galgame in srcGames) 
-                MoveOutNoOperate(source, galgame);
-        }
-        catch (Exception e)
+            var checkBox = (CheckBox)((StackPanel)dialog.Content).Children[1];
+            removeFromLibrary = checkBox?.IsChecked ?? false;
+            
+            if (!_galgameSources.Contains(source)) return;
+            
+            // 获取所有子文件夹
+            var sourcesToDelete = new List<GalgameSourceBase> { source };
+            CollectAllSubSources(source, sourcesToDelete);
+            
+            // 从所有要删除的源中删除游戏
+            foreach (var sourceToDelete in sourcesToDelete)
+            {
+                try
+                {
+                    List<Galgame> srcGames = sourceToDelete.GetGalgameList().ToList();
+                    foreach (Galgame galgame in srcGames)
+                    {
+                        MoveOutNoOperate(sourceToDelete, galgame);
+                        
+                        // 如果用户选择同时从游戏库中删除游戏
+                        if (removeFromLibrary && galgame.Sources.Count == 0)
+                        {
+                            var gameService = App.GetService<IGalgameCollectionService>();
+                            await gameService.RemoveGalgame(galgame, false);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    infoService.DeveloperEvent(InfoBarSeverity.Error,
+                        msg: $"Failed to move game out of source {sourceToDelete.Url}\n{e.StackTrace}");
+                }
+            }
+            
+            // 从集合中删除所有源并从数据库中删除
+            foreach (var sourceToDelete in sourcesToDelete)
+            {
+                _galgameSources.Remove(sourceToDelete);
+                _dbSet.Delete(sourceToDelete.Id);
+                sourceToDelete.Detect = false; // 关掉监听，触发取消监听事件
+                OnSourceDeleted?.Invoke(sourceToDelete);
+            }
+            
+            CalcSubSources();
+            OnSourceChanged?.Invoke();
+        };
+        
+        await dialog.ShowAsync();
+    }
+    
+    // 递归收集所有子源
+    private void CollectAllSubSources(GalgameSourceBase source, List<GalgameSourceBase> sourcesToDelete)
+    {
+        foreach (var subSource in source.SubSources.ToList())
         {
-            infoService.DeveloperEvent(InfoBarSeverity.Error,
-                msg: $"Failed to move game out of source {source.Url}\n{e.StackTrace}");
+            if (!sourcesToDelete.Contains(subSource))
+            {
+                sourcesToDelete.Add(subSource);
+                CollectAllSubSources(subSource, sourcesToDelete);
+            }
         }
-        _galgameSources.Remove(source);
-        _dbSet.Delete(source.Id);
-        CalcSubSources();
-        source.Detect = false; // 关掉监听，触发取消监听事件
-        OnSourceDeleted?.Invoke(source);
-        OnSourceChanged?.Invoke();
     }
 
     public void MoveInNoOperate(GalgameSourceBase target, Galgame game, string path)

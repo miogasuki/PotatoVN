@@ -27,9 +27,7 @@ public class GalgameZipSource : GalgameSourceBase
     }
 
     public async override IAsyncEnumerable<(string?, string)> ScanAllGalgames()
-    {
-        ILocalSettingsService localSettings = App.GetService<ILocalSettingsService>();
-        
+    {   
 
         Queue<string> pathToCheck = new();
         pathToCheck.Enqueue(Path);
@@ -54,5 +52,6 @@ public class GalgameZipSource : GalgameSourceBase
             foreach (var subPath in Directory.GetDirectories(currentPath))
                 pathToCheck.Enqueue(subPath);
         }
+        await Task.CompletedTask;
     }
 }

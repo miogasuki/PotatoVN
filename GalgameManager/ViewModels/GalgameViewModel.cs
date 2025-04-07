@@ -80,6 +80,17 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         _bgTaskService = bgTaskService;
         _pvnService = pvnService;
         _infoService = infoService;
+        
+        // 订阅布局更改事件
+        ManageGalgamePageLayoutDialog.LayoutChanged += OnLayoutChanged;
+    }
+    
+    // 布局更改时更新视图
+    private void OnLayoutChanged(object? sender, bool newLayoutValue)
+    {
+        UseNewLayout = newLayoutValue;
+        // 重新初始化面板
+        Update(Item);
     }
     
     public async void OnNavigatedTo(object parameter)
@@ -114,6 +125,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         _galgameService.PhrasedEvent2 -= Update;
         _staffService.OnGameStaffChanged -= Update;
+        ManageGalgamePageLayoutDialog.LayoutChanged -= OnLayoutChanged;
     }
     
     /// <summary>
@@ -234,7 +246,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         try
         {
             process.Start();
-            Item.LastPlayTime = DateTime.Now;
             // _galgameService.Sort();
             if (Item.ProcessName is not null)
             {
@@ -616,6 +627,16 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         Item!.ExePath = null;
         await ClearText();
         
+    }
+
+    // 管理游戏详情页布局
+    [RelayCommand]
+    private void ManageLayout()
+    {
+        ManageGalgamePageLayoutDialog dialog = new();
+        _ = dialog.ShowAsync();
+        
+
     }
 
     private static GamePanelBase GetPanel(GalgamePagePanel panel, Galgame? game)

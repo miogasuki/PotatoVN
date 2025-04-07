@@ -10,11 +10,9 @@ public sealed partial class EditPlayTimeDialog
 {
     private readonly ObservableCollection<DisplayPlayTime> _playTimes = new();
 
-    private readonly Galgame _galgame = new();
 
     public EditPlayTimeDialog(Galgame galgame)
     {
-        _galgame = galgame;
         InitializeComponent();
         RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
@@ -38,7 +36,6 @@ public sealed partial class EditPlayTimeDialog
         {
             galgame.PlayedTime.Clear();
             var totalTime = 0;
-            DateTime lastPlayDate = DateTime.MinValue;
             
             foreach (DisplayPlayTime time in _playTimes)
             {
@@ -46,23 +43,12 @@ public sealed partial class EditPlayTimeDialog
                 {
                     galgame.PlayedTime.Add(time.Date, time.PlayedTime);
                     totalTime += time.PlayedTime;
-                    
-                    // 更新最后游玩时间
-                    DateTime currentDate = DateTime.ParseExact(time.Date, "yyyy/M/d", null);
-                    if (currentDate > lastPlayDate)
-                    {
-                        lastPlayDate = currentDate;
-                    }
                 }
             }
             
             galgame.TotalPlayTime = totalTime;
             
-            // 如果找到有效的最后游玩日期，则更新LastPlayTime
-            if (lastPlayDate != DateTime.MinValue)
-            {
-                galgame.LastPlayTime = lastPlayDate;
-            }
+            // LastPlayTime 现在是自动计算的，不需要手动设置
         };
     }
 

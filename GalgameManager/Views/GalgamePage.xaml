@@ -125,6 +125,12 @@
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
                     <AppBarSeparator/>
+                    <!-- 设置界面显示的元素 -->
+                    <AppBarButton x:Uid="GalgamePage_ManageLayout" Command="{x:Bind ViewModel.ManageLayoutCommand}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8B8;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                     <!-- 下载游玩状态 -->
                     <AppBarButton x:Uid="GalgamePage_SyncFromBgm" Command="{x:Bind ViewModel.SyncFromBgmCommand}" 
                                   Visibility="{x:Bind ViewModel.CanOpenInBgm, 

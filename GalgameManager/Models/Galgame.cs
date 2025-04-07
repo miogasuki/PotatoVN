@@ -40,7 +40,10 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private string _cnName = "";
     [ObservableProperty] private LockableProperty<string> _description = "";
     [ObservableProperty] private LockableProperty<string> _developer = DefaultString;
-    [ObservableProperty] private DateTime _lastPlayTime = DateTime.MinValue; //上次游玩时间（新）
+    [JsonIgnore][BsonIgnore]
+    public DateTime LastPlayTime => PlayedTime.Count > 0 
+        ? PlayedTime.Keys.Select(Utils.TryParseDateGuessCulture).Max() 
+        : DateTime.MinValue;
     [ObservableProperty] private LockableProperty<string> _expectedPlayTime = DefaultString;
     [ObservableProperty] private LockableProperty<float> _rating = 0;
     [ObservableProperty] private LockableProperty<DateTime> _releaseDate = DateTime.MinValue;
@@ -79,7 +82,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [JsonProperty]
     public LockableProperty<string> LastPlay
     {
-        set => LastPlayTime = Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
+        set => Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
     }
     
     [Obsolete($"Use {nameof(LocalPath)} instead")][BsonIgnore]
@@ -277,10 +280,9 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         PlayedTime = PlayedTime.OrderBy(pair => Utils.TryParseDateGuessCulture(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         TotalPlayTime = PlayedTime.Values.Sum();
-        LastPlayTime = PlayedTime.Count > 0
-            ? PlayedTime.Keys.Select(Utils.TryParseDateGuessCulture).Max()
-            : DateTime.MinValue;
         ReleaseDate.Value = other.ReleaseDate.Value > ReleaseDate.Value ? other.ReleaseDate.Value : ReleaseDate.Value;
+        
+        
     }
 
     public string GetLogName() => $"Galgame_{(Name.Value ?? string.Empty).RemoveInvalidChars()}.txt";
@@ -295,7 +297,6 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// 触发属性变更事件，用于手动更新页面
     public void RaisePropertyChanged(string propertyName) => OnPropertyChanged(propertyName);
 
-    partial void OnLastPlayTimeChanged(DateTime value) => GalPropertyChanged?.Invoke(this, nameof(LastPlayTime), value);
     partial void OnPlayTypeChanged(PlayType value) => GalPropertyChanged?.Invoke(this, nameof(PlayType), value);
 
     // 监控游戏exe路径变化，如果exe路径变化则设置HighDpi为false

@@ -41,6 +41,7 @@ public sealed partial class ChangeSourceDialog
     public ChangeSourceDialog(Galgame game)
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         PrimaryButtonText = "Yes".GetLocalized();
         IsPrimaryButtonEnabled = false;

@@ -37,19 +37,20 @@
             </Grid.RowDefinitions>
 
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
-                        Margin="0 -67 0 0">
+                        Margin="{StaticResource CommandBarMargin}">
                 <!-- 增加作品 -->
                 <AppBarButton Icon="Add" x:Uid="StaffPage_AddGame"
+                              AllowFocusOnInteraction="True"
                               Command="{x:Bind ViewModel.AddGameCommand}" />
                 <!-- 编辑 -->
-                <AppBarButton Icon="Edit" x:Uid="GalgamePage_Edit" 
-                              Command="{x:Bind ViewModel.EditStaffCommand}"
+                <AppBarButton Icon="Edit" x:Uid="GalgamePage_Edit"
                               AllowFocusOnInteraction="True"
+                              Command="{x:Bind ViewModel.EditStaffCommand}"
                               Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" />
                 <!-- 保存 -->
-                <AppBarButton Icon="Save" x:Uid="GalgamePage_Save" 
-                              Command="{x:Bind ViewModel.SaveStaffCommand}"
+                <AppBarButton Icon="Save" x:Uid="GalgamePage_Save"
                               AllowFocusOnInteraction="True"
+                              Command="{x:Bind ViewModel.SaveStaffCommand}"
                               Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                
                 <!-- <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}" 

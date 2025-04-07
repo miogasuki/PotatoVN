@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
+using GalgameManager.Enums;
 
 namespace GalgameManager.Contracts.Services;
 
@@ -14,4 +15,6 @@ public interface IThemeSelectorService
     Task SetThemeAsync(ElementTheme theme);
 
     Task SetRequestedThemeAsync();
+
+    Task SetBackgroundMaterialAsync();
 }

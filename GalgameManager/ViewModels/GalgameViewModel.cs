@@ -26,6 +26,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 {
     private const int ProcessMaxWaitSec = 60; //(手动指定游戏进程)等待游戏进程启动的最大时间
     private readonly GalgameCollectionService _galgameService;
+    private readonly GalgameSourceCollectionService _sourceService;
     private readonly IStaffService _staffService;
     private readonly INavigationService _navigationService;
     private readonly ILocalSettingsService _localSettingsService;
@@ -68,9 +69,10 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     public GalgameViewModel(IGalgameCollectionService dataCollectionService, IStaffService staffService,
         INavigationService navigationService, IJumpListService jumpListService,
         ILocalSettingsService localSettingsService, IBgTaskService bgTaskService,
-        IPvnService pvnService, IInfoService infoService)
+        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService)
     {
         _galgameService = (GalgameCollectionService)dataCollectionService;
+        _sourceService = (GalgameSourceCollectionService)sourceService;
         _staffService = staffService;
         _navigationService = navigationService;
         _jumpListService = (JumpListService)jumpListService;
@@ -78,6 +80,17 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         _bgTaskService = bgTaskService;
         _pvnService = pvnService;
         _infoService = infoService;
+        
+        // 订阅布局更改事件
+        ManageGalgamePageLayoutDialog.LayoutChanged += OnLayoutChanged;
+    }
+    
+    // 布局更改时更新视图
+    private void OnLayoutChanged(object? sender, bool newLayoutValue)
+    {
+        UseNewLayout = newLayoutValue;
+        // 重新初始化面板
+        Update(Item);
     }
     
     public async void OnNavigatedTo(object parameter)
@@ -112,6 +125,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         _galgameService.PhrasedEvent2 -= Update;
         _staffService.OnGameStaffChanged -= Update;
+        ManageGalgamePageLayoutDialog.LayoutChanged -= OnLayoutChanged;
     }
     
     /// <summary>
@@ -232,7 +246,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         try
         {
             process.Start();
-            Item.LastPlayTime = DateTime.Now;
             // _galgameService.Sort();
             if (Item.ProcessName is not null)
             {
@@ -303,15 +316,55 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "HomePage_Delete_Title".GetLocalized(),
-            Content = "HomePage_Delete_Message".GetLocalized(),
+            Content = new StackPanel
+            {
+                Children =
+                {
+                    new TextBlock { Text = "HomePage_Delete_Message".GetLocalized(), Margin = new Thickness(0, 0, 0, 30) },
+                    new CheckBox { Content = "HomePage_Delete_FromLibrary".GetLocalized(), IsChecked = true }
+                }
+            },
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
             DefaultButton = ContentDialogButton.Secondary
         };
         dialog.PrimaryButtonClick += async (_, _) =>
         {
-            await _galgameService.RemoveGalgame(Item, true);
+            var checkBox = (CheckBox)((StackPanel)dialog.Content).Children[1];
+            bool deleteFromLibrary = checkBox.IsChecked ?? false;
+            var path = Item.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(Item);
+            if (path is not null)
+            {
+                try
+                {
+                    var folder = await StorageFolder.GetFolderFromPathAsync(path);
+                    await folder.DeleteAsync(StorageDeleteOption.Default);
+                }
+                catch (Exception e)
+                {
+                    App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Error, "GalgamePage_Delete_Game_Error".GetLocalized() + e.Message);
+                }
+            }
+            if (deleteFromLibrary)
+            {
+                await _galgameService.RemoveGalgame(Item, true);
+            }
+            else
+            {
+                var source = _sourceService.GetGalgameSources().FirstOrDefault(s => s.Galgames.Any(g => g.Galgame == Item));
+                if (source != null)
+                {
+                    _sourceService.MoveOutNoOperate(source, Item);
+                }
+                else
+                {
+                    App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgamePage_Delete_Game_Error".GetLocalized());
+                }
+            }
+
+            App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Success, "GalgamePage_Delete_Game_Success".GetLocalized());
             _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
         };
         await dialog.ShowAsync();
@@ -574,6 +627,16 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         Item!.ExePath = null;
         await ClearText();
         
+    }
+
+    // 管理游戏详情页布局
+    [RelayCommand]
+    private void ManageLayout()
+    {
+        ManageGalgamePageLayoutDialog dialog = new();
+        _ = dialog.ShowAsync();
+        
+
     }
 
     private static GamePanelBase GetPanel(GalgamePagePanel panel, Galgame? game)

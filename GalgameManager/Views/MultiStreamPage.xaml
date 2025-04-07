@@ -93,8 +93,8 @@
 
     <Grid RowDefinitions="Auto, *">
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
-                    Margin="0 -67 0 0">
-            <AppBarButton x:Uid="MultiStreamPage_Cmd_Search" Icon="Find" AllowFocusOnInteraction="True">
+                    Margin="{StaticResource CommandBarMargin}">
+            <AppBarButton x:Uid="MultiStreamPage_Cmd_Search" Icon="Find" >
                 <AppBarButton.Flyout>
                     <Flyout Placement="Bottom">
                         <control:SearchAutoSuggestBox SearchSubmitCommand="{x:Bind ViewModel.SearchCommand}" 

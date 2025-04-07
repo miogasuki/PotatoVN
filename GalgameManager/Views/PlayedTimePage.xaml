@@ -29,14 +29,16 @@
         </interactivity:Interaction.Behaviors>
         
         <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.Game.Name.Value}" Style="{ThemeResource TitleTextBlockStyle}"/>
-        
+
         <CommandBar  Grid.Row="1" Background="Transparent" DefaultLabelPosition="Right"  Margin="0 -40 0 0">
-            <AppBarButton x:Uid="Back" Command="{x:Bind ViewModel.BackCommand}">
+            <AppBarButton x:Uid="Back" Command="{x:Bind ViewModel.BackCommand}"
+                          AllowFocusOnInteraction="True">
                 <AppBarButton.Icon>
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE72B;"/>
                 </AppBarButton.Icon>
             </AppBarButton>
-            <AppBarButton x:Uid="Edit" Command="{x:Bind ViewModel.EditCommand}">
+            <AppBarButton x:Uid="Edit" Command="{x:Bind ViewModel.EditCommand}"
+                          AllowFocusOnInteraction="True">
                 <AppBarButton.Icon>
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE70F;"/>
                 </AppBarButton.Icon>

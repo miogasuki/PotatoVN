@@ -27,6 +27,7 @@ public sealed partial class VndbAuthDialog : ContentDialog
     public VndbAuthDialog()
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         DefaultButton = ContentDialogButton.Primary;
         Title = "VndbAuthDialog_Title".GetLocalized();

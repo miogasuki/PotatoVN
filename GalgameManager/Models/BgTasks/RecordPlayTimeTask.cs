@@ -64,6 +64,8 @@ public class RecordPlayTimeTask : BgTaskBase
                 ChangeProgress(1, 1,
                     "RecordPlayTimeTask_Done".GetLocalized(Galgame.Name.Value ?? string.Empty,
                         TimeToDisplayTimeConverter.Convert(CurrentPlayTime)));
+                // 手动通知LastPlayTime属性已更改
+                Galgame.RaisePropertyChanged(nameof(Galgame.LastPlayTime));
             });
             await App.GetService<IGalgameCollectionService>().SaveGalgameAsync(Galgame);
             if(await App.GetService<ILocalSettingsService>().ReadSettingAsync<bool>(KeyValues.SyncGames))

@@ -258,6 +258,8 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GalgamePageNewLayout_ShowWriter:
             case KeyValues.GalgamePageNewLayout_ShowMusician:
                 return (T?)(object)true;
+            case KeyValues.Language:
+                return (T?)(object?)LanguageEnum.Auto;
             default:
                 return default;
         }

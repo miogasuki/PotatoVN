@@ -12,6 +12,7 @@ public sealed partial class MixedPhraserOrderDialog
     public MixedPhraserOrderDialog(MixedPhraserOrder order)
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         Title = "MixedPhraserOrderDialog_Title".GetLocalized();

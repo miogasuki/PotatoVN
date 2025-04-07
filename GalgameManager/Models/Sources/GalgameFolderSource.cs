@@ -56,7 +56,7 @@ public class GalgameFolderSource : GalgameSourceBase
                 continue;
             }
         
-            if (currentDepth == maxDepth) continue;
+            if (currentDepth > maxDepth) continue;
             foreach (var subPath in Directory.GetDirectories(currentPath))
                 pathToCheck.Enqueue((subPath, currentDepth + 1));
         }

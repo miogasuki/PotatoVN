@@ -34,8 +34,12 @@ public class UpdateService : IUpdateService
             HttpResponseMessage response = await client.GetAsync(
                 "https://raw.gitmirror.com/GoldenPotato137/GalgameManager/main/docs/version");
             var newestVersion = (await response.Content.ReadAsStringAsync())
-                .Replace("\n", "").Replace("\r","");
-            var result = newestVersion != RuntimeHelper.GetVersion();
+                            .Replace("\n", "").Replace("\r","");
+                        
+            Version remoteVersion = Version.Parse(newestVersion);
+            Version currentVersion = Version.Parse(RuntimeHelper.GetVersion());
+            
+            var result = remoteVersion > currentVersion;      
             await _localSettingsService.SaveSettingAsync(KeyValues.LastUpdateCheckDate, DateTime.Now.Date);
             await _localSettingsService.SaveSettingAsync(KeyValues.LastUpdateCheckResult, result);
             return result;

@@ -34,6 +34,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
     public bool GalgamePageNewLayout_ShowSeiyu { get; set; }
     public bool GalgamePageNewLayout_ShowWriter { get; set; }
     public bool GalgamePageNewLayout_ShowMusician { get; set; }
+    public bool GalgamePageNewLayout_ShowCover { get; set; }
 
     public ManageGalgamePageLayoutDialog()
     {
@@ -55,27 +56,23 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         GalgamePageNewLayout_ShowSeiyu = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowSeiyu);
         GalgamePageNewLayout_ShowWriter = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowWriter);
         GalgamePageNewLayout_ShowMusician = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowMusician);
+        GalgamePageNewLayout_ShowCover = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage);
     }
 
     private async void ManageGalgamePageLayoutDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         var deferral = args.GetDeferral();
-        
-        // 保存之前的布局设置用于比较
-        bool previousLayoutSetting = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
-        
+
         // Save settings
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout, GalgamePageNewLayout);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowPainter, GalgamePageNewLayout_ShowPainter);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowSeiyu, GalgamePageNewLayout_ShowSeiyu);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowWriter, GalgamePageNewLayout_ShowWriter);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowMusician, GalgamePageNewLayout_ShowMusician);
+        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_CoverImage, GalgamePageNewLayout_ShowCover);
 
-        // 如果布局设置变更，触发事件通知
-        if (previousLayoutSetting != GalgamePageNewLayout || LayoutChanged != null)
-        {
-            LayoutChanged?.Invoke(this, GalgamePageNewLayout);
-        }
+        // 触发事件通知
+        LayoutChanged?.Invoke(this, GalgamePageNewLayout);
 
         deferral.Complete();
     }

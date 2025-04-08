@@ -160,7 +160,9 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         IsRemoveSelectedThreadVisible = Item?.ProcessName is not null ? Visibility.Visible : Visibility.Collapsed;
         IsSelectProcessVisible = Item?.ProcessName is null ? Visibility.Visible : Visibility.Collapsed;
         IsResetPathVisible = Item?.ExePath is not null || Item?.TextPath is not null ? Visibility.Visible : Visibility.Collapsed;
-        OnPropertyChanged(nameof(Item));
+        Galgame? tmp = Item;
+        Item = null; Item = tmp;
+        // OnPropertyChanged(nameof(Item)); //不知道为什么没有用，暂时用上面的替代
     }
 
     #region INFOBAR_CTRL

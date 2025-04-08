@@ -2635,4 +2635,7 @@
   <data name="GalgamePage_PlayStatusPanel.Text" xml:space="preserve">
     <value>游玩状态</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowCover.Text" xml:space="preserve">
+    <value>显示封面图</value>
+  </data>
 </root>

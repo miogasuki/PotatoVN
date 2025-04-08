@@ -24,6 +24,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
 
@@ -83,6 +84,16 @@
                        HorizontalAlignment="Left"/>
             <ToggleSwitch Grid.Row="6" Grid.Column="1"
                           IsOn="{x:Bind GalgamePageNewLayout_ShowMusician, Mode=TwoWay}"
+                          IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
+                          HorizontalAlignment="Right"/>
+            
+            <!-- 单独选项：显示封面图 -->
+            <TextBlock Grid.Row="7" Grid.Column="0" 
+                       x:Uid="ManageGalgamePageLayoutDialog_ShowCover"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            <ToggleSwitch Grid.Row="7" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowCover, Mode=TwoWay}"
                           IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
                           HorizontalAlignment="Right"/>
         </Grid>

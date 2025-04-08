@@ -16,6 +16,7 @@
     <UserControl.Resources>
         <converter:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
         <converters:DoubleToVisibilityConverter x:Key="DoubleToVisibilityConverter" GreaterThan="1" />
+        <converter:ImagePathConverter x:Key="ImagePathConverter"/>
     </UserControl.Resources>
 
     <Grid x:Name="ContentRoot">
@@ -28,7 +29,8 @@
                       CornerRadius="30">
                     <Image HorizontalAlignment="Center" VerticalAlignment="Center"
                            MaxWidth="250" MaxHeight="250"
-                           Source="{x:Bind Game.ImagePath.Value, Mode=OneWay, FallbackValue={}}" />
+                           Source="{x:Bind Game.ImagePath.Value, Mode=OneWay, FallbackValue={x:Null}, 
+                           Converter={StaticResource ImagePathConverter}, ConverterParameter='null' }" />
                 </Grid>
 
                 <Grid Grid.Column="1" RowDefinitions="Auto,*" SizeChanged="TitleSizeChanged">

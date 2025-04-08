@@ -12,7 +12,8 @@ public sealed partial class SelectPvnServerDialog
     public SelectPvnServerDialog()
     {
         InitializeComponent();
-        
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
+
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         Title = "SelectPvnServerDialog_Title".GetLocalized();
         PrimaryButtonText = "Yes".GetLocalized();

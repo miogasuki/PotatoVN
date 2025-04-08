@@ -210,6 +210,7 @@ public class GalgameSourceCollectionService(
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "GalgameFolderCollectionService_DeleteGalgameFolderAsync_Title".GetLocalized(),
             Content = "GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),

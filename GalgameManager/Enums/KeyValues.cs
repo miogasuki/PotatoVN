@@ -90,6 +90,8 @@ public static class KeyValues
     //库页面
     public const string LibraryNavBar = "libraryNavBar"; //bool, 是否显示库页面的导航栏
     public const string LibraryStatistics = "libraryStatistics"; //bool, 是否显示库页面的统计信息（当前页游戏库/游戏数）
+    public const string LibrarySortKey = "LibrarySortKey"; //string, 排序的key，默认是“playtime”，可选值有：playtime（游玩时间）/lastUpdate（最后更新时间）/name（名称）/releaseDate（发售日期）/rating（评分）/category（分类）
+    public const string LibrarySortDescending = "LibrarySortDescending"; //bool, 是否降序排列，默认是false（升序）
     
     //消息通知相关 (最小化到托盘时是否通知/全局消息通知)
     public const string NotifyWhenGetGalgameInFolder = "notifyWhenGetGalgameInFolder"; //bool, 完成获取文件夹内游戏
@@ -103,7 +105,9 @@ public static class KeyValues
     public const string CloseMode = "closeMode"; // WindowMode,关闭模式，Normal（表示未设定）/Close/SystemTray
     public const string DevelopmentMode = "developmentMode"; //bool, 是否开发模式
     public const string LastError = "lastError"; //string, 上次错误信息
-    
+    public const string Language = "language"; //string, 语言设置，en-US/zh-CN/zh-TW
+    public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic
+
     //是否执行过某种升级, bool
     public const string DataStatus = "dataStatus"; //LocalSettingStatus, 用于描述某PotatoVN数据的状态
     public const string IdFromMixedUpgraded = "idFromMixedUpgraded"; //其他信息源id从mixed中获取

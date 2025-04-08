@@ -16,7 +16,8 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <CommandBar Grid.Row="0" DefaultLabelPosition="Right">
+        <CommandBar Grid.Row="0" DefaultLabelPosition="Right"
+                    Margin="{StaticResource CommandBarMargin}">
             <AppBarButton x:Uid="CategorySettingPage_CommandBar_DownloadImg" 
                           Command="{x:Bind ViewModel.DownloadImageCommand}"
                           Visibility="{x:Bind ViewModel.DownloadImgVisibility}">

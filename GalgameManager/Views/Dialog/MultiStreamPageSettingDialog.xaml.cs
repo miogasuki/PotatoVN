@@ -47,6 +47,7 @@ namespace GalgameManager.Views.Dialog
         public MultiStreamPageSettingDialog(ObservableCollection<IList> lists)
         {
             InitializeComponent();
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
             XamlRoot = App.MainWindow!.Content.XamlRoot;
             PrimaryButtonText = "ConfirmLiteral".GetLocalized();

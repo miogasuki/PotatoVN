@@ -76,12 +76,25 @@ public sealed partial class ShellPage : Page
             new PointerEventHandler(NavigationViewControl_OnPointerPressed), false);
     }
 
+    private void OnActualThemeChanged(FrameworkElement sender, object args)
+    {
+        TitleBarHelper.UpdateTitleBar(RequestedTheme);
+    }
+
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
-        var resource = args.WindowActivationState == WindowActivationState.Deactivated ? "WindowCaptionForegroundDisabled" : "WindowCaptionForeground";
+        if (args.WindowActivationState == WindowActivationState.Deactivated)
+        {
+            AppTitleBarText.Opacity = 0.6;
+            AppTitleBarIcon.Opacity = 0.6;
 
-        AppTitleBarText.Foreground = (SolidColorBrush)Application.Current.Resources[resource];
-        App.AppTitlebar = AppTitleBarText;
+
+        }
+        else
+        {
+            AppTitleBarText.Opacity = 1.0;
+            AppTitleBarIcon.Opacity = 1.0;
+        }
     }
 
     private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)

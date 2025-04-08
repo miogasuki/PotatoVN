@@ -553,6 +553,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 ContentDialog dialog = new()
                 {
                     XamlRoot = App.MainWindow!.Content.XamlRoot,
+                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
                     Title = "Error".GetLocalized(),
                     Content = "GalgameCollectionService_NotExeFounded".GetLocalized(),
                     PrimaryButtonText = "Yes".GetLocalized()
@@ -601,6 +602,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 ContentDialog dialog = new()
                 {
                     XamlRoot = App.MainWindow!.Content.XamlRoot,
+                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
                     Title = "Error".GetLocalized(),
                     Content = "GalgameCollectionService_CloudRootNotSet".GetLocalized(),
                     PrimaryButtonText = "Yes".GetLocalized()
@@ -622,6 +624,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     ContentDialog dialog = new()
                     {
                         XamlRoot = App.MainWindow!.Content.XamlRoot,
+                        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
                         Title = "GalgameCollectionService_SelectOperateTitle".GetLocalized(),
                         Content = "GalgameCollectionService_SelectOperateMsg".GetLocalized(),
                         PrimaryButtonText = "GalgameCollectionService_Local".GetLocalized(),
@@ -662,6 +665,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 ContentDialog dialog = new()
                 {
                     XamlRoot = App.MainWindow!.Content.XamlRoot,
+                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
                     Title = "Error".GetLocalized(),
                     Content = stackPanel,
                     PrimaryButtonText = "Yes".GetLocalized()

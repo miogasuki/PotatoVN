@@ -38,6 +38,7 @@ public sealed partial class BgmAuthDialog : ContentDialog
     public BgmAuthDialog()
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         DefaultButton = ContentDialogButton.Primary;
         Title = "BgmAuthDialog_Title".GetLocalized();

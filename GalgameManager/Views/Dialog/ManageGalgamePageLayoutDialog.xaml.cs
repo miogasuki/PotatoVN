@@ -15,6 +15,7 @@ using Microsoft.UI.Xaml.Navigation;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -25,6 +26,10 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
 {
     private readonly ILocalSettingsService _localSettingsService = App.GetService<ILocalSettingsService>();
 
+    // 定义布局更改事件
+    public static event EventHandler<bool>? LayoutChanged;
+
+    public bool GalgamePageNewLayout { get; set; }
     public bool GalgamePageNewLayout_ShowPainter { get; set; }
     public bool GalgamePageNewLayout_ShowSeiyu { get; set; }
     public bool GalgamePageNewLayout_ShowWriter { get; set; }
@@ -33,6 +38,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
     public ManageGalgamePageLayoutDialog()
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         Title = "ManageGalgamePageLayoutDialog_Title".GetLocalized();
         PrimaryButtonText = "Yes".GetLocalized();
@@ -44,6 +50,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
 
     private async void LoadSettings()
     {
+        GalgamePageNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
         GalgamePageNewLayout_ShowPainter = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowPainter);
         GalgamePageNewLayout_ShowSeiyu = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowSeiyu);
         GalgamePageNewLayout_ShowWriter = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowWriter);
@@ -53,11 +60,22 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
     private async void ManageGalgamePageLayoutDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         var deferral = args.GetDeferral();
-
+        
+        // 保存之前的布局设置用于比较
+        bool previousLayoutSetting = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
+        
+        // Save settings
+        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout, GalgamePageNewLayout);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowPainter, GalgamePageNewLayout_ShowPainter);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowSeiyu, GalgamePageNewLayout_ShowSeiyu);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowWriter, GalgamePageNewLayout_ShowWriter);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowMusician, GalgamePageNewLayout_ShowMusician);
+
+        // 如果布局设置变更，触发事件通知
+        if (previousLayoutSetting != GalgamePageNewLayout || LayoutChanged != null)
+        {
+            LayoutChanged?.Invoke(this, GalgamePageNewLayout);
+        }
 
         deferral.Complete();
     }

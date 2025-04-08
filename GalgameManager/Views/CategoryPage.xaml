@@ -28,11 +28,11 @@
         </Grid.RowDefinitions>
         
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
-                    Margin="0 -67 0 0">
+                    Margin="{StaticResource CommandBarMargin}">
             <AppBarButton Icon="Add" x:Uid="CategoryPage_AddCategory" 
                           Command="{x:Bind ViewModel.AddCategoryCommand}"
                           IsEnabled="{x:Bind ViewModel.CanAddCategory, Mode=OneWay}"/>
-            <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}" AllowFocusOnInteraction="True">
+            <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}">
                 <AppBarButton.Flyout>
                     <Flyout Placement="Bottom">
                         <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}" 
@@ -44,7 +44,7 @@
                     <KeyboardAccelerator Modifiers="Control" Key="F" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton Icon="ViewAll" x:Uid="CategoryPage_CategoryGroup" AllowFocusOnInteraction="True">
+            <AppBarButton Icon="ViewAll" x:Uid="CategoryPage_CategoryGroup">
                 <AppBarButton.Flyout>
                     <MenuFlyout Placement="Bottom" x:Name="CategoryGroupFlyout" Opening="CategoryGroupFlyout_OnOpening"/>
                 </AppBarButton.Flyout>

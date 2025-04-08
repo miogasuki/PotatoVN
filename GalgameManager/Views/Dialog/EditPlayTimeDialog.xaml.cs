@@ -9,17 +9,19 @@ namespace GalgameManager.Views.Dialog;
 public sealed partial class EditPlayTimeDialog
 {
     private readonly ObservableCollection<DisplayPlayTime> _playTimes = new();
-    
+
+
     public EditPlayTimeDialog(Galgame galgame)
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         Title = "EditPlayTimeDialog_Title".GetLocalized();
         PrimaryButtonText = "Yes".GetLocalized();
         SecondaryButtonText = "Cancel".GetLocalized();
-        
-        foreach(var (date, playedTime) in galgame.PlayedTime)
+
+        foreach (var (date, playedTime) in galgame.PlayedTime)
         {
             DisplayPlayTime displayPlayTime = new()
             {
@@ -29,18 +31,24 @@ public sealed partial class EditPlayTimeDialog
             _playTimes.Add(displayPlayTime);
         }
         ListView.ItemsSource = _playTimes;
-        
+
         PrimaryButtonClick += (_, _) =>
         {
             galgame.PlayedTime.Clear();
             var totalTime = 0;
+            
             foreach (DisplayPlayTime time in _playTimes)
+            {
                 if (time.PlayedTime > 0)
                 {
                     galgame.PlayedTime.Add(time.Date, time.PlayedTime);
                     totalTime += time.PlayedTime;
                 }
+            }
+            
             galgame.TotalPlayTime = totalTime;
+            
+            // LastPlayTime 现在是自动计算的，不需要手动设置
         };
     }
 

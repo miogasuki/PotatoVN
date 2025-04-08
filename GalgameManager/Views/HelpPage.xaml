@@ -13,7 +13,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
+        <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
+                    Margin="{StaticResource CommandBarMargin}">
             <AppBarButton Icon="Globe" x:Uid="HelpPage_Website" Command="{x:Bind ViewModel.OpenWebCommand}"/>
             <AppBarButton Icon="Repair" x:Uid="HelpPage_NewFeature" Command="{x:Bind ViewModel.IssuesCommand}"/>
             <AppBarButton Icon="Help" x:Uid="HelpPage_Help" Command="{x:Bind ViewModel.IssuesCommand}"/>

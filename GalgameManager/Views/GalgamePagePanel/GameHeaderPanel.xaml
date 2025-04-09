@@ -23,12 +23,11 @@
         <Grid ColumnDefinitions="5*,2*">
             <Grid ColumnDefinitions="Auto,*">
                 <!-- Cover -->
-                <Grid x:Name="Cover" Grid.Column="0" Height="250" Margin="{StaticResource SmallRightMargin}"
-                      Padding="{StaticResource XSmallLeftTopRightBottomMargin}"
-                      HorizontalAlignment="Left" VerticalAlignment="Top"
-                      CornerRadius="30">
+                <Grid x:Name="Cover" Grid.Column="0" Height="230" Margin="{StaticResource SmallRightMargin}"
+                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                      CornerRadius="15">
                     <Image HorizontalAlignment="Center" VerticalAlignment="Center"
-                           MaxWidth="250" MaxHeight="250"
+                           MaxWidth="230" MaxHeight="230"
                            Source="{x:Bind Game.ImagePath.Value, Mode=OneWay, FallbackValue={x:Null}, 
                            Converter={StaticResource ImagePathConverter}, ConverterParameter='null' }" />
                 </Grid>

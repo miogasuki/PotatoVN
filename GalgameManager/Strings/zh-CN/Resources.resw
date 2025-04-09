@@ -1985,6 +1985,12 @@
   <data name="GalgameSourcePage_Setting_AutoScan.Description" xml:space="preserve">
     <value>是否在PotatoVN启动时自动扫描该库内的游戏</value>
   </data>
+  <data name="GalgameSourcePage_Setting_IncludeSubSources.Title" xml:space="preserve">
+    <value>显示子库的游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_IncludeSubSources.Description" xml:space="preserve">
+    <value>是否在下面的游戏列表中显示子库的游戏</value>
+  </data>
   <data name="ResetToDefault.Content" xml:space="preserve">
     <value>恢复到默认值</value>
   </data>
@@ -2628,5 +2634,11 @@
   </data>
   <data name="GalgamePage_ManageLayout.Label" xml:space="preserve">
     <value>管理游戏页面布局</value>
+  </data>
+  <data name="GalgameSourcePage_IncludeSubSources.OffContent" xml:space="preserve">
+      <value>不显示</value>    
+  </data>
+  <data name="GalgameSourcePage_IncludeSubSources.OnContent" xml:space="preserve">
+      <value>显示</value>
   </data>
 </root>

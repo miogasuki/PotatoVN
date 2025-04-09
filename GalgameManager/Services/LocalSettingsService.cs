@@ -253,6 +253,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GalgamePageNewLayout_ShowPainter:
             case KeyValues.GalgamePageNewLayout_ShowWriter:
             case KeyValues.GalgamePageNewLayout_ShowMusician:
+            case KeyValues.GalgameSourcePageShowSubSourceGames:
                 return (T?)(object)true;
             default:
                 return default;

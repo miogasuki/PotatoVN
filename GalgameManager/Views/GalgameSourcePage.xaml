@@ -194,84 +194,96 @@
                                              SettingIcon="&#xE71D;" 
                                              IsExpanded="{x:Bind ViewModel.GameListExpend, Mode=TwoWay}">
                         <control:SettingExpander.SettingContent>
-                            <ListView ItemsSource="{x:Bind ViewModel.Galgames}" 
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                
+                                <views:SettingToggleSwitch Grid.Row="0"
+                                    x:Uid="GalgameSourcePage_Setting_IncludeSubSources"
+                                    Margin="0,0,0,8"
+                                    IsOn="{x:Bind ViewModel.IncludeSubSources, Mode=TwoWay}" />
+                                    
+                                <ListView Grid.Row="1" ItemsSource="{x:Bind ViewModel.Galgames}" 
                                       SelectionMode="Extended"
                                       ScrollViewer.VerticalScrollMode="Disabled"
                                       ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                                <ListView.Header>
-                                    <Grid Padding="16,12"
-                                          Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
-                                          RowDefinitions="Auto, Auto, Auto" RowSpacing="3"
-                                          CornerRadius="5">
-                                        <TextBlock Grid.Row="0" x:Uid="GalgameSourcePage_GamesTable_Name"
-                                                   Style="{StaticResource DescriptionTextStyle}" />
-                                        <TextBlock Grid.Row="1" x:Uid="GalgameSourcePage_GamesTable_Path"
-                                                   Style="{StaticResource DescriptionTextStyle}" />
-                                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="20">
-                                            <TextBlock x:Uid="GalgameSourcePage_GamesTable_RssType"
+                                    <ListView.Header>
+                                        <Grid Padding="16,12"
+                                              Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
+                                              RowDefinitions="Auto, Auto, Auto" RowSpacing="3"
+                                              CornerRadius="5">
+                                            <TextBlock Grid.Row="0" x:Uid="GalgameSourcePage_GamesTable_Name"
                                                        Style="{StaticResource DescriptionTextStyle}" />
-                                            <TextBlock Text="ID"
+                                            <TextBlock Grid.Row="1" x:Uid="GalgameSourcePage_GamesTable_Path"
                                                        Style="{StaticResource DescriptionTextStyle}" />
-                                        </StackPanel>
-                                        <interactivity:Interaction.Behaviors>
-                                            <behaviors:StickyHeaderBehavior />
-                                        </interactivity:Interaction.Behaviors>
-                                    </Grid>
-                                </ListView.Header>
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="sources:GalgameAndPath">
-                                        <Grid>
-                                            <!-- 透明控件，确保右键时射线检测能够打到Item上 -->
-                                            <Rectangle Fill="Transparent" /> 
-                                            <Grid ColumnDefinitions="Auto, *" Margin="0, 7">
-                                                <Button Grid.Column="0" Margin="0 0 10 0"
-                                                        Style="{StaticResource TransparentButtonWithHover}">
-                                                    <Grid CornerRadius="10">
-                                                        <Rectangle Height="70" Width="50">
-                                                            <Rectangle.Fill>
-                                                                <ImageBrush
-                                                                    ImageSource="{x:Bind Galgame.ImagePath.Value,
-                                                                    Mode=OneWay,
-                                                                    Converter={StaticResource ImagePathConverter},
-                                                                    FallbackValue={x:Null}}"
-                                                                    Stretch="UniformToFill" />
-                                                            </Rectangle.Fill>
-                                                        </Rectangle>
-                                                    </Grid>
-                                                </Button>
-                                                <StackPanel Grid.Column="1" Spacing="3">
-                                                    <TextBox Text="{x:Bind Galgame.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                             MinWidth="450"
-                                                             HorizontalAlignment="Left" />
-                                                    <TextBlock Text="{x:Bind Path}"
-                                                               Style="{StaticResource DescriptionTextStyle}" />
-                                                    <StackPanel Orientation="Horizontal" Spacing="20">
-                                                        <control:ComboBoxWithoutNull
-                                                            SelectedItem="{x:Bind Galgame.RssType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                            ItemsSource="{x:Bind RssTypes}" />
-                                                        <TextBox MinWidth="350"
-                                                                 Text="{x:Bind Galgame.Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </Grid>
-                                            <Grid.ContextFlyout>
-                                                <StaticResource ResourceKey="GameItemFlyout"/>
-                                            </Grid.ContextFlyout>
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="20">
+                                                <TextBlock x:Uid="GalgameSourcePage_GamesTable_RssType"
+                                                           Style="{StaticResource DescriptionTextStyle}" />
+                                                <TextBlock Text="ID"
+                                                           Style="{StaticResource DescriptionTextStyle}" />
+                                            </StackPanel>
+                                            <interactivity:Interaction.Behaviors>
+                                                <behaviors:StickyHeaderBehavior />
+                                            </interactivity:Interaction.Behaviors>
                                         </Grid>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                                <interactivity:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="SelectionChanged">
-                                        <core:InvokeCommandAction Command="{x:Bind ViewModel.SelectionChangedCommand}" />
-                                    </core:EventTriggerBehavior>
-                                </interactivity:Interaction.Behaviors>
-                                <ListView.ItemContainerStyle>
-                                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}"
-                                           TargetType="ListViewItem">
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
+                                    </ListView.Header>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="sources:GalgameAndPath">
+                                            <Grid>
+                                                <!-- 透明控件，确保右键时射线检测能够打到Item上 -->
+                                                <Rectangle Fill="Transparent" /> 
+                                                <Grid ColumnDefinitions="Auto, *" Margin="0, 7">
+                                                    <Button Grid.Column="0" Margin="0 0 10 0"
+                                                            Style="{StaticResource TransparentButtonWithHover}">
+                                                        <Grid CornerRadius="10">
+                                                            <Rectangle Height="70" Width="50">
+                                                                <Rectangle.Fill>
+                                                                    <ImageBrush
+                                                                        ImageSource="{x:Bind Galgame.ImagePath.Value,
+                                                                        Mode=OneWay,
+                                                                        Converter={StaticResource ImagePathConverter},
+                                                                        FallbackValue={x:Null}}"
+                                                                        Stretch="UniformToFill" />
+                                                                </Rectangle.Fill>
+                                                            </Rectangle>
+                                                        </Grid>
+                                                    </Button>
+                                                    <StackPanel Grid.Column="1" Spacing="3">
+                                                        <TextBox Text="{x:Bind Galgame.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                 MinWidth="450"
+                                                                 HorizontalAlignment="Left" />
+                                                        <TextBlock Text="{x:Bind Path}"
+                                                                   Style="{StaticResource DescriptionTextStyle}" />
+                                                        <StackPanel Orientation="Horizontal" Spacing="20">
+                                                            <control:ComboBoxWithoutNull
+                                                                SelectedItem="{x:Bind Galgame.RssType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                ItemsSource="{x:Bind RssTypes}" />
+                                                            <TextBox MinWidth="350"
+                                                                     Text="{x:Bind Galgame.Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Grid>
+                                                <Grid.ContextFlyout>
+                                                    <StaticResource ResourceKey="GameItemFlyout"/>
+                                                </Grid.ContextFlyout>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                    <interactivity:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="SelectionChanged">
+                                            <core:InvokeCommandAction Command="{x:Bind ViewModel.SelectionChangedCommand}" />
+                                        </core:EventTriggerBehavior>
+                                    </interactivity:Interaction.Behaviors>
+                                    <ListView.ItemContainerStyle>
+                                        <Style BasedOn="{StaticResource DefaultListViewItemStyle}"
+                                               TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
+                            </Grid>
                         </control:SettingExpander.SettingContent>
                     </control:SettingExpander>
                 </StackPanel>

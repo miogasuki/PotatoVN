@@ -35,15 +35,15 @@
             IsSettingsVisible="False"
             PaneDisplayMode="Left"
             IsPaneToggleButtonVisible="False"
-            OpenPaneLength="80"
+            OpenPaneLength="72"
             DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
             Header="{x:Bind ViewModel.SelectedPageTitle, Mode=OneWay, FallbackValue=''}">
             <NavigationView.MenuItems>
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.MultiStreamViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                       Glyph="&#xe80f;"
                                       FontSize="16"
@@ -63,9 +63,9 @@
 
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HomeViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                       Glyph="&#xf0e2;"
                                       FontSize="16"
@@ -85,9 +85,9 @@
 
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.LibraryViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                       Glyph="&#xE8B7;"
                                       FontSize="16"
@@ -107,9 +107,9 @@
 
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.CategoryViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                       Glyph="&#xE7C1;"
                                       FontSize="16"
@@ -145,9 +145,9 @@
                 <NavigationViewItem
                     Visibility="Collapsed"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AnnualReportViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                       Glyph="&#xE71D;"
                                       FontSize="16"
@@ -167,9 +167,9 @@
 
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.InfoViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                         Glyph="&#xE770;"
                                         FontSize="16"
@@ -189,16 +189,16 @@
                                         Visibility="{x:Bind ViewModel.InfoPageBadgeVisibility, Mode=OneWay}"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Top"
-                                        Margin="0,3,0,0"/>
+                                        Margin="0,4,4,0"/>
                         </Grid>
                     </NavigationViewItem.Content>
                 </NavigationViewItem>
 
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HelpViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                       Glyph="&#xE897;"
                                       FontSize="16"
@@ -218,9 +218,9 @@
 
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AccountViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                       Glyph="&#xE77B;"
                                       FontSize="16"
@@ -240,9 +240,9 @@
 
                 <NavigationViewItem
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.SettingsViewModel"
-                    Width="74">
+                    Width="70">
                     <NavigationViewItem.Content>
-                        <Grid Width="60" Height="70" Margin="-10,0,-20,0">
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
                                       Glyph="&#xE713;"
                                       FontSize="16"
@@ -256,16 +256,14 @@
                                        TextAlignment="Center"
                                        TextWrapping="NoWrap"
                                        Margin="0,0,0,16"/>
+
+                            <InfoBadge Value="1"
+                                       Visibility="{x:Bind ViewModel.UpdateBadgeVisibility, Mode=OneWay}"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Top"
+                                       Margin="0,4,4,0"/>
                         </Grid>
                     </NavigationViewItem.Content>
-                    <NavigationViewItem.InfoBadge>
-                        <!-- 这里的1并没有什么实际含义，只是这样做好看一点 -->
-                        <InfoBadge Value="1"
-                                Visibility="{x:Bind ViewModel.UpdateBadgeVisibility, Mode=OneWay}"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Top"
-                                Margin="0,3,0,0"/>
-                    </NavigationViewItem.InfoBadge>
                 </NavigationViewItem>
             </NavigationView.FooterMenuItems>
 

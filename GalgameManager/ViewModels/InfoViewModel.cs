@@ -30,8 +30,14 @@ public partial class InfoViewModel : ObservableObject, INavigationAware
     public void OnNavigatedTo(object parameter)
     {
         BgTasks.Clear();
-        foreach (BgTaskBase task in _bgTaskService.GetBgTasks()) 
-            BgTasks.Add(new BgTaskViewModel(task));
+        foreach (BgTaskBase task in _bgTaskService.GetBgTasks())
+          {
+            // 这样也许可以修复闪退的问题
+            if (task != null)
+            {
+                BgTasks.Add(new BgTaskViewModel(task));
+            }
+          }
         App.GetService<ILocalSettingsService>().RemoveSettingAsync(KeyValues.LastError); //打开消息界面后才移除崩溃记录
         Infos = _infoService.Infos;
         foreach (Info info in Infos)

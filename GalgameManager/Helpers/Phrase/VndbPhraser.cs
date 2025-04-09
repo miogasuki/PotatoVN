@@ -29,6 +29,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
     private const string StaffFields = "id, aid, name, original, lang, gender, description";
 
     private bool _authed;
+    private bool _isChineseCulture = true;
     private Task? _checkAuthTask;
 
     public VndbPhraser()
@@ -64,6 +65,9 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
                     _authed = false; //todo:修复该phraser
                 }
             });
+
+            // 更新语言
+            _isChineseCulture = vndbData.IsChineseCulture;
         }
     }
 
@@ -78,12 +82,8 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         List<JToken>? tags = json.ToObject<List<JToken>>();
         tags!.ForEach(tag => _tagDb.Add(int.Parse(tag["id"]!.ToString()), tag));
 
-        LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result; 
-        bool isChineseCulture = language == LanguageEnum.ChineseSimplified || 
-                                (language == LanguageEnum.Auto && 
-                                 System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
-        // 如果是中文，则应用翻译
-        if (isChineseCulture)
+         // 如果是中文，则应用翻译
+        if (_isChineseCulture)
         {
             // 加载翻译文件
             var translationFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, TagTranslationFile);
@@ -598,11 +598,13 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
 public class VndbPhraserData : IGalInfoPhraserData
 {
     public string? Token;
+    public bool IsChineseCulture;
 
     public VndbPhraserData() { }
     
-    public VndbPhraserData(string? token)
+    public VndbPhraserData(string? token, bool isChineseCulture = true)
     {
         Token = token;
+        IsChineseCulture = isChineseCulture;
     }
 }

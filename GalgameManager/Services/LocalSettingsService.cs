@@ -241,8 +241,6 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.NotifyWhenUnpackGame:
             case KeyValues.EventPvnSyncNotify:
                 return (T?)(object)true;
-            case KeyValues.MixedPhraserOrder:
-                return (T?)(object)new MixedPhraserOrder().SetToDefault();
             case KeyValues.DisplayVirtualGame:
             case KeyValues.SpecialDisplayVirtualGame:
             case KeyValues.LibraryNavBar:
@@ -255,6 +253,13 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GalgamePageNewLayout_ShowMusician:
             case KeyValues.GalgameSourcePageShowSubSourceGames:
                 return (T?)(object)true;
+            case KeyValues.MixedPhraserOrder:
+                LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+                bool isChineseCulture = language == LanguageEnum.ChineseSimplified ||
+                                        (language == LanguageEnum.Auto &&
+                                         System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
+
+                return (T?)(object)new MixedPhraserOrder().SetToDefault(isChineseCulture);
             default:
                 return default;
         }

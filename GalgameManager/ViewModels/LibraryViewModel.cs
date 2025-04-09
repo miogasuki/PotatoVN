@@ -198,7 +198,7 @@ public partial class LibraryViewModel(
     
 
     [RelayCommand]
-    private void Back()
+    public void Back()
     {
         if (CurrentSource is null) return;
         _lastBackSource = CurrentSource;

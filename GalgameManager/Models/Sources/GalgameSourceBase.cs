@@ -90,6 +90,9 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
         Galgames.Add(new GalgameAndPath(galgame, path));
         galgame.Sources.Add(this);
         GalgamesChanged?.Invoke(galgame, false);
+        
+        // 通知父源游戏列表变化
+        NotifyParentSourcesChanged(galgame, false);
     }
 
     /// <summary>
@@ -101,6 +104,24 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
         Galgames.RemoveAll(g => g.Galgame == galgame);
         galgame.Sources.Remove(this);
         GalgamesChanged?.Invoke(galgame, true);
+        
+        // 通知父源游戏列表变化
+        NotifyParentSourcesChanged(galgame, true);
+    }
+
+    /// <summary>
+    /// 通知所有父源游戏列表变化
+    /// </summary>
+    /// <param name="galgame">发生变化的游戏</param>
+    /// <param name="isRemoved">是否为删除操作</param>
+    private void NotifyParentSourcesChanged(Galgame galgame, bool isRemoved)
+    {
+        var parent = ParentSource;
+        while (parent != null)
+        {
+            parent.GalgamesChanged?.Invoke(galgame, isRemoved);
+            parent = parent.ParentSource;
+        }
     }
 
     /// <summary>

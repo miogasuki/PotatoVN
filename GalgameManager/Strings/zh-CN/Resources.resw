@@ -128,6 +128,9 @@
   <data name="AppDescription" xml:space="preserve">
     <value>PotatoVN是一个用于管理galgame的游戏的工具，旨在为galgame屯屯鼠们提供一个方便的游戏管理平台。</value>
   </data>
+  <data name="Shell_Home.Content" xml:space="preserve">
+    <value>游戏</value>
+  </data>
   <data name="Shell_Home_Text.Text" xml:space="preserve">
     <value>游戏</value>
   </data>
@@ -160,6 +163,9 @@
   </data>
   <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
     <value>https://github.com/GoldenPotato137/GalgameManager/blob/main/PrivacyPolicy.md</value>
+  </data>
+  <data name="Shell_Library.Content" xml:space="preserve">
+    <value>游戏库</value>
   </data>
   <data name="Shell_LibraryText.Text" xml:space="preserve">
     <value>游戏库</value>
@@ -356,7 +362,7 @@
     <value>递归搜索子目录</value>
   </data>
   <data name="SettingsPage_Library_SearchSubPathDescription" xml:space="preserve">
-    <value>是否要递归搜索子目录，如果不选中则只搜索游戏库根目录的子文件夹</value>
+    <value>启用后将递归搜索所有子目录；否则只查找游戏库根目录下的一级文件夹。</value>
   </data>
   <data name="SettingsPage_Library_SearchSubPathDepth" xml:space="preserve">
     <value>递归搜索深度</value>
@@ -401,6 +407,9 @@
   <data name="SettingsPage_Library_SearchRegexTryItOut" xml:space="preserve">
     <value>可以在这里输入待匹配串来测试匹配结果</value>
   </data>
+  <data name="Shell_Help.Content" xml:space="preserve">
+    <value>帮助</value>
+  </data>
   <data name="Shell_HelpText.Text" xml:space="preserve">
     <value>帮助</value>
   </data>
@@ -423,7 +432,7 @@
     <value>正在从网络上获取最新FAQ中</value>
   </data>
   <data name="HelpPage_Website.Label" xml:space="preserve">
-    <value>打开官网获取更多帮助</value>
+    <value>在浏览器中打开</value>
   </data>
   <data name="HelpPage_NewFeature.Label" xml:space="preserve">
     <value>新功能建议</value>
@@ -530,6 +539,9 @@
   <data name="UpdateContentPage_MainTitle.Text" xml:space="preserve">
     <value>欢迎</value>
   </data>
+  <data name="Shell_Settings.Content" xml:space="preserve">
+    <value>设置</value>
+  </data>
   <data name="Shell_SettingsText.Text" xml:space="preserve">
     <value>设置</value>
   </data>
@@ -608,6 +620,9 @@
   </data>
   <data name="CategoryService_Status" xml:space="preserve">
     <value>游玩状态</value>
+  </data>
+  <data name="Shell_Category.Content" xml:space="preserve">
+    <value>分类</value>
   </data>
   <data name="Shell_CategoryText.Text" xml:space="preserve">
     <value>分类</value>
@@ -1221,6 +1236,9 @@
   <data name="SearchAutoSuggestBox_Search.PlaceholderText" xml:space="preserve">
     <value>支持拼音/罗马化日语搜索</value>
   </data>
+  <data name="Shell_Account.Content" xml:space="preserve">
+    <value>账户</value>
+  </data>
   <data name="Shell_AccountText.Text" xml:space="preserve">
     <value>账户</value>
   </data>
@@ -1337,6 +1355,9 @@
   </data>
   <data name="PvnServiceStatus_DownloadingAvatar" xml:space="preserve">
     <value>下载PotatoVN用户头像中</value>
+  </data>
+  <data name="Shell_Info.Content" xml:space="preserve">
+    <value>状态</value>
   </data>
   <data name="Shell_InfoText.Text" xml:space="preserve">
     <value>状态</value>
@@ -1957,6 +1978,9 @@
   <data name="GalgamePage_Delete_Game_Success" xml:space="preserve">
     <value>成功删除游戏</value>
   </data>
+  <data name="Shell_MultiStream.Content" xml:space="preserve">
+    <value>主页</value>
+  </data>
   <data name="Shell_MultiStreamText.Text" xml:space="preserve">
     <value>主页</value>
   </data>
@@ -2225,6 +2249,9 @@
   </data>
   <data name="LocalFolderSourceService_OnFolderDeleteError" xml:space="preserve">
     <value>自动从库中移出游戏失败</value>
+  </data>
+  <data name="Shell_AnnualReport.Content" xml:space="preserve">
+    <value>年度报告</value>
   </data>
   <data name="Shell_AnnualReportText.Text" xml:space="preserve">
     <value>年度报告</value>

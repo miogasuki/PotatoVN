@@ -290,6 +290,15 @@
                     SettingIcon="&#xE8B7;">
                     <control:SettingExpander.SettingContent>
                         <StackPanel Style="{StaticResource SettingStackPanelStyle}">
+                            <!-- 递归搜索子目录 -->
+                            <control:Panel>
+                                <StackPanel>
+                                    <local:SettingToggleSwitch
+                                        Title="{x:Bind ViewModel.UiLibrarySearchSubPath}"
+                                        Description="{x:Bind ViewModel.UiLibrarySearchSubPathDescription}"
+                                        IsOn="{x:Bind ViewModel.SearchSubFolder, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </control:Panel>
                             <!-- 数据备份 -->
                             <control:Panel>
                                 <StackPanel Spacing="{StaticResource SettingsPageStackPanelSpacing}">

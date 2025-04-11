@@ -27,13 +27,17 @@ public class GalgameZipSource : GalgameSourceBase
     }
 
     public async override IAsyncEnumerable<(string?, string)> ScanAllGalgames()
-    {   
-
-        Queue<string> pathToCheck = new();
-        pathToCheck.Enqueue(Path);
+    {
+        ILocalSettingsService localSettings = App.GetService<ILocalSettingsService>();
+        
+        var searchSubFolder = await localSettings.ReadSettingAsync<bool>(KeyValues.SearchChildFolder);
+        var maxDepth = searchSubFolder ? await localSettings.ReadSettingAsync<int>(KeyValues.SearchChildFolderDepth) : 1;
+        
+        Queue<(string Path, int Depth)> pathToCheck = new();
+        pathToCheck.Enqueue((Path, 0));
         while (pathToCheck.Count > 0)
         {
-            var currentPath = pathToCheck.Dequeue();
+            var (currentPath, currentDepth) = pathToCheck.Dequeue();
             
             foreach (var f in Directory.GetFiles(currentPath))
             {
@@ -42,16 +46,13 @@ public class GalgameZipSource : GalgameSourceBase
                 {
                     yield return (new (f), $"successfully add {f}\n");
                 }
-                else
-                {
-                    yield return (null, $"{f} is not zip\n");
-                }
+
+                yield return (null, $"{f} is not zip\n");
+
             }
-            
-            // 删除深度检查，持续扫描所有子目录
+            if (currentDepth == maxDepth) continue;
             foreach (var subPath in Directory.GetDirectories(currentPath))
-                pathToCheck.Enqueue(subPath);
+                pathToCheck.Enqueue((subPath, currentDepth + 1));
         }
-        await Task.CompletedTask;
     }
 }

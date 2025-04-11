@@ -53,6 +53,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public readonly string UiLibraryDescription = "SettingsPage_LibraryDescription".GetLocalized();
     public readonly string UiLibraryMetaBackup = "SettingsPage_Library_MetaBackup".GetLocalized();
     public readonly string UiLibraryMetaBackupDescription = "SettingsPage_Library_MetaBackupDescription".GetLocalized();
+    public readonly string UiLibrarySearchSubPath = "SettingsPage_Library_SearchSubPath".GetLocalized();
+    public readonly string UiLibrarySearchSubPathDescription = "SettingsPage_Library_SearchSubPathDescription".GetLocalized();
     public readonly string UiLibraryNameDescription = "SettingsPage_Library_NameDescription".GetLocalized();
     public readonly string UiLibrarySearchRegex = "SettingsPage_Library_SearchRegex".GetLocalized();
     public readonly string UiLibrarySearchRegexDescription = "SettingsPage_Library_SearchRegexDescription".GetLocalized();
@@ -388,6 +390,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _metaBackup;
     [ObservableProperty] private string _metaBackupProgress = "";
     [ObservableProperty] private string _removeMetaBackupProgress = string.Empty;
+    [ObservableProperty] private bool _searchSubFolder;
     [ObservableProperty] private bool _ignoreFetchResult;
     [ObservableProperty] private string _regex;
     [ObservableProperty] private int _regexIndex;
@@ -397,6 +400,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private string _regexTryItOut = "";
 
     partial void OnMetaBackupChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SaveBackupMetadata, value);
+    partial void OnSearchSubFolderChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SearchChildFolder, value);
     partial void OnIgnoreFetchResultChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.IgnoreFetchResult, value);
     
     partial void OnRegexChanged(string value) => _localSettingsService.SaveSettingAsync(KeyValues.RegexPattern, value);

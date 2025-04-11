@@ -215,6 +215,10 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object?)new [] { SortKeys.LastPlay , SortKeys.Developer};
             case KeyValues.SortKeysAscending:
                 return (T?)(object?)new [] { false , false};
+            case KeyValues.SearchChildFolder:
+                return (T?)(object?)true;
+            case KeyValues.SearchChildFolderDepth: 
+                return (T?)(object?)1;  // 现在这个设置已被废弃
             case KeyValues.RegexPattern:
                 return (T?)(object?)@".+";
             case KeyValues.GameFolderMustContain:

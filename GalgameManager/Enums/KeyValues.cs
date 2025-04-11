@@ -6,6 +6,7 @@ public static class KeyValues
     public const string RemoteFolder = "remoteFolder";
     public const string SortKeys = "sortKeys";
     public const string SortKeysAscending = "sortKeysAscending";
+    public const string SearchChildFolder = "searchChildFolder";
     public const string IgnoreFetchResult = "ignoreFetchResult";
     public const string RegexPattern = "regexPattern";
     public const string RegexIndex = "regexIndex";
@@ -126,4 +127,5 @@ public static class KeyValues
     public const string BangumiOAuthState= "bangumiOAuthState"; //BgmAccount?, Bangumi账户, 若为null则未登录
     public const string GalgameFolders = "galgameFolders"; //旧游戏文件夹，仅用于升级
     public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
+    public const string SearchChildFolderDepth = "searchChildFolderDepth"; //int, 搜索子文件夹的深度，默认是0（不搜索），新版本改成智能搜索，不需要这个了
 }

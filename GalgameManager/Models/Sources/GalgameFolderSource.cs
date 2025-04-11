@@ -31,6 +31,7 @@ public class GalgameFolderSource : GalgameSourceBase
         
         List<string> fileMustContain = new();
         List<string> fileShouldContain = new();
+        var searchSubFolder = await localSettings.ReadSettingAsync<bool>(KeyValues.SearchChildFolder);
         var tmp = await localSettings.ReadSettingAsync<string>(KeyValues.GameFolderMustContain);
         if (!string.IsNullOrEmpty(tmp))
             fileMustContain = tmp.Split('\r', '\n').ToList();
@@ -53,6 +54,7 @@ public class GalgameFolderSource : GalgameSourceBase
                 yield return (currentPath, "");
                 continue;
             }
+            if (!searchSubFolder) continue;
             foreach (var subPath in Directory.GetDirectories(currentPath))
                 pathToCheck.Enqueue((subPath, currentDepth + 1));
         }

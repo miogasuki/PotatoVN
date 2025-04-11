@@ -25,8 +25,6 @@ public static class KeyValues
     public const string AutoCategory = "autoCategory"; // bool,是否自动分类
     public const string AuthenticationType = "authenticationType"; // AuthenticationType,身份验证类型
     public const string FontInstalled = "fontInstalled"; //bool, 是否安装了Segoe Fluent Icons字体
-    public const string SyncGames = "syncGames"; //bool, 是否同步游戏（游玩时长/状态/列表）
-    public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
     
     //账户相关
     public const string BangumiAccount= "bangumiAccount"; //BgmAccount?, Bangumi账户, 若为null则未登录
@@ -57,9 +55,15 @@ public static class KeyValues
     public const string Filters = "filters";
     public const string KeepFilters = "keepFilters"; //bool, 离开界面/关闭软件时是否保留筛选器
     public const string CategoryGroups = "categoryGroups"; // List<CategoryGroup>,分类组
-    public const string PvnSyncTimestamp = "pvnSyncTimestamp"; //long, 上一次同步时间戳
-    public const string ToDeleteGames = "toDeleteGames"; //List<int>, 待删除的游戏id
     public const string MultiStreamPageList = "multiStreamPageList"; //List<IGalgameManager.MultiStreamPage.Lists.IList>, 主页列表
+    //数据同步
+    public const string PvnSyncTimestamp = "pvnSyncTimestamp"; //long, 上一次同步时间戳
+    public const string PvnSyncStaffTimestamp = "pvnSyncStaffTimestamp"; //long, 上次同步staff的时间戳
+    public const string SyncGames = "syncGames"; //bool, 是否同步游戏（游玩时长/状态/列表）
+    public const string ToDeleteGames = "toDeleteGames"; //List<int>, 待删除的游戏id
+    public const string SyncGameCharacters = "syncGameCharacters"; //bool, 是否同步游戏角色
+    public const string SyncStaff = "syncStaff"; //bool, 是否同步staff
+    public const string ToDeleteStaff = "toDeleteStaff"; //List<int>, 待删除的staff pvn id
     
     //搜刮设置
     public const string RssType = "rssType";
@@ -81,10 +85,13 @@ public static class KeyValues
     public const string GalgamePageNewLayout_ShowSeiyu = "galgamePageNewLayout_showSeiyu"; //bool, 游戏页是否显示声优
     public const string GalgamePageNewLayout_ShowWriter = "galgamePageNewLayout_showWriter"; //bool, 游戏页是否显示剧本
     public const string GalgamePageNewLayout_ShowMusician = "galgamePageNewLayout_showMusician"; //bool, 游戏页是否显示音乐
+    public const string GalgamePageNewLayout_CoverImage = "galgamePageNewLayout_coverImage"; //bool, 游戏页是否显示封面
 
     //库页面
     public const string LibraryNavBar = "libraryNavBar"; //bool, 是否显示库页面的导航栏
     public const string LibraryStatistics = "libraryStatistics"; //bool, 是否显示库页面的统计信息（当前页游戏库/游戏数）
+    public const string LibrarySortKey = "LibrarySortKey"; //string, 排序的key，默认是“playtime”，可选值有：playtime（游玩时间）/lastUpdate（最后更新时间）/name（名称）/releaseDate（发售日期）/rating（评分）/category（分类）
+    public const string LibrarySortDescending = "LibrarySortDescending"; //bool, 是否降序排列，默认是false（升序）
     
     //消息通知相关 (最小化到托盘时是否通知/全局消息通知)
     public const string NotifyWhenGetGalgameInFolder = "notifyWhenGetGalgameInFolder"; //bool, 完成获取文件夹内游戏
@@ -98,7 +105,9 @@ public static class KeyValues
     public const string CloseMode = "closeMode"; // WindowMode,关闭模式，Normal（表示未设定）/Close/SystemTray
     public const string DevelopmentMode = "developmentMode"; //bool, 是否开发模式
     public const string LastError = "lastError"; //string, 上次错误信息
-    
+    public const string Language = "language"; //string, 语言设置，en-US/zh-CN/zh-TW
+    public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic
+
     //是否执行过某种升级, bool
     public const string DataStatus = "dataStatus"; //LocalSettingStatus, 用于描述某PotatoVN数据的状态
     public const string IdFromMixedUpgraded = "idFromMixedUpgraded"; //其他信息源id从mixed中获取
@@ -115,4 +124,5 @@ public static class KeyValues
     public const string BangumiToken = "bangumiToken";
     public const string BangumiOAuthState= "bangumiOAuthState"; //BgmAccount?, Bangumi账户, 若为null则未登录
     public const string GalgameFolders = "galgameFolders"; //旧游戏文件夹，仅用于升级
+    public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
 }

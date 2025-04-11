@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
 
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
-                    Margin="0 -70 0 0">
+                    Margin="{StaticResource CommandBarMargin}">
             <AppBarButton Icon="Flag" Label="{x:Bind ViewModel.CurrentVersion, Mode=OneWay}" />
             <AppBarButton Icon="Go" x:Uid="UpdateContentPage_SeeWebsite"
                           Command="{x:Bind ViewModel.LaunchWebsiteCommand}"/>

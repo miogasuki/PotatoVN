@@ -32,15 +32,20 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [BsonId] public Guid Uuid { get; set; }  = Guid.NewGuid();
     
     [ObservableProperty] private LockableProperty<string> _imagePath = DefaultImagePath;
+    [ObservableProperty] private LockableProperty<string?> _headerImagePath = new(null);
 
     [JsonIgnore][BsonIgnore] public string? ImageUrl;
+    public string? HeaderImageUrl { get; set; }
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public Dictionary<string, int> PlayedTime { get; set; }= new(); //ShortDateString() -> PlayedTime, 分钟
     [ObservableProperty] private LockableProperty<string> _name = "";
     [ObservableProperty] private string _cnName = "";
     [ObservableProperty] private LockableProperty<string> _description = "";
     [ObservableProperty] private LockableProperty<string> _developer = DefaultString;
-    [ObservableProperty] private DateTime _lastPlayTime = DateTime.MinValue; //上次游玩时间（新）
+    [JsonIgnore][BsonIgnore]
+    public DateTime LastPlayTime => PlayedTime.Count > 0 
+        ? PlayedTime.Keys.Select(Utils.TryParseDateGuessCulture).Max() 
+        : DateTime.MinValue;
     [ObservableProperty] private LockableProperty<string> _expectedPlayTime = DefaultString;
     [ObservableProperty] private LockableProperty<float> _rating = 0;
     [ObservableProperty] private LockableProperty<DateTime> _releaseDate = DateTime.MinValue;
@@ -71,6 +76,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public string? TextPath { get; set; } //记录的要打开的文本的路径
     public bool PvnUpdate { get; set; } //是否需要更新
     public PvnUploadProperties PvnUploadProperties { get; set; } // 要更新到Pvn的属性
+    [JsonIgnore] public long PvnLastCharacterFetchTime { get; set; } // 上次从Pvn下载角色信息的时间
 
     #region OBSOLETE_PROPERTIES //已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据）
 
@@ -78,7 +84,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [JsonProperty]
     public LockableProperty<string> LastPlay
     {
-        set => LastPlayTime = Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
+        set => Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
     }
     
     [Obsolete($"Use {nameof(LocalPath)} instead")][BsonIgnore]
@@ -110,7 +116,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
             if (_rssType != value)
             {
                 _rssType = value;
-                // OnPropertyChanged(); //信息源是通过Combobox选择的，不需要通知
+                OnPropertyChanged(); //通常情况下信息源是通过Combobox选择的，但更新游戏信息时需要手动触发
                 OnPropertyChanged(nameof(Id));
             }
         }
@@ -276,10 +282,9 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         PlayedTime = PlayedTime.OrderBy(pair => Utils.TryParseDateGuessCulture(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         TotalPlayTime = PlayedTime.Values.Sum();
-        LastPlayTime = PlayedTime.Count > 0
-            ? PlayedTime.Keys.Select(Utils.TryParseDateGuessCulture).Max()
-            : DateTime.MinValue;
         ReleaseDate.Value = other.ReleaseDate.Value > ReleaseDate.Value ? other.ReleaseDate.Value : ReleaseDate.Value;
+        
+        
     }
 
     public string GetLogName() => $"Galgame_{(Name.Value ?? string.Empty).RemoveInvalidChars()}.txt";
@@ -294,8 +299,14 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// 触发属性变更事件，用于手动更新页面
     public void RaisePropertyChanged(string propertyName) => OnPropertyChanged(propertyName);
 
-    partial void OnLastPlayTimeChanged(DateTime value) => GalPropertyChanged?.Invoke(this, nameof(LastPlayTime), value);
     partial void OnPlayTypeChanged(PlayType value) => GalPropertyChanged?.Invoke(this, nameof(PlayType), value);
+
+    // 监控游戏exe路径变化，如果exe路径变化则设置HighDpi为false
+    partial void OnExePathChanged(string? value)
+    {
+        if (value != null)
+            HighDpi = false;
+    }
 }
 
 

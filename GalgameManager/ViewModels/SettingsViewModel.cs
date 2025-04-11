@@ -20,6 +20,7 @@ using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Sources;
 using GalgameManager.Views.Dialog;
 using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
+using Windows.Globalization;
 
 namespace GalgameManager.ViewModels;
 
@@ -105,9 +106,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         
         //THEME
         _elementTheme = themeSelectorService.Theme;
+        _language = _localSettingsService.ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+        _backgroundMaterial = _localSettingsService.ReadSettingAsync<BackgroundMaterialEnum>(KeyValues.BackgroundMaterial).Result;
         _fixHorizontalPicture = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture).Result;
         TimeAsHour = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour).Result;
-        GalgamePageNewLayout = _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout).Result;
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
         _playingWindowMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode).Result;
@@ -195,6 +197,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         ContentDialog updateDialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "SettingsPage_UpdateNotification_Title".GetLocalized(),
             Content = "SettingsPage_UpdateNotification_Msg".GetLocalized(),
             PrimaryButtonText = "SettingsPage_SeeWhatsNew".GetLocalized(),
@@ -219,10 +222,61 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region THEME
     public readonly ElementTheme[] Themes = { ElementTheme.Default, ElementTheme.Light, ElementTheme.Dark };
     [ObservableProperty ]private ElementTheme _elementTheme;
-    
+
+    public readonly LanguageEnum[] Languages = { LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English };
+    [ObservableProperty] private LanguageEnum _language;
+
+    public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic };
+    [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;
+
+    partial void OnBackgroundMaterialChanged(BackgroundMaterialEnum value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.BackgroundMaterial, value);
+        _themeSelectorService.SetBackgroundMaterialAsync();
+    }
+
     partial void OnElementThemeChanged(ElementTheme value)
     {
         _themeSelectorService.SetThemeAsync(value);
+    }
+
+    partial void OnLanguageChanged(LanguageEnum value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.Language, value);
+
+        // 尝试立即改变当前应用的语言设置
+        try
+        {
+            // 根据选择的语言获取对应的语言标记
+            string languageTag = GetLanguageTag(value);
+
+            // 应用语言设置
+            ApplicationLanguages.PrimaryLanguageOverride = languageTag;
+
+
+            // 提醒用户完全应用新语言还需要重启应用
+            _infoService.Info(InfoBarSeverity.Informational,
+                "SettingsPage_Language_RestartRequired".GetLocalized(),
+                displayTimeMs: 5000);
+        }
+        catch (Exception ex)
+        {
+            _infoService.Info(InfoBarSeverity.Error,
+                "SettingsPage_Language_ChangeError".GetLocalized(),
+                ex.Message);
+        }
+    }
+
+    // 根据语言枚举获取对应的语言标记
+    private string GetLanguageTag(LanguageEnum language)
+    {
+        return language switch
+        {
+            LanguageEnum.ChineseSimplified => "zh-CN",
+            LanguageEnum.English => "en-US",
+            LanguageEnum.Auto => "", // 空字符串表示使用系统默认语言
+            _ => ""
+        };
     }
 
     [ObservableProperty] private bool _fixHorizontalPicture;
@@ -231,18 +285,6 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     // 时间显示单位改为小时
     [ObservableProperty] private bool _timeAsHour;
     partial void OnTimeAsHourChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.TimeAsHour, value);
-
-    // 使用新界面
-    [ObservableProperty] private bool _galgamePageNewLayout;
-    partial void OnGalgamePageNewLayoutChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout, value);
-    
-    // 管理游戏详情页布局
-    [RelayCommand]
-    private void ManageGalgamePageLayout()
-    {
-        ManageGalgamePageLayoutDialog dialog = new();
-        _ = dialog.ShowAsync();
-    }
     #endregion
 
     #region GAME

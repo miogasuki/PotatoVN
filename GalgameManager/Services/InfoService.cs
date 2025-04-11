@@ -55,6 +55,7 @@ public class InfoService : IInfoService
     public void DeveloperEvent(InfoBarSeverity infoBarSeverity = InfoBarSeverity.Warning, string? msg = null,
         Exception? e = null)
     {
+        if (_localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result != true) return;
         Event(EventType.NotCriticalUnexpectedError, infoBarSeverity, "UnexpectedEvent".GetLocalized(), 
             exception: e, msg: msg);
     }

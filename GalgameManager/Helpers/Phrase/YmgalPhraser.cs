@@ -34,30 +34,7 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
         await EnsureApiInitialized();
 
         var name = galgame.Name.Value ?? "";
-        int? id;
-        try
-        {
-            if (galgame.RssType != RssType.Ymgal) throw new Exception();
-            id = Convert.ToInt32(galgame.Id ?? "");
-        }
-        catch (Exception)
-        {
-            // 如果ID无效，尝试搜索游戏
-            try
-            {
-                var searchResponse = await ExecuteWithTokenRefreshAsync(async api => 
-                    await api.SearchGameAsync(name));
-                    
-                if (!searchResponse.Success || searchResponse.Data?.Result.Count == 0) 
-                    return null;
-                
-                id = searchResponse.Data?.Result?.FirstOrDefault()?.Id;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
+        var id = await GetId(galgame); 
 
         try
         {
@@ -125,6 +102,70 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
         }
     }
 
+    private async Task<int?> GetId(Galgame galgame)
+    {
+        // 确保先初始化API
+        await EnsureApiInitialized();
+
+        var name = galgame.Name.Value ?? "";
+        int? id;
+        try
+        {
+            // if (galgame.RssType != RssType.Ymgal) throw new Exception();
+            // id = Convert.ToInt32(galgame.Id ?? "");
+            // return id;
+            if (galgame.RssType == RssType.Ymgal)
+                return Convert.ToInt32(galgame.Id ?? "");
+            else if (galgame.RssType == RssType.Mixed)
+            {
+                id = Convert.ToInt32(galgame.Ids[(int)RssType.Ymgal]);
+                if (id == 0 || id == null)
+                    throw new Exception();
+                return id;
+            }
+            else
+                throw new Exception();
+        }
+        catch (Exception)
+        {
+            // 如果ID无效，尝试搜索游戏
+            try
+            {
+                var searchResponse = await ExecuteWithTokenRefreshAsync(async api =>
+                    await api.SearchGameAsync(name));
+
+                if (!searchResponse.Success || searchResponse.Data?.Result.Count == 0)
+                    return null;
+
+                double maxSimilarity = 0;
+                var target = 0;
+                if (searchResponse.Data?.Result == null)
+                    return null;
+                    
+                foreach (var g in searchResponse.Data.Result)
+                {
+                    if (g == null) continue;
+                    
+                    var nameSimlarity = g.Name != null ? IGalInfoPhraser.Similarity(name, g.Name) : 0;
+                    var cnNameSimilarity = g.ChineseName != null ? IGalInfoPhraser.Similarity(name, g.ChineseName) : 0;
+                    
+                    if (nameSimlarity > maxSimilarity || cnNameSimilarity > maxSimilarity)
+                    {
+                        maxSimilarity = Math.Max(nameSimlarity, cnNameSimilarity);
+                        target = searchResponse.Data.Result.IndexOf(g);
+                    }
+                }
+                
+                id = searchResponse.Data.Result.Count > target ? searchResponse.Data.Result[target]?.Id : null;
+                return id;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
+    
     public RssType GetPhraseType() => RssType.Ymgal;
 
     public async Task<GalgameCharacter?> GetGalgameCharacter(GalgameCharacter galgameCharacter)
@@ -235,31 +276,7 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
             await EnsureApiInitialized();
 
             var name = galgame.Name.Value ?? "";
-            int? id;
-            try
-            {
-                if (galgame.RssType != RssType.Ymgal) throw new Exception();
-                id = Convert.ToInt32(galgame.Id ?? "");
-            }
-            catch (Exception)
-            {
-                // 如果ID无效，尝试搜索游戏
-                try
-                {
-                    var searchResponse = await ExecuteWithTokenRefreshAsync(async api =>
-                        await api.SearchGameAsync(name));
-
-                    if (!searchResponse.Success || searchResponse.Data?.Result.Count == 0)
-                        return [];
-
-                    id = searchResponse.Data?.Result?.FirstOrDefault()?.Id;
-                }
-                catch (Exception)
-                {
-                    return [];
-                }
-            }
-
+            var id = await GetId(galgame);
             try
             {
                 List<StaffRelation> result = new();

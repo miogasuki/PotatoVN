@@ -148,6 +148,23 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         if (newFile is null) return;
         Gal.ImagePath.Value= newFile;
     }
+    
+    [RelayCommand]
+    private async Task PickHeaderImageAsync()
+    {
+        var newFile = await DownloadHelper.PickImageAsync();
+        if (newFile is null) return;
+        DownloadHelper.DeleteImgIfExists(Gal.HeaderImagePath.Value);
+        Gal.HeaderImagePath.Value = null;
+        var targetPath = Path.Combine((await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
+            $"{Gal.Name.Value}_Header.png");
+        await Task.Run(() =>
+        {
+            DownloadHelper.ProcessImage(newFile, targetPath, false);
+        });
+        Gal.HeaderImagePath.Value = targetPath;
+        Gal.HeaderImageUrl = null; //置空，让同步服务上传手动指定的图片
+    }
 
     [RelayCommand]
     private async Task SetGalgamePathAsync()
@@ -198,7 +215,12 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         {
             // 先清空ExePath，再调用函数来设置
             // Gal.ExePath = null;
-            await _galService.GetGalgameExeAsync(Gal);
+            var result = await _galService.GetGalgameExeAsync(Gal);
+            if (result is null)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, "GalgameSettingPage_ExePathSetCanceled".GetLocalized());
+                return;
+            }
             _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_ExePathSetSuccess".GetLocalized());
         }
         catch (Exception e)

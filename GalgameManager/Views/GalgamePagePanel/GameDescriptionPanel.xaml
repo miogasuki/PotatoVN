@@ -15,8 +15,7 @@
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
     </UserControl.Resources>
 
-    <StackPanel Visibility="{x:Bind Game.Description.Value, FallbackValue={}, Mode=OneWay,
-        Converter={StaticResource StringVisibilityConverter} }">
+    <StackPanel>
         <TextBlock
             Margin="{StaticResource SmallTopBottomMargin}"
             Style="{ThemeResource SubtitleTextBlockStyle}"

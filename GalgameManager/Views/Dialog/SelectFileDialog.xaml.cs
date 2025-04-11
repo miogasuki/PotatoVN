@@ -18,6 +18,7 @@ public sealed partial class SelectFileDialog
     public SelectFileDialog(string path,IEnumerable<string> fileExtensions, string title, bool displayRememberMe = true)
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
         _path = path;
         _fileExtensions = fileExtensions;

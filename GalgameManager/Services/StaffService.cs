@@ -6,12 +6,15 @@ using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using LiteDB;
 using Microsoft.UI.Xaml.Controls;
+using Refit;
 
 namespace GalgameManager.Services;
 
 public class StaffService : IStaffService
 {
     public event Action<Galgame>? OnGameStaffChanged;
+    public event Action<Staff>? OnStaffSaved;
+    public event Action<Staff>? OnStaffDeleted;
     private ILiteCollection<Staff> _dbSet = null!;
     private readonly ILocalSettingsService _settingsService;
     private readonly IGalgameCollectionService _galgameService;
@@ -28,7 +31,6 @@ public class StaffService : IStaffService
         _infoService = infoService;
         
         galgameService.PhrasedEvent2 += OnGalgamePhrasedEvent;
-        galgameService.GalgameAddedEvent += OnGalgamePhrasedEvent;
         galgameService.GalgameDeletedEvent += OnGalgameDeletedEvent;
     }
     
@@ -77,6 +79,8 @@ public class StaffService : IStaffService
         return result;
     }
 
+    public List<Staff> GetStaffs() => _staffs.Values.ToList();
+
     public async Task<Staff> ParseStaffAsync(Staff staff, RssType rss)
     {
         if (_galgameService.PhraserList[(int)rss] is not IGalStaffParser phraser) return staff;
@@ -107,16 +111,18 @@ public class StaffService : IStaffService
         return staff;
     }
 
-    public void Save(Staff staff)
+    public void Save(Staff staff, bool sync = true)
     {
         _staffs[staff.Id] = staff;
         _dbSet.Upsert(staff);
+        if (sync) OnStaffSaved?.Invoke(staff);
     }
 
-    public void Delete(Staff staff)
+    public void Delete(Staff staff, bool sync = true)
     {
         _staffs.Remove(staff.Id);
         _dbSet.Delete(staff.Id);
+        if (sync) OnStaffDeleted?.Invoke(staff);
     }
 
     public Task ExportAsync(Action<string, int, int>? progress)
@@ -195,12 +201,9 @@ public class StaffService : IStaffService
             foreach (Staff staff in toFetch)
                 task.AddStaff(staff, galgame.RssType);
         }
-        catch (HttpRequestException)
-        {
-            //ignore
-        }
         catch (Exception e)
         {
+            if (e is HttpRequestException or ApiException) return; // ignore
             _infoService.DeveloperEvent(msg: "failed on listening galgame phrased event", e: e);
         }
     }

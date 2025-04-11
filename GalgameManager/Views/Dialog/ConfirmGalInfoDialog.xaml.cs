@@ -19,14 +19,29 @@ public partial class ConfirmGalInfoDialog
     [ObservableProperty] private string _hint = null!;
     [ObservableProperty] private Visibility _isPhrasing = Visibility.Collapsed;
     private readonly IGalgameCollectionService _service;
+    
+    // 添加跟踪原始值的属性
+    private string _originalName = string.Empty;
+    private Dictionary<int, string?> _originalIds = new();
+    private RssType _originalSelectedRssType = RssType.None;
 
     public ConfirmGalInfoDialog(Galgame targetGame, Galgame? fetchedMeta, IGalgameCollectionService service)
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         
         Galgame = fetchedMeta ?? new Galgame(targetGame.Name.Value ?? string.Empty);
         _service = service;
+        
+        // 保存原始名称和ID
+        _originalName = Galgame.Name.Value ?? string.Empty;
+        foreach (RssType rssType in RssTypes)
+        {
+            _originalIds[(int)rssType] = Galgame.Ids[(int)rssType];
+        }
+        // 保存原始选中的RssType
+        _originalSelectedRssType = SelectedRssType;
         
         Update();
         PrimaryButtonText = "Yes".GetLocalized();
@@ -51,10 +66,66 @@ public partial class ConfirmGalInfoDialog
     {
         IsPhrasing = Visibility.Visible;
         IsPrimaryButtonEnabled = IsSecondaryButtonEnabled = false;
-        await _service.ParseGalInfoOnlyAsync(Galgame);
+        
+        var nameChanged = _originalName != (Galgame.Name.Value ?? string.Empty);
+        var idChanged = false;
+        var rssTypeChanged = _originalSelectedRssType != SelectedRssType;
+        RssType targetRssType = SelectedRssType;
+        
+        // 检查ID是否有变化
+        foreach (RssType rssType in RssTypes)
+        {
+            var originalId = _originalIds.ContainsKey((int)rssType) ? _originalIds[(int)rssType] : null;
+            if (originalId != Galgame.Ids[(int)rssType])
+            {
+                idChanged = true;
+                break;  // 一旦发现有变化，立即退出循环
+            }
+        }
+        
+        // 根据是否修改了ID决定搜索逻辑
+        var shouldClearIds = !idChanged && (nameChanged || rssTypeChanged);
+        
+        if (idChanged)
+        {
+            // 如果有ID修改，找到第一个非空ID作为搜索源
+            foreach (RssType rssType in RssTypes)
+            {
+                if (!string.IsNullOrWhiteSpace(Galgame.Ids[(int)rssType]))
+                {
+                    targetRssType = rssType;
+                    break;
+                }
+            }
+        }
+
+        // 如果id都是空的，使用RssType.None搜索
+        if (RssTypes.All(rssType => string.IsNullOrWhiteSpace(Galgame.Ids[(int)rssType])))
+        {
+            targetRssType = RssType.None;
+        }
+
+        if (shouldClearIds)
+        {
+            // 删除所有ID，以强制从名字搜索
+            foreach (RssType rssType in RssTypes)
+            {
+                Galgame.Ids[(int)rssType] = null;
+            }
+        }
+
+        await _service.ParseGalInfoOnlyAsync(Galgame, targetRssType);
         IsPhrasing = Visibility.Collapsed;
         IsPrimaryButtonEnabled = IsSecondaryButtonEnabled = true;
         Update();
+        
+        // 更新原始值
+        _originalName = Galgame.Name.Value ?? string.Empty;
+        foreach (RssType rssType in RssTypes)
+        {
+            _originalIds[(int)rssType] = Galgame.Ids[(int)rssType];
+        }
+        _originalSelectedRssType = SelectedRssType;
     }
 
     partial void OnIdChanged(string? value)

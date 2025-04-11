@@ -52,7 +52,7 @@ public class OssService(
         }
     }
 
-    public async Task<string?> GetReadPresignedUrlAsync(int userId, string objectFullName)
+    public async Task<string?> GetReadPresignedUrlAsync(int userId, string? objectFullName)
     {
         if (string.IsNullOrEmpty(objectFullName)) return null;
         try
@@ -84,10 +84,12 @@ public class OssService(
         }
     }
 
-    public Task DeleteObjectAsync(int userId, string objectFullName)
+    public async Task DeleteObjectAsync(int userId, string? objectFullName)
     {
-        return client.RemoveObjectAsync(new RemoveObjectArgs().WithBucket(BucketName)
+        if (string.IsNullOrEmpty(objectFullName)) return;
+        await client.RemoveObjectAsync(new RemoveObjectArgs().WithBucket(BucketName)
             .WithObject(GetFullKey(userId, objectFullName)));
+        await UpdateUserUsedSpaceAsync(new ObjectEntity { Key = GetFullKey(userId, objectFullName), Size = 0 });
     }
 
     public async Task UpdateUserUsedSpaceAsync(ObjectEntity entity)

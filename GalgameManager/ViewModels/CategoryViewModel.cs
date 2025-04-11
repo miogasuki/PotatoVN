@@ -105,6 +105,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "CategoryPage_DeleteCategory_Title".GetLocalized(),
             Content = "CategoryPage_DeleteCategory_Msg".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
@@ -187,6 +188,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "CategoryPage_AddCategoryDialog_Title".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
@@ -216,6 +218,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "CategoryPage_AddCategoryGroupDialog_Title".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
@@ -243,6 +246,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "CategoryPage_DeleteCategoryGroupDialog_Title".GetLocalized(),
             Content = "CategoryPage_DeleteCategoryGroupDialog_Msg".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),

@@ -1,4 +1,5 @@
-﻿using GalgameManager.Server.Contracts;
+﻿using AutoMapper;
+using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Helpers;
 using GalgameManager.Server.Enums;
 
@@ -7,6 +8,8 @@ namespace GalgameManager.Server.Models;
 public class GalgameDto(Galgame galgame)
 {
     public int Id { get; set; } = galgame.Id;
+
+    public long CharacterLastChangedTimeStamp { get; set; } = galgame.CharacterLastChangedTimeStamp;
 
     #region GAMEINFO
 
@@ -21,6 +24,8 @@ public class GalgameDto(Galgame galgame)
     public long ReleasedDateTimeStamp { get; set; } = galgame.ReleaseDateTimeStamp;
     public string? ImageUrl { get; set; }
     public List<string>? Tags { get; set; } = galgame.Tags;
+    public List<CharacterDto> Characters { get; set; } = [];
+    public List<StaffGameDto> Staffs { get; set; } = [];
 
     #endregion
 
@@ -35,9 +40,16 @@ public class GalgameDto(Galgame galgame)
 
     #endregion
 
-    public async Task<GalgameDto> WithImgAsync(IOssService ossService, int userId)
+    public async Task<GalgameDto> Init(IOssService ossService, int userId, IMapper mapper)
     {
         ImageUrl = await ossService.GetReadPresignedUrlAsync(userId, galgame.ImageLoc ?? string.Empty);
+        foreach (Character c in galgame.Characters)
+        {
+            CharacterDto characterDto = mapper.Map<CharacterDto>(c);
+            await characterDto.WithImgAsync(c, ossService, userId);
+            Characters.Add(characterDto);
+        }
+        Staffs.AddRange(galgame.StaffGames.Select(mapper.Map<StaffGameDto>));
         return this;
     }
 }
@@ -58,6 +70,7 @@ public class GalgameUpdateDto
     public List<string>? Tags { get; set; }
     public int? TotalPlayTime { get; set; }
     public PlayType? PlayType { get; set; }
+    public List<CharacterUpdateDto>? Characters { get; set; }
     public List<PlayLogDto>? PlayTime { get; set; }
     public string? Comment { get; set; }
     public int? MyRate { get; set; }

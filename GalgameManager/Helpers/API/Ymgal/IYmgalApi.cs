@@ -10,7 +10,7 @@ public interface IYmgalApi
     [Get("/open/archive")]
     Task<ApiResponse<GameResponse>> GetGameAsync(int gid);
     
-    [Get("/open/archive/game")]
+    [Get("/open/archive")]
     Task<ApiResponse<OrganizationResponse>> GetOrganizationAsync(int orgId);
 
     [Get("/open/archive")]

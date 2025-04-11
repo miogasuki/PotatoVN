@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reflection;
 using GalgameManager.Contracts.Phrase;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers.API;
 using GalgameManager.Models;
@@ -72,27 +73,46 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         Assembly assembly = Assembly.GetExecutingAssembly();
         var file = Path.Combine(Path.GetDirectoryName(assembly.Location)!, TagDbFile);
         if (!File.Exists(file)) return;
-
+    
         JToken json = JToken.Parse(await File.ReadAllTextAsync(file));
         List<JToken>? tags = json.ToObject<List<JToken>>();
         tags!.ForEach(tag => _tagDb.Add(int.Parse(tag["id"]!.ToString()), tag));
 
-        // 加载并应用翻译
-        var translationFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, TagTranslationFile);
-        if (!File.Exists(translationFile)) return;
-
-        JToken translationJson = JObject.Parse(await File.ReadAllTextAsync(translationFile));
-
-        // 遍历所有标签，应用翻译
-        foreach (var tag in _tagDb.Values)
+        LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result; 
+        bool isChineseCulture = language == LanguageEnum.ChineseSimplified || 
+                                (language == LanguageEnum.Auto && 
+                                 System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
+        // 如果是中文，则应用翻译
+        if (isChineseCulture)
         {
-            string? originalName = tag["name"]?.ToString();
-            if (originalName != null && translationJson[originalName] != null)
+            // 加载翻译文件
+            var translationFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, TagTranslationFile);
+            if (!File.Exists(translationFile)) return;
+    
+            try
             {
-                tag["name"] = translationJson[originalName]!.ToString();
+                JToken translationJson = JObject.Parse(await File.ReadAllTextAsync(translationFile));
+    
+                // 遍历所有标签，应用翻译
+                foreach (var tag in _tagDb.Values)
+                {
+                    string? originalName = tag["name"]?.ToString();
+                    if (originalName != null && translationJson[originalName] != null)
+                    {
+                        tag["name"] = translationJson[originalName]!.ToString();
+                    }
+                    // 保存原始名称，以便在需要时能够访问
+                    if (originalName != null)
+                    {
+                        tag["original_name"] = originalName;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // 翻译过程中出错，但不影响基本功能
             }
         }
-
     }
 
     private static async Task TryGetId(Galgame galgame)
@@ -565,7 +585,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             }
             catch (ThrottledException)
             {
-                Task.Delay(60 * 1000).Wait(); // 1 minute
+                await Task.Delay(60 * 1000); // 1 minute
             }
             catch (Exception)
             {

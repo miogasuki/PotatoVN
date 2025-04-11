@@ -146,21 +146,42 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     #region DRAG_AND_DROP
 
     [ObservableProperty] private bool _displayDragArea;
-    
+
     public async void Grid_Drop(object sender, DragEventArgs e)
     {
         if (e.DataView.Contains(StandardDataFormats.StorageItems))
         {
             IReadOnlyList<IStorageItem>? items = await e.DataView.GetStorageItemsAsync();
             if (items.Count <= 0) return;
-            foreach (IStorageItem storageItem in items)
+
+            // 限制只能拖入一个项目
+            if (items.Count > 1)
             {
-                StorageFile item = (StorageFile)storageItem;
-                var folder = item.Path.Substring(0, item.Path.LastIndexOf('\\'));
-                _ =  AddGalgameInternal(folder);
+                _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_TooManyItems".GetLocalized());
             }
+            else
+            {
+                // 只处理单个项目
+                IStorageItem storageItem = items[0];
+                if (storageItem is StorageFile file && 
+                    (file.FileType.Equals(".exe", StringComparison.OrdinalIgnoreCase) ||
+                        file.FileType.Equals(".bat", StringComparison.OrdinalIgnoreCase)))
+                {
+                    var folder = file.Path.Substring(0, file.Path.LastIndexOf('\\'));
+                    _ = AddGalgameInternal(folder);
+                }
+                else if (storageItem is StorageFolder folder)
+                {
+                    _ = AddGalgameInternal(folder.Path);
+                }
+                else
+                {
+                    _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_InvalidItem".GetLocalized());
+                }
+            }
+
+            DisplayDragArea = false;
         }
-        DisplayDragArea = false;
     }
 
     public void Grid_DragEnter(object sender, DragEventArgs e)
@@ -185,7 +206,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     private void UpdateFilterPanelDisplay(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        UiFilter = "HomePage_Filter".GetLocalized() + (ContainNonVirtualGameFilter() ? " ●" : string.Empty);
+        UiFilter = "HomePage_Filter".GetLocalized() + (Filters.Count > 0 ? " ●" : string.Empty);
         Source.RefreshFilter();
     }
     
@@ -236,11 +257,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         UpdateFilterPanelDisplay(null, null!);
     }
     
-    private bool ContainNonVirtualGameFilter()
-    {
-        return Filters.Count > 0 && Filters.Any(f => f.GetType() != typeof(VirtualGameFilter));
-    }
-    
     partial void OnKeepFiltersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.KeepFilters, value);
 
     #endregion
@@ -286,7 +302,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                     break;
                 case SortKeys.Name:
                     Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), 
-                        SortKeysAscending[i]?SortDirection.Descending:SortDirection.Ascending, 
+                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending,
                         StringComparer.CurrentCultureIgnoreCase
                     ));
                     break;
@@ -344,6 +360,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "HomePage_Sort_Title".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
@@ -489,6 +506,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "HomePage_Remove_Title".GetLocalized(),
             Content = "HomePage_Remove_Message".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),

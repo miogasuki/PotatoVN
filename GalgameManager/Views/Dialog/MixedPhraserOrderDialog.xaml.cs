@@ -12,6 +12,7 @@ public sealed partial class MixedPhraserOrderDialog
     public MixedPhraserOrderDialog(MixedPhraserOrder order)
     {
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         Title = "MixedPhraserOrderDialog_Title".GetLocalized();
@@ -30,6 +31,7 @@ public sealed partial class MixedPhraserOrderDialog
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_CnName".GetLocalized(), order.CnNameOrder),
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Dev".GetLocalized(), order.DeveloperOrder),
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Tag".GetLocalized(), order.TagsOrder),
+            new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Staff".GetLocalized(), order.StaffOrder),
         };
     }
 }

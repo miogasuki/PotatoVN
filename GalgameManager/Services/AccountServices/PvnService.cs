@@ -12,18 +12,21 @@ using Microsoft.UI.Xaml.Controls;
 using PotatoVN.Client.Api;
 using PotatoVN.Client.Client;
 using PotatoVN.Client.Model;
+using IMapper = AutoMapper.IMapper;
 using PlayType = PotatoVN.Client.Model.PlayType;
 
 namespace GalgameManager.Services;
 
 public class PvnService : IPvnService
 {
+    private readonly IMapper _mapper;
     private readonly ILocalSettingsService _settingsService;
     private readonly IBgmOAuthService _bgmService;
     private readonly IConfiguration _config;
     private readonly IBgTaskService _bgTaskService;
     private readonly HttpClient _httpClient;
     private readonly GalgameCollectionService _gameService;
+    private readonly IStaffService _staffService;
     private readonly IInfoService _infoService;
     public Uri BaseUri { get; private set; }
     public Action<PvnServiceStatus>? StatusChanged { get; set; }
@@ -32,14 +35,17 @@ public class PvnService : IPvnService
     private PvnServerInfo? _serverInfo;
 
     public PvnService(ILocalSettingsService settingsService, IConfiguration config, IBgmOAuthService bgmService,
-        IBgTaskService bgTaskService, IGalgameCollectionService gameService, IInfoService infoService)
+        IBgTaskService bgTaskService, IGalgameCollectionService gameService, IStaffService staffService,
+        IInfoService infoService, IMapper mapper)
     {
+        _mapper = mapper;
         _settingsService = settingsService;
         _bgmService = bgmService;
         _config = config;
         BaseUri = GetBaseUri();
         _bgTaskService = bgTaskService;
         _gameService = (GalgameCollectionService)gameService;
+        _staffService = staffService;
         _httpClient = Utils.GetDefaultHttpClient();
         _infoService = infoService;
 
@@ -59,6 +65,22 @@ public class PvnService : IPvnService
             if(galgame.Ids[(int)RssType.PotatoVn] is null) return;
             list.Add(Convert.ToInt32(galgame.Ids[(int)RssType.PotatoVn]));
             await _settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, list);
+            SyncGames();
+        };
+        _staffService.OnStaffSaved += staff =>
+        {
+            if (!_settingsService.ReadSettingAsync<bool>(KeyValues.SyncStaff).Result) return;
+            staff.RequirePvnSync = true;
+            _staffService.Save(staff, false);
+            SyncGames();
+        };
+        _staffService.OnStaffDeleted += staff =>
+        {
+            if (!_settingsService.ReadSettingAsync<bool>(KeyValues.SyncStaff).Result) return;
+            List<int> list = _settingsService.ReadSettingAsync<List<int>>(KeyValues.ToDeleteStaff).Result ?? [];
+            if(staff.Ids[(int)RssType.PotatoVn]?.ToInt() is not { } id) return;
+            list.Add(id);
+            _settingsService.SaveSettingAsync(KeyValues.ToDeleteStaff, list);
             SyncGames();
         };
     }
@@ -97,6 +119,8 @@ public class PvnService : IPvnService
                 BangumiOauth2Enable = result.BangumiOAuth2Enable,
                 DefaultLoginEnable = result.DefaultLoginEnable,
                 BangumiLoginEnable = result.BangumiLoginEnable,
+                GalgameStaffAvailable = result.GalgameStaffAvailable,
+                StaffEnable = result.StaffEnable,
             };
         }
         
@@ -211,23 +235,13 @@ public class PvnService : IPvnService
         var ossFilePath = string.Empty;
         if (avatarPath is not null)
         {
-            try
-            {
-                StatusChanged?.Invoke(PvnServiceStatus.UploadingAvatar);
-                (string presignedUrl, string ossFilePath) result = await GetPresignedUrl(avatarPath, "Avatar");
-                ossFilePath = result.ossFilePath;
-                await UploadFileAsync(result.presignedUrl, avatarPath);
-            }
-            catch (Exception e)
+            _infoService.Info(InfoBarSeverity.Informational,"PvnService_UploadingAvatar".GetLocalized());
+            ossFilePath = await UploadFileAsync(avatarPath, "Avatar", e =>
             {
                 _infoService.Event(EventType.PvnAccountEvent, InfoBarSeverity.Warning,
                     "PvnService_UploadAvatarFailed".GetLocalized(), e);
                 avatarPath = null;
-            }
-            finally
-            {
-                await AfterUploadFileAsync(ossFilePath);
-            }
+            }) ?? string.Empty;
         }
 
         try
@@ -335,90 +349,7 @@ public class PvnService : IPvnService
         galgame.PvnUploadProperties |= properties;
         StartSyncTask();
     }
-
-    public async Task<int> UploadInternal(Galgame galgame)
-    {
-        if (galgame.PvnUpdate == false) throw new Exception("Galgame not marked as updated."); //不应该发生
-        PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
-        if (account is null) throw new InvalidOperationException("PotatoVN account is not login."); //不应该发生
-        GalgameUpdateDto payload = new();
-
-        if (galgame.Ids[(int)RssType.PotatoVn].IsNullOrEmpty() == false &&
-            int.TryParse(galgame.Ids[(int)RssType.PotatoVn], out var id)) 
-            payload.Id = id;
-
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Infos))
-        {
-            payload.BgmId = galgame.Ids[(int)RssType.Bangumi]!;
-            payload.VndbId = galgame.Ids[(int)RssType.Vndb]!;
-            payload.Name = galgame.Name.Value!;
-            payload.CnName = galgame.CnName;
-            payload.Description = galgame.Description.Value!;
-            payload.Developer = galgame.Developer.Value!;
-            payload.ExpectedPlayTime = galgame.ExpectedPlayTime.Value!;
-            payload.Rating = galgame.Rating.Value;
-            payload.ReleaseDateTimeStamp = galgame.ReleaseDate.Value.Date.ToUnixTime();
-            payload.Tags = (galgame.Tags.Value ?? []).ToList();
-        }
-        
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.ImageLoc) &&
-            string.IsNullOrEmpty(galgame.ImagePath) == false && galgame.ImagePath != Galgame.DefaultImagePath)
-        {
-            string? ossPath = null;
-            try
-            {
-                (string url, string path) tmp = await GetPresignedUrl(galgame.ImagePath!, galgame.Name!);
-                ossPath = tmp.path;
-                await UploadFileAsync(tmp.url, galgame.ImagePath!);
-                payload.ImageLoc = tmp.path;
-            }
-            catch (Exception e)
-            {
-                _infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning,
-                    "PvnService_UploadImageFailed".GetLocalized(galgame.Name.Value ?? string.Empty), e);
-            }
-            finally
-            {
-                await AfterUploadFileAsync(ossPath);
-            }
-        }
-
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Review))
-        {
-            payload.PlayType = (PlayType)(int)galgame.PlayType;
-            payload.Comment = galgame.Comment;
-            payload.MyRate = galgame.MyRate;
-            payload.PrivateComment = galgame.PrivateComment;
-        }
-        
-        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.PlayTime))
-        {
-            payload.TotalPlayTime = galgame.TotalPlayTime;
-            List<PlayLogDto> logs = new();
-            foreach (KeyValuePair<string, int> pair in galgame.PlayedTime)
-                if(DateTimeExtensions.ToDateTime(pair.Key) != DateTime.MinValue)
-                    logs.Add(new PlayLogDto
-                    {
-                        DateTimeStamp = DateTimeExtensions.ToDateTime(pair.Key).Date.ToUnixTime(),
-                        Minute = pair.Value
-                    });
-            payload.PlayTime = logs;
-        }
-
-        GalgameApi api = new(_httpClient, await GetConfigAsync());
-        try
-        {
-            GalgameDto result = await api.GalgamePatchAsync(payload);
-            galgame.PvnUpdate = false;
-            galgame.PvnUploadProperties = PvnUploadProperties.None;
-            return result.Id;
-        }
-        catch (ApiException e)
-        {
-            throw new HttpRequestException(e.ErrorContent.ToString());
-        }
-    }
-
+    
     public async Task DeleteInternal(int pvnId)
     {
         PvnAccount? account = _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount).Result;
@@ -445,10 +376,18 @@ public class PvnService : IPvnService
         await _settingsService.SaveSettingAsync<PvnAccount?>(KeyValues.PvnAccount, null, false, true);
         await _settingsService.SaveSettingAsync(KeyValues.SyncGames, false);
         await _settingsService.SaveSettingAsync(KeyValues.PvnSyncTimestamp, 0);
+        await _settingsService.SaveSettingAsync(KeyValues.PvnSyncStaffTimestamp, 0);
+        await _settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, new List<int>());
         foreach (Galgame gal in _gameService.Galgames)
         {
             gal.Ids[(int)RssType.PotatoVn] = null;
+            gal.PvnLastCharacterFetchTime = 0;
             await _gameService.SaveGalgameAsync(gal);
+        }
+        foreach (Staff staff in _staffService.GetStaffs())
+        {
+            staff.Ids[(int)RssType.PotatoVn] = null;
+            _staffService.Save(staff, false);
         }
     }
 
@@ -489,50 +428,71 @@ public class PvnService : IPvnService
         return account;
     }
     
-    private async Task UploadFileAsync(string presignedUrl, string filePath)
+    public async Task<string?> UploadFileAsync(string? filePath, string? targetName = null,
+        Action<Exception>? onFailed = null)
     {
-        await using FileStream fileStream = File.OpenRead(filePath);
-        StreamContent content = new(fileStream);
-        content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            
-        HttpResponseMessage response = await _httpClient.PutAsync(presignedUrl, content);
-        if(response.IsSuccessStatusCode == false)
-            throw new Exception(await response.Content.ReadAsStringAsync());
-    }
-
-    private async Task<(string presignedUrl, string ossFilePath)> GetPresignedUrl(string filePath, string saveName)
-    {
-        if (!Path.Exists(filePath)) throw new FileNotFoundException("File not found.", filePath);
+        if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return null;
+        PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         var size = new FileInfo(filePath).Length;
-        OssApi api = new(_httpClient, await GetConfigAsync());
+        if (account is null || account.TotalSpace - account.UsedSpace <= size) return null;
+        string presignedUrl = string.Empty, ossFilePath = string.Empty;
         try
         {
-            var presignedUrl = await api.OssPutGetAsync($"{saveName}{Path.GetExtension(filePath)}", size);
-            presignedUrl = presignedUrl.Trim('\"').TrimEnd('\"');
-            return (presignedUrl, $"{saveName}{Path.GetExtension(filePath)}");
-        }
-        catch (ApiException e)
-        {
-            throw new Exception($"Get Oss presigned url failed with code {e.ErrorCode}.");
-        }
-    }
-    
-    private async Task AfterUploadFileAsync(string? ossFilePath)
-    {
-        if (ossFilePath.IsNullOrEmpty()) return;
-        try
-        {
-            OssApi api = new(_httpClient, await GetConfigAsync());
-            UserDto result = await api.OssUpdatePutAsync(ossFilePath!);
-            PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
-            if (account is null) return;
-            account.UsedSpace = result.UsedSpace;
-            account.TotalSpace = result.TotalSpace;
-            await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
+            await GetPresignedUrl(targetName ?? Path.GetFileName(filePath));
+            await UploadFile();
+            return ossFilePath;
         }
         catch (Exception e)
         {
-            _infoService.DeveloperEvent(msg: "Failed to update user space.", e: e);
+            onFailed?.Invoke(e);
+            return null;
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(ossFilePath))
+                await AfterUploadFileAsync();
+        }
+        
+        async Task GetPresignedUrl(string saveName)
+        {
+            OssApi api = new(_httpClient, await GetConfigAsync());
+            try
+            {
+                presignedUrl = await api.OssPutGetAsync($"{saveName}{Path.GetExtension(filePath)}", size);
+                presignedUrl = presignedUrl.Trim('\"').TrimEnd('\"');
+                ossFilePath = $"{saveName}{Path.GetExtension(filePath)}";
+            }
+            catch (ApiException e)
+            {
+                throw new Exception($"Get Oss presigned url failed with code {e.ErrorCode}.");
+            }
+        }
+
+        async Task UploadFile()
+        {
+            await using FileStream fileStream = File.OpenRead(filePath);
+            StreamContent content = new(fileStream);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            HttpResponseMessage response = await _httpClient.PutAsync(presignedUrl, content);
+            if (response.IsSuccessStatusCode == false)
+                throw new Exception(await response.Content.ReadAsStringAsync());
+        }
+
+        async Task AfterUploadFileAsync()
+        {
+            try
+            {
+                OssApi api = new(_httpClient, await GetConfigAsync());
+                UserDto result = await api.OssUpdatePutAsync(ossFilePath);
+                account.UsedSpace = result.UsedSpace;
+                account.TotalSpace = result.TotalSpace;
+                await _settingsService.SaveSettingAsync(KeyValues.PvnAccount, account);
+            }
+            catch (Exception e)
+            {
+                _infoService.DeveloperEvent(msg: "Failed to update user space.", e: e);
+            }
         }
     }
 
@@ -542,12 +502,12 @@ public class PvnService : IPvnService
         if (!_settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames).Result) return;
         
         SyncTask = _bgTaskService.GetBgTask<PvnSyncTask>(string.Empty);
-        if (SyncTask is not null && SyncTask.IsRunning) return;
+        if (SyncTask is not null) return;
         SyncTask = new PvnSyncTask();
         _bgTaskService.AddBgTask(SyncTask);
     }
 
-    private async Task<Configuration> GetConfigAsync()
+    public async Task<Configuration> GetConfigAsync()
     {
         PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
         Configuration result = new()
@@ -565,4 +525,6 @@ public class PvnServerInfo
     public required bool BangumiOauth2Enable;
     public required bool DefaultLoginEnable;
     public required bool BangumiLoginEnable;
+    public required bool GalgameStaffAvailable;
+    public required bool StaffEnable;
 }

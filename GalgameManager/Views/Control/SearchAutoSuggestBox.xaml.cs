@@ -60,7 +60,21 @@ namespace GalgameManager.Views.Control
 
         private void AutoSuggestBox_OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
+            // 更新 SearchKey 为用户提交的查询或选择的建议
+            if (args.ChosenSuggestion != null)
+            {
+                // 如果是从建议中选择的项目
+                SearchKey = args.ChosenSuggestion.ToString();
+            }
+            else
+            {
+                // 如果是直接提交的查询文本
+                SearchKey = args.QueryText;
+            }
+
             if (string.IsNullOrEmpty(SearchKey)) return;
+
+            // 执行搜索命令
             SearchCommand?.Execute(SearchKey);
             SearchSubmitCommand?.Execute(SearchKey);
         }

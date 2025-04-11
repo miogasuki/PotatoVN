@@ -1,4 +1,6 @@
-﻿namespace GalgameManager.Views.GalgamePagePanel;
+﻿using Microsoft.UI.Xaml;
+
+namespace GalgameManager.Views.GalgamePagePanel;
 
 public partial class GameDescriptionPanel
 {
@@ -6,4 +8,7 @@ public partial class GameDescriptionPanel
     {
         InitializeComponent();
     }
+
+    protected override void Update() =>
+        Visibility = Game?.Description == null ? Visibility.Collapsed : Visibility.Visible;
 }

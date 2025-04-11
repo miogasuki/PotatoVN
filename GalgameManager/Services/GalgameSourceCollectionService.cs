@@ -56,7 +56,10 @@ public class GalgameSourceCollectionService(
         if (toRemove.Count > 0)
         {
             foreach (GalgameSourceBase source in toRemove)
+            {
                 _galgameSources.Remove(source);
+                _dbSet.Delete(source.Id);
+            }
             infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning,
                 "GalgameSourceCollectionService_RemoveNonExist_Title".GetLocalized(),
                 msg: "GalgameSourceCollectionService_RemoveNonExist_Msg".GetLocalized(
@@ -207,6 +210,7 @@ public class GalgameSourceCollectionService(
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "GalgameFolderCollectionService_DeleteGalgameFolderAsync_Title".GetLocalized(),
             Content = "GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),

@@ -9,10 +9,12 @@
     xmlns:prefab="using:GalgameManager.Views.Prefab"
     xmlns:models="using:GalgameManager.Models"
     xmlns:behaviors="using:GalgameManager.Behaviors"
+    xmlns:converters="using:GalgameManager.Converters"
     mc:Ignorable="d"
     x:Name="Page">
     
     <Page.Resources>
+        <converters:EnumEqualsConverter x:Key="EnumEqualsConverter" />
         <MenuFlyout Placement="Right" x:Key="FolderFlyout">
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditFolder"
                             Command="{x:Bind ViewModel.EditLibraryCommand}" CommandParameter="{Binding}"/>
@@ -48,7 +50,7 @@
         </Grid.RowDefinitions>
         
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
-                    Margin="0 -67 0 0">
+                    Margin="{StaticResource CommandBarMargin}">
             <!-- 返回 -->
             <AppBarButton Icon="Back" x:Uid="LibraryPage_Back"
                           Command="{x:Bind ViewModel.BackCommand}"
@@ -78,7 +80,7 @@
                     <KeyboardAccelerator Modifiers="Control" Key="R"/>
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}" AllowFocusOnInteraction="True">
+            <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}">
                 <AppBarButton.Flyout>
                     <Flyout Placement="Bottom">
                         <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}" 
@@ -87,6 +89,44 @@
                 </AppBarButton.Flyout>
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="F" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <!-- 添加排序按钮 -->
+            <AppBarButton Icon="Sort" x:Uid="LibraryPage_Sort">
+                <AppBarButton.Flyout>
+                    <MenuFlyout Placement="Bottom">
+                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByName" 
+                                           Command="{x:Bind ViewModel.SortCommand}" 
+                                           CommandParameter="{x:Bind ViewModel.NameSortKey}"
+                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Name}"/>
+                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByLastPlay" 
+                                           Command="{x:Bind ViewModel.SortCommand}" 
+                                           CommandParameter="{x:Bind ViewModel.LastPlaySortKey}"
+                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=LastPlay}"/>
+                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByDeveloper" 
+                                           Command="{x:Bind ViewModel.SortCommand}" 
+                                           CommandParameter="{x:Bind ViewModel.DeveloperSortKey}"
+                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Developer}"/>
+                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByRating" 
+                                           Command="{x:Bind ViewModel.SortCommand}" 
+                                           CommandParameter="{x:Bind ViewModel.RatingSortKey}"
+                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Rating}"/>
+                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByReleaseDate" 
+                                           Command="{x:Bind ViewModel.SortCommand}" 
+                                           CommandParameter="{x:Bind ViewModel.ReleaseDateSortKey}"
+                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=ReleaseDate}"/>
+                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByAddTime" 
+                                           Command="{x:Bind ViewModel.SortCommand}" 
+                                           CommandParameter="{x:Bind ViewModel.AddTimeSortKey}"
+                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=AddTime}"/>
+                        <MenuFlyoutSeparator/>
+                        <ToggleMenuFlyoutItem x:Uid="LibraryPage_SortDescending"
+                                              Command="{x:Bind ViewModel.ApplySortingCommand}"
+                                              IsChecked="{x:Bind ViewModel.SortDescending, Mode=TwoWay}"/>
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="S"/>
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
             <!-- <AppBarButton Icon="Share" Label="Share"/> -->
@@ -117,7 +157,7 @@
         </CommandBar>
         
         <!-- 添加面包屑导航栏 -->
-        <BreadcrumbBar Grid.Row="1" 
+        <BreadcrumbBar Grid.Row="1"
                        ItemsSource="{x:Bind ViewModel.PathNodes, Mode=OneWay}"
                        ItemClicked="{x:Bind ViewModel.OnBreadcrumbBarItemClicked}"
                        Visibility="{x:Bind ViewModel.IsNavBarVisible, Mode=OneWay}" 

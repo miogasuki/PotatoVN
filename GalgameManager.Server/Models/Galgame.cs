@@ -14,6 +14,7 @@ public class Galgame
     public required int UserId { get; set; }
 
     public long LastChangedTimeStamp { get; set; }
+    public long CharacterLastChangedTimeStamp { get; set; }
     
     #region GAME_SETTINGS
     public List<Category>? Categories { get; set; } = new();
@@ -31,6 +32,8 @@ public class Galgame
     public long ReleaseDateTimeStamp { get; set; }
     [MaxLength(220)] public string? ImageLoc { get; set; }
     public List<string>? Tags { get; set; }
+    public List<Character> Characters { get; set; } = [];
+    public List<StaffGame> StaffGames { get; set; } = [];
     #endregion
 
     #region PLAY_STATUS

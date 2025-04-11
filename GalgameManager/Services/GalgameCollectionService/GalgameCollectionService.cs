@@ -54,8 +54,6 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         _bgTaskService = bgTaskService;
         _galSrcService = galgameSourceService;
         PhrasedEvent2 += OnGameParsed;
-        GalgameAddedEvent += OnGameParsed;
-        
         
         BgmPhraser bgmPhraser = new(GetBgmData().Result);
         VndbPhraser vndbPhraser = new(GetVndbData().Result);
@@ -290,9 +288,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         galgameCharacter.Weight = tmp.Weight;
         galgameCharacter.BWH = tmp.BWH;
         
-        galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageAsync(tmp.ImageUrl, 
+        galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.ImageUrl, 
             fileNameWithoutExtension:$"{galgameCharacter.Name}_Large") ?? Galgame.DefaultImagePath;
-        galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageAsync(tmp.PreviewImageUrl, 
+        galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.PreviewImageUrl, 
                                                 fileNameWithoutExtension:$"{galgameCharacter.Name}_Preview") ??
                                             Galgame.DefaultImagePath;
         return galgameCharacter;
@@ -555,6 +553,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 ContentDialog dialog = new()
                 {
                     XamlRoot = App.MainWindow!.Content.XamlRoot,
+                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
                     Title = "Error".GetLocalized(),
                     Content = "GalgameCollectionService_NotExeFounded".GetLocalized(),
                     PrimaryButtonText = "Yes".GetLocalized()
@@ -603,6 +602,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 ContentDialog dialog = new()
                 {
                     XamlRoot = App.MainWindow!.Content.XamlRoot,
+                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
                     Title = "Error".GetLocalized(),
                     Content = "GalgameCollectionService_CloudRootNotSet".GetLocalized(),
                     PrimaryButtonText = "Yes".GetLocalized()
@@ -624,6 +624,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     ContentDialog dialog = new()
                     {
                         XamlRoot = App.MainWindow!.Content.XamlRoot,
+                        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
                         Title = "GalgameCollectionService_SelectOperateTitle".GetLocalized(),
                         Content = "GalgameCollectionService_SelectOperateMsg".GetLocalized(),
                         PrimaryButtonText = "GalgameCollectionService_Local".GetLocalized(),
@@ -664,6 +665,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 ContentDialog dialog = new()
                 {
                     XamlRoot = App.MainWindow!.Content.XamlRoot,
+                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
                     Title = "Error".GetLocalized(),
                     Content = stackPanel,
                     PrimaryButtonText = "Yes".GetLocalized()

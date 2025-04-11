@@ -21,7 +21,7 @@ public class ImagePathConverter : IValueConverter
             if (value is string str && !string.IsNullOrEmpty(str))
                 return new BitmapImage(new Uri(str));
             if (parameter is string para)
-                return new BitmapImage(new Uri(para));
+                return para == "null" ? new BitmapImage() : new BitmapImage(new Uri(para));
         }
         catch (Exception)
         {

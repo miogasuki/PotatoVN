@@ -224,7 +224,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GameFolderMustContain:
                 return (T?)(object)".exe";
             case KeyValues.GameFolderShouldContain:
-                return (T?)(object)".xp3\n.arc\n.dat\n.ini\n.dll\n.txt";
+                return (T?)(object)".xp3\n.arc\n.dat\n.ini\n.dll\n.txt\n.pac\n.noa\n.sh\n.bin\n.pck";
             case KeyValues.SaveBackupMetadata:
                 return (T?)(object)false;
             case KeyValues.FixHorizontalPicture:
@@ -235,6 +235,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.DownloadCharacters:
                 return (T?)(object)true;
             case KeyValues.OverrideLocalNameWithChinese:
+            case KeyValues.GalgamePageNewLayout_ShowSeiyu:
                 return (T?)(object)false;
             case KeyValues.MemoryImprove:
                 return (T?)(object)true;
@@ -250,13 +251,15 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.SpecialDisplayVirtualGame:
             case KeyValues.LibraryNavBar:
             case KeyValues.LibraryStatistics:
-                return (T?)(object)true;
+            case KeyValues.SyncGameCharacters:
+            case KeyValues.SyncStaff:
             case KeyValues.GalgamePageNewLayout:
             case KeyValues.GalgamePageNewLayout_ShowPainter:
-            case KeyValues.GalgamePageNewLayout_ShowSeiyu:
             case KeyValues.GalgamePageNewLayout_ShowWriter:
             case KeyValues.GalgamePageNewLayout_ShowMusician:
                 return (T?)(object)true;
+            case KeyValues.Language:
+                return (T?)(object?)LanguageEnum.Auto;
             default:
                 return default;
         }

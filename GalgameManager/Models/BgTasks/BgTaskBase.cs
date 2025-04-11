@@ -1,4 +1,5 @@
-﻿using GalgameManager.Helpers;
+﻿using System.Runtime.InteropServices;
+using GalgameManager.Helpers;
 using Newtonsoft.Json;
 
 namespace GalgameManager.Models.BgTasks;
@@ -65,7 +66,14 @@ public abstract class BgTaskBase
         };
         UiThreadInvokeHelper.Invoke(() =>
         {
-            OnProgress?.Invoke(CurrentProgress);
+            try
+            {
+                OnProgress?.Invoke(CurrentProgress);
+            }
+            catch (COMException)
+            {
+                //ignore
+            }
         });
     }
 }

@@ -51,6 +51,18 @@
                                 x:Uid="AccountPage_Pvn_SyncGame"
                                 IsOn="{x:Bind ViewModel.PvnSyncGames, Mode=TwoWay}" />
                         </control:Panel>
+                        <!-- 同步选项 -->
+                        <control:Panel>
+                            <StackPanel Style="{StaticResource AccountStackPanelStyle}">
+                                <TextBlock x:Uid="AccountPage_Pvn_SyncOption"/>
+                                <views:SettingToggleSwitch
+                                    x:Uid="AccountPage_Pvn_SyncCharacter"
+                                    IsOn="{x:Bind ViewModel.PvnSyncCharacters, Mode=TwoWay}" />
+                                <views:SettingToggleSwitch
+                                    x:Uid="AccountPage_Pvn_SyncStaff"
+                                    IsOn="{x:Bind ViewModel.PvnSyncStaffs, Mode=TwoWay}" />
+                            </StackPanel>
+                        </control:Panel>
                         <!-- 云存储空间 -->
                         <control:Panel Visibility="{x:Bind ViewModel.IsPvnLogin, Mode=OneWay}">
                             <StackPanel Spacing="10">

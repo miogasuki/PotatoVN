@@ -26,26 +26,39 @@ public partial class GameHeaderPanel
 
     protected async override void Update()
     {
-        if (Game is null) return;
-        List<(Career career, string settingKey)> careerSettings =
-        [
-            (Career.Painter, KeyValues.GalgamePageNewLayout_ShowPainter),
-            (Career.Seiyu, KeyValues.GalgamePageNewLayout_ShowSeiyu),
-            (Career.Writer, KeyValues.GalgamePageNewLayout_ShowWriter),
-            (Career.Musician, KeyValues.GalgamePageNewLayout_ShowMusician)
-        ];
-
-        ObservableCollection<GameHeaderPanelStaffList> list = [];
-        foreach (var (career, settingKey) in careerSettings)
+        try
         {
-            if (!await _localSettingsService.ReadSettingAsync<bool>(settingKey)) continue;
+            if (Game is null) return;
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage) is false)
+                Cover.Visibility = Visibility.Collapsed;
+
+            if (File.Exists(Game.HeaderImagePath.Value))
+                ContentRoot.Margin = new Thickness(0, 20, 0, 0);
+        
+            List<(Career career, string settingKey)> careerSettings =
+            [
+                (Career.Painter, KeyValues.GalgamePageNewLayout_ShowPainter),
+                (Career.Seiyu, KeyValues.GalgamePageNewLayout_ShowSeiyu),
+                (Career.Writer, KeyValues.GalgamePageNewLayout_ShowWriter),
+                (Career.Musician, KeyValues.GalgamePageNewLayout_ShowMusician)
+            ];
+
+            ObservableCollection<GameHeaderPanelStaffList> list = [];
+            foreach (var (career, settingKey) in careerSettings)
+            {
+                if (!await _localSettingsService.ReadSettingAsync<bool>(settingKey)) continue;
             
-            List<Staff> tmp = _staffService.GetStaffs(Game).Where(s => (s.GetRelation(Game) ?? []).Contains(career))
-                .ToList();
-            if (tmp.Count == 0) continue;
-            list.Add(new GameHeaderPanelStaffList(career, tmp));
+                List<Staff> tmp = _staffService.GetStaffs(Game).Where(s => (s.GetRelation(Game) ?? []).Contains(career))
+                    .ToList();
+                if (tmp.Count == 0) continue;
+                list.Add(new GameHeaderPanelStaffList(career, tmp));
+            }
+            StaffList.ItemsSource = list;
         }
-        StaffList.ItemsSource = list;
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
     }
 
     private void ClickDeveloper(object sender, RoutedEventArgs e)

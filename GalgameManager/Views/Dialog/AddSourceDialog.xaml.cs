@@ -42,6 +42,7 @@ public sealed partial class AddSourceDialog : ContentDialog
     public AddSourceDialog()
     {
         this.InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         IsPrimaryButtonEnabled = false;
         DefaultButton = ContentDialogButton.Primary;

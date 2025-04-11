@@ -17,7 +17,9 @@ public class ServerController (IUserService userService, IBangumiService bgmServ
         {
             BangumiOAuth2Enable = bgmService.IsOauth2Enable,
             DefaultLoginEnable = userService.IsDefaultLoginEnable,
-            BangumiLoginEnable = bgmService.IsLoginEnable
+            BangumiLoginEnable = bgmService.IsLoginEnable,
+            GalgameStaffAvailable = true,
+            StaffEnable = true,
         });
     }
 }

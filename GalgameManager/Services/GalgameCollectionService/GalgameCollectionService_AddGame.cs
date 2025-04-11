@@ -67,7 +67,7 @@ public partial class GalgameCollectionService
             
             try
             {
-                GalgameAddedEvent?.Invoke(meta);
+                PhrasedEvent2?.Invoke(meta);
                 GalgameChangedEvent?.Invoke(meta);
             }
             catch (Exception e)

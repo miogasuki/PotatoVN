@@ -9,46 +9,93 @@
     mc:Ignorable="d"
     Style="{ThemeResource DefaultContentDialogStyle}">
 
-    <StackPanel Spacing="8">
-        <TextBlock Style="{StaticResource DescriptionTextStyle}" x:Uid="ManageGalgamePageLayoutDialog_Description"/>
+    <StackPanel Spacing="8" HorizontalAlignment="Stretch">
         
-        <Grid ColumnSpacing="12">
+        <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Grid.Column="0" 
+
+            <!-- 全局新界面开关 -->
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       x:Uid="ManageGalgamePageLayoutDialog_NewLayout"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            <ToggleSwitch x:Name="GalgamePageNewLayoutToggle" Grid.Row="0" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout, Mode=TwoWay}"
+                          HorizontalAlignment="Right"/>
+
+            <!-- 分隔线 -->
+            <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Margin="0,8,0,8"
+                       Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+
+            <!-- 标题和说明 -->
+            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                       x:Uid="ManageGalgamePageLayoutDialog_Description"
+                       Style="{StaticResource DescriptionTextStyle}"/>
+
+            <!-- 单独选项：画师 -->
+            <TextBlock Grid.Row="3" Grid.Column="0" 
                        x:Uid="ManageGalgamePageLayoutDialog_ShowPainter"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"/>
-            <ToggleSwitch Grid.Row="0" Grid.Column="1"
-                          IsOn="{x:Bind GalgamePageNewLayout_ShowPainter, Mode=TwoWay}"/>
+            <ToggleSwitch Grid.Row="3" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowPainter, Mode=TwoWay}"
+                          IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
+                          HorizontalAlignment="Right"/>
 
-            <TextBlock Grid.Row="1" Grid.Column="0" 
+            <!-- 单独选项：声优 -->
+            <TextBlock Grid.Row="4" Grid.Column="0" 
                        x:Uid="ManageGalgamePageLayoutDialog_ShowSeiyu"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"/>
-            <ToggleSwitch Grid.Row="1" Grid.Column="1"
-                          IsOn="{x:Bind GalgamePageNewLayout_ShowSeiyu, Mode=TwoWay}"/>
+            <ToggleSwitch Grid.Row="4" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowSeiyu, Mode=TwoWay}"
+                          IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
+                          HorizontalAlignment="Right"/>
 
-            <TextBlock Grid.Row="2" Grid.Column="0" 
+            <!-- 单独选项：剧本 -->
+            <TextBlock Grid.Row="5" Grid.Column="0" 
                        x:Uid="ManageGalgamePageLayoutDialog_ShowWriter"
-                       VerticalAlignment="Center"/>
-            <ToggleSwitch Grid.Row="2" Grid.Column="1"
-                          IsOn="{x:Bind GalgamePageNewLayout_ShowWriter, Mode=TwoWay}"/>
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            <ToggleSwitch Grid.Row="5" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowWriter, Mode=TwoWay}"
+                          IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
+                          HorizontalAlignment="Right"/>
 
-            <TextBlock Grid.Row="3" Grid.Column="0" 
+            <!-- 单独选项：音乐 -->
+            <TextBlock Grid.Row="6" Grid.Column="0" 
                        x:Uid="ManageGalgamePageLayoutDialog_ShowMusician"
-                       VerticalAlignment="Center"/>
-            <ToggleSwitch Grid.Row="3" Grid.Column="1"
-                          IsOn="{x:Bind GalgamePageNewLayout_ShowMusician, Mode=TwoWay}"/>
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            <ToggleSwitch Grid.Row="6" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowMusician, Mode=TwoWay}"
+                          IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
+                          HorizontalAlignment="Right"/>
+            
+            <!-- 单独选项：显示封面图 -->
+            <TextBlock Grid.Row="7" Grid.Column="0" 
+                       x:Uid="ManageGalgamePageLayoutDialog_ShowCover"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            <ToggleSwitch Grid.Row="7" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowCover, Mode=TwoWay}"
+                          IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
+                          HorizontalAlignment="Right"/>
         </Grid>
     </StackPanel>
 </ContentDialog>

@@ -50,7 +50,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private double _titleMaxWidth = 200;
     [ObservableProperty] private double _gameListHeight;
-    [ObservableProperty] private bool _gameListExpend = true;
+    [ObservableProperty] private bool _gameListExpend;
     private double _commandBarWidth;
     private double _pageWidth;
 

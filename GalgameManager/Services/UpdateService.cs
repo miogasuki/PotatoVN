@@ -25,7 +25,7 @@ public class UpdateService : IUpdateService
         {
             HttpClient client = Utils.GetDefaultHttpClient();
             HttpResponseMessage response = await client.GetAsync(
-                "https://potatovn.net/upgrade-log/version");
+                "https://potatovn.net/raw/version");
             var versionString = (await response.Content.ReadAsStringAsync())
                             .Replace("\n", "").Replace("\r","");
             

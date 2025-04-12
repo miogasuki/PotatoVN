@@ -4,6 +4,7 @@ using GalgameManager.Models;
 using NugetPackage;
 using PotatoDBMapper.Models;
 using SQLite;
+using Windows.Storage;
 
 namespace GalgameManager.Helpers.Phrase;
 
@@ -76,6 +77,7 @@ public static class PhraseHelper
 public static class ExVndb
 {
     private const string DbFile = @"Assets\Data\ex-vndb.db";
+    private const string LocalDbFile = "ex-vndb.db";
     private static SQLiteAsyncConnection? _db;
     private static Task? _unloadDbTask;
     private static bool _isUsing;
@@ -84,21 +86,46 @@ public static class ExVndb
     {
         if (_db is not null) return;
         Assembly assembly = Assembly.GetExecutingAssembly();
-        var file = Path.Combine(Path.GetDirectoryName(assembly.Location)!, DbFile);
-        if (!File.Exists(file)) return;
-        _db = new SQLiteAsyncConnection(file);
-        if (_unloadDbTask is not null)
-            _unloadDbTask = Task.Run(async () =>
+        var sourceFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, DbFile);
+        
+        // 获取LocalState文件夹路径
+        var localStateFolder = ApplicationData.Current.LocalFolder.Path;
+        var localDbPath = Path.Combine(localStateFolder, LocalDbFile);
+        
+        // 如果LocalState中不存在数据库文件，则从安装目录复制
+        if (!File.Exists(localDbPath) && File.Exists(sourceFile))
+        {
+            try
             {
-                do
+                File.Copy(sourceFile, localDbPath, true);
+            }
+            catch (Exception)
+            {
+                // 如果复制失败，尝试直接使用源文件
+                if (File.Exists(sourceFile))
+                    _db = new SQLiteAsyncConnection(sourceFile);
+                return;
+            }
+        }
+        
+        // 使用LocalState文件夹中的数据库
+        if (File.Exists(localDbPath))
+        {
+            _db = new SQLiteAsyncConnection(localDbPath);
+            
+            if (_unloadDbTask is not null)
+                _unloadDbTask = Task.Run(async () =>
                 {
-                    await Task.Delay(1000 * 60 * 5); // 5 minutes
-                    if (_isUsing) continue;
-                    await _db.CloseAsync();
-                    _db = null;
-                    _unloadDbTask = null;
-                }while (_db is not null);
-            });
+                    do
+                    {
+                        await Task.Delay(1000 * 60 * 5); // 5 minutes
+                        if (_isUsing) continue;
+                        await _db.CloseAsync();
+                        _db = null;
+                        _unloadDbTask = null;
+                    }while (_db is not null);
+                });
+        }
     }
     
     public static async Task<ExVn?> TryGetExVnAsync(string id)

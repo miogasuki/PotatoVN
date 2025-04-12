@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using GalgameManager.Contracts.BgTasks;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -6,7 +7,7 @@ using GalgameManager.Helpers.API;
 
 namespace GalgameManager.Models.BgTasks;
 
-public class GetGalgameCharactersFromRssTask : BgTaskBase
+public class GetGalgameCharactersFromRssTask : BgTaskBase, IGameProcessQueue
 {
     public ConcurrentQueue<Galgame?> GetCharactersQueue = new();
     public int MaxRunning = 3;

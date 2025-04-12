@@ -16,12 +16,13 @@ public class ImagePathConverter : IValueConverter
     /// <returns></returns>
     public object Convert(object value, Type targetType, object parameter, string language)
     {
+        if (value is LockableProperty<string?> lo) value = lo.Value!;
         try
         {
             if (value is string str && !string.IsNullOrEmpty(str))
                 return new BitmapImage(new Uri(str));
             if (parameter is string para)
-                return new BitmapImage(new Uri(para));
+                return para == "null" ? new BitmapImage() : new BitmapImage(new Uri(para));
         }
         catch (Exception)
         {

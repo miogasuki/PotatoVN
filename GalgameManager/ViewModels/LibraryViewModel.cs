@@ -180,6 +180,7 @@ public partial class LibraryViewModel(
 
         // 更新路径节点
         PathNodes.Clear();
+        PathNodes.Add(new GalgameFolderSource{Name = "LibraryPage_Root".GetLocalized()});
         if (clickedItem is GalgameSourceBase newSource)
         {
             var currentSource = newSource;
@@ -392,7 +393,9 @@ public partial class LibraryViewModel(
 
     public void OnBreadcrumbBarItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
     {
-        if (args.Item is GalgameSourceBase source)
+        if (args.Item is GalgameFolderSource folder && folder.Name == "LibraryPage_Root".GetLocalized())
+            NavigateTo(null);
+        else if (args.Item is GalgameSourceBase source)
         {
             NavigateTo(source);
         }

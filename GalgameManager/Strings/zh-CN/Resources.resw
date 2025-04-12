@@ -2670,4 +2670,28 @@
   <data name="GalgameSourcePage_IncludeSubSources.OnContent" xml:space="preserve">
       <value>显示</value>
   </data>
+  <data name="LibraryPage_Root" xml:space="preserve">
+    <value>根目录</value>
+  </data>
+  <data name="GalgameSettingPage_HeaderImagePath.Title" xml:space="preserve">
+    <value>横幅图</value>
+  </data>
+  <data name="GalgamePage_PlayStatusPanel.Text" xml:space="preserve">
+    <value>游玩状态</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowCover.Text" xml:space="preserve">
+    <value>显示封面图</value>
+  </data>
+  <data name="GetHeaderFromRssTask_Title" xml:space="preserve">
+    <value>下载游戏横幅图任务</value>
+  </data>
+  <data name="GetHeaderFromRssTask_Progress_Title" xml:space="preserve">
+    <value>正在获取以下游戏header图：</value>
+  </data>
+  <data name="GetHeaderFromRssTask_Progress_Waiting" xml:space="preserve">
+    <value>还有{0}个游戏排队中</value>
+  </data>
+  <data name="QueueTaskBase_Empty" xml:space="preserve">
+    <value>已完成所有任务，等待新任务中</value>
+  </data>
 </root>

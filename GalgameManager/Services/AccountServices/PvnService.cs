@@ -502,7 +502,7 @@ public class PvnService : IPvnService
         if (!_settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames).Result) return;
         
         SyncTask = _bgTaskService.GetBgTask<PvnSyncTask>(string.Empty);
-        if (SyncTask is not null && SyncTask.IsRunning) return;
+        if (SyncTask is not null) return;
         SyncTask = new PvnSyncTask();
         _bgTaskService.AddBgTask(SyncTask);
     }

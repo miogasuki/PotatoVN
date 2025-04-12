@@ -56,11 +56,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _canOpenInVndb;
     [ObservableProperty] private bool _canOpenInYmgal;
     [ObservableProperty] private bool _canOpenInCngal;
-
-    [ObservableProperty] private bool _infoBarOpen;
-    [ObservableProperty] private string _infoBarMsg = string.Empty;
-    [ObservableProperty] private InfoBarSeverity _infoBarSeverity = InfoBarSeverity.Informational;
-    private int _msgIndex;
+    [ObservableProperty] private Thickness _headerMargin = new(0, 0, 0, 0);
+    [ObservableProperty] private double _headerHeight = 400;
     private bool IsNotLocalGame => !IsLocalGame;
 
     [ObservableProperty]
@@ -119,13 +116,26 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             await Task.Delay(1000);
             await SelectProcess();
         }
+        
+        TryUpdateGameInfo();
+        return;
+
+        // 尝试补充之前版本没有的信息
+        void TryUpdateGameInfo()
+        {
+            if (Item is null) return;
+            if (Item.HeaderImagePath.Value is null)
+                _ = _galgameService.ParseGalInfoAsync(Item, GameParseType.HeaderImage);
+        }
     }
 
-    public void OnNavigatedFrom()
+    public async void OnNavigatedFrom()
     {
         _galgameService.PhrasedEvent2 -= Update;
         _staffService.OnGameStaffChanged -= Update;
         ManageGalgamePageLayoutDialog.LayoutChanged -= OnLayoutChanged;
+        await Task.Delay(2000);
+        Item = null; //确保各个UI组件取消监听注册
     }
     
     /// <summary>
@@ -165,20 +175,17 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         IsRemoveSelectedThreadVisible = Item?.ProcessName is not null ? Visibility.Visible : Visibility.Collapsed;
         IsSelectProcessVisible = Item?.ProcessName is null ? Visibility.Visible : Visibility.Collapsed;
         IsResetPathVisible = Item?.ExePath is not null || Item?.TextPath is not null ? Visibility.Visible : Visibility.Collapsed;
-        OnPropertyChanged(nameof(Item));
+        Galgame? tmp = Item;
+        Item = null; Item = tmp;
+        // OnPropertyChanged(nameof(Item)); //不知道为什么没有用，暂时用上面的替代
     }
 
     #region INFOBAR_CTRL
 
     private async Task DisplayMsg(InfoBarSeverity severity, string msg, int displayTimeMs = 3000)
     {
-        var myIndex = ++_msgIndex;
-        InfoBarOpen = true;
-        InfoBarMsg = msg;
-        InfoBarSeverity = severity;
-        await Task.Delay(displayTimeMs);
-        if (myIndex == _msgIndex)
-            InfoBarOpen = false;
+        _infoService.Info(severity, msg: msg, displayTimeMs: displayTimeMs);
+        await Task.Delay(displayTimeMs); //保持兼容旧写法
     }
 
     #endregion
@@ -639,18 +646,12 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
     }
 
-    private static GamePanelBase GetPanel(GalgamePagePanel panel, Galgame? game)
-    {
-        return panel switch
-        {
-            GalgamePagePanel.HeaderOld => new GameHeaderOldPanel { Game = game},
-            GalgamePagePanel.Description => new GameDescriptionPanel { Game = game },
-            GalgamePagePanel.Tag => new GameTagPanel {Game = game},
-            GalgamePagePanel.Character => new GameCharacterPanel{Game = game},
-            GalgamePagePanel.Staff => new GameStaffPanel {Game = game},
-            _ => throw new NotImplementedException(),
-        };
-    } 
+    [RelayCommand]
+    private void OnNewLayoutSizeChanged(SizeChangedEventArgs e) =>
+        HeaderMargin = new Thickness(0, -300f * e.NewSize.Height / 886, 0, 0);
+    
+    [RelayCommand]
+    private void OnPageSizeChanged(SizeChangedEventArgs e) => HeaderHeight = 400f * e.NewSize.Width / 886;
 }
 
 public class GalgamePageParameter

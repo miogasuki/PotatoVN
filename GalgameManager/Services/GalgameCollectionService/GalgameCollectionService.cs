@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using GalgameManager.Contracts.BgTasks;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
@@ -69,18 +70,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
         void OnGameParsed(Galgame game)
         {
-            if (!LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result) return;
-            var isNew = false;
-            GetGalgameCharactersFromRssTask? task =
-                _bgTaskService!.GetBgTask<GetGalgameCharactersFromRssTask>(string.Empty);
-            if (task is null)
-            {
-                task = new GetGalgameCharactersFromRssTask();
-                isNew = true;
-            }
-            task.AddGalgame(game);
-            if (isNew)
-                _ = _bgTaskService.AddBgTask(task);
+            if (LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result)
+                _ = ParseGalInfoAsync(game, GameParseType.Character);
+            _ = ParseGalInfoAsync(game, GameParseType.HeaderImage);
         }
     }
     
@@ -240,6 +232,29 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         return result;
     }
 
+    public async Task<Galgame> ParseGalInfoAsync(Galgame galgame, GameParseType type, RssType rssType = RssType.None)
+    {
+        await Task.CompletedTask; //预留异步坑位
+        if (type.HasFlag(GameParseType.HeaderImage))
+            AddGameToBgTask<GetHeaderFromRssTask>();
+        if (type.HasFlag(GameParseType.Character))
+            AddGameToBgTask<GetGalgameCharactersFromRssTask>();
+        return galgame;
+
+        void AddGameToBgTask<TBgTask>() where TBgTask : BgTaskBase, IGameProcessQueue, new()
+        {
+            var isNew = false;
+            TBgTask? task = _bgTaskService.GetBgTask<TBgTask>(string.Empty);
+            if (task is null)
+            {
+                task = new TBgTask();
+                isNew = true;
+            }
+            task.AddGalgame(galgame);
+            if (isNew) _ = _bgTaskService.AddBgTask(task);
+        }
+    }
+
     public async Task ExportAsync(Action<string, int, int>? progress)
     {
         ObservableCollection<Galgame> tmp = new(_galgames.Select(g => g.DeepClone()));
@@ -288,9 +303,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         galgameCharacter.Weight = tmp.Weight;
         galgameCharacter.BWH = tmp.BWH;
         
-        galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageAsync(tmp.ImageUrl, 
+        galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.ImageUrl, 
             fileNameWithoutExtension:$"{galgameCharacter.Name}_Large") ?? Galgame.DefaultImagePath;
-        galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageAsync(tmp.PreviewImageUrl, 
+        galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.PreviewImageUrl, 
                                                 fileNameWithoutExtension:$"{galgameCharacter.Name}_Preview") ??
                                             Galgame.DefaultImagePath;
         return galgameCharacter;

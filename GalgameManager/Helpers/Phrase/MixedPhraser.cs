@@ -63,7 +63,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
             {
                 Galgame game = new() { Name = galgame.Name };
                 game.RssType = phraserType;
-                game.Id = galgame.Ids[(int)phraserType];
+                game.Ids = (string?[])galgame.Ids.Clone();
                 phraserTasks[phraserType] = phraser.GetGalgameInfo(game);
             }
         }

@@ -194,6 +194,15 @@
                                             Margin="0 10 0 0"/>
                                 </control:Setting>
                             </control:Panel>
+                            <!-- 横幅图 -->
+                            <control:Panel>
+                                <control:Setting x:Uid="GalgameSettingPage_HeaderImagePath"
+                                                 Description="{x:Bind ViewModel.Gal.HeaderImagePath.Value, Mode=OneWay}">
+                                    <Button x:Uid="GalgameSettingPage_PickImage"
+                                            Command="{x:Bind ViewModel.PickHeaderImageCommand}"
+                                            Margin="0 10 0 0"/>
+                                </control:Setting>
+                            </control:Panel>
                             <!-- Tags -->
                             <control:Panel>
                                 <interactivity:Interaction.Behaviors>

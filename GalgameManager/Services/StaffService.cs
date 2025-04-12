@@ -6,6 +6,7 @@ using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using LiteDB;
 using Microsoft.UI.Xaml.Controls;
+using Refit;
 
 namespace GalgameManager.Services;
 
@@ -200,12 +201,9 @@ public class StaffService : IStaffService
             foreach (Staff staff in toFetch)
                 task.AddStaff(staff, galgame.RssType);
         }
-        catch (HttpRequestException)
-        {
-            //ignore
-        }
         catch (Exception e)
         {
+            if (e is HttpRequestException or ApiException) return; // ignore
             _infoService.DeveloperEvent(msg: "failed on listening galgame phrased event", e: e);
         }
     }

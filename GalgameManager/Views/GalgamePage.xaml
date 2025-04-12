@@ -9,14 +9,22 @@
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:control="using:GalgameManager.Views.Control"
     xmlns:galgamePagePanel="using:GalgameManager.Views.GalgamePagePanel"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:ImagePathConverter x:Key="ImagePathConverter" />
     </Page.Resources>
 
     <Grid>
-        <Grid RowDefinitions="Auto,*,Auto">
+        <interactivity:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="SizeChanged">
+                <core:InvokeCommandAction Command="{x:Bind ViewModel.PageSizeChangedCommand}"/>
+            </core:EventTriggerBehavior>
+        </interactivity:Interaction.Behaviors>
+        <Grid RowDefinitions="Auto,*">
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="{StaticResource CommandBarMargin}">
                 <!-- 开始游戏 -->
@@ -219,51 +227,69 @@
                                   IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
                 </CommandBar.SecondaryCommands>
             </CommandBar>
-
-            <ScrollViewer Grid.Row="1" IsTabStop="True">
-                <StackPanel>
-                    <!--Layout TypeA -->
-                    <StackPanel Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
-                        <galgamePagePanel:GameHeaderOldPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
-                        <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
-                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
-                        <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
-                        <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+            <!-- Layout Old -->
+            <Grid Grid.Row="1" RowDefinitions="*"
+                  Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, 
+                      Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
+                <ScrollViewer IsTabStop="True">
+                    <StackPanel>
+                        <galgamePagePanel:GameHeaderOldPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                        <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                        <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                        <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
                     </StackPanel>
-                    <!--Layout TypeB -->
-                    <StackPanel Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Grid ColumnDefinitions="5*,2*">
-                            <StackPanel Grid.Column="0">
-                                <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
-                                <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
-                            </StackPanel>
-                            <!-- 右侧游戏状态部分 -->
-                            <galgamePagePanel:GamePlayStatusPanel 
-                                Grid.Column="1" Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
+                </ScrollViewer>
+            </Grid>
+            <!-- Layout New -->
+            <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ScrollViewer IsTabStop="True" Margin="-70 0 0 0">
+                    <Grid RowDefinitions="*,*">
+                        <Grid Grid.Row="0" Height="{x:Bind ViewModel.HeaderHeight, Mode=OneWay}" 
+                              Margin="{x:Bind ViewModel.HeaderMargin, Mode=OneWay}">
+                            <Grid.Background>
+                                <ImageBrush Stretch="UniformToFill"
+                                            ImageSource="{x:Bind ViewModel.Item.HeaderImagePath, Mode=OneWay,
+                                         FallbackValue={x:Null},
+                                         Converter={StaticResource ImagePathConverter}, ConverterParameter='null'}" />
+                            </Grid.Background>
                         </Grid>
-                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
-                        <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
-                    </StackPanel>
-                </StackPanel>
-            </ScrollViewer>
 
-            <InfoBar Grid.Row="2"
-                     Severity="{x:Bind ViewModel.InfoBarSeverity, Mode=OneWay}"
-                     Message="{x:Bind ViewModel.InfoBarMsg, Mode=OneWay}" 
-                     IsOpen="{x:Bind ViewModel.InfoBarOpen, Mode=OneWay}"
-                     Margin="0 0 0 40"/>
-        </Grid>
+                        <StackPanel Grid.Row="0" Grid.RowSpan="2" Margin="70 0 0 0">
+                            <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                            <Grid ColumnDefinitions="2*,1,1*">
+                                <galgamePagePanel:GameDescriptionPanel
+                                    Grid.Column="0" Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                                    Margin="0 0 30 0" />
+                                <Rectangle Grid.Column="1" Width="1" Margin="0 20"
+                                           Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                                           VerticalAlignment="Stretch" />
+                                <galgamePagePanel:GamePlayStatusPanel
+                                    Grid.Column="2" Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                                    Margin="30 0 30 0" />
+                            </Grid>
+                            <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                            <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="SizeChanged">
+                                    <core:InvokeCommandAction Command="{x:Bind ViewModel.NewLayoutSizeChangedCommand}"/>
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
 
-        <Grid
-            Background="#00000000"
-            Visibility="{x:Bind ViewModel.IsPhrasing, Mode=OneWay}">
-            <ProgressRing
-                IsActive="True"
-                Width="100"
-                Height="100"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center" />
+            <Grid
+                Background="#00000000"
+                Visibility="{x:Bind ViewModel.IsPhrasing, Mode=OneWay}">
+                <ProgressRing
+                    IsActive="True"
+                    Width="100"
+                    Height="100"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+            </Grid>
         </Grid>
     </Grid>
-
 </Page>

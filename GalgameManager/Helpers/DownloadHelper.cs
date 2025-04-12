@@ -1,6 +1,10 @@
 ﻿using System.Net;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using GalgameManager.Contracts.Services;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace GalgameManager.Helpers;
 
@@ -32,6 +36,7 @@ public static class DownloadHelper
                 : imageUrl[(imageUrl.LastIndexOf('/') + 1)..];
             if (fileName == string.Empty) fileName = imageUrl;
             if (fileName.Contains('?')) fileName = fileName[..fileName.IndexOf('?')];
+            fileName = fileName.RemoveInvalidChars();
             StorageFile? storageFile;
             try
             {
@@ -126,5 +131,107 @@ public static class DownloadHelper
         StorageFile newFile = await file.CopyAsync(await FileHelper.GetFolderAsync(FileHelper.FolderType.Images),
             $"{file.Name}", NameCollisionOption.ReplaceExisting);
         return newFile.Path;
+    }
+
+    public static void DeleteImgIfExists(string? path)
+    {
+        if (path == null) return;
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception e)
+        {
+            App.GetService<IInfoService>().DeveloperEvent(e: e);
+        }
+    }
+
+    /// <summary>
+    /// 处理图像，裁剪下部 1/3，并根据提供的函数应用透明度。
+    /// </summary>
+    /// <param name="inputPath">输入图像文件的路径。</param>
+    /// <param name="outputPath">处理后图像的保存路径（应为png格式）</param>
+    /// <param name="transparencyFunction">
+    ///     一个函数，接收像素坐标 (x, y) 和裁剪后图像尺寸 (width, height)，
+    ///     返回该像素的alpha (0.0 = 完全透明, 1.0 = 完全不透明)。
+    /// </param>
+    /// <param name="cutBottom">是否裁切底部30%（用来处理vndb游戏截图的对话框）</param>
+    public static void ProcessImage(string inputPath, string outputPath, bool cutBottom,
+        Func<int, int, int, int, float>? transparencyFunction = null)
+    {
+        using Image<Rgba32> image = Image.Load<Rgba32>(inputPath);
+        var newHeight = cutBottom ? (int)Math.Round(image.Height * (2.0 / 3.0)) : image.Height;
+        if (newHeight < 1) throw new ArgumentException("裁剪后的高度必须大于 0。");
+        Rectangle cropRectangle = new Rectangle(0, 0, image.Width, newHeight);
+        image.Mutate(ctx => ctx.Crop(cropRectangle));
+
+        //应用基于坐标的透明度计算
+        ApplyPixelTransparency();
+        image.SaveAsPng(outputPath);
+        return;
+
+        void ApplyPixelTransparency()
+        {
+            int width = image.Width, height = image.Height;
+            image.ProcessPixelRows(accessor =>
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    Span<Rgba32> pixelRow = accessor.GetRowSpan(y);
+                    for (var x = 0; x < width; x++)
+                    {
+                        ref Rgba32 pixel = ref pixelRow[x];
+                        var originalAlpha = pixel.A;
+
+                        var factor = transparencyFunction is null
+                            ? CalcAlpha(x, y, width, height)
+                            : Math.Clamp(transparencyFunction(x, y, width, height), 0f, 1f);
+                        var newAlphaFloat = originalAlpha * factor;
+                        pixel.A = (byte)Math.Clamp(MathF.Round(newAlphaFloat), 0, 255);
+                    }
+                }
+            });
+        }
+    }
+    
+    private static float CalcAlpha(int col, int row, int width, int height)
+    {
+        if (width <= 1 || height <= 1) return 1f; // 避免除零
+        float normX = (float)col / (width - 1), normY = (float)row / (height - 1);
+        var globalAlpha = 0.35f;
+            
+        // --- Rule 1: 左侧渐变 (非线性) ---
+        var alphaLeft = 1.0f;
+        if (normX <= 0.7f)
+        {
+            var relativeXLeft = normX / 0.7f;
+            var easeInPower = 3.0f; // 可以调整这个幂次来改变曲线陡峭程度
+            alphaLeft = 0.2f + (1.0f - 0.2f) * (float)Math.Pow(relativeXLeft, easeInPower);
+            alphaLeft = Math.Clamp(alphaLeft, 0.2f, 1.0f);
+        }
+        // --- Rule 2: 右侧渐变 (线性) ---
+        var alphaRight = 1.0f;
+        var rightThreshold = 0.6f;
+        if (normX >= rightThreshold)
+        {
+            var relativeXRight = (normX - rightThreshold) / (1.0f - rightThreshold);
+            // 线性渐变到 0.2
+            alphaRight = 1.0f + (0.2f - 1.0f) * relativeXRight;
+            alphaRight = Math.Clamp(alphaRight, 0.2f, 1.0f);
+        }
+        // --- Rule 3: 底部渐变 (线性) ---
+        var alphaBottom = 1.0f;
+        var bottomThreshold = 0.4f;
+        if (normY >= bottomThreshold)
+        {
+            var relativeYBottom = (normY - bottomThreshold) / (1.0f - bottomThreshold);
+            // 线性渐变到 0.0
+            alphaBottom = globalAlpha - globalAlpha * relativeYBottom;
+            alphaBottom = Math.Clamp(alphaBottom, 0.0f, 1.0f);
+        }
+
+        var finalAlpha = Math.Min(alphaLeft, Math.Min(alphaRight, alphaBottom));
+        finalAlpha = Math.Min(finalAlpha, globalAlpha);
+        return finalAlpha;
     }
 }

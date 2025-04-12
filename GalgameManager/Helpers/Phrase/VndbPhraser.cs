@@ -6,11 +6,12 @@ using GalgameManager.Enums;
 using GalgameManager.Helpers.API;
 using GalgameManager.Models;
 using Newtonsoft.Json.Linq;
+using PotatoDBMapper.Models;
 using Staff = GalgameManager.Models.Staff;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser
+public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalHeaderParser
 {
     private VndbApi _vndbApi;
 
@@ -71,6 +72,13 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         }
     }
 
+    public static int GetId(string id)
+    {
+        if (id.StartsWith("v")) return int.Parse(id[1..]);
+        if (int.TryParse(id, out var i)) return i;
+        return 0;
+    }
+
     private async Task Init()
     {
         _init = true;
@@ -117,14 +125,9 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
 
     private static async Task TryGetId(Galgame galgame)
     {
-        if (string.IsNullOrEmpty(galgame.Ids[(int)RssType.Vndb]))
-        {
-            var id = await PhraseHelper.TryGetVndbIdAsync(galgame.Name!);
-            if (id is not null)
-            {
-                galgame.Ids[(int)RssType.Vndb] = id.ToString();
-            }
-        }
+        MapModel? map = await PhraseHelper.TryGetMapAsync(galgame);
+        if (map is null) return;
+        galgame.Ids[(int)RssType.Vndb] = map.VndbId.ToString();
     }
     
     public async Task<Galgame?> GetGalgameInfo(Galgame galgame)
@@ -574,6 +577,47 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         }
     }
     
+    public async Task<string?> GetGalHeaderAsync(Galgame game)
+    {
+        if (string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) await TryGetId(game);
+        if (string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) return null;
+        var id = game.Ids[(int)RssType.Vndb]!.StartsWith('v')
+            ? game.Ids[(int)RssType.Vndb]!
+            : "v" + game.Ids[(int)RssType.Vndb]!;
+        return await GetHeader(id, 0);
+
+        async Task<string?> GetHeader(string vid, int depth)
+        {
+            ExVndb.ExVn? result = await ExVndb.TryGetExVnAsync(vid);
+            if (result is not null && (result.BestHeaderImage is not null || result.AlternativeHeaderImage is not null))
+            {
+                var imageId = result.BestHeaderImage ?? result.AlternativeHeaderImage;
+                var lastTwo = imageId![^2..];
+                return $"https://t.vndb.org/sf/{lastTwo}/{imageId[2..]}.jpg";
+            }
+            // 没有在数据库中搜到图片，尝试从在线api获取截图
+            VndbResponse<VndbVn>? vndbResponse = await CallVndbApiAsync(() => _vndbApi.GetVisualNovelAsync(new VndbQuery
+            {
+                Fields = "screenshots.url, screenshots.sexual, screenshots.violence, relations.id",
+                Filters = VndbFilters.Equal("id", vid),
+            }));
+            if (vndbResponse?.Results?.Count > 0)
+            {
+                if (vndbResponse.Results[0].Screenshots?.Count > 0)
+                    return vndbResponse.Results[0].Screenshots?
+                        .FirstOrDefault(sc => sc is { Sexual: < 10, Violence: < 10 })?.Url;
+                if (depth == 1) return null;
+                //else: 这个游戏没有截图，可能是某个续作或FD，尝试从相关游戏（一般为正作）获取截图
+                foreach (VndbVn relationGame in vndbResponse.Results[0].Relations ?? [])
+                {
+                    var tmp = await GetHeader(relationGame.Id!, depth + 1);
+                    if (tmp is not null) return tmp;
+                }
+            }
+            return null;
+        }
+    }
+
     /// 一个简单的wrapper，自动处理throttle，返回值为null时表示失败
     private static async Task<VndbResponse<T>?> CallVndbApiAsync<T>(Func<Task<VndbResponse<T>>> func)
     {
@@ -585,7 +629,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             }
             catch (ThrottledException)
             {
-                Task.Delay(60 * 1000).Wait(); // 1 minute
+                await Task.Delay(60 * 1000); // 1 minute
             }
             catch (Exception)
             {
@@ -593,6 +637,8 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             }
         } while (true);
     }
+
+    
 }
 
 public class VndbPhraserData : IGalInfoPhraserData

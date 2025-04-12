@@ -32,7 +32,9 @@ namespace GalgameManager.Views.Control
 
         private void Setting_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            DescriptionTextBlock.MaxWidth = ActualWidth - Content.ActualSize.X - 40;
+            double calculatedWidth = ActualWidth - Content.ActualSize.X - 40;
+            // 文件夹名称过长时可能为负值，避免设置为负值
+            DescriptionTextBlock.MaxWidth = Math.Max(0, calculatedWidth);
         }
     }
 }

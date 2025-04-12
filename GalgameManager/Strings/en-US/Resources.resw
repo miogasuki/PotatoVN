@@ -1084,7 +1084,7 @@ If play time can record correctly, just cancel this popup.
   <data name="UpdateContentPage_Download_Success" xml:space="preserve">
     <value>The latest change log has been downloaded successfully</value>
   </data>
-  <data name="SettingsPage_About_UpdateAvailable.Text" xml:space="preserve">
+  <data name="SettingsPage_About_UpdateAvailable.Content" xml:space="preserve">
     <value>New version available!</value>
   </data>
   <data name="GalgamePage_SelectThread.Label" xml:space="preserve">

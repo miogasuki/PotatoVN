@@ -112,70 +112,21 @@
                     </control:SettingExpander.SettingContent>
                 </control:SettingExpander>
                 
-                <!-- 游玩 -->
-                <control:SettingExpander 
-                    x:Uid="SettingsPage_Game"
-                    SettingIcon="&#xE7FC;">
-                    <control:SettingExpander.SettingContent>
-                        <StackPanel Style="{StaticResource SettingStackPanelStyle}">
-                            <!-- 只记录前台时间 -->
-                            <control:Panel>
-                                <local:SettingToggleSwitch
-                                    x:Uid="SettingsPage_Game_RecordOnlyForeground"
-                                    IsOn="{x:Bind ViewModel.RecordOnlyForeground, Mode=TwoWay}" />
-                            </control:Panel>
-                            <!-- 游玩时窗口状态 -->
-                            <control:Panel>
-                                <control:Setting x:Uid="SettingsPage_Game_PlayingWindowMode">
-                                    <ComboBox MinWidth="{StaticResource ToggleSwitchWidth}"
-                                              ItemsSource="{x:Bind ViewModel.PlayingWindowModes}"
-                                              SelectedItem="{x:Bind ViewModel.PlayingWindowMode, Mode=TwoWay}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="enums:WindowMode">
-                                                <TextBlock Text="{x:Bind Converter={StaticResource WindowModeToStringConverter}}" />
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </control:Setting>
-                            </control:Panel>
-                            <!-- LocaleEmulator -->
-                            <control:Panel>
-                                <StackPanel>
-                                    <control:Setting  x:Uid="SettingsPage_Game_LocaleEmulator">
-                                        <Button Content="Go" MinWidth="{StaticResource ButtonMinWidth}"
-                                                Command="{x:Bind ViewModel.SelectLocalEmulatorPathCommand}"/>
-                                    </control:Setting>
-                                    <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                                        <TextBlock
-                                            x:Uid="SettingsPage_Game_LocaleEmulator_PathDescription"
-                                            Style="{ThemeResource BodyTextBlockStyle}"
-                                            TextWrapping="Wrap"/>
-                                        <TextBlock
-                                            Text="{x:Bind ViewModel.LocalEmulatorPath, Mode=OneWay}"
-                                            TextWrapping="Wrap"
-                                            Style="{ThemeResource BodyTextBlockStyle}"/>
-                                    </StackPanel>
-                                </StackPanel>
-
-                            </control:Panel>
-                        </StackPanel>
-                    </control:SettingExpander.SettingContent>
-                </control:SettingExpander>
-
-                <!-- 信息源 -->
+                <!-- 下载行为 -->
                 <control:SettingExpander
-                    SettingTitle="{x:Bind ViewModel.UiRssTitle}"
-                    SettingDescription="{x:Bind ViewModel.UiRssDescription}"
-                    SettingIcon="&#xE701;">
+                    SettingTitle="{x:Bind ViewModel.UiDownloadTitle}"
+                    SettingDescription="{x:Bind ViewModel.UiDownloadDescription}"
+                    SettingIcon="&#xE896;">
                     <control:SettingExpander.SettingContent>
                         <StackPanel Style="{StaticResource SettingStackPanelStyle}">
+                            <!-- 信息源 -->
                             <control:Panel>
                                 <RelativePanel>
                                     <StackPanel Orientation="Vertical">
                                         <TextBlock Text="{x:Bind ViewModel.UiRssTitle}"
-                                                   Style="{ThemeResource BodyTextBlockStyle}" />
+                                                   Style="{ThemeResource BodyTextBlockStyle}"/>
                                         <TextBlock Text="{x:Bind ViewModel.UiRssDescription}"
-                                                   Style="{StaticResource DescriptionTextStyle}" />
+                                                   Style="{StaticResource DescriptionTextStyle}"/>
                                     </StackPanel>
                                     <ComboBox ItemsSource="{x:Bind ViewModel.RssTypes}"
                                               SelectedItem="{x:Bind ViewModel.RssType, Mode=TwoWay}"
@@ -185,8 +136,10 @@
                             <!-- bangumi -->
                             <control:Panel Visibility="{x:Bind ViewModel.RssType, Mode=OneWay, Converter={StaticResource RssTypeToVisibilityConverter}, ConverterParameter=Bangumi}">
                                 <StackPanel>
-                                    <HyperlinkButton x:Uid="SettingsPage_Rss_Bangumi" Padding="0"/>
-                                    <TextBlock x:Uid="SettingsPage_Rss_Bangumi_Description" TextWrapping="Wrap"
+                                    <HyperlinkButton x:Uid="SettingsPage_Rss_Bangumi"
+                                            Padding="0"/>
+                                    <TextBlock x:Uid="SettingsPage_Rss_Bangumi_Description"
+                                            TextWrapping="Wrap"
                                                Style="{StaticResource DescriptionTextStyle}"
                                                Margin="{StaticResource XSmallBottomMargin}"/>
                                 </StackPanel>
@@ -195,8 +148,10 @@
                             <control:Panel
                                 Visibility="{x:Bind ViewModel.RssType, Mode=OneWay, Converter={StaticResource RssTypeToVisibilityConverter}, ConverterParameter=Vndb}">
                                 <StackPanel>
-                                    <HyperlinkButton x:Uid="SettingsPage_Rss_VNDB" Padding="0" />
-                                    <TextBlock x:Uid="SettingsPage_Rss_VNDB_Description" TextWrapping="Wrap"
+                                    <HyperlinkButton x:Uid="SettingsPage_Rss_VNDB"
+                                            Padding="0"/>
+                                    <TextBlock x:Uid="SettingsPage_Rss_VNDB_Description"
+                                            TextWrapping="Wrap"
                                                Style="{StaticResource DescriptionTextStyle}"
                                                Margin="{StaticResource XSmallBottomMargin}"/>
                                 </StackPanel>
@@ -205,30 +160,32 @@
                             <control:Panel
                                 Visibility="{x:Bind ViewModel.RssType, Mode=OneWay, Converter={StaticResource RssTypeToVisibilityConverter}, ConverterParameter=Mixed}">
                                 <StackPanel>
-                                    <HyperlinkButton x:Uid="SettingsPage_Rss_Mixed" Padding="0"/>
-                                    <TextBlock x:Uid="SettingsPage_Rss_Mixed_Description" TextWrapping="Wrap"
+                                    <HyperlinkButton x:Uid="SettingsPage_Rss_Mixed"
+                                            Padding="0"/>
+                                    <TextBlock x:Uid="SettingsPage_Rss_Mixed_Description"
+                                            TextWrapping="Wrap"
                                                Style="{StaticResource DescriptionTextStyle}"
                                                Margin="{StaticResource XSmallBottomMargin}"/>
                                     <control:Setting x:Uid="SettingsPage_Rss_Mixed_Order">
-                                        <Button Content="Go" MinWidth="{StaticResource ButtonMinWidth}"
+                                        <Button Content="Go"
+                                                MinWidth="{StaticResource ButtonMinWidth}"
                                                 Command="{x:Bind ViewModel.SetMixedPhraserOrderCommand}"/>
                                     </control:Setting>
                                 </StackPanel>
                             </control:Panel>
-                        </StackPanel>
-                    </control:SettingExpander.SettingContent>
-                </control:SettingExpander>
 
-                <!-- 下载行为 -->
-                <control:SettingExpander
-                    SettingTitle="{x:Bind ViewModel.UiDownloadTitle}"
-                    SettingDescription="{x:Bind ViewModel.UiDownloadDescription}"
-                    SettingIcon="&#xE896;">
-                    <control:SettingExpander.SettingContent>
-                        <StackPanel Style="{StaticResource SettingStackPanelStyle}">
-                            <!-- 覆盖名字 -->
                             <control:Panel>
                                 <StackPanel>
+                                    <!-- 忽略游戏查询结果 -->
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Library_IgnoreFetchResult"
+                                                                IsOn="{x:Bind ViewModel.IgnoreFetchResult, Mode=TwoWay}"
+                                                                Margin="0, 0, 0, 13"/>
+
+                                    <!-- 下载游戏角色信息 -->
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Download_Character"
+                                                                IsOn="{x:Bind ViewModel.DownloadCharacters, Mode=TwoWay}"
+                                                                Margin="0, 0, 0, 13"/>
+                                    <!-- 覆盖名字 -->
                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Download_OverrideName"
                                     IsOn="{x:Bind ViewModel.OverrideLocalName, Mode=TwoWay}" />
                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Download_OverrideNameWithChinese"
@@ -269,11 +226,58 @@
                                         <Button Content="Go" Width="75" Command="{x:Bind ViewModel.DownloadPlayStatusFormVndbNowCommand}"/>
                                     </control:Setting>
                                 </StackPanel>
-                            </control:Panel>
-                            <!-- 下载游戏角色信息 -->
+                            </control:Panel>                            
+                        </StackPanel>
+                    </control:SettingExpander.SettingContent>
+                </control:SettingExpander>
+
+                <!-- 游玩 -->
+                <control:SettingExpander
+                    x:Uid="SettingsPage_Game"
+                    SettingIcon="&#xE7FC;">
+                    <control:SettingExpander.SettingContent>
+                        <StackPanel Style="{StaticResource SettingStackPanelStyle}">
+                            <!-- 只记录前台时间 -->
                             <control:Panel>
-                                <local:SettingToggleSwitch x:Uid="SettingsPage_Download_Character"
-                                                           IsOn="{x:Bind ViewModel.DownloadCharacters, Mode=TwoWay}"/>
+                                <local:SettingToggleSwitch
+                                    x:Uid="SettingsPage_Game_RecordOnlyForeground"
+                                    IsOn="{x:Bind ViewModel.RecordOnlyForeground, Mode=TwoWay}"/>
+                            </control:Panel>
+                            <!-- 游玩时窗口状态 -->
+                            <control:Panel>
+                                <control:Setting x:Uid="SettingsPage_Game_PlayingWindowMode">
+                                    <ComboBox MinWidth="{StaticResource ToggleSwitchWidth}"
+                                              ItemsSource="{x:Bind ViewModel.PlayingWindowModes}"
+                                              SelectedItem="{x:Bind ViewModel.PlayingWindowMode, Mode=TwoWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="enums:WindowMode">
+                                                <TextBlock Text="{x:Bind Converter={StaticResource WindowModeToStringConverter}}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </control:Setting>
+                            </control:Panel>
+                            <!-- LocaleEmulator -->
+                            <control:Panel>
+                                <StackPanel>
+                                    <control:Setting  x:Uid="SettingsPage_Game_LocaleEmulator">
+                                        <Button Content="Go"
+                                                MinWidth="{StaticResource ButtonMinWidth}"
+                                                Command="{x:Bind ViewModel.SelectLocalEmulatorPathCommand}"/>
+                                    </control:Setting>
+                                    <StackPanel Orientation="Horizontal"
+                                            Margin="0,20,0,0">
+                                        <TextBlock
+                                            x:Uid="SettingsPage_Game_LocaleEmulator_PathDescription"
+                                            Style="{ThemeResource BodyTextBlockStyle}"
+                                            TextWrapping="Wrap"/>
+                                        <TextBlock
+                                            Text="{x:Bind ViewModel.LocalEmulatorPath, Mode=OneWay}"
+                                            TextWrapping="Wrap"
+                                            Style="{ThemeResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                </StackPanel>
+
                             </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
@@ -286,6 +290,15 @@
                     SettingIcon="&#xE8B7;">
                     <control:SettingExpander.SettingContent>
                         <StackPanel Style="{StaticResource SettingStackPanelStyle}">
+                            <!-- 递归搜索子目录 -->
+                            <control:Panel>
+                                <StackPanel>
+                                    <local:SettingToggleSwitch
+                                        Title="{x:Bind ViewModel.UiLibrarySearchSubPath}"
+                                        Description="{x:Bind ViewModel.UiLibrarySearchSubPathDescription}"
+                                        IsOn="{x:Bind ViewModel.SearchSubFolder, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </control:Panel>
                             <!-- 数据备份 -->
                             <control:Panel>
                                 <StackPanel Spacing="{StaticResource SettingsPageStackPanelSpacing}">
@@ -315,37 +328,26 @@
                                     </control:Setting>
                                 </StackPanel>
                             </control:Panel>
-                            <!-- 递归搜索子目录 -->
+
+                            <!-- 游戏匹配规则 -->
                             <control:Panel>
-                                <StackPanel>
-                                    <local:SettingToggleSwitch
-                                        Title="{x:Bind ViewModel.UiLibrarySearchSubPath}"
-                                        Description="{x:Bind ViewModel.UiLibrarySearchSubPathDescription}"
-                                        IsOn="{x:Bind ViewModel.SearchSubFolder, Mode=TwoWay}" />
-                                    <RelativePanel Margin="{StaticResource XSmallTopMargin}"
-                                                   HorizontalAlignment="Stretch"
-                                                   Visibility="{x:Bind ViewModel.SearchSubFolder, Mode=OneWay}">
-                                        <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{x:Bind ViewModel.UiLibrarySearchSubPathDepth}"
-                                                       Style="{ThemeResource BodyTextBlockStyle}" />
-                                            <TextBlock Text="{x:Bind ViewModel.UiLibrarySearchSubPathDepthDescription}"
-                                                       Style="{StaticResource DescriptionTextStyle}"/>
-                                        </StackPanel>
-                                        <TextBox Text="{x:Bind ViewModel.SearchSubFolderDepth, Mode=TwoWay}"
-                                                 RelativePanel.AlignRightWithPanel="True" />
-                                        <RelativePanel.Transitions>
-                                            <TransitionCollection>
-                                                <RepositionThemeTransition/>
-                                            </TransitionCollection>
-                                        </RelativePanel.Transitions>
-                                    </RelativePanel>
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="{x:Bind ViewModel.UiLibraryGameSearchRule}"/>
+                                    <TextBlock Text="{x:Bind ViewModel.UiLibraryGameSearchRuleDescription}"
+                                               FontSize="12"
+                                            Opacity="0.6"
+                                            Margin="0 -8 0 0"/>
+                                    <TextBox Header="{x:Bind ViewModel.UiLibraryGameSearchRuleMustContain}"
+                                             Text="{x:Bind ViewModel.GameFolderMustContain,Mode=TwoWay}"
+                                             TextWrapping="Wrap"
+                                            AcceptsReturn="True"/>
+                                    <TextBox Header="{x:Bind ViewModel.UiLibraryGameSearchRuleShouldContain}"
+                                             Text="{x:Bind ViewModel.GameFolderShouldContain,Mode=TwoWay}"
+                                             TextWrapping="Wrap"
+                                            AcceptsReturn="True"/>
                                 </StackPanel>
                             </control:Panel>
-                            <!-- 忽略游戏查询结果 -->
-                            <control:Panel>
-                                <local:SettingToggleSwitch x:Uid="SettingsPage_Library_IgnoreFetchResult"
-                                                           IsOn="{x:Bind ViewModel.IgnoreFetchResult, Mode=TwoWay}"/>
-                            </control:Panel>
+
                             <!-- 正则表达式 -->
                             <control:Panel>
                                 <StackPanel Spacing="{StaticResource SettingsPageStackPanelSpacing}">
@@ -381,20 +383,6 @@
                                         <Button Content="Go" Command="{x:Bind ViewModel.RegexTryItOutCommand}"
                                                 RelativePanel.AlignRightWithPanel="True" />
                                     </RelativePanel>
-                                </StackPanel>
-                            </control:Panel>
-                            <!-- 游戏匹配规则 -->
-                            <control:Panel>
-                                <StackPanel Spacing="8">
-                                    <TextBlock Text="{x:Bind ViewModel.UiLibraryGameSearchRule}" />
-                                    <TextBlock Text="{x:Bind ViewModel.UiLibraryGameSearchRuleDescription}"
-                                               FontSize="12" Opacity="0.6" Margin="0 -8 0 0" />
-                                    <TextBox Header="{x:Bind ViewModel.UiLibraryGameSearchRuleMustContain}"
-                                             Text="{x:Bind ViewModel.GameFolderMustContain,Mode=TwoWay}"
-                                             TextWrapping="Wrap" AcceptsReturn="True"/>
-                                    <TextBox Header="{x:Bind ViewModel.UiLibraryGameSearchRuleShouldContain}"
-                                             Text="{x:Bind ViewModel.GameFolderShouldContain,Mode=TwoWay}"
-                                             TextWrapping="Wrap" AcceptsReturn="True"/>
                                 </StackPanel>
                             </control:Panel>
                         </StackPanel>
@@ -438,26 +426,21 @@
                     SettingIcon="&#xE768;">
                     <control:SettingExpander.SettingContent>
                         <StackPanel Style="{StaticResource SettingStackPanelStyle}">
+                            <!-- 开机自启 -->
                             <control:Panel>
-                                <local:SettingToggleSwitch 
-                                    x:Uid="SettingsPage_Start_AutoStartGame"
-                                    IsOn="{x:Bind ViewModel.QuitStart, Mode=TwoWay}" />
+                                <StackPanel Spacing="{StaticResource SettingsPageStackPanelSpacing}">
+                                    <!-- 是否开机自启 -->
+                                    <local:SettingToggleSwitch
+                                        x:Uid="SettingsPage_Start_AutoStartOnLogin"
+                                        IsOn="{x:Bind ViewModel.AutoStartWhenLogin, Mode=TwoWay}"/>
+                                    <!-- 开机自启时是否最小化到托盘 -->
+                                    <local:SettingToggleSwitch
+                                        x:Uid="SettingsPage_Start_MinToTray"
+                                        IsOn="{x:Bind ViewModel.MinToTrayWhenAutoStart, Mode=TwoWay}"
+                                        Visibility="{x:Bind ViewModel.AutoStartWhenLogin, Mode=OneWay}"/>
+                                </StackPanel>
                             </control:Panel>
-
-                            <control:Panel>
-                                <control:Setting x:Uid="SettingsPage_Start_AuthenticationType">
-                                    <ComboBox MinWidth="{StaticResource ToggleSwitchWidth}"
-                                              ItemsSource="{x:Bind ViewModel.AuthenticationTypes}"
-                                              SelectedItem="{x:Bind ViewModel.AuthenticationType, Mode=TwoWay}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="enums:AuthenticationType">
-                                                <TextBlock Text="{x:Bind Converter={StaticResource AuthenticationTypeToStringConverter}}" />
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </control:Setting>
-                            </control:Panel>
-                            
+                            <!-- 初始启动页面 -->
                             <control:Panel>
                                 <control:Setting x:Uid="SettingsPage_Start_Page">
                                     <ComboBox MinWidth="{StaticResource ToggleSwitchWidth}"
@@ -465,26 +448,32 @@
                                               SelectedItem="{x:Bind ViewModel.StartPage, Mode=TwoWay}">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate x:DataType="enums:PageEnum">
-                                                <TextBlock Text="{x:Bind Converter={StaticResource EnumToStringConverter}}" />
+                                                <TextBlock Text="{x:Bind Converter={StaticResource EnumToStringConverter}}"/>
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
                                 </control:Setting>
                             </control:Panel>
-                            <!-- 开机自启 -->
+                            <!-- 身份验证方式 -->
                             <control:Panel>
-                                <StackPanel Spacing="{StaticResource SettingsPageStackPanelSpacing}">
-                                    <!-- 是否开机自启 -->
-                                    <local:SettingToggleSwitch 
-                                        x:Uid="SettingsPage_Start_AutoStartOnLogin"
-                                        IsOn="{x:Bind ViewModel.AutoStartWhenLogin, Mode=TwoWay}" />
-                                    <!-- 开机自启时是否最小化到托盘 -->
-                                    <local:SettingToggleSwitch 
-                                        x:Uid="SettingsPage_Start_MinToTray"
-                                        IsOn="{x:Bind ViewModel.MinToTrayWhenAutoStart, Mode=TwoWay}" 
-                                        Visibility="{x:Bind ViewModel.AutoStartWhenLogin, Mode=OneWay}"/>
-                                </StackPanel>
+                                <control:Setting x:Uid="SettingsPage_Start_AuthenticationType">
+                                    <ComboBox MinWidth="{StaticResource ToggleSwitchWidth}"
+                                              ItemsSource="{x:Bind ViewModel.AuthenticationTypes}"
+                                              SelectedItem="{x:Bind ViewModel.AuthenticationType, Mode=TwoWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="enums:AuthenticationType">
+                                                <TextBlock Text="{x:Bind Converter={StaticResource AuthenticationTypeToStringConverter}}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </control:Setting>
                             </control:Panel>
+                            <!-- 启动游戏 -->
+                            <control:Panel>
+                                <local:SettingToggleSwitch 
+                                    x:Uid="SettingsPage_Start_AutoStartGame"
+                                    IsOn="{x:Bind ViewModel.QuitStart, Mode=TwoWay}" />
+                            </control:Panel>              
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
                 </control:SettingExpander>
@@ -522,11 +511,6 @@
                 <control:SettingExpander x:Uid="SettingsPage_Other" SettingIcon="&#xE713;">
                     <control:SettingExpander.SettingContent>
                         <StackPanel Style="{StaticResource SettingStackPanelStyle}">
-                            <!-- 上传匿名事件日志 -->
-                            <control:Panel>
-                                <local:SettingToggleSwitch x:Uid="SettingsPage_Other_AppCenter"
-                                                           IsOn="{x:Bind ViewModel.UploadToAppCenter, Mode=TwoWay}"/>
-                            </control:Panel>
                             <!-- 关闭模式 -->
                             <control:Panel>
                                 <control:Setting x:Uid="SettingsPage_Other_CloseMode">
@@ -562,6 +546,11 @@
                                 <local:SettingToggleSwitch x:Uid="SettingsPage_Other_Memory"
                                                            IsOn="{x:Bind ViewModel.MemoryImprove, Mode=TwoWay}"/>
                             </control:Panel>
+                            <!-- 上传匿名事件日志 -->
+                            <control:Panel>
+                                <local:SettingToggleSwitch x:Uid="SettingsPage_Other_AppCenter"
+                                                           IsOn="{x:Bind ViewModel.UploadToAppCenter, Mode=TwoWay}"/>
+                            </control:Panel>
                             <!-- 开发者模式 -->
                             <control:Panel>
                                 <RelativePanel HorizontalAlignment="Stretch">
@@ -594,7 +583,8 @@
                         <Grid Grid.Column="1" Background="{ThemeResource  ControlAltFillColorSecondaryBrush}" 
                               CornerRadius="10" VerticalAlignment="Center" Margin="10 0 0 0"
                               Visibility="{x:Bind ViewModel.UpdateAvailable, Mode=OneWay}">
-                            <TextBlock Padding="10 0 10 0" x:Uid="SettingsPage_About_UpdateAvailable" />
+                            <HyperlinkButton x:Uid="SettingsPage_About_UpdateAvailable" Padding="10 0 10 0" 
+                                Command="{x:Bind ViewModel.OpenUpdateWebCommand}"/>
                     </Grid>
                     </Grid>
                     <StackPanel Orientation="Horizontal">

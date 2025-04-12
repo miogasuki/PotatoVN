@@ -16,7 +16,7 @@ public class VndbPhraserTest
     }
 
     [Test]
-    [TestCase("スタディ§ステディ", "24689", "Study § Steady", null, new string[] { })]
+    [TestCase("スタディ§ステディ", "24689", "スタディ§ステディ", null, new string[] { })]
     [TestCase("サノバウィッチ", "16044", null, null, new string[] { })]
     [TestCase("喫茶ステラと死神の蝶", "26414", null, "星光咖啡馆与死神之蝶", new[] { "明月 栞那" })]
     // 特例：Description为空
@@ -54,5 +54,41 @@ public class VndbPhraserTest
         ParserTestUtil.CheckStaff(staff, RssType.Vndb, id, expectedDescription,
             expectedJapaneseName: expectedJapaneseName,
             expectedEnglishName: expectedEnglishName);
+    }
+
+    [Test]
+    [TestCase("紙の上の魔法使い", "High School Student Heroine", "Brother/Sister Romance")]
+    [TestCase("Gyakuten Saiban", "Mystery", "Falsely Accused")]
+    public async Task ParseGameWithIdandEnglishTest(string name, string expectedTag1, string expectedTag2)
+    {
+        // 没有Token，不是中文环境
+        VndbPhraserData data = new(null, false);
+        _vndbPhraser.UpdateData(data);
+
+        Galgame? game = new(name);
+        game = await _vndbPhraser.GetGalgameInfo(game);
+
+
+        Assert.That(game, Is.Not.Null);
+        Assert.That(game.Tags.Value, Has.Member(expectedTag1));
+        Assert.That(game.Tags.Value, Has.Member(expectedTag2));
+    }
+
+    [Test]
+    [TestCase("紙の上の魔法使い", "原型是书的女主角", "主人公的妹妹女主角")]
+    [TestCase("Gyakuten Saiban", "智斗", "被冤枉")]
+    public async Task ParseGameWithIdandChineseTest(string name, string expectedTag1, string expectedTag2)
+    {
+        // 没有Token，不是中文环境
+        VndbPhraserData data = new(null, true);
+        _vndbPhraser.UpdateData(data);
+
+        Galgame? game = new(name);
+        game = await _vndbPhraser.GetGalgameInfo(game);
+
+
+        Assert.That(game, Is.Not.Null);
+        Assert.That(game.Tags.Value, Has.Member(expectedTag1));
+        Assert.That(game.Tags.Value, Has.Member(expectedTag2));
     }
 }

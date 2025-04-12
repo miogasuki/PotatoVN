@@ -134,6 +134,15 @@ public interface IGalgameCollectionService
     public Task<Galgame> ParseGalInfoOnlyAsync(Galgame galgame, RssType rssType = RssType.None, bool requireConfirm = false);
 
     /// <summary>
+    /// 从信息源中搜刮某个游戏的某部分信息，直接修改传入的galgame <br/>
+    /// </summary>
+    /// <param name="galgame">待搜刮游戏</param>
+    /// <param name="rssType">指定信息源，若为None则使用默认值</param>
+    /// <param name="type">要搜刮的部分</param>
+    /// <returns></returns>
+    public Task<Galgame> ParseGalInfoAsync(Galgame galgame, GameParseType type, RssType rssType = RssType.None);
+
+    /// <summary>
     /// 从信息源中搜刮游戏角色信息，直接修改传入的galgameCharacter
     /// </summary>
     /// <param name="galgameCharacter"></param>

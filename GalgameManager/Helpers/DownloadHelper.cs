@@ -36,6 +36,7 @@ public static class DownloadHelper
                 : imageUrl[(imageUrl.LastIndexOf('/') + 1)..];
             if (fileName == string.Empty) fileName = imageUrl;
             if (fileName.Contains('?')) fileName = fileName[..fileName.IndexOf('?')];
+            fileName = fileName.RemoveInvalidChars();
             StorageFile? storageFile;
             try
             {

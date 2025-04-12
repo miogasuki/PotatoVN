@@ -18,6 +18,7 @@ public partial class GameHeaderPanel
     private readonly INavigationService _navigationService = App.GetService<INavigationService>();
     private readonly ILocalSettingsService _localSettingsService = App.GetService<ILocalSettingsService>();
     private readonly IStaffService _staffService = App.GetService<IStaffService>();
+    private Galgame? _lastGame;
 
     public GameHeaderPanel()
     {
@@ -28,7 +29,14 @@ public partial class GameHeaderPanel
     {
         try
         {
-            if (Game is null) return;
+            if (Game is null)
+            {
+                if (_lastGame is not null) 
+                    _lastGame.HeaderImagePath.OnValueChanged -= HeaderImagePathOnOnValueChanged;
+                return;
+            }
+            _lastGame = Game;
+            Game.HeaderImagePath.OnValueChanged += HeaderImagePathOnOnValueChanged;
             if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage) is false)
                 Cover.Visibility = Visibility.Collapsed;
 
@@ -60,6 +68,8 @@ public partial class GameHeaderPanel
             _infoService.DeveloperEvent(e: e);
         }
     }
+
+    private void HeaderImagePathOnOnValueChanged(string? arg) => Update();
 
     private void ClickDeveloper(object sender, RoutedEventArgs e)
     {

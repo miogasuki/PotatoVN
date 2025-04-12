@@ -216,9 +216,9 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.SortKeysAscending:
                 return (T?)(object?)new [] { false , false};
             case KeyValues.SearchChildFolder:
-                return (T?)(object?)false;
-            case KeyValues.SearchChildFolderDepth:
-                return (T?)(object?)1;
+                return (T?)(object?)true;
+            case KeyValues.SearchChildFolderDepth: 
+                return (T?)(object?)1;  // 现在这个设置已被废弃
             case KeyValues.RegexPattern:
                 return (T?)(object?)@".+";
             case KeyValues.GameFolderMustContain:
@@ -245,8 +245,6 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.NotifyWhenUnpackGame:
             case KeyValues.EventPvnSyncNotify:
                 return (T?)(object)true;
-            case KeyValues.MixedPhraserOrder:
-                return (T?)(object)new MixedPhraserOrder().SetToDefault();
             case KeyValues.DisplayVirtualGame:
             case KeyValues.SpecialDisplayVirtualGame:
             case KeyValues.LibraryNavBar:
@@ -257,9 +255,15 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GalgamePageNewLayout_ShowPainter:
             case KeyValues.GalgamePageNewLayout_ShowWriter:
             case KeyValues.GalgamePageNewLayout_ShowMusician:
+            case KeyValues.GalgameSourcePageShowSubSourceGames:
                 return (T?)(object)true;
-            case KeyValues.Language:
-                return (T?)(object?)LanguageEnum.Auto;
+            case KeyValues.MixedPhraserOrder:
+                LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+                bool isChineseCulture = language == LanguageEnum.ChineseSimplified ||
+                                        (language == LanguageEnum.Auto &&
+                                         System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
+
+                return (T?)(object)new MixedPhraserOrder().SetToDefault(isChineseCulture);
             default:
                 return default;
         }

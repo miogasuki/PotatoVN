@@ -18,14 +18,14 @@
                    Source="/Assets/WindowIcon.ico"
                    HorizontalAlignment="Left"
                    Width="16"
-                   Height="16" />
+                   Height="16"/>
             <TextBlock x:Name="AppTitleBarText"
                        VerticalAlignment="Center"
                        TextWrapping="NoWrap"
                        Style="{StaticResource CaptionTextBlockStyle}"
                        Margin="28,0,0,0"/>
         </Grid>
-        
+
         <NavigationView
             x:Name="NavigationViewControl"
             Canvas.ZIndex="0"
@@ -33,31 +33,100 @@
             IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}"
             IsSettingsVisible="False"
-            ExpandedModeThresholdWidth="1280"
+            PaneDisplayMode="Left"
+            IsPaneToggleButtonVisible="False"
+            OpenPaneLength="72"
             DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
-            Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay, FallbackValue={}}">
+            Header="{x:Bind ViewModel.SelectedPageTitle, Mode=OneWay, FallbackValue=''}">
             <NavigationView.MenuItems>
-                <NavigationViewItem x:Uid="Shell_MultiStream" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.MultiStreamViewModel">
-                    <NavigationViewItem.Icon>
-                        <control:ConditionalFontIcon Symbol="List" FluentGlyph="&#xE71D;"/>
-                    </NavigationViewItem.Icon>
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.MultiStreamViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                      Glyph="&#xe80f;"
+                                      FontSize="16"
+                                      VerticalAlignment="Top"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_MultiStreamText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       Margin="0,0,0,16"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Home" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HomeViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf0e2;"/>
-                    </NavigationViewItem.Icon>
+
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HomeViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                      Glyph="&#xf0e2;"
+                                      FontSize="16"
+                                      VerticalAlignment="Top"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_Home_Text"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       Margin="0,0,0,16"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Library" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.LibraryViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B7;"/>
-                    </NavigationViewItem.Icon>
+
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.LibraryViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                      Glyph="&#xE8B7;"
+                                      FontSize="16"
+                                      VerticalAlignment="Top"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_LibraryText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       Margin="0,0,0,16"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Category" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.CategoryViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7C1;"/>
-                    </NavigationViewItem.Icon>
+
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.CategoryViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                      Glyph="&#xE7C1;"
+                                      FontSize="16"
+                                      VerticalAlignment="Top"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_CategoryText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       Margin="0,0,0,16"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
-                
+
                 <!-- 这里的导航项是隐藏的，只是为了让导航项的命令能够被触发 -->
                 <NavigationViewItem x:Uid="Shell_UpdateContent" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.UpdateContentViewModel"
                                     Visibility="Collapsed"/>
@@ -71,75 +140,174 @@
                                     Visibility="Collapsed"/>
             </NavigationView.MenuItems>
             
+            <!-- 暂时隐藏年度报告 -->
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem x:Uid="Shell_AnnualReport" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AnnualReportViewModel">
-                    <NavigationViewItem.Icon>
-                        <control:ConditionalFontIcon Symbol="OutlineStar" FluentGlyph="&#xE728;"/>
-                    </NavigationViewItem.Icon>
+                <NavigationViewItem
+                    Visibility="Collapsed"
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AnnualReportViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                      Glyph="&#xE71D;"
+                                      FontSize="16"
+                                      VerticalAlignment="Top"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_AnnualReportText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       Margin="0,0,0,16"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Info" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.InfoViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE770;"/>
-                    </NavigationViewItem.Icon>
-                    <NavigationViewItem.InfoBadge>
-                        <InfoBadge Value="{x:Bind ViewModel.InfoPageBadgeCount, Mode=OneWay}" 
-                                   Visibility="{x:Bind ViewModel.InfoPageBadgeVisibility, Mode=OneWay}"/>
-                    </NavigationViewItem.InfoBadge>
+
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.InfoViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                        Glyph="&#xE770;"
+                                        FontSize="16"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_InfoText"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        FontSize="12"
+                                        TextAlignment="Center"
+                                        TextWrapping="NoWrap"
+                                        Margin="0,0,0,16"/>
+                            
+                            <!-- InfoBadge 放置在Grid内，使用定位确保在右上角 -->
+                            <InfoBadge  Value="{x:Bind ViewModel.InfoPageBadgeCount, Mode=OneWay}"
+                                        Visibility="{x:Bind ViewModel.InfoPageBadgeVisibility, Mode=OneWay}"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Margin="0,4,4,0"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Help" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HelpViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE897;"/>
-                    </NavigationViewItem.Icon>
+
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HelpViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                      Glyph="&#xE897;"
+                                      FontSize="16"
+                                      VerticalAlignment="Top"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_HelpText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       Margin="0,0,0,16"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Account" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AccountViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE77B;"/>
-                    </NavigationViewItem.Icon>
+
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AccountViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                      Glyph="&#xE77B;"
+                                      FontSize="16"
+                                      VerticalAlignment="Top"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_AccountText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       Margin="0,0,0,16"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Settings" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.SettingsViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE713;"/>
-                    </NavigationViewItem.Icon>
-                    <NavigationViewItem.InfoBadge>
-                        <!-- 这里的1并没有什么实际含义，只是这样做好看一点 -->
-                        <InfoBadge Value="1" Visibility="{x:Bind ViewModel.UpdateBadgeVisibility, Mode=OneWay}"/>
-                    </NavigationViewItem.InfoBadge>
+
+                <NavigationViewItem
+                    helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.SettingsViewModel"
+                    Width="70">
+                    <NavigationViewItem.Content>
+                        <Grid Width="60" Height="65" Margin="-12,0,-20,0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                      Glyph="&#xE713;"
+                                      FontSize="16"
+                                      VerticalAlignment="Top"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,18,0,0"/>
+                            <TextBlock x:Uid="Shell_SettingsText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       Margin="0,0,0,16"/>
+
+                            <InfoBadge Value="1"
+                                       Visibility="{x:Bind ViewModel.UpdateBadgeVisibility, Mode=OneWay}"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Top"
+                                       Margin="0,4,4,0"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
                 </NavigationViewItem>
             </NavigationView.FooterMenuItems>
-            
+
             <NavigationView.HeaderTemplate>
                 <DataTemplate>
                     <Grid>
                         <TextBlock
                             Text="{Binding}"
-                            Style="{ThemeResource TitleTextBlockStyle}" />
+                            Style="{ThemeResource TitleTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </NavigationView.HeaderTemplate>
 
             <Grid Margin="{StaticResource NavigationViewPageContentMargin}">
-                <Frame Grid.Row="0" x:Name="NavigationFrame" />
-                
-                <Grid Grid.Row="0" Margin="0 0 10 40" VerticalAlignment="Bottom">
+                <Frame Grid.Row="0"
+                        x:Name="NavigationFrame"/>
+
+                <Grid Grid.Row="0"
+                        Margin="0 0 10 40"
+                        VerticalAlignment="Bottom">
                     <StackPanel Spacing="7">
-                        <InfoBar Severity="{x:Bind ViewModel.InfoBarSeverity, Mode=OneWay}" 
-                                 Title="{x:Bind ViewModel.InfoBarTitle, Mode=OneWay}" 
-                                 Message="{x:Bind ViewModel.InfoBarMessage, Mode=OneWay}" 
+                        <InfoBar Severity="{x:Bind ViewModel.InfoBarSeverity, Mode=OneWay}"
+                                 Title="{x:Bind ViewModel.InfoBarTitle, Mode=OneWay}"
+                                 Message="{x:Bind ViewModel.InfoBarMessage, Mode=OneWay}"
                                  IsOpen="{x:Bind ViewModel.IsInfoBarOpen, Mode=OneWay}"/>
-                    
+
                         <!-- Event -->
-                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.ShellEvents}" VerticalAlignment="Bottom">
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.ShellEvents}"
+                                VerticalAlignment="Bottom">
                             <ItemsRepeater.Layout>
-                                <StackLayout Orientation="Vertical" Spacing="7"/>
+                                <StackLayout Orientation="Vertical"
+                                        Spacing="7"/>
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="viewmodels:ShellEventViewModel">
-                                    <InfoBar Severity="{x:Bind Severity}" Title="{x:Bind Title}"
-                                             Message="{x:Bind Message}" IsOpen="True" IsClosable="False">
+                                    <InfoBar Severity="{x:Bind Severity}"
+                                            Title="{x:Bind Title}"
+                                             Message="{x:Bind Message}"
+                                            IsOpen="True"
+                                            IsClosable="False">
                                         <InfoBar.ActionButton>
                                             <HyperlinkButton x:Uid="ShellPage_Info_Event"
                                                              Command="{x:Bind Command}"
-                                                             Margin="0" />
+                                                             Margin="0"/>
                                         </InfoBar.ActionButton>
                                     </InfoBar>
                                 </DataTemplate>

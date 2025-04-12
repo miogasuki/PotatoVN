@@ -709,9 +709,16 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// </summary>
     private async Task<VndbPhraserData> GetVndbData()
     {
+        LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+        bool _isChineseCulture = language == LanguageEnum.ChineseSimplified ||
+                                (language == LanguageEnum.Auto &&
+                                 System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
+
         VndbPhraserData data = new()
         {
-            Token = (await LocalSettingsService.ReadSettingAsync<VndbAccount>(KeyValues.VndbAccount))?.Token
+            Token = (await LocalSettingsService.ReadSettingAsync<VndbAccount>(KeyValues.VndbAccount))?.Token,
+            IsChineseCulture = _isChineseCulture
+
         };
         return data;
     }
@@ -750,7 +757,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             IEnumerable<PropertyInfo> properties = orders.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.PropertyType == typeof(ObservableCollection<RssType>));
-            MixedPhraserOrder defOrder = new MixedPhraserOrder().SetToDefault();
+            
+            LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+            var isChineseCulture = language == LanguageEnum.ChineseSimplified ||
+                                    (language == LanguageEnum.Auto &&
+                                        System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
+
+            MixedPhraserOrder defOrder = new MixedPhraserOrder().SetToDefault(isChineseCulture);
             foreach (PropertyInfo prop in properties)
             {
                 ObservableCollection<RssType> order = (ObservableCollection<RssType>)prop.GetValue(orders)!;

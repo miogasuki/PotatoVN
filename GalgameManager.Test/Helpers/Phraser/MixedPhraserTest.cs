@@ -48,12 +48,12 @@ public class MixedPhraserTest
         {
             case "近月少女的礼仪":
                 if(game.Name != "月に寄りそう乙女の作法") Assert.Fail();
-                Assert.That(game.Ids[(int)RssType.Bangumi], Is.EqualTo("44123"));
+                Assert.That(game.Ids[(int)RssType.Bangumi], Is.EqualTo(null));
                 Assert.That(game.Ids[(int)RssType.Vndb], Is.EqualTo("10680"));
                 Assert.That(game.Ids[(int)RssType.Ymgal], Is.EqualTo("31147"));
-                if(!game.Description.Value!.StartsWith("主人公大藏游星")) Assert.Fail(); //默认来自YMGAL
+                if(!game.Description.Value!.StartsWith("主人公大藏游星")) Assert.Fail(); //没有bgm数据，回退到YMGAL
                 if(game.Developer != "Navel") Assert.Fail();
-                Assert.That(game.ImageUrl?.StartsWith("https://t.vndb.org/"), Is.True); //默认来自VNDB
+                Assert.That(game.ImageUrl?.StartsWith("https://store.ymgal.games"), Is.True); //没有bgm数据，回退到YMGAL
                 break;
         }
         
@@ -62,7 +62,7 @@ public class MixedPhraserTest
     
     [Test]
     [TestCase("千恋万花")]
-    [TestCase("近月少女的礼仪")]
+    [TestCase("Ever17 -the out of infinity-")]
     public async Task PhraseTestWithCustomOrder(string name)
     {
         // Arrange
@@ -90,12 +90,12 @@ public class MixedPhraserTest
                 // VNDB搜不到游戏，fallback到Bangumi  update：VNDB已经有了（2024-11-13）
                 // Assert.That(game.Description.Value?.StartsWith("電車も通っていない山の中に"), Is.True); // 从BGM中获取
                 break;
-            case "近月少女的礼仪":
-                Assert.That(game.Name.Value, Is.EqualTo("Tsuki ni Yorisou Otome no Sahou")); // 从VNDB中获取
-                Assert.That(game.Ids[(int)RssType.Bangumi], Is.EqualTo("44123"));
-                Assert.That(game.Ids[(int)RssType.Vndb], Is.EqualTo("10680"));
-                Assert.That(game.Ids[(int)RssType.Ymgal], Is.EqualTo("31147"));
-                Assert.That(game.Description.Value?.StartsWith("Navel tenth anniversary project"), Is.True); // 从VNDB中获取
+            case "Ever17 -the out of infinity-":
+                Assert.That(game.Name.Value, Is.EqualTo("Ever17 -the out of infinity-")); // 从VNDB中获取
+                Assert.That(game.Ids[(int)RssType.Bangumi], Is.EqualTo("1126")); // 未登录状态下无法找到游戏
+                Assert.That(game.Ids[(int)RssType.Vndb], Is.EqualTo("17"));
+                Assert.That(game.Ids[(int)RssType.Ymgal], Is.EqualTo("10799"));
+                Assert.That(game.Description.Value?.StartsWith("Ever17 is the tale of seven individuals"), Is.True); // 从VNDB中获取
                 Assert.That(game.ImageUrl?.StartsWith("https://lain.bgm.tv/"), Is.True); // 从BGM中获取
                 break;
         }

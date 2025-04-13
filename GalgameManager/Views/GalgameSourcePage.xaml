@@ -56,15 +56,6 @@
                            MaxWidth="{x:Bind ViewModel.TitleMaxWidth, Mode=OneWay}" />
                 <CommandBar RelativePanel.AlignRightWithPanel="True" Background="Transparent" IsOpen="False"
                             DefaultLabelPosition="Right" Margin="{StaticResource CommandBarMargin}">
-                    <!-- 手动添加游戏 -->
-                    <AppBarButton Icon="Add" x:Uid="GalgameFolderPage_AddManually" 
-                                  Command="{x:Bind ViewModel.AddGalgameCommand}"
-                                  AllowFocusOnInteraction="True"
-                                  IsEnabled="{x:Bind ViewModel.Item.IsGameAddable, FallbackValue=False, Mode=OneWay}">
-                        <AppBarButton.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="N" />
-                        </AppBarButton.KeyboardAccelerators>
-                    </AppBarButton>
                     <!-- 从压缩包添加游戏 -->
                     <AppBarButton x:Uid="GalgameFolderPage_AddFromZip"
                                   Command="{x:Bind ViewModel.AddGalFromZipCommand}"
@@ -79,7 +70,7 @@
                     <!-- 扫描游戏 -->
                     <AppBarButton Icon="Refresh" x:Uid="GalgameFolderPage_Refresh"
                                   AllowFocusOnInteraction="True"
-                                  Command="{x:Bind ViewModel.GetGalInFolderCommand}"
+                                  Command="{x:Bind ViewModel.ScanAllCommand}"
                                   IsEnabled="{x:Bind ViewModel.Item.IsSourceScanable, FallbackValue=False, Mode=OneWay}">
                         <AppBarButton.KeyboardAccelerators>
                             <KeyboardAccelerator Modifiers="Control" Key="R"/>

@@ -228,7 +228,8 @@ public partial class LibraryViewModel(
             Spacing = 10
         };
         dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_GetInfoFromRss_Content".GetLocalized() });
-
+        dialogContent.Children.Add(includeSubfoldersCheckBox);
+        
         ContentDialog dialog = new ()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,

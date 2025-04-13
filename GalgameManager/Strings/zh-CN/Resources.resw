@@ -2694,4 +2694,22 @@
   <data name="QueueTaskBase_Empty" xml:space="preserve">
     <value>已完成所有任务，等待新任务中</value>
   </data>
+  <data name="LibraryPage_GetInfoFromRss_Title" xml:space="preserve">
+    <value>获取游戏信息</value>
+  </data>
+  <data name="LibraryPage_GetInfoFromRss_Content" xml:space="preserve">
+    <value>下载当前库的所有游戏数据</value>
+  </data>
+  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders" xml:space="preserve">
+    <value>包括所有子文件夹</value>
+  </data>
+  <data name="LibraryPage_ScanAll_Title" xml:space="preserve">
+    <value>扫描游戏库</value>
+  </data>
+  <data name="LibraryPage_ScanAll_Content" xml:space="preserve">
+    <value>重新扫描当前库</value>
+  </data>
+  <data name="LibraryPage_ScanAll_IncludeSubfolders" xml:space="preserve">
+    <value>包括所有子文件夹</value>
+  </data>
 </root>

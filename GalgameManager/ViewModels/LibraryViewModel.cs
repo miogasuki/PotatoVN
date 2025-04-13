@@ -214,8 +214,39 @@ public partial class LibraryViewModel(
     }
 
     [RelayCommand]
-    private void GetInfoFromRss()
+    private async Task GetInfoFromRss()
     {
+        // 创建确认对话框
+        CheckBox includeSubfoldersCheckBox = new()
+        {
+            Content = "LibraryPage_GetInfoFromRss_IncludeSubfolders".GetLocalized(),
+            IsChecked = true
+        };
+
+        StackPanel dialogContent = new ()
+        {
+            Spacing = 10
+        };
+        dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_GetInfoFromRss_Content".GetLocalized() });
+
+        ContentDialog dialog = new ()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "LibraryPage_GetInfoFromRss_Title".GetLocalized(),
+            Content = dialogContent,
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        bool scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
+        
         List<GalgameSourceBase> sources = new();
         if (CurrentSource is null)
         {
@@ -224,11 +255,15 @@ public partial class LibraryViewModel(
         }
         else
         {
-            // 获取当前库及其所有子库
+            // 获取当前库及其子库
             sources.Add(CurrentSource);
-            var allSources = galSourceService.GetGalgameSources();
             
-            AddSubSources(CurrentSource, allSources);
+            // 如果用户选择包含子文件夹，则添加所有子库
+            if (scanSubfolders)
+            {
+                var allSources = galSourceService.GetGalgameSources();
+                AddSubSources(CurrentSource, allSources);
+            }
         }
 
         // 对于这个列表，每个库都创建一个GetGalgameInfoFromRssTask，并加入到BgTaskService中
@@ -309,8 +344,40 @@ public partial class LibraryViewModel(
     }
 
     [RelayCommand]
-    private void ScanAll()
+    private async Task ScanAll()
     {
+        // 创建确认对话框
+        CheckBox includeSubfoldersCheckBox = new ()
+        {
+            Content = "LibraryPage_ScanAll_IncludeSubfolders".GetLocalized(),
+            IsChecked = true
+        };
+
+        StackPanel dialogContent = new ()
+        {
+            Spacing = 10
+        };
+        dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_ScanAll_Content".GetLocalized() });
+        dialogContent.Children.Add(includeSubfoldersCheckBox);
+
+        ContentDialog dialog = new ()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "LibraryPage_ScanAll_Title".GetLocalized(),
+            Content = dialogContent,
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        bool scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
+        
         if (CurrentSource is null)
         {
             galSourceService.ScanAll();
@@ -321,9 +388,13 @@ public partial class LibraryViewModel(
             // 获取当前目录下所有库
             List<GalgameSourceBase> sources = new();
             sources.Add(CurrentSource);
-            var allSources = galSourceService.GetGalgameSources();
             
-            AddSubSources(CurrentSource, allSources);
+            // 如果用户选择包含子文件夹，则添加所有子库
+            if (scanSubfolders)
+            {
+                var allSources = galSourceService.GetGalgameSources();
+                AddSubSources(CurrentSource, allSources);
+            }
             
             foreach (var source in sources)
             {

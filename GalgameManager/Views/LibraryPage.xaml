@@ -58,14 +58,7 @@
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="Left"/>
                 </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
-            <!-- 下载游戏数据 -->
-            <AppBarButton Icon="Download" x:Uid="LibraryPage_DownloadAllData"
-                          Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
-                <AppBarButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Modifiers="Control" Key="D"/>
-                </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
+            </AppBarButton>       
             <!-- 新增游戏库 -->
             <AppBarButton Icon="Add" x:Uid="LibraryPage_AddGalgameFolder"
                           Command="{x:Bind ViewModel.AddLibraryCommand}">
@@ -89,6 +82,15 @@
                 </AppBarButton.Flyout>
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="F" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <!-- 下载游戏数据 -->
+            <AppBarButton Icon="Download"
+                    x:Uid="LibraryPage_DownloadAllData"
+                          Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control"
+                            Key="D"/>
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
             <!-- 添加排序按钮 -->

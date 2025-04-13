@@ -2286,6 +2286,15 @@
   <data name="GalgameSourcePage_GamesTable_OpenInExplorer.Text" xml:space="preserve">
     <value>在文件管理器中打开</value>
   </data>
+  <data name="GalgameSourcePage_GamesTable_Delete.Text" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Remove_Title" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Remove_SingleGame" xml:space="preserve">
+    <value>是否要从游戏库中移除游戏：{0}</value>
+  </data>
   <data name="AnnualReportPage_Calculating.Text" xml:space="preserve">
     <value>正在计算年度数据，请稍后</value>
   </data>
@@ -2714,5 +2723,14 @@
   </data>
   <data name="LibraryPage_ScanAll_IncludeSubfolders" xml:space="preserve">
     <value>包括所有子文件夹</value>
+  </data>
+  <data name="GalgameFolderPage_Delete.Label" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Remove_Title" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Remove_Message" xml:space="preserve">
+    <value>确定要从库中移除所选游戏吗？一共选中了{0}个</value>
   </data>
 </root>

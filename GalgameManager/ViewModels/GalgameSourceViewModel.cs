@@ -499,6 +499,69 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
+    private async Task DeleteSingleGame(GalgameAndPath gameAndPath)
+    {
+        if (gameAndPath?.Galgame == null) return;
+        
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "GalgameSourcePage_Remove_Title".GetLocalized(),
+            Content = string.Format("GalgameSourcePage_Remove_SingleGame".GetLocalized(), gameAndPath.Galgame.Name.Value),
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+        
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            await _galgameService.RemoveGalgame(gameAndPath.Galgame);
+            // 如果当前游戏在选中列表中，也要将其移除
+            if (_selectedGalgames.Contains(gameAndPath.Galgame))
+            {
+                _selectedGalgames.Remove(gameAndPath.Galgame);
+                // 更新UI状态
+                if (_selectedGalgames.Count == 0)
+                {
+                    UiDownloadInfo = "GalgameFolderPage_DownloadInfo".GetLocalized();
+                    IsDownloadFromNameVisible = false;
+                }
+            }
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteGame()
+    {
+        if (_selectedGalgames.Count == 0) return;
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "GalgameSourcePage_Remove_Title".GetLocalized(),
+            Content = string.Format("GalgameSourcePage_Remove_Message".GetLocalized(), _selectedGalgames.Count),
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+        dialog.PrimaryButtonClick += async (_, _) =>
+        {
+            // 创建选中游戏的副本，避免在遍历过程中集合被修改
+            List<Galgame> gamesToRemove = new(_selectedGalgames);
+            foreach (var galgame in gamesToRemove)
+            {
+                await _galgameService.RemoveGalgame(galgame);
+            }
+            // 操作完成后清空选中集合
+            _selectedGalgames.Clear();
+            UiDownloadInfo = "GalgameFolderPage_DownloadInfo".GetLocalized();
+            IsDownloadFromNameVisible = false;
+        };
+    
+        await dialog.ShowAsync();
+    }
+
+    [RelayCommand]
     private void EditGame(GalgameAndPath gameAndPath)
     {
         if (gameAndPath?.Galgame == null) return;

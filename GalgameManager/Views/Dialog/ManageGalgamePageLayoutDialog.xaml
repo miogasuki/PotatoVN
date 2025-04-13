@@ -25,6 +25,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
 
@@ -93,9 +94,17 @@
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"/>
             <ToggleSwitch Grid.Row="7" Grid.Column="1"
+                          x:Name="GalgamePageNewLayout_ShowCoverToggle"
                           IsOn="{x:Bind GalgamePageNewLayout_ShowCover, Mode=TwoWay}"
                           IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
                           HorizontalAlignment="Right"/>
+                          
+            <!-- 单独选项：在没有背景图时显示封面图 -->
+            <CheckBox Grid.Row="8" Grid.Column="0"
+                      x:Uid="ManageGalgamePageLayoutDialog_ShowCoverWhenNoBackground"
+                      IsChecked="{x:Bind GalgamePageNewLayout_ShowCoverWhenNoBackground, Mode=TwoWay}"
+                     IsEnabled="{x:Bind GalgamePageNewLayout_ShowCoverToggle.IsOn, Mode=OneWay}"
+                     HorizontalAlignment="Right"/>
         </Grid>
     </StackPanel>
 </ContentDialog>

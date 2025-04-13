@@ -19,10 +19,12 @@ public partial class GameHeaderPanel
     private readonly ILocalSettingsService _localSettingsService = App.GetService<ILocalSettingsService>();
     private readonly IStaffService _staffService = App.GetService<IStaffService>();
     private Galgame? _lastGame;
+    private readonly ObservableCollection<GameHeaderPanelStaffList> _staffListSource = new();
 
     public GameHeaderPanel()
     {
         InitializeComponent();
+        StaffList.ItemsSource = _staffListSource;
     }
 
     protected async override void Update()
@@ -33,16 +35,26 @@ public partial class GameHeaderPanel
             {
                 if (_lastGame is not null) 
                     _lastGame.HeaderImagePath.OnValueChanged -= HeaderImagePathOnOnValueChanged;
+                _staffListSource.Clear();
                 return;
             }
             _lastGame = Game;
             Game.HeaderImagePath.OnValueChanged += HeaderImagePathOnOnValueChanged;
+
+            if (File.Exists(Game.HeaderImagePath.Value))
+            {
+                // 如果存在背景图，则为内容添加上边距
+                ContentRoot.Margin = new Thickness(0, 20, 0, 0);
+                
+                // 如果用户设置了"只在没有背景图时显示封面"，则隐藏封面
+                if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground) is true)
+                    Cover.Visibility = Visibility.Collapsed;
+            }
+
+            // 不论背景图是否存在，如果用户设置中禁用了封面图显示，则隐藏封面
             if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage) is false)
                 Cover.Visibility = Visibility.Collapsed;
 
-            if (File.Exists(Game.HeaderImagePath.Value))
-                ContentRoot.Margin = new Thickness(0, 20, 0, 0);
-        
             List<(Career career, string settingKey)> careerSettings =
             [
                 (Career.Painter, KeyValues.GalgamePageNewLayout_ShowPainter),
@@ -51,7 +63,7 @@ public partial class GameHeaderPanel
                 (Career.Musician, KeyValues.GalgamePageNewLayout_ShowMusician)
             ];
 
-            ObservableCollection<GameHeaderPanelStaffList> list = [];
+            _staffListSource.Clear();
             foreach (var (career, settingKey) in careerSettings)
             {
                 if (!await _localSettingsService.ReadSettingAsync<bool>(settingKey)) continue;
@@ -59,9 +71,8 @@ public partial class GameHeaderPanel
                 List<Staff> tmp = _staffService.GetStaffs(Game).Where(s => (s.GetRelation(Game) ?? []).Contains(career))
                     .ToList();
                 if (tmp.Count == 0) continue;
-                list.Add(new GameHeaderPanelStaffList(career, tmp));
+                _staffListSource.Add(new GameHeaderPanelStaffList(career, tmp));
             }
-            StaffList.ItemsSource = list;
         }
         catch (Exception e)
         {

@@ -53,7 +53,21 @@ public class NavigationViewService : INavigationViewService
         return null;
     }
 
-    private void OnBackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) => _navigationService.GoBack();
+    private void OnBackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+    {
+        // 检查当前页面是否为库页面
+        if (_navigationService.Frame?.Content is Microsoft.UI.Xaml.Controls.Page page && 
+            page.DataContext is LibraryViewModel viewModel && 
+            viewModel.IsBackEnabled)
+            {
+                // 如果是库页面且可以返回上级，则调用库视图模型的Back方法
+                viewModel.Back();
+                return;
+            }
+            
+        // 其他页面或无法在库中返回上级时，执行常规的导航返回
+        _navigationService.GoBack();
+    }
 
     private void OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {

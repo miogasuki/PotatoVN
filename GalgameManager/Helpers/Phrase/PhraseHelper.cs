@@ -1,124 +1,155 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
+﻿using System.Reflection;
+using GalgameManager.Enums;
+using GalgameManager.Models;
+using NugetPackage;
+using PotatoDBMapper.Models;
 using SQLite;
+using Windows.Storage;
 
 namespace GalgameManager.Helpers.Phrase;
 
 public static class PhraseHelper
 {
     private const string DbFile = @"Assets\Data\vn_mapper.db";
-    private static bool _init;
-    private static SQLiteAsyncConnection? _db;
+    private static VnDbMapper? _vnDbMapper;
+    private static Task? _unloadDbTask;
+    private static bool _isUsing;
 
     private static void Init()
     {
+        if (_vnDbMapper is not null) return;
         Assembly assembly = Assembly.GetExecutingAssembly();
         var file = Path.Combine(Path.GetDirectoryName(assembly.Location)!, DbFile);
         if (!File.Exists(file)) return;
-        _db = new SQLiteAsyncConnection(file);
-        _init = true;
-    }
-
-    public static async Task<int?> TryGetVndbIdAsync(string name)
-    {
-        if (_init == false) Init();
-        if (_db is null) return null;
-        List<TitleModel>? games = await _db.Table<TitleModel>().ToListAsync();
-        int? result = null, minDis = int.MaxValue;
-        await Task.Run(() =>
-        {
-            foreach (TitleModel game in games.Where(g => g.Title!.JaroWinkler(name) > 0.5))
-                if (game.Title is not null && name.Levenshtein(game.Title) < minDis)
+        _vnDbMapper = new VnDbMapper();
+        _vnDbMapper.Init(file);
+        if (_unloadDbTask is not null)
+            _unloadDbTask = Task.Run(async () =>
+            {
+                do
                 {
-                    minDis = name.Levenshtein(game.Title);
-                    result = game.VndbId;
-                    if (minDis == 0) break;
-                }
-        });
-        return minDis < 1 ? result : null;
+                    await Task.Delay(1000 * 60 * 5); // 5 minutes
+                    if (_isUsing) continue;
+                    _vnDbMapper.Dispose();
+                    _vnDbMapper = null;
+                    _unloadDbTask = null;
+                }while (_vnDbMapper is not null);
+            });
     }
 
-    public static async Task<int?> TryGetBgmIdAsync(string name)
+    public static async Task<int?> TryGetVndbIdAsync(string name) =>
+        await TryGetMapAsync(name) is { } mapModel ? mapModel.VndbId : null;
+
+    public static async Task<int?> TryGetBgmIdAsync(string name) =>
+        await TryGetMapAsync(name) is { } mapModel ? mapModel.BgmId : null;
+    
+    public static async Task<int?> TryGetSteamIdAsync(string name) =>
+        await TryGetMapAsync(name) is { } mapModel ? mapModel.SteamId : null;
+
+    public static async Task<MapModel?> TryGetMapAsync(Galgame game)
     {
-        if(_init == false) Init();
-        if (_db is null) return null;
-        var vndbId = await TryGetVndbIdAsync(name);
-        if (vndbId is null) return null;
-        MapModel result = await _db.FindAsync<MapModel>(vndbId);
-        if(result is not null && result.BgmDistance < 3)
-            return result.BgmId;
+        _isUsing = true;
+        Init();
+        MapModel? result = null;
+        if (!string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) 
+            result ??= await _vnDbMapper!.TryGetMapAsync(VndbPhraser.GetId(game.Ids[(int)RssType.Vndb]!));
+        if (!string.IsNullOrEmpty(game.Ids[(int)RssType.Bangumi]))
+            result ??= (await _vnDbMapper!.TryGetMapsWithBgmId(Convert.ToInt32(game.Ids[(int)RssType.Bangumi])))
+                .FirstOrDefault(map => map.BgmSimilarity >= 0.95);
+        if (!string.IsNullOrEmpty(game.Name.Value))
+            result ??= await TryGetMapAsync(game.Name.Value);
+        _isUsing = false;
+        return result;
+    }
+    
+    private static async Task<MapModel?> TryGetMapAsync(string name)
+    {
+        _isUsing = true;
+        Init();
+        List<(MapModel model, double similarity)> result = await _vnDbMapper!.TryGetMapsWithName(name, 0.9);
+        _isUsing = false;
+        result.Sort((x, y) => x.similarity.CompareTo(y.similarity));
+        if (result.Count > 0) return result[^1].model;
         return null;
     }
+}
 
-    [Table("title")]
-    private class TitleModel
+public static class ExVndb
+{
+    private const string DbFile = @"Assets\Data\ex-vndb.db";
+    private const string LocalDbFile = "ex-vndb.db";
+    private static SQLiteAsyncConnection? _db;
+    private static Task? _unloadDbTask;
+    private static bool _isUsing;
+
+    private static void Init()
     {
-        public int VndbId
+        if (_db is not null) return;
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        var sourceFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, DbFile);
+        
+        // 获取LocalState文件夹路径
+        var localStateFolder = ApplicationData.Current.LocalFolder.Path;
+        var localDbPath = Path.Combine(localStateFolder, LocalDbFile);
+        
+        // 如果LocalState中不存在数据库文件，则从安装目录复制
+        if (!File.Exists(localDbPath) && File.Exists(sourceFile))
         {
-            get;
-            set;
+            try
+            {
+                File.Copy(sourceFile, localDbPath, true);
+            }
+            catch (Exception)
+            {
+                // 如果复制失败，尝试直接使用源文件
+                if (File.Exists(sourceFile))
+                    _db = new SQLiteAsyncConnection(sourceFile);
+                return;
+            }
         }
-
-        [PrimaryKey]
-        public string? Title
+        
+        // 使用LocalState文件夹中的数据库
+        if (File.Exists(localDbPath))
         {
-            get;
-            set;
-        }
-
-        public static bool operator ==(TitleModel x, TitleModel y)
-        {
-            return x.VndbId == y.VndbId && x.Title == y.Title;
-        }
-
-        public static bool operator !=(TitleModel x, TitleModel y)
-        {
-            return !(x == y);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is TitleModel titleModel)
-                return this == titleModel;
-            return false;
-        }
-
-        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(VndbId, Title);
+            _db = new SQLiteAsyncConnection(localDbPath);
+            
+            if (_unloadDbTask is not null)
+                _unloadDbTask = Task.Run(async () =>
+                {
+                    do
+                    {
+                        await Task.Delay(1000 * 60 * 5); // 5 minutes
+                        if (_isUsing) continue;
+                        await _db.CloseAsync();
+                        _db = null;
+                        _unloadDbTask = null;
+                    }while (_db is not null);
+                });
         }
     }
-
-    [Table("map")]
-    private class MapModel
+    
+    public static async Task<ExVn?> TryGetExVnAsync(string id)
     {
-        [PrimaryKey, AutoIncrement]
-        public int VndbId
-        {
-            get;
-            set;
-        }
-
-        public int BgmId
-        {
-            get;
-            set;
-        }
-
-        public int BgmDistance
-        {
-            get;
-            set;
-        } = int.MaxValue;
-
-        public MapModel(int vndbId)
-        {
-            VndbId = vndbId;
-        }
-
-        public MapModel()
-        {
-        }
+        _isUsing = true;
+        Init();
+        ExVn? result = await _db!.Table<ExVn>().Where(v => v.Id == id).FirstOrDefaultAsync();
+        _isUsing = false;
+        return result;
+    }
+    
+    [Table("Vns")]
+    public class ExVn
+    {
+        [MaxLength(50)]
+        public string Id { get; set; } = null!;
+    
+        [MaxLength(50)]
+        public string? BestHeaderImage { get; set; }
+    
+        [MaxLength(50)]
+        public string? AlternativeHeaderImage { get; set; }
+    
+        [MaxLength(3)]
+        public string? HeaderImageVersion { get; set; }
     }
 }

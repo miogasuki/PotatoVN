@@ -87,6 +87,15 @@ public static class FileHelper
         return await localFolder.CreateFolderAsync(folderType.ToString(),
             CreationCollisionOption.OpenIfExists);
     }
+    
+    /// <summary>
+    /// 去除文件名中不合法的字符
+    /// </summary>
+    public static string RemoveInvalidFileNameChars(string fileName)
+    {
+        var invalidChars = Path.GetInvalidFileNameChars();
+        return invalidChars.Aggregate(fileName, (current, c) => current.Replace(c, '_'));
+    }
 
     public enum FolderType
     {

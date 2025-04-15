@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using Microsoft.UI.Xaml.Controls;
@@ -19,6 +20,40 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty] private string? _title;
     [ObservableProperty] private bool _infoPageBadgeVisibility;
     [ObservableProperty] private int _infoPageBadgeCount;
+
+    partial void OnSelectedChanged(object? value)
+    {
+        // 当Selected属性变化时，通知绑定系统SelectedPageTitle也发生了变化
+        OnPropertyChanged(nameof(SelectedPageTitle));
+    }
+    public string? SelectedPageTitle
+    {
+        get
+        {
+            if (Selected is NavigationViewItem navigationViewItem)
+            {
+                // 导航项的 Content 是一个 Grid
+                if (navigationViewItem.Content is Grid grid)
+                {
+                    // 找到 Grid 中的 TextBlock
+                    foreach (var child in grid.Children)
+                    {
+                        if (child is TextBlock textBlock)
+                        {
+                            return textBlock.Text;
+                        }
+                    }
+                }
+                // 对于隐藏的导航项，可能没有使用 Grid 结构
+                else if (navigationViewItem.Content is string text)
+                {
+                    return text;
+                }
+            }
+            return null;
+        }
+    }
+
 
     public INavigationService NavigationService
     {

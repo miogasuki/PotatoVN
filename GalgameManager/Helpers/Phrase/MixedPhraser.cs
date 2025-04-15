@@ -63,7 +63,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
             {
                 Galgame game = new() { Name = galgame.Name };
                 game.RssType = phraserType;
-                game.Id = galgame.Ids[(int)phraserType];
+                game.Ids = (string?[])galgame.Ids.Clone();
                 phraserTasks[phraserType] = phraser.GetGalgameInfo(game);
             }
         }
@@ -280,12 +280,8 @@ public class MixedPhraserOrder
     public ObservableCollection<RssType> TagsOrder { get; set; } = new();
     public ObservableCollection<RssType> StaffOrder { get; set; } = new();
 
-    public MixedPhraserOrder SetToDefault()
+    public MixedPhraserOrder SetToDefault(bool isChineseCulture = true)
     {
-        LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
-        bool isChineseCulture = language == LanguageEnum.ChineseSimplified ||
-                                (language == LanguageEnum.Auto &&
-                                 System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
 
         if (isChineseCulture)
         {

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using GalgameManager.Contracts.BgTasks;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
@@ -69,18 +70,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
         void OnGameParsed(Galgame game)
         {
-            if (!LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result) return;
-            var isNew = false;
-            GetGalgameCharactersFromRssTask? task =
-                _bgTaskService!.GetBgTask<GetGalgameCharactersFromRssTask>(string.Empty);
-            if (task is null)
-            {
-                task = new GetGalgameCharactersFromRssTask();
-                isNew = true;
-            }
-            task.AddGalgame(game);
-            if (isNew)
-                _ = _bgTaskService.AddBgTask(task);
+            if (LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result)
+                _ = ParseGalInfoAsync(game, GameParseType.Character);
+            _ = ParseGalInfoAsync(game, GameParseType.HeaderImage);
         }
     }
     
@@ -238,6 +230,29 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 throw new PvnException("Canceled".GetLocalized());
         }
         return result;
+    }
+
+    public async Task<Galgame> ParseGalInfoAsync(Galgame galgame, GameParseType type, RssType rssType = RssType.None)
+    {
+        await Task.CompletedTask; //预留异步坑位
+        if (type.HasFlag(GameParseType.HeaderImage))
+            AddGameToBgTask<GetHeaderFromRssTask>();
+        if (type.HasFlag(GameParseType.Character))
+            AddGameToBgTask<GetGalgameCharactersFromRssTask>();
+        return galgame;
+
+        void AddGameToBgTask<TBgTask>() where TBgTask : BgTaskBase, IGameProcessQueue, new()
+        {
+            var isNew = false;
+            TBgTask? task = _bgTaskService.GetBgTask<TBgTask>(string.Empty);
+            if (task is null)
+            {
+                task = new TBgTask();
+                isNew = true;
+            }
+            task.AddGalgame(galgame);
+            if (isNew) _ = _bgTaskService.AddBgTask(task);
+        }
     }
 
     public async Task ExportAsync(Action<string, int, int>? progress)
@@ -694,9 +709,16 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// </summary>
     private async Task<VndbPhraserData> GetVndbData()
     {
+        LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+        bool _isChineseCulture = language == LanguageEnum.ChineseSimplified ||
+                                (language == LanguageEnum.Auto &&
+                                 System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
+
         VndbPhraserData data = new()
         {
-            Token = (await LocalSettingsService.ReadSettingAsync<VndbAccount>(KeyValues.VndbAccount))?.Token
+            Token = (await LocalSettingsService.ReadSettingAsync<VndbAccount>(KeyValues.VndbAccount))?.Token,
+            IsChineseCulture = _isChineseCulture
+
         };
         return data;
     }
@@ -735,7 +757,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             IEnumerable<PropertyInfo> properties = orders.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.PropertyType == typeof(ObservableCollection<RssType>));
-            MixedPhraserOrder defOrder = new MixedPhraserOrder().SetToDefault();
+            
+            LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+            var isChineseCulture = language == LanguageEnum.ChineseSimplified ||
+                                    (language == LanguageEnum.Auto &&
+                                        System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
+
+            MixedPhraserOrder defOrder = new MixedPhraserOrder().SetToDefault(isChineseCulture);
             foreach (PropertyInfo prop in properties)
             {
                 ObservableCollection<RssType> order = (ObservableCollection<RssType>)prop.GetValue(orders)!;

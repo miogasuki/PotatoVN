@@ -65,7 +65,11 @@ public class VndbVn
     public List<VnStaff>? Staff { get; set; }
     // Only with Va
     public List<VnVa>? Va { get; set; }
-    
+    // Only with screenshots
+    public List<VndbImage>? Screenshots { get; set; }
+    // Only with relations
+    public List<VndbVn>? Relations { get; set; }
+
     public enum VnLenth
     {
         VeryShort = 1,

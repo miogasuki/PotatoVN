@@ -131,6 +131,9 @@
   <data name="Shell_Home.Content" xml:space="preserve">
     <value>游戏</value>
   </data>
+  <data name="Shell_Home_Text.Text" xml:space="preserve">
+    <value>游戏</value>
+  </data>
   <data name="Settings_Main.Text" xml:space="preserve">
     <value>Main</value>
   </data>
@@ -162,6 +165,9 @@
     <value>https://github.com/GoldenPotato137/GalgameManager/blob/main/PrivacyPolicy.md</value>
   </data>
   <data name="Shell_Library.Content" xml:space="preserve">
+    <value>游戏库</value>
+  </data>
+  <data name="Shell_LibraryText.Text" xml:space="preserve">
     <value>游戏库</value>
   </data>
   <data name="Shell_GalgameSetting.Content" xml:space="preserve">
@@ -252,7 +258,7 @@
     <value>信息源</value>
   </data>
   <data name="SettingsPage_RssDescription" xml:space="preserve">
-    <value>选择galgame信息默认获取源</value>
+    <value>选择默认的galgame信息数据来源</value>
   </data>
   <data name="SettingsPage_Rss_BgmPlaceholder" xml:space="preserve">
     <value>输入你的个人令牌，在这里获得:https://next.bgm.tv/demo/access-token/create，不输入的话部分R18游戏信息无法获取哦</value>
@@ -264,10 +270,10 @@
     <value>从信息源获取信息有关的设置</value>
   </data>
   <data name="SettingsPage_Download_OverrideName.Title" xml:space="preserve">
-    <value>覆盖名字</value>
+    <value>显示来自信息源的游戏名称</value>
   </data>
   <data name="SettingsPage_Download_OverrideName.Description" xml:space="preserve">
-    <value>是否将信息源获取到的galgame名字覆盖本地名字</value>
+    <value>使用来自信息源的游戏名覆盖游戏文件夹的名称</value>
   </data>
   <data name="SettingsPage_CloudSyncTitle" xml:space="preserve">
     <value>云同步</value>
@@ -341,10 +347,10 @@
     <value>重置exe路径？</value>
   </data>
   <data name="SettingsPage_Start_AutoStartGame.Title" xml:space="preserve">
-    <value>启动游戏</value>
+    <value>任务栏快速启动游戏</value>
   </data>
   <data name="SettingsPage_Start_AutoStartGame.Description" xml:space="preserve">
-    <value>在任务栏右键图标选中游戏时是否直接启动游戏</value>
+    <value>在任务栏右键菜单选择游戏时直接启动（跳过确认步骤）</value>
   </data>
   <data name="SettingsPage_LibraryTitle" xml:space="preserve">
     <value>游戏库</value>
@@ -356,7 +362,7 @@
     <value>递归搜索子目录</value>
   </data>
   <data name="SettingsPage_Library_SearchSubPathDescription" xml:space="preserve">
-    <value>是否要递归搜索子目录，如果不选中则只搜索游戏库根目录的子文件夹</value>
+    <value>启用后将递归搜索所有子目录；否则只查找游戏库根目录下的一级文件夹。</value>
   </data>
   <data name="SettingsPage_Library_SearchSubPathDepth" xml:space="preserve">
     <value>递归搜索深度</value>
@@ -365,8 +371,8 @@
     <value>限制递归搜索子目录的深度</value>
   </data>
   <data name="SettingsPage_Library_NameDescription" xml:space="preserve">
-    <value>本软件会用正则表达式匹配游戏文件夹名字，并取选定的匹配子串作游戏名。
-不了解正则表达式的用户可以理解为：本软件会把游戏文件夹名字当做游戏名字。</value>
+  <value>下面为正则表达式的高级功能，如果不了解请保持默认设置
+本软件会用正则表达式匹配游戏文件夹名字，并取选定的匹配子串作游戏名。</value>
   </data>
   <data name="SettingsPage_Library_SearchRegex" xml:space="preserve">
     <value>正则表达式</value>
@@ -404,6 +410,9 @@
   <data name="Shell_Help.Content" xml:space="preserve">
     <value>帮助</value>
   </data>
+  <data name="Shell_HelpText.Text" xml:space="preserve">
+    <value>帮助</value>
+  </data>
   <data name="SettingsPage_RepositoryLink.NavigateUri" xml:space="preserve">
     <value>https://github.com/GoldenPotato137/GalgameManager</value>
   </data>
@@ -423,7 +432,7 @@
     <value>正在从网络上获取最新FAQ中</value>
   </data>
   <data name="HelpPage_Website.Label" xml:space="preserve">
-    <value>打开官网获取更多帮助</value>
+    <value>在浏览器中打开</value>
   </data>
   <data name="HelpPage_NewFeature.Label" xml:space="preserve">
     <value>新功能建议</value>
@@ -445,10 +454,10 @@
     <value>分钟</value>
   </data>
   <data name="SettingsPage_Theme_FixHorizontalPicture.Title" xml:space="preserve">
-    <value>修复主页水平图片</value>
+    <value>自动裁切封面图</value>
   </data>
   <data name="SettingsPage_Theme_FixHorizontalPicture.Description" xml:space="preserve">
-    <value>是否将横向显示的封面图裁剪为竖直的</value>
+    <value>启用后将自动裁剪所有封面图成竖直样式，确保统一显示风格</value>
   </data>
   <data name="Back.Label" xml:space="preserve">
     <value>回到上个界面</value>
@@ -457,7 +466,10 @@
     <value>删除库</value>
   </data>
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content" xml:space="preserve">
-    <value>删除库会把库中的所有游戏都取消托管哦？</value>
+    <value>删除库会删除子库，并取消托管所有游戏</value>
+  </data>
+  <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_RemoveFromLibrary" xml:space="preserve">
+    <value>一并从游戏库中移除游戏</value>
   </data>
   <data name="LibraryPage_DeleteFolder.Text" xml:space="preserve">
     <value>删除游戏库</value>
@@ -478,13 +490,15 @@
     <value>元数据备份</value>
   </data>
   <data name="SettingsPage_Library_MetaBackupDescription" xml:space="preserve">
-    <value>是否要在每个游戏文件夹下备份游戏信息数据，如不选中则数据只保存在应用数据文件夹中</value>
+    <value>选择是否在游戏文件夹内备份游戏信息数据：
+启用：在游戏文件夹内创建备份文件（.PotatoVN文件夹）
+禁用：数据仅保存在软件内部，可以通过数据导入导出功能手动备份</value>
   </data>
   <data name="SettingsPage_Library_BackupNow.Title" xml:space="preserve">
     <value>备份所有游戏信息</value>
   </data>
   <data name="SettingsPage_Library_BackupNow.Description" xml:space="preserve">
-    <value>开启备份后旧有游戏需要点击按钮手动备份一次，之后所有修改会自动备份</value>
+    <value>首次启用备份功能时，需要手动执行一次完整备份，后续修改将自动同步</value>
   </data>
   <data name="SettingsPage_Library_MetaBackupProgress" xml:space="preserve">
     <value>正在保存：</value>
@@ -511,10 +525,10 @@
     <value>下载Bangumi游玩状态</value>
   </data>
   <data name="SettingsPage_Library_IgnoreFetchResult.Title" xml:space="preserve">
-    <value>忽略游戏查询结果</value>
+    <value>将所有扫描到的游戏加入游戏库</value>
   </data>
   <data name="SettingsPage_Library_IgnoreFetchResult.Description" xml:space="preserve">
-    <value>扫描库时是否需要在信息源中查询到对应的游戏才添加入库</value>
+    <value>即使未在信息源中找到匹配信息，仍将游戏添加到库中</value>
   </data>
   <data name="UpdateContentPage_Title.Text" xml:space="preserve">
     <value>最近更新的内容</value>
@@ -526,6 +540,9 @@
     <value>欢迎</value>
   </data>
   <data name="Shell_Settings.Content" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Shell_SettingsText.Text" xml:space="preserve">
     <value>设置</value>
   </data>
   <data name="SettingsPage_UpdateNotification_Title" xml:space="preserve">
@@ -565,8 +582,8 @@
     <value>视觉小说数据库（英语：Visual Novel Database，简称VNDB）是一个面向视觉小说的网络数据库、wiki和网络英语论坛。截至2021年5月，视觉小说数据库一共收录了约29,000部视觉小说，其论坛部分也有约19万名注册用户。</value>
   </data>
   <data name="SettingsPage_Rss_Mixed_Description.Text" xml:space="preserve">
-    <value>Mixed为一个混合搜刮器，结合多个数据源的数据并取用最优值。目前结合了VNDB和Bangumi的数据。
-因为本搜刮器混合了多个数据源的数据，因此你需要为每个源配置相关的设置。</value>
+    <value>Mixed为一个混合搜刮器，结合多个数据源的数据并取用最优值。目前结合了VNDB,Bangumi和Ymgal的数据。
+由于涉及多个数据源，你需要为每个源配置相关的设置。</value>
   </data>
   <data name="SettingsPage_Theme_Color.Text" xml:space="preserve">
     <value>应用主题</value>
@@ -607,6 +624,9 @@
   <data name="Shell_Category.Content" xml:space="preserve">
     <value>分类</value>
   </data>
+  <data name="Shell_CategoryText.Text" xml:space="preserve">
+    <value>分类</value>
+  </data>
   <data name="CategoryPage_Category_Edit.Text" xml:space="preserve">
     <value>编辑分类</value>
   </data>
@@ -632,13 +652,13 @@
     <value>自动分类</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>是否自动将游戏分类按照开发商及游玩状态分类</value>
+    <value>启用后自动按开发商和游玩状态对游戏进行分类</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
     <value>分类所有游戏</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Description" xml:space="preserve">
-    <value>开启分类后旧有游戏需要点击按钮手动分类一次，之后添加游戏会自动分类</value>
+    <value>首次启用'自动分类'功能后需手动分类现有游戏，之后新增游戏将自动分类</value>
   </data>
   <data name="SettingsPage_Start.SettingTitle" xml:space="preserve">
     <value>启动</value>
@@ -647,7 +667,7 @@
     <value>与应用启动行为有关的设置</value>
   </data>
   <data name="SettingsPage_Start_Page.Description" xml:space="preserve">
-    <value>设置打开应用后显示的界面</value>
+    <value>设置应用启动后显示的初始界面</value>
   </data>
   <data name="SettingsPage_Start_Page.Title" xml:space="preserve">
     <value>启动页</value>
@@ -686,10 +706,10 @@
     <value>分类所有游戏</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
-    <value>身份验证类型</value>
+    <value>身份验证</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Description" xml:space="preserve">
-    <value>设置应用启动时的身份验证类型</value>
+    <value>设置应用程序启动时的验证方式</value>
   </data>
   <data name="AuthenticateUserMessage" xml:space="preserve">
     <value>为安全起见，PotatoVN 需要验证你的身份</value>
@@ -725,10 +745,10 @@
     <value>游玩状态</value>
   </data>
   <data name="SettingsPage_Download_OverrideNameWithChinese.Description" xml:space="preserve">
-    <value>是否优先使用获取到的galgame中文名覆盖本地名字</value>
+    <value>如果信息源存在游戏的中文名，优先使用中文名来覆盖</value>
   </data>
   <data name="SettingsPage_Download_OverrideNameWithChinese.Title" xml:space="preserve">
-    <value>用中文名覆盖名字</value>
+    <value>优先显示中文名称</value>
   </data>
   <data name="BgmPhraser_UploadAsync_UnAuthorized" xml:space="preserve">
     <value>尚未登录，需要在设置中登录Bangumi账号</value>
@@ -767,7 +787,7 @@
     <value>下载游玩状态</value>
   </data>
   <data name="SettingsPage_Download_SyncPlayStatusWhenPhrasing.Description" xml:space="preserve">
-    <value>是否在获取信息时下载游玩状态（需登录第三方账号）</value>
+    <value>从信息源获取信息时同时下载游玩状态（需登录第三方账号）</value>
   </data>
   <data name="NoName" xml:space="preserve">
     <value>阿~卡~林~</value>
@@ -791,7 +811,7 @@
     <value>同步状态</value>
   </data>
   <data name="GalgamePage_SyncStatus_Bangumi.Text" xml:space="preserve">
-    <value>从Bgm同步游玩状态</value>
+    <value>从Bangumi同步游玩状态</value>
   </data>
   <data name="BgmPhraser_DownloadAsync_Success" xml:space="preserve">
     <value>已成功同步游玩状态</value>
@@ -800,7 +820,7 @@
     <value>正在同步游玩状态</value>
   </data>
   <data name="SettingsPage_Download_SyncBgmPlayStatusNow.Title" xml:space="preserve">
-    <value>从Bgm获取游玩状态</value>
+    <value>从Bangumi获取游玩状态</value>
   </data>
   <data name="SettingsPage_Download_SyncBgmPlayStatusNow.Description" xml:space="preserve">
     <value>立刻从Bangumi获取游玩状态，需登录Bangumi账号</value>
@@ -1019,10 +1039,10 @@
     <value>与游玩游戏相关的设置</value>
   </data>
   <data name="SettingsPage_Game_RecordOnlyForeground.Title" xml:space="preserve">
-    <value>只记录前台游玩时间</value>
+    <value>仅记录活动游玩时间</value>
   </data>
   <data name="SettingsPage_Game_RecordOnlyForeground.Description" xml:space="preserve">
-    <value>游戏窗口不聚焦（最小化或在操作其他窗口）的时间不计入游玩时间</value>
+    <value>游戏窗口未激活时（最小化或在操作其他窗口）的时间不计入游玩时间</value>
   </data>
   <data name="Shell_SystemTray_Item1.Text" xml:space="preserve">
     <value>恢复窗口</value>
@@ -1052,7 +1072,7 @@
     <value>最小化至系统托盘</value>
   </data>
   <data name="SettingsPage_Other_CloseMode.Title" xml:space="preserve">
-    <value>关闭模式</value>
+    <value>应用关闭行为</value>
   </data>
   <data name="SettingsPage_Other_CloseMode.Description" xml:space="preserve">
     <value>选择按下关闭按钮后应用的行为</value>
@@ -1159,7 +1179,7 @@
   <data name="UpdateContentPage_Download_Success" xml:space="preserve">
     <value>已成功下载最新更新记录文档</value>
   </data>
-  <data name="SettingsPage_About_UpdateAvailable.Text" xml:space="preserve">
+  <data name="SettingsPage_About_UpdateAvailable.Content" xml:space="preserve">
     <value>有新版本 ヾ(✿ﾟ▽ﾟ)ノ</value>
   </data>
   <data name="GalgamePage_SelectThread.Label" xml:space="preserve">
@@ -1217,6 +1237,9 @@
     <value>支持拼音/罗马化日语搜索</value>
   </data>
   <data name="Shell_Account.Content" xml:space="preserve">
+    <value>账户</value>
+  </data>
+  <data name="Shell_AccountText.Text" xml:space="preserve">
     <value>账户</value>
   </data>
   <data name="PvnServerType_OfficialServer" xml:space="preserve">
@@ -1334,6 +1357,9 @@
     <value>下载PotatoVN用户头像中</value>
   </data>
   <data name="Shell_Info.Content" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  <data name="Shell_InfoText.Text" xml:space="preserve">
     <value>状态</value>
   </data>
   <data name="InfoPage_BgTask.SettingTitle" xml:space="preserve">
@@ -1646,10 +1672,10 @@
     <value>点击确定后，PotatoVN将：</value>
   </data>
   <data name="SettingsPage_Theme_TimeAsHour.Title" xml:space="preserve">
-    <value>时间显示单位改为小时</value>
+    <value>时间单位显示为"小时+分钟"</value>
   </data>
   <data name="SettingsPage_Theme_TimeAsHour.Description" xml:space="preserve">
-    <value>将软件中所有时间显示改为"..h..m"而非"..分钟"</value>
+    <value>将时间显示从"分钟"转换为"小时+分钟"格式（例如：441分钟 → 7小时21分钟）</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_NewLayout.Text" xml:space="preserve">
     <value>游戏详情页使用新界面</value>
@@ -1913,7 +1939,7 @@
     <value>LocaleEmulator 可执行文件路径</value>
   </data>
   <data name="SettingsPage_Game_LocaleEmulator.Description" xml:space="preserve">
-    <value>设置LocaleEmulator的路径，用于转区运行游戏，请选择LEProc.exe</value>
+    <value>设置LocaleEmulator的路径，用于转区运行游戏，请选择LEProc.exe文件</value>
   </data>
   <data name="SettingsPage_Game_LocaleEmulator_PathDescription.Text" xml:space="preserve">
     <value>当前路径：</value>
@@ -1955,6 +1981,9 @@
   <data name="Shell_MultiStream.Content" xml:space="preserve">
     <value>主页</value>
   </data>
+  <data name="Shell_MultiStreamText.Text" xml:space="preserve">
+    <value>主页</value>
+  </data>
   <data name="MultiStreamPage_AllSources" xml:space="preserve">
     <value>游戏库</value>
   </data>
@@ -1981,6 +2010,12 @@
   </data>
   <data name="GalgameSourcePage_Setting_AutoScan.Description" xml:space="preserve">
     <value>是否在PotatoVN启动时自动扫描该库内的游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_IncludeSubSources.Title" xml:space="preserve">
+    <value>显示子库的游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_IncludeSubSources.Description" xml:space="preserve">
+    <value>是否在下面的游戏列表中显示子库的游戏</value>
   </data>
   <data name="ResetToDefault.Content" xml:space="preserve">
     <value>恢复到默认值</value>
@@ -2218,11 +2253,14 @@
   <data name="Shell_AnnualReport.Content" xml:space="preserve">
     <value>年度报告</value>
   </data>
+  <data name="Shell_AnnualReportText.Text" xml:space="preserve">
+    <value>年度报告</value>
+  </data>
   <data name="SettingsPage_Library_RemoveAllBackup.Title" xml:space="preserve">
-    <value>移除所有的.PotatoVN备份文件</value>
+    <value>清理备份文件</value>
   </data>
   <data name="SettingsPage_Library_RemoveAllBackup.Description" xml:space="preserve">
-    <value>删除所有游戏目录下的.PotatoVN备份文件（只是备份，不影响当前数据）</value>
+    <value>删除所有游戏目录下的.PotatoVN备份文件（仅移除备份副本，不影响当前使用中的数据）</value>
   </data>
   <data name="SettingsPage_Library_RemoveMetaBackupProgress" xml:space="preserve">
     <value>正在删除 {0} 的.PotatoVN备份文件</value>
@@ -2282,10 +2320,10 @@
     <value>从数据源获取数据失败</value>
   </data>
   <data name="SettingsPage_Download_Character.Title" xml:space="preserve">
-    <value>获取游戏角色信息</value>
+    <value>下载游戏角色信息</value>
   </data>
   <data name="SettingsPage_Download_Character.Description" xml:space="preserve">
-    <value>是否在获取游戏信息时下载对应游戏的游戏角色信息</value>
+    <value>注意：同时下载大量游戏角色信息可能会导致API堵塞，这会导致需要更长时间才能完成下载</value>
   </data>
   <data name="Galgame_GetCharacterInfo_RunningTasks" xml:space="preserve">
     <value>还有{0}个游戏等待下载角色信息</value>
@@ -2297,10 +2335,10 @@
     <value>显示统计数据</value>
   </data>
   <data name="SettingsPage_Start_AutoStartOnLogin.Title" xml:space="preserve">
-    <value>系统启动后自动启动软件</value>
+    <value>开机自启</value>
   </data>
   <data name="SettingsPage_Start_AutoStartOnLogin.Description" xml:space="preserve">
-    <value>是否在windows启动后（登录后）自动启动PotatoVN</value>
+    <value>在windows启动后（登录后）自动启动PotatoVN</value>
   </data>
   <data name="SettingsPage_Start_MinToTray.Title" xml:space="preserve">
     <value>最小化到系统托盘</value>
@@ -2621,10 +2659,16 @@
     <value>窗口背景材质</value>
   </data>
   <data name="SettingsPage_Theme_WindowBackgroundMaterial_Description.Text" xml:space="preserve">
-    <value>设置应用呈现的背景色，在部分系统中可能没有效果</value>
+    <value>设置软件窗口的背景样式，在部分系统中可能没有效果</value>
   </data>
   <data name="GalgamePage_ManageLayout.Label" xml:space="preserve">
     <value>管理游戏页面布局</value>
+  </data>
+  <data name="GalgameSourcePage_IncludeSubSources.OffContent" xml:space="preserve">
+      <value>不显示</value>    
+  </data>
+  <data name="GalgameSourcePage_IncludeSubSources.OnContent" xml:space="preserve">
+      <value>显示</value>
   </data>
   <data name="LibraryPage_Root" xml:space="preserve">
     <value>根目录</value>
@@ -2637,5 +2681,17 @@
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowCover.Text" xml:space="preserve">
     <value>显示封面图</value>
+  </data>
+  <data name="GetHeaderFromRssTask_Title" xml:space="preserve">
+    <value>下载游戏横幅图任务</value>
+  </data>
+  <data name="GetHeaderFromRssTask_Progress_Title" xml:space="preserve">
+    <value>正在获取以下游戏header图：</value>
+  </data>
+  <data name="GetHeaderFromRssTask_Progress_Waiting" xml:space="preserve">
+    <value>还有{0}个游戏排队中</value>
+  </data>
+  <data name="QueueTaskBase_Empty" xml:space="preserve">
+    <value>已完成所有任务，等待新任务中</value>
   </data>
 </root>

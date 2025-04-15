@@ -28,6 +28,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private readonly IBgTaskService _bgTaskService;
     private readonly IInfoService _infoService;
     private readonly INavigationService _navigationService;
+    private readonly ILocalSettingsService _settingsService;
     
     private GalgameSourceBase? _item;
     public ObservableCollection<GalgameAndPath> Galgames { get; } = new();
@@ -53,6 +54,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private double _commandBarWidth;
     private double _pageWidth;
 
+    [ObservableProperty] private bool _includeSubSources;
+
     #region UI_STRING
 
     [ObservableProperty] private string _uiDownloadInfo = "GalgameFolderPage_DownloadInfo".GetLocalized();
@@ -76,10 +79,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             SetProperty(ref _item, value);
             if (value != null)
             {
-                foreach (GalgameAndPath g in value.Galgames)
-                {
-                    Galgames.Add(g);
-                }
+                LoadGames();
                 value.GalgamesChanged += ReloadGalgameList;
                 value.PropertyChanged += Save;
             }
@@ -88,13 +88,49 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
 
     public GalgameSourceViewModel(IGalgameSourceCollectionService dataCollectionService, 
         IGalgameCollectionService galgameService, IBgTaskService bgTaskService, IInfoService infoService, 
-        INavigationService navigationService)
+        INavigationService navigationService, ILocalSettingsService settingsService)
     {
         _sourceService = dataCollectionService;
         _galgameService = (GalgameCollectionService)galgameService;
         _bgTaskService = bgTaskService;
         _infoService = infoService;
         _navigationService = navigationService;
+        _settingsService = settingsService;
+    }
+
+    private void LoadGames()
+    {
+        Galgames.Clear();
+        if (_item == null) return;
+        
+        // 加载当前库中的游戏
+        foreach (GalgameAndPath g in _item.Galgames)
+        {
+            Galgames.Add(g);
+        }
+        
+        // 如果设置为包含子库，则递归加载所有子库中的游戏
+        if (IncludeSubSources)
+        {
+            LoadSubSourceGames(_item);
+        }
+    }
+
+    private void LoadSubSourceGames(GalgameSourceBase source)
+    {
+        foreach (var subSource in source.SubSources)
+        {
+            foreach (GalgameAndPath g in subSource.Galgames)
+            {
+                if (!Galgames.Any(existing => existing.Galgame == g.Galgame))
+                {
+                    Galgames.Add(g);
+                }
+            }
+            
+            // 递归加载子库的子库
+            LoadSubSourceGames(subSource);
+        }
     }
 
     private void ReloadGalgameList(Galgame game, bool isDeleted)
@@ -102,14 +138,46 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         if (_item == null) return;
         if (isDeleted && Galgames.FirstOrDefault(g => g.Galgame == game) is { } tmp)
             Galgames.Remove(tmp);
-        else if (!isDeleted && _item.GetPath(game) is {} path)
+        else if (!isDeleted)
         {
-            Galgames.Add(new GalgameAndPath(game, path));
+            // 检查游戏是在当前库还是子库中
+            var path = _item.GetPath(game);
+            if (path != null)
+            {
+                Galgames.Add(new GalgameAndPath(game, path));
+            }
+            else if (IncludeSubSources)
+            {
+                // 递归检查子库
+                CheckSubSourcesForGame(_item, game);
+            }
         }
+        // 更新UI
+        OnPropertyChanged(nameof(Galgames));
+    }
+
+    private bool CheckSubSourcesForGame(GalgameSourceBase source, Galgame game)
+    {
+        foreach (var subSource in source.SubSources)
+        {
+            var path = subSource.GetPath(game);
+            if (path != null)
+            {
+                Galgames.Add(new GalgameAndPath(game, path));
+                return true;
+            }
+            
+            if (CheckSubSourcesForGame(subSource, game))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void OnNavigatedTo(object parameter)
     {
+        IncludeSubSources = _settingsService.ReadSettingAsync<bool>(KeyValues.GalgameSourcePageShowSubSourceGames).Result;
         if (parameter is not string url) return;
         //TODO
         Item = _sourceService.GetGalgameSourceFromUrl(url);
@@ -407,5 +475,14 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         if (gameAndPath?.Galgame == null) return;
         var folder = await StorageFolder.GetFolderFromPathAsync(gameAndPath.Galgame.LocalPath);
         await Launcher.LaunchFolderAsync(folder);
+    }
+
+    partial void OnIncludeSubSourcesChanged(bool value)
+    {
+        if (_item != null)
+        {
+            _settingsService.SaveSettingAsync(KeyValues.GalgameSourcePageShowSubSourceGames, value);
+            LoadGames();
+        }
     }
 }

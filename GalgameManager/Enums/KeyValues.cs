@@ -7,7 +7,6 @@ public static class KeyValues
     public const string SortKeys = "sortKeys";
     public const string SortKeysAscending = "sortKeysAscending";
     public const string SearchChildFolder = "searchChildFolder";
-    public const string SearchChildFolderDepth = "searchChildFolderDepth";
     public const string IgnoreFetchResult = "ignoreFetchResult";
     public const string RegexPattern = "regexPattern";
     public const string RegexIndex = "regexIndex";
@@ -86,6 +85,7 @@ public static class KeyValues
     public const string GalgamePageNewLayout_ShowWriter = "galgamePageNewLayout_showWriter"; //bool, 游戏页是否显示剧本
     public const string GalgamePageNewLayout_ShowMusician = "galgamePageNewLayout_showMusician"; //bool, 游戏页是否显示音乐
     public const string GalgamePageNewLayout_CoverImage = "galgamePageNewLayout_coverImage"; //bool, 游戏页是否显示封面
+    public const string GalgameSourcePageShowSubSourceGames = "galgameSourcePageShowSubSourceGames"; //bool, 游戏源页面是否显示子源游戏
 
     //库页面
     public const string LibraryNavBar = "libraryNavBar"; //bool, 是否显示库页面的导航栏
@@ -107,6 +107,9 @@ public static class KeyValues
     public const string LastError = "lastError"; //string, 上次错误信息
     public const string Language = "language"; //string, 语言设置，en-US/zh-CN/zh-TW
     public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic
+    public const string UpdateType = "updateType"; //string, 更新类型，stable/beta
+    public const string UpdateUrl = "updateUrl"; //string, 更新地址，stable/beta
+
 
     //是否执行过某种升级, bool
     public const string DataStatus = "dataStatus"; //LocalSettingStatus, 用于描述某PotatoVN数据的状态
@@ -125,4 +128,5 @@ public static class KeyValues
     public const string BangumiOAuthState= "bangumiOAuthState"; //BgmAccount?, Bangumi账户, 若为null则未登录
     public const string GalgameFolders = "galgameFolders"; //旧游戏文件夹，仅用于升级
     public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
+    public const string SearchChildFolderDepth = "searchChildFolderDepth"; //int, 搜索子文件夹的深度，默认是0（不搜索），新版本改成智能搜索，不需要这个了
 }

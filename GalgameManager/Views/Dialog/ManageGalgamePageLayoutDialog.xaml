@@ -26,6 +26,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
 
@@ -88,19 +89,30 @@
                           IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
                           HorizontalAlignment="Right"/>
             
-            <!-- 单独选项：显示封面图 -->
+            <!-- 单独选项：显示背景图 -->
             <TextBlock Grid.Row="7" Grid.Column="0" 
-                       x:Uid="ManageGalgamePageLayoutDialog_ShowCover"
+                       x:Uid="ManageGalgamePageLayoutDialog_ShowBackground"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"/>
             <ToggleSwitch Grid.Row="7" Grid.Column="1"
+                          x:Name="GalgamePageNewLayout_ShowBackgroundToggle"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowBackground, Mode=TwoWay}"
+                          IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
+                          HorizontalAlignment="Right"/>
+            
+            <!-- 单独选项：显示封面图 -->
+            <TextBlock Grid.Row="8" Grid.Column="0" 
+                       x:Uid="ManageGalgamePageLayoutDialog_ShowCover"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            <ToggleSwitch Grid.Row="8" Grid.Column="1"
                           x:Name="GalgamePageNewLayout_ShowCoverToggle"
                           IsOn="{x:Bind GalgamePageNewLayout_ShowCover, Mode=TwoWay}"
                           IsEnabled="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay}"
                           HorizontalAlignment="Right"/>
                           
             <!-- 单独选项：在没有背景图时显示封面图 -->
-            <CheckBox Grid.Row="8" Grid.Column="0"
+            <CheckBox Grid.Row="9" Grid.Column="0"
                       x:Uid="ManageGalgamePageLayoutDialog_ShowCoverWhenNoBackground"
                       IsChecked="{x:Bind GalgamePageNewLayout_ShowCoverWhenNoBackground, Mode=TwoWay}"
                      IsEnabled="{x:Bind GalgamePageNewLayout_ShowCoverToggle.IsOn, Mode=OneWay}"

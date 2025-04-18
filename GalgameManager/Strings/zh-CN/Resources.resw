@@ -2520,6 +2520,9 @@
   <data name="ManageGalgamePageLayoutDialog_ShowMusician.Text" xml:space="preserve">
     <value>显示音乐</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
+    <value>显示背景图</value>
+  </data>
   <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
     <value>游戏信息</value>
   </data>

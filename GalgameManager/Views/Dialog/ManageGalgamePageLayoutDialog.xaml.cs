@@ -34,6 +34,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
     public bool GalgamePageNewLayout_ShowSeiyu { get; set; }
     public bool GalgamePageNewLayout_ShowWriter { get; set; }
     public bool GalgamePageNewLayout_ShowMusician { get; set; }
+    public bool GalgamePageNewLayout_ShowBackground { get; set; }
     public bool GalgamePageNewLayout_ShowCover { get; set; }
     public bool GalgamePageNewLayout_ShowCoverWhenNoBackground { get; set; }
 
@@ -57,6 +58,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         GalgamePageNewLayout_ShowSeiyu = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowSeiyu);
         GalgamePageNewLayout_ShowWriter = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowWriter);
         GalgamePageNewLayout_ShowMusician = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowMusician);
+        GalgamePageNewLayout_ShowBackground = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowBackground);
         GalgamePageNewLayout_ShowCover = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage);
         GalgamePageNewLayout_ShowCoverWhenNoBackground = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground);
     }
@@ -71,6 +73,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowSeiyu, GalgamePageNewLayout_ShowSeiyu);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowWriter, GalgamePageNewLayout_ShowWriter);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowMusician, GalgamePageNewLayout_ShowMusician);
+        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowBackground, GalgamePageNewLayout_ShowBackground);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_CoverImage, GalgamePageNewLayout_ShowCover);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground, GalgamePageNewLayout_ShowCoverWhenNoBackground);
 

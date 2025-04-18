@@ -41,14 +41,28 @@ public partial class GameHeaderPanel
             _lastGame = Game;
             Game.HeaderImagePath.OnValueChanged += HeaderImagePathOnOnValueChanged;
 
-            if (File.Exists(Game.HeaderImagePath.Value))
+            // 首先检查背景图是否应该显示（从设置中读取）
+            bool showBackground = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowBackground);
+
+            // 根据背景图显示设置和背景图是否存在来决定布局
+            if (showBackground && File.Exists(Game.HeaderImagePath.Value))
             {
-                // 如果存在背景图，则为内容添加上边距
+                // 如果启用背景图且背景图存在，则为内容添加上边距
                 ContentRoot.Margin = new Thickness(0, 20, 0, 0);
                 
                 // 如果用户设置了"只在没有背景图时显示封面"，则隐藏封面
                 if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground) is true)
                     Cover.Visibility = Visibility.Collapsed;
+                else
+                    Cover.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                // 如果背景图不显示或不存在，则不添加上边距
+                ContentRoot.Margin = new Thickness(0, 0, 0, 0);
+                
+                // 确保显示封面（除非用户明确设置为不显示封面）
+                Cover.Visibility = Visibility.Visible;
             }
 
             // 不论背景图是否存在，如果用户设置中禁用了封面图显示，则隐藏封面

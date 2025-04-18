@@ -478,10 +478,10 @@
     <value>下载游戏数据</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfo" xml:space="preserve">
-    <value>使用游戏ID下载选定游戏数据</value>
+    <value>使用游戏ID下载数据</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfoFromName.Label" xml:space="preserve">
-    <value>使用游戏名下载选定游戏数据</value>
+    <value>使用游戏名下载数据</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>搜索</value>

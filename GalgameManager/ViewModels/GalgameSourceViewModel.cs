@@ -51,6 +51,89 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private double _pageWidth;
 
     [ObservableProperty] private bool _includeSubSources;
+    
+    #region SORTING
+    // 为XAML绑定添加静态枚举值属性
+    public SortKeys NameSortKey => SortKeys.Name;
+    public SortKeys LastPlaySortKey => SortKeys.LastPlay;
+    public SortKeys DeveloperSortKey => SortKeys.Developer;
+    public SortKeys RatingSortKey => SortKeys.Rating;
+    public SortKeys ReleaseDateSortKey => SortKeys.ReleaseDate;
+    public SortKeys LastFetchInfoTimeSortKey => SortKeys.LastFetchInfoTime;
+    public SortKeys AddTimeSortKey => SortKeys.AddTime;
+
+    [ObservableProperty] private SortKeys _currentSortKey = SortKeys.Name;
+    [ObservableProperty] private bool _sortDescending = true;
+    
+    [RelayCommand]
+    private void Sort(SortKeys sortKey)
+    {
+        // 如果点击当前排序键，则切换排序方向
+        if (CurrentSortKey == sortKey)
+        {
+            SortDescending = !SortDescending;
+        }
+        else
+        {
+            CurrentSortKey = sortKey;
+        }
+        
+        ApplySorting();
+    }
+    
+    [RelayCommand]
+    private void ApplySorting()
+    {
+        // 创建一个新的AdvancedCollectionView来应用排序
+        var sortedGames = new List<GalgameAndPath>(Galgames);
+
+        // 根据当前排序键和方向应用排序
+        Comparison<GalgameAndPath> comparison = (x, y) =>
+        {
+            int result = 0;
+            switch (CurrentSortKey)
+            {
+                case SortKeys.Name:
+                    result = string.Compare(x.Galgame.Name.Value, y.Galgame.Name.Value, StringComparison.CurrentCultureIgnoreCase);
+                    break;
+                case SortKeys.LastPlay:
+                    result = DateTime.Compare(x.Galgame.LastPlayTime, y.Galgame.LastPlayTime);
+                    break;
+                case SortKeys.Developer:
+                    result = string.Compare(x.Galgame.Developer, y.Galgame.Developer, StringComparison.CurrentCultureIgnoreCase);
+                    break;
+                case SortKeys.Rating:
+                    result = x.Galgame.Rating.CompareTo(y.Galgame.Rating);
+                    break;
+                case SortKeys.ReleaseDate:
+                    result = DateTime.Compare(x.Galgame.ReleaseDate, y.Galgame.ReleaseDate);
+                    break;
+                case SortKeys.AddTime:
+                    result = DateTime.Compare(x.Galgame.AddTime, y.Galgame.AddTime);
+                    break;
+            }
+            
+            return SortDescending ? -result : result; // 如果是降序，则反转结果
+        };
+
+        // 应用排序
+        sortedGames.Sort(comparison);
+        
+        // 更新集合
+        Galgames.Clear();
+        foreach (var game in sortedGames)
+        {
+            Galgames.Add(game);
+        }
+
+        // 保存排序设置到本地设置
+        _ = Task.Run(async () =>
+        {
+            await _settingsService.SaveSettingAsync(KeyValues.LibrarySortKey, (int)CurrentSortKey);
+            await _settingsService.SaveSettingAsync(KeyValues.LibrarySortDescending, SortDescending);
+        });
+    }
+    #endregion
 
     #region UI_STRING
 
@@ -110,6 +193,9 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         {
             LoadSubSourceGames(_item);
         }
+        
+        // 应用排序
+        ApplySorting();
     }
 
     private void LoadSubSourceGames(GalgameSourceBase source)
@@ -150,6 +236,9 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         }
         // 更新UI
         OnPropertyChanged(nameof(Galgames));
+        
+        // 重新应用排序
+        ApplySorting();
     }
 
     private bool CheckSubSourcesForGame(GalgameSourceBase source, Galgame game)
@@ -174,6 +263,11 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     public void OnNavigatedTo(object parameter)
     {
         IncludeSubSources = _settingsService.ReadSettingAsync<bool>(KeyValues.GalgameSourcePageShowSubSourceGames).Result;
+        
+        // 加载排序设置
+        CurrentSortKey = (SortKeys)_settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
+        SortDescending = _settingsService.ReadSettingAsync<bool>(KeyValues.LibrarySortDescending).Result;
+        
         if (parameter is not string url) return;
         //TODO
         Item = _sourceService.GetGalgameSourceFromUrl(url);

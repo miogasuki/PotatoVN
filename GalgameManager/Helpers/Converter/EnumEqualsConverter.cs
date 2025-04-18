@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml.Data;
 using System;
 
-namespace GalgameManager.Converters
+namespace GalgameManager.Helpers.Converter
 {
     public class EnumEqualsConverter : IValueConverter
     {

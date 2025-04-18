@@ -19,7 +19,8 @@
     <Page.Resources>
         <converter:EnumToStringConverter x:Key="EnumStringConverter" />
         <converter:ImagePathConverter x:Key="ImagePathConverter" />
-        
+        <converter:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
+
         <MenuFlyout Placement="Right" x:Key="GameItemFlyout">
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Edit"
                            Command="{x:Bind ViewModel.EditGameCommand}"
@@ -106,6 +107,44 @@
                                   Command="{x:Bind ViewModel.GetInfoFromRssCommand}" 
                                   CommandParameter="True"
                                   AllowFocusOnInteraction="True"/>
+                    <!-- 添加排序按钮 -->
+                    <AppBarButton Icon="Sort" x:Uid="LibraryPage_Sort">
+                        <AppBarButton.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByName" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.NameSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Name}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByLastPlay" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.LastPlaySortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=LastPlay}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByDeveloper" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.DeveloperSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Developer}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByRating" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.RatingSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Rating}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByReleaseDate" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.ReleaseDateSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=ReleaseDate}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByAddTime" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.AddTimeSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=AddTime}"/>
+                                <MenuFlyoutSeparator/>
+                                <ToggleMenuFlyoutItem x:Uid="LibraryPage_SortDescending"
+                                                      Command="{x:Bind ViewModel.ApplySortingCommand}"
+                                                      IsChecked="{x:Bind ViewModel.SortDescending, Mode=TwoWay}"/>
+                            </MenuFlyout>
+                        </AppBarButton.Flyout>
+                        <AppBarButton.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="S"/>
+                        </AppBarButton.KeyboardAccelerators>
+                    </AppBarButton>
                     <CommandBar.SecondaryCommands>
                         <!-- 打开Log文件 -->
                         <AppBarButton x:Uid="GalgameFolderPage_Log" 

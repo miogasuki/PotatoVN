@@ -9,12 +9,12 @@
     xmlns:prefab="using:GalgameManager.Views.Prefab"
     xmlns:models="using:GalgameManager.Models"
     xmlns:behaviors="using:GalgameManager.Behaviors"
-    xmlns:converters="using:GalgameManager.Converters"
+    xmlns:converter="using:GalgameManager.Helpers.Converter"
     mc:Ignorable="d"
     x:Name="Page">
     
     <Page.Resources>
-        <converters:EnumEqualsConverter x:Key="EnumEqualsConverter" />
+        <converter:EnumEqualsConverter x:Key="EnumEqualsConverter" />
         <MenuFlyout Placement="Right" x:Key="FolderFlyout">
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditFolder"
                             Command="{x:Bind ViewModel.EditLibraryCommand}" CommandParameter="{Binding}"/>

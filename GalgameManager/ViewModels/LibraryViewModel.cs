@@ -91,7 +91,10 @@ public partial class LibraryViewModel(
 
         // 加载排序设置
         CurrentSortKey = (SortKeys)settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
-        SortDescending = settingsService.ReadSettingAsync<bool>(KeyValues.LibrarySortDescending).Result;
+        GameSortDescending = settingsService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending).Result;
+
+        CurrentFolderSortKey = (GalgameSourceSortKeys)settingsService.ReadSettingAsync<int>(KeyValues.LibraryFolderSortKey).Result;
+        FolderSortDescending = settingsService.ReadSettingAsync<bool>(KeyValues.LibraryFolderSortDescending).Result;
 
         Source = new AdvancedCollectionView(new ObservableCollection<IDisplayableGameObject>(), true);
         Source.Filter = s =>
@@ -515,7 +518,17 @@ public partial class LibraryViewModel(
     public SortKeys AddTimeSortKey => SortKeys.AddTime;
 
     [ObservableProperty] private SortKeys _currentSortKey = SortKeys.Name;
-    [ObservableProperty] private bool _sortDescending = true;
+    [ObservableProperty] private bool _gameSortDescending = true;
+
+    // 当前文件夹的排序键
+    [ObservableProperty] private GalgameSourceSortKeys _currentFolderSortKey = GalgameSourceSortKeys.Name;
+    [ObservableProperty] private bool _folderSortDescending = true;
+    // 为XAML绑定添加文件夹排序的静态枚举值属性
+    public GalgameSourceSortKeys LibraryNameSortKey => GalgameSourceSortKeys.Name;
+    public GalgameSourceSortKeys LibraryLastPlayedSortKey => GalgameSourceSortKeys.LastPlay;
+    public GalgameSourceSortKeys LibraryPathSortKey => GalgameSourceSortKeys.Path;
+    public GalgameSourceSortKeys LibrarySourceTypeSortKey => GalgameSourceSortKeys.SourceType;
+    public GalgameSourceSortKeys LibraryGalgameCountSortKey => GalgameSourceSortKeys.GalgameCount;
     
     [RelayCommand]
     private void Sort(SortKeys sortKey)
@@ -523,7 +536,7 @@ public partial class LibraryViewModel(
         // 如果点击当前排序键，则切换排序方向
         if (CurrentSortKey == sortKey)
         {
-            SortDescending = !SortDescending;
+            GameSortDescending = !GameSortDescending;
         }
         else
         {
@@ -532,41 +545,88 @@ public partial class LibraryViewModel(
         
         ApplySorting();
     }
+
+    [RelayCommand]
+    private void SortLibrary(GalgameSourceSortKeys sortKey)
+    {
+        // 如果点击当前排序键，则切换排序方向
+        if (CurrentFolderSortKey == sortKey)
+        {
+            FolderSortDescending = !FolderSortDescending;
+        }
+        else
+        {
+            CurrentFolderSortKey = sortKey;
+        }
+        
+        ApplySorting();
+    }
+    
     [RelayCommand]
     private void ApplySorting()
     {
+        // 应用游戏排序 - 保持不变
         Galgames.SortDescriptions.Clear();
 
         // 根据当前排序键和方向应用排序
-        var direction = SortDescending ? SortDirection.Descending : SortDirection.Ascending;
+        var gameDirection = GameSortDescending ? SortDirection.Descending : SortDirection.Ascending;
 
         switch (CurrentSortKey)
         {
             case SortKeys.Name:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), gameDirection));
                 break;
             case SortKeys.LastPlay:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastPlayTime), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastPlayTime), gameDirection));
                 break;
             case SortKeys.Developer:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), gameDirection));
                 break;
             case SortKeys.Rating:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Rating), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Rating), gameDirection));
                 break;
             case SortKeys.ReleaseDate:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.ReleaseDate), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.ReleaseDate), gameDirection));
                 break;
             case SortKeys.AddTime:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), gameDirection));
                 break;
+        }
+
+        // 应用文件夹排序逻辑
+        if (Source.Count > 0)
+        {
+            var sorted = Source.Cast<IDisplayableGameObject>().ToList();
+            sorted.Sort((x, y) =>
+            {
+                if (x is GalgameSourceBase sx && y is GalgameSourceBase sy)
+                {
+                    int result = CurrentFolderSortKey switch
+                    {
+                        GalgameSourceSortKeys.Name => string.Compare(sx.Name, sy.Name, StringComparison.CurrentCultureIgnoreCase),
+                        GalgameSourceSortKeys.LastPlay => DateTime.Compare(sx.LastPlayed, sy.LastPlayed),
+                        GalgameSourceSortKeys.Path => string.Compare(sx.Path, sy.Path, StringComparison.CurrentCultureIgnoreCase),
+                        GalgameSourceSortKeys.SourceType => sx.SourceType.CompareTo(sy.SourceType),
+                        GalgameSourceSortKeys.GalgameCount => sx.Galgames.Count.CompareTo(sy.Galgames.Count),
+                        _ => 0
+                    };
+                    return FolderSortDescending ? -result : result;
+                }
+                return 0;
+            });
+            Source.Clear();
+            foreach (var item in sorted)
+                Source.Add(item);
         }
 
         // 保存排序设置到本地设置
         _ = Task.Run(async () =>
         {
             await settingsService.SaveSettingAsync(KeyValues.LibrarySortKey, (int)CurrentSortKey);
-            await settingsService.SaveSettingAsync(KeyValues.LibrarySortDescending, SortDescending);
+            await settingsService.SaveSettingAsync(KeyValues.LibraryGameSortDescending, GameSortDescending);
+
+            await settingsService.SaveSettingAsync(KeyValues.LibraryFolderSortKey, (int)CurrentFolderSortKey);
+            await settingsService.SaveSettingAsync(KeyValues.LibraryFolderSortDescending, FolderSortDescending);
         });
     }
 

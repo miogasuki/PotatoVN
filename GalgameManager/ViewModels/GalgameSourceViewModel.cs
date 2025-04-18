@@ -130,7 +130,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         _ = Task.Run(async () =>
         {
             await _settingsService.SaveSettingAsync(KeyValues.LibrarySortKey, (int)CurrentSortKey);
-            await _settingsService.SaveSettingAsync(KeyValues.LibrarySortDescending, SortDescending);
+            await _settingsService.SaveSettingAsync(KeyValues.LibraryGameSortDescending, SortDescending);
         });
     }
     #endregion
@@ -266,7 +266,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         
         // 加载排序设置
         CurrentSortKey = (SortKeys)_settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
-        SortDescending = _settingsService.ReadSettingAsync<bool>(KeyValues.LibrarySortDescending).Result;
+        SortDescending = _settingsService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending).Result;
         
         if (parameter is not string url) return;
         //TODO

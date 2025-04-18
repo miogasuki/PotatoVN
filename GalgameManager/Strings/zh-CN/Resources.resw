@@ -2736,4 +2736,31 @@
   <data name="GalgameSourcePage_Remove_Message" xml:space="preserve">
     <value>确定要从库中移除所选游戏吗？一共选中了{0}个</value>
   </data>
+  <data name="LibraryPage_SortGameSubMenu.Text" xml:space="preserve">
+    <value>游戏排序</value>
+  </data>
+  <data name="LibraryPage_SortFolderSubMenu.Text" xml:space="preserve">
+    <value>库排序</value>
+  </data>
+  <data name="LibraryPage_GameSortDescending.Text" xml:space="preserve">
+    <value>降序</value>
+  </data>
+  <data name="LibraryPage_FolderSortDescending.Text" xml:space="preserve">
+    <value>降序</value>
+  </data>
+  <data name="LibraryPage_FolderSortByName.Text" xml:space="preserve">
+    <value>按名字</value>
+  </data>
+  <data name="LibraryPage_FolderSortByLastPlayed.Text" xml:space="preserve">
+    <value>按最近游玩时间</value>
+  </data>
+  <data name="LibraryPage_FolderSortByPath.Text" xml:space="preserve">
+    <value>按路径</value>
+  </data>
+  <data name="LibraryPage_FolderSortBySourceType.Text" xml:space="preserve">
+    <value>按库类型</value>
+  </data>
+  <data name="LibraryPage_FolderSortByGalgameCount.Text" xml:space="preserve">
+    <value>按游戏数量</value>
+  </data>
 </root>

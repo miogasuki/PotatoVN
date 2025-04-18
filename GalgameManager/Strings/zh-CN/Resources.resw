@@ -1203,12 +1203,6 @@
   <data name="HomePage_Sort_Title" xml:space="preserve">
     <value>排序</value>
   </data>
-  <data name="HomePage_Sort_FirstKey" xml:space="preserve">
-    <value>第一关键字</value>
-  </data>
-  <data name="HomePage_Sort_SecondKey" xml:space="preserve">
-    <value>第二关键字</value>
-  </data>
   <data name="HomePage_Sort_DescendOrAscend" xml:space="preserve">
     <value>降序/升序</value>
   </data>
@@ -2762,5 +2756,38 @@
   </data>
   <data name="LibraryPage_FolderSortByGalgameCount.Text" xml:space="preserve">
     <value>按游戏数量</value>
+  </data>
+  <data name="HomePage_Sort_FirstKey.Text" xml:space="preserve">
+    <value>主要排序方式</value>
+  </data>
+  <data name="HomePage_Sort_SecondKey.Text" xml:space="preserve">
+    <value>次要排序方式</value>
+  </data>
+  <data name="HomePage_Sort_Name.Text" xml:space="preserve">
+    <value>按游戏名</value>
+  </data>
+  <data name="HomePage_Sort_Developer.Text" xml:space="preserve">
+    <value>按开发商</value>
+  </data>
+  <data name="HomePage_Sort_Rating.Text" xml:space="preserve">
+    <value>按评分</value>
+  </data>
+  <data name="HomePage_Sort_LastPlay.Text" xml:space="preserve">
+    <value>按最后游玩时间</value>
+  </data>
+  <data name="HomePage_Sort_ReleaseDate.Text" xml:space="preserve">
+    <value>按发售日期</value>
+  </data>
+  <data name="HomePage_Sort_LastFetchInfoTime.Text" xml:space="preserve">
+    <value>按最后更新时间</value>
+  </data>
+  <data name="HomePage_Sort_AddTime.Text" xml:space="preserve">
+    <value>按添加时间</value>
+  </data>
+  <data name="HomePage_Sort_PrimaryAscending.Text" xml:space="preserve">
+    <value>升序</value>
+  </data>
+  <data name="HomePage_Sort_SecondaryAscending.Text" xml:space="preserve">
+    <value>升序</value>
   </data>
 </root>

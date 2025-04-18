@@ -38,18 +38,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _displayVirtualGame; //是否显示虚拟游戏
     [ObservableProperty] private bool _specialDisplayVirtualGame; //是否特殊显示虚拟游戏（降低透明度）
 
-    private SortKeys[] SortKeysList
-    {
-        get;
-        set;
-    } = { SortKeys.LastPlay , SortKeys.Developer};
-
-    private bool[] SortKeysAscending
-    {
-        get;
-        set;
-    } = {false, false};
-
     #region UI
     public readonly string UiEdit = "HomePage_Edit".GetLocalized();
     public readonly string UiDownLoad = "HomePage_Download".GetLocalized();
@@ -87,11 +75,16 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         SpecialDisplayVirtualGame = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SpecialDisplayVirtualGame);
         KeepFilters = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.KeepFilters);
         GameToOpacityConverter.SpecialDisplayVirtualGame = SpecialDisplayVirtualGame;
-        SortKeys[] sortKeysList = _localSettingsService.ReadSettingAsync<SortKeys[]>(KeyValues.SortKeys).Result ?? new[]
-            { SortKeys.LastPlay , SortKeys.Developer};
-        var sortKeysAscending = _localSettingsService.ReadSettingAsync<bool[]>(KeyValues.SortKeysAscending).Result ?? new[]
-            {false,false};
-        UpdateSortKeys(sortKeysList, sortKeysAscending);
+
+        // 加载排序设置
+        PrimaryKey = (SortKeys)_localSettingsService.ReadSettingAsync<int>(KeyValues.PrimarySortKey).Result;
+        IsPrimaryAscending = _localSettingsService.ReadSettingAsync<bool>(KeyValues.PrimarySortAscending).Result;
+
+        SecondaryKey = (SortKeys)_localSettingsService.ReadSettingAsync<int>(KeyValues.SecondarySortKey).Result;
+        IsSecondaryAscending = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SecondarySortAscending).Result;
+
+        // 应用初始排序
+        ApplySort();
         
         //Add Event
         Filters.CollectionChanged += UpdateFilterPanelDisplay;
@@ -278,161 +271,139 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     #region SORT
 
-    /// <summary>
-    /// 更新sort参数
-    /// </summary>
-    /// <param name="sortKeysList"></param>
-    /// <param name="sortKeysAscending">升序/降序: true/false</param>
-    private void UpdateSortKeys(SortKeys[] sortKeysList, bool[] sortKeysAscending)
-    {
-        SortKeysList = sortKeysList;
-        SortKeysAscending = sortKeysAscending;
-        if (SortKeysList.Length != SortKeysAscending.Length)
-            throw new PvnException("SortKeysList.Length != SortKeysAscending.Length");
-        Source.SortDescriptions.Clear();
-        for (var i = 0; i < SortKeysList.Length; i++)
-        {
-            switch (SortKeysList[i])
-            {
-                case SortKeys.Developer:
-                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), 
-                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending, 
-                        StringComparer.Ordinal
-                    ));
-                    break;
-                case SortKeys.Name:
-                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), 
-                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending,
-                        StringComparer.CurrentCultureIgnoreCase
-                    ));
-                    break;
-                case SortKeys.Rating:
-                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Rating), 
-                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending
-                    ));
-                    break;
-                case SortKeys.LastPlay:
-                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastPlayTime), 
-                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending
-                    ));
-                    break;
-                case SortKeys.ReleaseDate:
-                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.ReleaseDate), 
-                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending
-                    ));
-                    break;
-                case SortKeys.LastFetchInfoTime:
-                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastFetchInfoTime), 
-                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending
-                    ));
-                    break;
-                case SortKeys.AddTime:
-                    Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), 
-                        SortKeysAscending[i]?SortDirection.Ascending:SortDirection.Descending
-                    ));
-                    break;
-            }
-            
-        }
-        Source.RefreshSorting();
-    }
-    
-    /// <summary>
-    /// 获取并设置galgame排序的关键字
-    /// </summary>
+    // 为XAML绑定添加静态排序键属性
+    [ObservableProperty] private SortKeys _primaryKey = SortKeys.LastPlay;
+    [ObservableProperty] private bool _isPrimaryAscending = false;
+    [ObservableProperty] private SortKeys _secondaryKey = SortKeys.Developer;
+    [ObservableProperty] private bool _isSecondaryAscending = false;
+
+    // 检查当前排序键方法
+    public bool IsPrimaryKey(string key) => PrimaryKey.ToString() == key;
+    public bool IsSecondaryKey(string key) => SecondaryKey.ToString() == key;
+
     [RelayCommand]
-    private async Task Sort()
+    private void SetPrimaryKey(string key)
     {
-        // 创建一个字典来映射本地化字符串和枚举值
-        Dictionary<string, SortKeys> sortKeysMap = new()
+        if (Enum.TryParse(key, out SortKeys sortKey))
         {
-            { SortKeys.Name.GetLocalized(), SortKeys.Name },
-            { SortKeys.Developer.GetLocalized(), SortKeys.Developer },
-            { SortKeys.Rating.GetLocalized(), SortKeys.Rating },
-            { SortKeys.LastPlay.GetLocalized(), SortKeys.LastPlay },
-            { SortKeys.ReleaseDate.GetLocalized(), SortKeys.ReleaseDate },
-            { SortKeys.LastFetchInfoTime.GetLocalized(), SortKeys.LastFetchInfoTime },
-            { SortKeys.AddTime.GetLocalized(), SortKeys.AddTime },
-        };
-
-        List<string> sortKeysList = sortKeysMap.Keys.ToList();
-
-        ContentDialog dialog = new()
-        {
-            XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
-            Title = "HomePage_Sort_Title".GetLocalized(),
-            PrimaryButtonText = "Yes".GetLocalized(),
-            SecondaryButtonText = "Cancel".GetLocalized(),
-        };
-        
-        ComboBox comboBox1 = new()
-        {
-            Header = "HomePage_Sort_FirstKey".GetLocalized(),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            ItemsSource = sortKeysList,
-            Margin = new Thickness(0, 0, 5, 0),
-            SelectedItem = SortKeysList[0].GetLocalized()
-        };
-        ToggleSwitch toggleSwitch1 = new()
-        {
-            Header = "HomePage_Sort_DescendOrAscend".GetLocalized(),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            Margin = new Thickness(5, 0, 0, 0),
-            OnContent = "HomePage_Sort_Ascend".GetLocalized(),
-            OffContent = "HomePage_Sort_Descend".GetLocalized(),
-            IsOn = SortKeysAscending[0]
-        };
-        StackPanel panel1 = new ();
-        panel1.Children.Add(comboBox1);
-        panel1.Children.Add(toggleSwitch1);
-        Grid.SetColumn(panel1, 0 );
-        
-        ComboBox comboBox2 = new()
-        {
-            Header = "HomePage_Sort_SecondKey".GetLocalized(),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            ItemsSource = sortKeysList,
-            Margin = new Thickness(0, 0, 5, 0),
-            SelectedItem = SortKeysList[1].GetLocalized()
-        };
-        ToggleSwitch toggleSwitch2 = new()
-        {
-            Header = "HomePage_Sort_DescendOrAscend".GetLocalized(),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            Margin = new Thickness(5, 0, 0, 0),
-            OnContent = "HomePage_Sort_Ascend".GetLocalized(),
-            OffContent = "HomePage_Sort_Descend".GetLocalized(),
-            IsOn = SortKeysAscending[1]
-        };
-        StackPanel panel2 = new ();
-        panel2.Children.Add(comboBox2);
-        panel2.Children.Add(toggleSwitch2);
-        panel2.Margin = new Thickness(10, 0, 0, 0);
-        Grid.SetColumn(panel2, 1 );
-        
-
-        dialog.PrimaryButtonClick += async (_, _) =>
-        {
-            // 将本地化字符串转换回枚举值
-            var selectedKey1 = sortKeysMap[(string)comboBox1.SelectedItem];
-            var selectedKey2 = sortKeysMap[(string)comboBox2.SelectedItem];
-
-            UpdateSortKeys(
-                new[] { selectedKey1, selectedKey2 },
-                new[] { toggleSwitch1.IsOn, toggleSwitch2.IsOn });
-            await _localSettingsService.SaveSettingAsync(KeyValues.SortKeys, SortKeysList);
-            await _localSettingsService.SaveSettingAsync(KeyValues.SortKeysAscending, SortKeysAscending);
-        };
-        Grid content = new();
-        content.ColumnDefinitions.Add(new ColumnDefinition{Width = new GridLength(1, GridUnitType.Star)});
-        content.ColumnDefinitions.Add(new ColumnDefinition{Width = new GridLength(1, GridUnitType.Star)});
-        content.Children.Add(panel1);
-        content.Children.Add(panel2);
-        dialog.Content = content;
-        await dialog.ShowAsync();
+            PrimaryKey = sortKey;
+            // 不在这里保存设置，统一在ApplySort方法中保存
+            ApplySort();
+        }
     }
-    
+
+    [RelayCommand]
+    private void SetSecondaryKey(string key)
+    {
+        if (Enum.TryParse(key, out SortKeys sortKey))
+        {
+            SecondaryKey = sortKey;
+            // 不在这里保存设置，统一在ApplySort方法中保存
+            ApplySort();
+        }
+    }
+
+    [RelayCommand]
+    private void ApplySort()
+    {
+        // 清除现有排序
+        Source.SortDescriptions.Clear();
+
+        // 应用主排序键
+        SortDirection primaryDirection = IsPrimaryAscending ? SortDirection.Ascending : SortDirection.Descending;
+        switch (PrimaryKey)
+        {
+            case SortKeys.Name:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), 
+                    primaryDirection, StringComparer.CurrentCultureIgnoreCase));
+                break;
+            case SortKeys.Developer:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), 
+                    primaryDirection, StringComparer.Ordinal));
+                break;
+            case SortKeys.Rating:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Rating), 
+                    primaryDirection));
+                break;
+            case SortKeys.LastPlay:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastPlayTime), 
+                    primaryDirection));
+                break;
+            case SortKeys.ReleaseDate:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.ReleaseDate), 
+                    primaryDirection));
+                break;
+            case SortKeys.LastFetchInfoTime:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastFetchInfoTime), 
+                    primaryDirection));
+                break;
+            case SortKeys.AddTime:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), 
+                    primaryDirection));
+                break;
+        }
+
+        // 应用次要排序键
+        SortDirection secondaryDirection = IsSecondaryAscending ? SortDirection.Ascending : SortDirection.Descending;
+        switch (SecondaryKey)
+        {
+            case SortKeys.Name:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), 
+                    secondaryDirection, StringComparer.CurrentCultureIgnoreCase));
+                break;
+            case SortKeys.Developer:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), 
+                    secondaryDirection, StringComparer.Ordinal));
+                break;
+            case SortKeys.Rating:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.Rating), 
+                    secondaryDirection));
+                break;
+            case SortKeys.LastPlay:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastPlayTime), 
+                    secondaryDirection));
+                break;
+            case SortKeys.ReleaseDate:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.ReleaseDate), 
+                    secondaryDirection));
+                break;
+            case SortKeys.LastFetchInfoTime:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastFetchInfoTime), 
+                    secondaryDirection));
+                break;
+            case SortKeys.AddTime:
+                Source.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), 
+                    secondaryDirection));
+                break;
+        }
+
+        // 刷新排序
+        Source.RefreshSorting();
+        
+        // 统一保存全部排序相关设置，避免多次调用SaveSettingAsync
+        SaveSortSettings();
+    }
+
+    // 新增方法，统一保存排序相关设置
+    private async void SaveSortSettings()
+    {
+
+        await _localSettingsService.SaveSettingAsync(KeyValues.PrimarySortKey, (int)PrimaryKey);
+        await _localSettingsService.SaveSettingAsync(KeyValues.PrimarySortAscending, IsPrimaryAscending);
+        await _localSettingsService.SaveSettingAsync(KeyValues.SecondarySortKey, (int)SecondaryKey);
+        await _localSettingsService.SaveSettingAsync(KeyValues.SecondarySortAscending, IsSecondaryAscending);
+
+    }
+
+    partial void OnIsPrimaryAscendingChanged(bool value)
+    {
+        ApplySort(); // 直接调用ApplySort，不需要在这里单独保存设置
+    }
+
+    partial void OnIsSecondaryAscendingChanged(bool value)
+    {
+        ApplySort(); // 直接调用ApplySort，不需要在这里单独保存设置
+    }
 
     #endregion
     

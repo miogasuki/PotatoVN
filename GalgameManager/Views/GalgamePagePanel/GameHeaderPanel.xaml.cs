@@ -19,10 +19,12 @@ public partial class GameHeaderPanel
     private readonly ILocalSettingsService _localSettingsService = App.GetService<ILocalSettingsService>();
     private readonly IStaffService _staffService = App.GetService<IStaffService>();
     private Galgame? _lastGame;
+    private readonly ObservableCollection<GameHeaderPanelStaffList> _staffListSource = new();
 
     public GameHeaderPanel()
     {
         InitializeComponent();
+        StaffList.ItemsSource = _staffListSource;
     }
 
     protected async override void Update()
@@ -33,16 +35,40 @@ public partial class GameHeaderPanel
             {
                 if (_lastGame is not null) 
                     _lastGame.HeaderImagePath.OnValueChanged -= HeaderImagePathOnOnValueChanged;
+                _staffListSource.Clear();
                 return;
             }
             _lastGame = Game;
             Game.HeaderImagePath.OnValueChanged += HeaderImagePathOnOnValueChanged;
+
+            // 首先检查背景图是否应该显示（从设置中读取）
+            bool showBackground = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowBackground);
+
+            // 根据背景图显示设置和背景图是否存在来决定布局
+            if (showBackground && File.Exists(Game.HeaderImagePath.Value))
+            {
+                // 如果启用背景图且背景图存在，则为内容添加上边距
+                ContentRoot.Margin = new Thickness(0, 20, 0, 0);
+                
+                // 如果用户设置了"只在没有背景图时显示封面"，则隐藏封面
+                if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground) is true)
+                    Cover.Visibility = Visibility.Collapsed;
+                else
+                    Cover.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                // 如果背景图不显示或不存在，则不添加上边距
+                ContentRoot.Margin = new Thickness(0, 0, 0, 0);
+                
+                // 确保显示封面（除非用户明确设置为不显示封面）
+                Cover.Visibility = Visibility.Visible;
+            }
+
+            // 不论背景图是否存在，如果用户设置中禁用了封面图显示，则隐藏封面
             if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage) is false)
                 Cover.Visibility = Visibility.Collapsed;
 
-            if (File.Exists(Game.HeaderImagePath.Value))
-                ContentRoot.Margin = new Thickness(0, 20, 0, 0);
-        
             List<(Career career, string settingKey)> careerSettings =
             [
                 (Career.Painter, KeyValues.GalgamePageNewLayout_ShowPainter),
@@ -51,7 +77,7 @@ public partial class GameHeaderPanel
                 (Career.Musician, KeyValues.GalgamePageNewLayout_ShowMusician)
             ];
 
-            ObservableCollection<GameHeaderPanelStaffList> list = [];
+            _staffListSource.Clear();
             foreach (var (career, settingKey) in careerSettings)
             {
                 if (!await _localSettingsService.ReadSettingAsync<bool>(settingKey)) continue;
@@ -59,9 +85,12 @@ public partial class GameHeaderPanel
                 List<Staff> tmp = _staffService.GetStaffs(Game).Where(s => (s.GetRelation(Game) ?? []).Contains(career))
                     .ToList();
                 if (tmp.Count == 0) continue;
-                list.Add(new GameHeaderPanelStaffList(career, tmp));
+                _staffListSource.Add(new GameHeaderPanelStaffList(career, tmp));
             }
-            StaffList.ItemsSource = list;
+            
+            // 强制重新计算布局以解决重叠和顺序问题
+            StaffList.InvalidateMeasure();
+            StaffList.UpdateLayout();
         }
         catch (Exception e)
         {

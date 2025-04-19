@@ -47,8 +47,7 @@
     <Grid MinWidth="500" Height="300"
           RowDefinitions="Auto, *">
 
-        <CommandBar Grid.Row="0" DefaultLabelPosition="Right"
-                    Margin="{StaticResource CommandBarMargin}">
+        <CommandBar Grid.Row="0" DefaultLabelPosition="Right">
             <AppBarButton x:Uid="MultiStreamPageSettingDialog_CommandBar_Add" Icon="Add">
                 <AppBarButton.Flyout>
                     <MenuFlyout Placement="Bottom">

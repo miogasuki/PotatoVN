@@ -58,6 +58,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _canOpenInCngal;
     [ObservableProperty] private Thickness _headerMargin = new(0, 0, 0, 0);
     [ObservableProperty] private double _headerHeight = 400;
+    [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
     private bool IsNotLocalGame => !IsLocalGame;
 
     [ObservableProperty]
@@ -83,9 +84,13 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     }
     
     // 布局更改时更新视图
-    private void OnLayoutChanged(object? sender, bool newLayoutValue)
+    private async void OnLayoutChanged(object? sender, bool newLayoutValue)
     {
         UseNewLayout = newLayoutValue;
+        // 更新背景图显示设置
+        ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowBackground) 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
         // 重新初始化面板
         Update(Item);
     }
@@ -100,6 +105,10 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
         // 加载布局设置
         UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
+        // 加载背景图显示设置
+        ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowBackground) 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
 
         Item = param.Galgame;
         IsLocalGame = Item.IsLocalGame;

@@ -22,6 +22,8 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
     
     protected async override Task ProcessItemAsync(Galgame item)
     {
+        item.AutoFetchStatus.HeaderImage = true;
+        await GameService.SaveGalgameAsync(item);
         var url = await _vndbParser.GetGalHeaderAsync(item);
         if (url is null) return;
         item.HeaderImageUrl = url;

@@ -111,6 +111,13 @@ public class StaffService : IStaffService
         return staff;
     }
 
+    public Task ParseStaffAsync(Galgame game) => Task.Run(() =>
+    {
+        OnGalgamePhrasedEvent(game);
+        game.AutoFetchStatus.Staff = true;
+        _galgameService.SaveGalgameAsync(game);
+    });
+
     public void Save(Staff staff, bool sync = true)
     {
         _staffs[staff.Id] = staff;
@@ -145,8 +152,9 @@ public class StaffService : IStaffService
     {
         try
         {
-            IGalStaffParser? phraser = _galgameService.PhraserList[(int)galgame.RssType] as IGalStaffParser;
-            if (phraser is null) return;
+            IGalStaffParser? phraser = _galgameService.PhraserList[(int)galgame.RssType] as IGalStaffParser ??
+                                       _galgameService.PhraserList[(int)RssType.Mixed] as IGalStaffParser;
+            if (phraser is null) return; //按理来说根本不会发生
             List<StaffRelation> tmpStaffs = await phraser.GetStaffsAsync(galgame);
             {
                 // 一个人可能身兼多职，需要合并
@@ -191,7 +199,11 @@ public class StaffService : IStaffService
                 Save(staff);
             }
 
-            OnGameStaffChanged?.Invoke(galgame);
+            await UiThreadInvokeHelper.InvokeAsync(() =>
+            {
+                OnGameStaffChanged?.Invoke(galgame);
+            });
+            
             GetStaffFromRssTask? task = _bgTaskService.GetBgTask<GetStaffFromRssTask>(string.Empty);
             if (task is null)
             {

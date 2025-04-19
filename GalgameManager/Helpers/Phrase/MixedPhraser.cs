@@ -20,7 +20,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         _init = true;
         _developerList = ProducerDataHelper.Producers.SelectMany(p => p.Names);
     }
-    
+
     private string? GetDeveloperFromTags(Galgame galgame)
     {
         if (!_init)
@@ -29,7 +29,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         foreach (var tag in galgame.Tags.Value!)
         {
             double maxSimilarity = 0;
-            foreach(var dev in _developerList)
+            foreach (var dev in _developerList)
             {
                 if (IGalInfoPhraser.Similarity(dev, tag) > maxSimilarity)
                 {
@@ -41,10 +41,12 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
             if (result != null && maxSimilarity > 0.75) // magic number: 一个tag和开发商的相似度大于0.75就认为是开发商
                 break;
         }
+
         return result;
     }
-    
-    public MixedPhraser(BgmPhraser bgmPhraser, VndbPhraser vndbPhraser, YmgalPhraser ymgalPhraser, MixedPhraserData data)
+
+    public MixedPhraser(BgmPhraser bgmPhraser, VndbPhraser vndbPhraser, YmgalPhraser ymgalPhraser,
+        MixedPhraserData data)
     {
         _phrasers[RssType.Bangumi] = bgmPhraser;
         _phrasers[RssType.Vndb] = vndbPhraser;
@@ -52,11 +54,11 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         _data = data;
         _developerList = new List<string>();
     }
-    
+
     public async Task<Galgame?> GetGalgameInfo(Galgame galgame)
     {
         if (!_init) Init();
-        Dictionary<RssType, Task<Galgame?>?> phraserTasks = new ();
+        Dictionary<RssType, Task<Galgame?>?> phraserTasks = new();
         foreach (RssType phraserType in RssTypeHelper.UsablePhrasers)
         {
             if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) && phraser != null)
@@ -80,7 +82,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
                 phraserTasks[rssType] = null;
             }
         }
-        
+
         Dictionary<RssType, Galgame> metas = new();
         Galgame result = new();
         foreach (var (rssType, task) in phraserTasks)
@@ -94,14 +96,15 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
             else
                 result.Ids[(int)rssType] = null;
         }
-        if(metas.Count == 0) return null;
-        
+
+        if (metas.Count == 0) return null;
+
         // 对比所有的phraser的游戏名
         // 如果有一个phraser的游戏名和当前的游戏名不一样，就认为是不同的游戏，重新获取
 
         // 创建一个与metas长度相同的bool数组，初始值为false
         List<bool> isSameGame = new List<bool>(new bool[metas.Count]);
-        
+
         for (int i = 0; i < metas.Count; i++)
         {
             for (int j = i + 1; j < metas.Count; j++)
@@ -142,7 +145,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
             {
                 if (!isSameGame[(int)rssType])
                     metas.Remove(rssType);
-                    result.Ids[(int)rssType] = null;
+                result.Ids[(int)rssType] = null;
             }
         }
 
@@ -150,24 +153,24 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         result.RssType = RssType.Mixed;
         result.UpdateMixedId();
         // name
-        result.Name = GetValue(metas, nameof(Galgame.Name), _ => true, 
+        result.Name = GetValue(metas, nameof(Galgame.Name), _ => true,
             new LockableProperty<string>(string.Empty));
         // description
-        result.Description = GetValue(metas, nameof(Galgame.Description), 
+        result.Description = GetValue(metas, nameof(Galgame.Description),
             _ => true, new LockableProperty<string>(string.Empty));
         // expectedPlayTime
-        result.ExpectedPlayTime = GetValue(metas, nameof(Galgame.ExpectedPlayTime), 
-            meta => CheckStr(meta.ExpectedPlayTime.Value), 
+        result.ExpectedPlayTime = GetValue(metas, nameof(Galgame.ExpectedPlayTime),
+            meta => CheckStr(meta.ExpectedPlayTime.Value),
             new LockableProperty<string>(Galgame.DefaultString));
         // rating
-        result.Rating = GetValue(metas, nameof(Galgame.Rating), 
+        result.Rating = GetValue(metas, nameof(Galgame.Rating),
             _ => true, new LockableProperty<float>(0));
         // imageUrl
-        result.ImageUrl = GetValue<string>(metas, nameof(Galgame.ImageUrl), 
+        result.ImageUrl = GetValue<string>(metas, nameof(Galgame.ImageUrl),
             meta => CheckStr(meta.ImageUrl), null!);
         // release date
         result.ReleaseDate = GetValue(metas, nameof(Galgame.ReleaseDate),
-            meta => meta.ReleaseDate.Value != DateTime.MinValue, 
+            meta => meta.ReleaseDate.Value != DateTime.MinValue,
             new LockableProperty<DateTime>(DateTime.MinValue));
         // characters
         result.Characters = GetValue(metas, nameof(Galgame.Characters),
@@ -177,13 +180,13 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
             meta => CheckStr(meta.CnName), string.Empty);
         // developer
         result.Developer = GetValue(metas, nameof(Galgame.Developer),
-            meta => CheckStr(meta.Developer), 
+            meta => CheckStr(meta.Developer),
             new LockableProperty<string>(Galgame.DefaultString));
         // tags
         result.Tags = GetValue(metas, nameof(Galgame.Tags),
-            meta => meta.Tags.Value?.Count > 0, 
+            meta => meta.Tags.Value?.Count > 0,
             new LockableProperty<ObservableCollection<string>>(new ObservableCollection<string>()));
-        
+
         // developer from tag
         if (result.Developer == Galgame.DefaultString)
         {
@@ -191,12 +194,13 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
             if (tmp != null)
                 result.Developer = tmp;
         }
+
         return result;
 
         bool CheckStr(string? str) => !string.IsNullOrEmpty(str) && str != Galgame.DefaultString;
     }
 
-    public void UpdateData(IGalInfoPhraserData data) => _data = (MixedPhraserData) data;
+    public void UpdateData(IGalInfoPhraserData data) => _data = (MixedPhraserData)data;
 
     public RssType GetPhraseType() => RssType.Mixed;
 
@@ -209,54 +213,70 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
                 phraser is IGalCharacterPhraser characterPhraser)
                 return await characterPhraser.GetGalgameCharacter(galgameCharacter);
         }
-        
+
         return null;
     }
 
-    private T GetValue<T>(Dictionary<RssType, Galgame> metas, string propName, Func<Galgame, bool> isValueAvailable, 
+    private T GetValue<T>(Dictionary<RssType, Galgame> metas, string propName, Func<Galgame, bool> isValueAvailable,
         T defaultValue)
     {
         ObservableCollection<RssType> order = GetOrder();
         foreach (RssType rssType in order)
         {
-            if(!metas.TryGetValue(rssType, out Galgame? meta)) continue;
+            if (!metas.TryGetValue(rssType, out Galgame? meta)) continue;
             if (isValueAvailable(meta))
                 return (T)(meta.GetType().GetProperty(propName)?.GetValue(meta) ??
                            meta.GetType().GetField(propName)?.GetValue(meta)!);
         }
+
         return defaultValue;
-        
+
         ObservableCollection<RssType> GetOrder()
         {
             Type type = typeof(MixedPhraserOrder);
-            PropertyInfo? prop =  type.GetProperty($"{propName}Order");
+            PropertyInfo? prop = type.GetProperty($"{propName}Order");
             Debug.Assert(prop != null, nameof(prop) + " != null");
             return (ObservableCollection<RssType>)prop.GetValue(_data.Order)!;
         }
     }
 
-    public Task<Staff?> GetStaffAsync(Staff staff)
+    public async Task<Staff?> GetStaffAsync(Staff staff)
     {
         foreach (RssType phraserType in _data.Order.StaffOrder)
         {
-            if (staff.Ids[(int)phraserType] != null &&
-                _phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
-                phraser is IGalStaffParser staffParser)
-                return staffParser.GetStaffAsync(staff);
+            try
+            {
+                if (staff.Ids[(int)phraserType] != null &&
+                    _phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
+                    phraser is IGalStaffParser staffParser)
+                    return await staffParser.GetStaffAsync(staff);
+            }
+            catch (Exception)
+            {
+                //ignore
+            }
         }
-        return Task.FromResult<Staff?>(null);
+
+        return null;
     }
 
-    public Task<List<StaffRelation>> GetStaffsAsync(Galgame game)
+    public async Task<List<StaffRelation>> GetStaffsAsync(Galgame game)
     {
         foreach (RssType phraserType in _data.Order.StaffOrder)
         {
-            if (game.Ids[(int)phraserType] != null &&
-                _phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
-                phraser is IGalStaffParser staffParser)
-                return staffParser.GetStaffsAsync(game);
+            try
+            {
+                if (game.Ids[(int)phraserType] != null &&
+                    _phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
+                    phraser is IGalStaffParser staffParser)
+                    return await staffParser.GetStaffsAsync(game);
+            }
+            catch (Exception)
+            {
+                // ignore
+            }
         }
-        return Task.FromResult(new List<StaffRelation>());
+        return [];
     }
 }
 
@@ -264,7 +284,7 @@ public class MixedPhraserOrder
 {
     // 版本号，每次添加新搜刮器/添加新字段的时候都应该把这个数字+1，以便galgameCollectionService能够更新配置中已有的顺序配置
     // 更新配置不需要手动编写，已经在GalgameCollectionService中使用反射实现，会自动添加新的默认配置
-    public const int Version = 8;
+    public const int Version = 9;
     
     // 为什么使用ObservableCollection：为了能够在MixedPhraserOrderDialog中使顺序能够drag&drop
     // 所有变量都应该命名为：{字段名}Order，此处字段名应该与Galgame中对应的字段名一致（为了让GetValue中的反射能够找到对应的字段）
@@ -290,7 +310,7 @@ public class MixedPhraserOrder
             DescriptionOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             ExpectedPlayTimeOrder = new() { RssType.Vndb };
             RatingOrder = new() { RssType.Bangumi, RssType.Ymgal };
-            ImageUrlOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            ImageUrlOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal,  };
             ReleaseDateOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             CharactersOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             CnNameOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };

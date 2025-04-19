@@ -266,6 +266,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             if (Utils.IsImageValid(game.ImagePath.Value))
                 game.ImagePath.ForceSet(await LocalSettingsService.AddImageToExportAsync(game.ImagePath.Value) ??
                                         Galgame.DefaultImagePath);
+            if (Utils.IsImageValid(game.HeaderImagePath.Value))
+                game.HeaderImagePath.ForceSet(await LocalSettingsService.AddImageToExportAsync(game.HeaderImagePath.Value));
             foreach (GalgameCharacter character in game.Characters)
             {
                 if (Utils.IsImageValid(character.ImagePath))
@@ -817,6 +819,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         foreach (Galgame game in _galgames)
         {
             game.ImagePath.ForceSet(await LocalSettingsService.GetImageFromImportAsync(game.ImagePath.Value));
+            game.HeaderImagePath.ForceSet(await LocalSettingsService.GetImageFromImportAsync(game.HeaderImagePath.Value));
             foreach (GalgameCharacter character in game.Characters)
             {
                 character.ImagePath = (await LocalSettingsService.GetImageFromImportAsync(character.ImagePath))!;

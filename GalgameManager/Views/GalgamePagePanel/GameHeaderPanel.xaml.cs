@@ -25,72 +25,58 @@ public partial class GameHeaderPanel
     {
         InitializeComponent();
         StaffList.ItemsSource = _staffListSource;
+        Unloaded += (_, _) =>
+        {
+            _staffService.OnGameStaffChanged -= StaffServiceOnOnGameStaffChanged;
+            _localSettingsService.OnSettingChanged -= LocalSettingsServiceOnOnSettingChanged;
+            if (Game is not null)
+                Game.HeaderImagePath.OnValueChanged -= HeaderImagePathOnOnValueChanged;
+        };
+        Loaded += (_, _) =>
+        {
+            _staffService.OnGameStaffChanged += StaffServiceOnOnGameStaffChanged;
+            _localSettingsService.OnSettingChanged += LocalSettingsServiceOnOnSettingChanged;
+        };
+        return;
+
+        void LocalSettingsServiceOnOnSettingChanged(string key, object? value)
+        {
+            switch (key)
+            {
+                case KeyValues.GalgamePageNewLayout_ShowPainter:
+                case KeyValues.GalgamePageNewLayout_ShowSeiyu:
+                case KeyValues.GalgamePageNewLayout_ShowWriter:
+                case KeyValues.GalgamePageNewLayout_ShowMusician:
+                    UiThreadInvokeHelper.Invoke(UpdateStaffs);
+                    break;
+                case KeyValues.GalgamePageNewLayout_CoverImage:
+                case KeyValues.GalgamePageNewLayout_ShowHeaderImage:
+                case KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground:
+                    UiThreadInvokeHelper.Invoke(UpdateHeaderImgAndCoverImg);
+                    break;
+            }
+        }
+        
+        void StaffServiceOnOnGameStaffChanged(Galgame obj)
+        {
+            UiThreadInvokeHelper.Invoke(async () =>
+            {
+                if (obj != Game) return;
+                await UpdateStaffs(); //加载新的Staff数据
+            });
+        }
     }
 
     protected async override void Update()
     {
         try
         {
-            if (Game is null)
-            {
-                if (_lastGame is not null) 
-                    _lastGame.HeaderImagePath.OnValueChanged -= HeaderImagePathOnOnValueChanged;
-                _staffListSource.Clear();
-                return;
-            }
+            if (_lastGame is not null) _lastGame.HeaderImagePath.OnValueChanged -= HeaderImagePathOnOnValueChanged;
+            if (Game is null) return;
             _lastGame = Game;
             Game.HeaderImagePath.OnValueChanged += HeaderImagePathOnOnValueChanged;
-
-            // 首先检查背景图是否应该显示（从设置中读取）
-            bool showBackground = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowBackground);
-
-            // 根据背景图显示设置和背景图是否存在来决定布局
-            if (showBackground && File.Exists(Game.HeaderImagePath.Value))
-            {
-                // 如果启用背景图且背景图存在，则为内容添加上边距
-                ContentRoot.Margin = new Thickness(0, 20, 0, 0);
-                
-                // 如果用户设置了"只在没有背景图时显示封面"，则隐藏封面
-                if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground) is true)
-                    Cover.Visibility = Visibility.Collapsed;
-                else
-                    Cover.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                // 如果背景图不显示或不存在，则不添加上边距
-                ContentRoot.Margin = new Thickness(0, 0, 0, 0);
-                
-                // 确保显示封面（除非用户明确设置为不显示封面）
-                Cover.Visibility = Visibility.Visible;
-            }
-
-            // 不论背景图是否存在，如果用户设置中禁用了封面图显示，则隐藏封面
-            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage) is false)
-                Cover.Visibility = Visibility.Collapsed;
-
-            List<(Career career, string settingKey)> careerSettings =
-            [
-                (Career.Painter, KeyValues.GalgamePageNewLayout_ShowPainter),
-                (Career.Seiyu, KeyValues.GalgamePageNewLayout_ShowSeiyu),
-                (Career.Writer, KeyValues.GalgamePageNewLayout_ShowWriter),
-                (Career.Musician, KeyValues.GalgamePageNewLayout_ShowMusician)
-            ];
-
-            _staffListSource.Clear();
-            foreach (var (career, settingKey) in careerSettings)
-            {
-                if (!await _localSettingsService.ReadSettingAsync<bool>(settingKey)) continue;
-            
-                List<Staff> tmp = _staffService.GetStaffs(Game).Where(s => (s.GetRelation(Game) ?? []).Contains(career))
-                    .ToList();
-                if (tmp.Count == 0) continue;
-                _staffListSource.Add(new GameHeaderPanelStaffList(career, tmp));
-            }
-            
-            // 强制重新计算布局以解决重叠和顺序问题
-            StaffList.InvalidateMeasure();
-            StaffList.UpdateLayout();
+            await UpdateHeaderImgAndCoverImg();
+            await UpdateStaffs();
         }
         catch (Exception e)
         {
@@ -98,7 +84,17 @@ public partial class GameHeaderPanel
         }
     }
 
-    private void HeaderImagePathOnOnValueChanged(string? arg) => Update();
+    private async void HeaderImagePathOnOnValueChanged(string? arg)
+    {
+        try
+        {
+            await UpdateHeaderImgAndCoverImg();
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
+    }
 
     private void ClickDeveloper(object sender, RoutedEventArgs e)
     {
@@ -125,6 +121,50 @@ public partial class GameHeaderPanel
     {
         var width = Game?.Name.Value?.Length * 40 ?? 0;
         TitleTextBlock.MaxWidth = Math.Max(Math.Min(e.NewSize.Width - 80, width), 50);
+    }
+    
+    private async Task UpdateStaffs()
+    {
+        if (Game is null) return;
+        List<(Career career, string settingKey)> careerSettings =
+        [
+            (Career.Painter, KeyValues.GalgamePageNewLayout_ShowPainter),
+            (Career.Seiyu, KeyValues.GalgamePageNewLayout_ShowSeiyu),
+            (Career.Writer, KeyValues.GalgamePageNewLayout_ShowWriter),
+            (Career.Musician, KeyValues.GalgamePageNewLayout_ShowMusician)
+        ];
+        _staffListSource.Clear();
+        foreach (var (career, settingKey) in careerSettings)
+        {
+            if (!await _localSettingsService.ReadSettingAsync<bool>(settingKey)) continue;
+            
+            List<Staff> tmp = _staffService.GetStaffs(Game).Where(s => (s.GetRelation(Game) ?? []).Contains(career))
+                .ToList();
+            if (tmp.Count == 0) continue;
+            _staffListSource.Add(new GameHeaderPanelStaffList(career, tmp));
+        }
+        // 强制重新计算布局以解决重叠和顺序问题
+        StaffList.InvalidateMeasure();
+        StaffList.UpdateLayout();
+    }
+
+    private async Task UpdateHeaderImgAndCoverImg()
+    {
+        if (Game is null) return;
+        // Header图是否应该显示
+        var showBackground = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage);
+        if (showBackground && File.Exists(Game.HeaderImagePath.Value))
+        {
+            ContentRoot.Margin = new Thickness(0, 20, 0, 0); //有Header图要给整个控件加点边距让它看起来好看点
+            Cover.Visibility = (!await _localSettingsService.ReadSettingAsync<bool>(KeyValues
+                .GalgamePageNewLayout_ShowCoverWhenNoBackground)).ToVisibility();
+        }
+        else
+            Cover.Visibility = Visibility.Visible;
+
+        // 禁用了封面图显示
+        if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage) is false)
+            Cover.Visibility = Visibility.Collapsed;
     }
 }
 

@@ -254,7 +254,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GalgamePageNewLayout_ShowSeiyu:
             case KeyValues.GalgamePageNewLayout_ShowWriter:
             case KeyValues.GalgamePageNewLayout_ShowMusician:
-            case KeyValues.GalgamePageNewLayout_ShowBackground:
+            case KeyValues.GalgamePageNewLayout_ShowHeaderImage:
             case KeyValues.GalgamePageNewLayout_CoverImage:
             case KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground:
             case KeyValues.GalgameSourcePageShowSubSourceGames:

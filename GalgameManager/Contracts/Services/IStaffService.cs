@@ -44,6 +44,13 @@ public interface IStaffService
     /// <param name="rss">信息源</param>
     /// <returns></returns>
     public Task<Staff> ParseStaffAsync(Staff staff, RssType rss);
+
+    /// <summary>
+    /// 搜刮某个游戏的staffs
+    /// </summary>
+    /// <param name="game"></param>
+    /// <returns></returns>
+    public Task ParseStaffAsync(Galgame game);
     
     /// <summary>
     /// 

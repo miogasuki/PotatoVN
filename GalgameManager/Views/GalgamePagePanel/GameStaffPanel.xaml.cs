@@ -18,6 +18,15 @@ public partial class GameStaffPanel
     public GameStaffPanel()
     {
         InitializeComponent();
+        Loaded += (_, _) => _staffService.OnGameStaffChanged += StaffServiceOnOnGameStaffChanged;
+        Unloaded += (_,_) => _staffService.OnGameStaffChanged -= StaffServiceOnOnGameStaffChanged;
+        return;
+            
+        void StaffServiceOnOnGameStaffChanged(Galgame obj)
+        {
+            if (obj != Game) return;
+            Update();
+        }
     }
 
     protected override void Update()

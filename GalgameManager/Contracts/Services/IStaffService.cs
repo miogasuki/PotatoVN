@@ -6,7 +6,7 @@ namespace GalgameManager.Contracts.Services;
 public interface IStaffService
 {
     /// <summary>
-    /// 当某个游戏的staff列表发生变化时触发
+    /// 当某个游戏的staff列表发生变化时触发 (UI线程触发)
     /// </summary>
     public event Action<Galgame> OnGameStaffChanged;
     public event Action<Staff> OnStaffSaved;

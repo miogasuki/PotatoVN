@@ -78,6 +78,11 @@
                                     </ComboBox>
                                 </RelativePanel>
                             </control:Panel>
+                            <!-- 导航视图透明背景 -->
+                            <control:Panel>
+                                <local:SettingToggleSwitch x:Uid="SettingsPage_Theme_TransparentNavigationView"
+                                                           IsOn="{x:Bind ViewModel.TransparentNavigationView, Mode=TwoWay}"/>
+                            </control:Panel>
                             <!-- 软件语言 -->
                             <control:Panel>
                                 <RelativePanel>

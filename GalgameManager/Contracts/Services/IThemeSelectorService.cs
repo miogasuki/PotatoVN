@@ -17,4 +17,6 @@ public interface IThemeSelectorService
     Task SetRequestedThemeAsync();
 
     Task SetBackgroundMaterialAsync();
+
+    Task SetNavigationViewTransparencyAsync();
 }

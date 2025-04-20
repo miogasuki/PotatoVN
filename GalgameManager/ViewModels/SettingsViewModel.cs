@@ -108,6 +108,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _backgroundMaterial = _localSettingsService.ReadSettingAsync<BackgroundMaterialEnum>(KeyValues.BackgroundMaterial).Result;
         _fixHorizontalPicture = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture).Result;
         TimeAsHour = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour).Result;
+        _transparentNavigationView = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TransparentNavigationView).Result;
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
         _playingWindowMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode).Result;
@@ -219,7 +220,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region THEME
     public readonly ElementTheme[] Themes = { ElementTheme.Default, ElementTheme.Light, ElementTheme.Dark };
     [ObservableProperty ]private ElementTheme _elementTheme;
-
+    [ObservableProperty] private bool _transparentNavigationView;
     public readonly LanguageEnum[] Languages = { LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English };
     [ObservableProperty] private LanguageEnum _language;
 
@@ -230,6 +231,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         _localSettingsService.SaveSettingAsync(KeyValues.BackgroundMaterial, value);
         _themeSelectorService.SetBackgroundMaterialAsync();
+    }
+
+    partial void OnTransparentNavigationViewChanged(bool value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.TransparentNavigationView, value);
+        _infoService.Info(InfoBarSeverity.Informational,
+            "SettingsPage_Theme_RestartRequired".GetLocalized(),
+            displayTimeMs: 5000);
+
     }
 
     partial void OnElementThemeChanged(ElementTheme value)

@@ -416,7 +416,7 @@ public class PvnService : IPvnService
         {
             StatusChanged?.Invoke(PvnServiceStatus.DownloadingAvatar);
             Exception? failedException = null;
-            account.Avatar = await DownloadHelper.DownloadAndSaveImageAsync(str,
+            account.Avatar = await DownloadHelper.DownloadAndSaveImageWithDiffThread(str,
                 0, "PvnAvatar", onException: e => failedException = e);
             if (account.Avatar is null)
             {

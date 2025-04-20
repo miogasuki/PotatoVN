@@ -71,6 +71,8 @@ public class CategoryService : ICategoryService
             HandleGalPropertyChanged(galgame, nameof(Galgame.PlayType), galgame.PlayType);
             HandleGalPropertyChanged(galgame, nameof(Galgame.LastPlayTime), galgame.LastPlayTime);
         };
+        _galgameService.GalgameChangedEvent += galgame =>
+            HandleGalPropertyChanged(galgame, nameof(Galgame.Developer), galgame.Developer.Value);
         _galgameService.GalgameDeletedEvent += galgame =>
         {
             galgame.GalPropertyChanged -= HandleGalPropertyChanged;
@@ -300,7 +302,7 @@ public class CategoryService : ICategoryService
         {
             var imgUrl = await _bgmPhraser.GetDeveloperImageUrlAsync(category.Name);
             if (imgUrl is null) continue;
-            var imagPath = await DownloadHelper.DownloadAndSaveImageAsync(imgUrl);
+            var imagPath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(imgUrl);
             if (imagPath is not null && _dispatcher is not null)
             {
                 await _dispatcher.EnqueueAsync(() => { category.ImagePath = imagPath; });

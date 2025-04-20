@@ -88,7 +88,7 @@ public class StaffService : IStaffService
         {
             Staff? result = await phraser.GetStaffAsync(staff);
             if (result is null) return staff;
-            var imagePath = await DownloadHelper.DownloadAndSaveImageAsync(result.ImageUrl);
+            var imagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(result.ImageUrl);
             await UiThreadInvokeHelper.InvokeAsync(() =>
             {
                 staff.Ids = result.Ids;

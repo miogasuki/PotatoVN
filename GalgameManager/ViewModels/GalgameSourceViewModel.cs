@@ -196,25 +196,27 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         
         // 应用排序
         ApplySorting();
-    }
-
-    private void LoadSubSourceGames(GalgameSourceBase source)
-    {
-        foreach (var subSource in source.SubSources)
+        
+        return;
+        
+        void LoadSubSourceGames(GalgameSourceBase source)
         {
-            foreach (GalgameAndPath g in subSource.Galgames)
+            foreach (GalgameSourceBase subSource in source.SubSources)
             {
-                if (!Galgames.Any(existing => existing.Galgame == g.Galgame))
+                foreach (GalgameAndPath g in subSource.Galgames)
                 {
-                    Galgames.Add(g);
+                    if (!Galgames.Any(existing => existing.Galgame == g.Galgame))
+                    {
+                        Galgames.Add(g);
+                    }
                 }
-            }
             
-            // 递归加载子库的子库
-            LoadSubSourceGames(subSource);
+                // 递归加载子库的子库
+                LoadSubSourceGames(subSource);
+            }
         }
     }
-
+    
     private void ReloadGalgameList(Galgame game, bool isDeleted)
     {
         if (_item == null) return;

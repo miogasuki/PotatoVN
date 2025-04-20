@@ -29,6 +29,7 @@ public partial class LibraryViewModel(
     private GalgameSourceBase? _currentSource;
     private GalgameSourceBase? _lastBackSource;
     private static GalgameSourceBase? _beforeNavigateFromSource; //用于从该页跳转到Galgame详情界面后返回时直接回到某个库的界面
+    private static readonly List<GetGalgameInfoFromRssTask> RssTasks = [];
 
     [ObservableProperty]
     private AdvancedCollectionView _source = null!;
@@ -88,7 +89,6 @@ public partial class LibraryViewModel(
 
     public void OnNavigatedTo(object parameter)
     {
-
         // 加载排序设置
         CurrentSortKey = (SortKeys)settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
         GameSortDescending = settingsService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending).Result;
@@ -111,13 +111,18 @@ public partial class LibraryViewModel(
         NavigateTo(parameter as GalgameSourceBase); //显示根库 / 指定库
         _beforeNavigateFromSource = null;
         galSourceService.OnSourceChanged += HandleSourceCollectionChanged;
-
+        foreach (GetGalgameInfoFromRssTask task in RssTasks.Where(t => t.IsRunning))
+            task.OnProgress += HandleGetGalInfoProgressChanged;
     }
 
     public void OnNavigatedFrom()
     {
         galSourceService.OnSourceChanged -= HandleSourceCollectionChanged;
         _lastBackSource = CurrentSource = null;
+        foreach (GetGalgameInfoFromRssTask task in RssTasks)
+            task.OnProgress -= HandleGetGalInfoProgressChanged;
+        List<GetGalgameInfoFromRssTask> toRemove = RssTasks.Where(t => !t.IsRunning).ToList();
+        foreach (GetGalgameInfoFromRssTask task in toRemove) RssTasks.Remove(task);
     }
 
     private void HandleSourceCollectionChanged()
@@ -274,15 +279,8 @@ public partial class LibraryViewModel(
         foreach (GalgameSourceBase source in sources)
         {
             var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(source);
-            getGalgameInfoFromRss.OnProgress += progress =>
-            {
-                infoService.Info(progress.ToSeverity(), msg: progress.Message,
-                    displayTimeMs: progress.ToSeverity() switch
-                    {
-                        InfoBarSeverity.Informational => 300000,
-                        _ => 3000
-                    });
-            };
+            getGalgameInfoFromRss.OnProgress += HandleGetGalInfoProgressChanged;
+            RssTasks.Add(getGalgameInfoFromRss);
             _ = bgTaskService.AddBgTask(getGalgameInfoFromRss);
         }
         
@@ -505,6 +503,15 @@ public partial class LibraryViewModel(
 
         // 重新应用排序
         ApplySorting();
+    }
+    
+    private void HandleGetGalInfoProgressChanged(Progress progress)
+    {
+        infoService.Info(progress.ToSeverity(), msg: progress.Message, displayTimeMs: progress.ToSeverity() switch
+        {
+            InfoBarSeverity.Informational => 300000,
+            _ => 3000
+        });
     }
 
     #region SORTING

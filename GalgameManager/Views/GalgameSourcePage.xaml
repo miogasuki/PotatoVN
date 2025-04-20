@@ -274,9 +274,6 @@
                                                 <TextBlock Text="ID"
                                                            Style="{StaticResource DescriptionTextStyle}" />
                                             </StackPanel>
-                                            <interactivity:Interaction.Behaviors>
-                                                <behaviors:StickyHeaderBehavior />
-                                            </interactivity:Interaction.Behaviors>
                                         </Grid>
                                     </ListView.Header>
                                     <ListView.ItemTemplate>

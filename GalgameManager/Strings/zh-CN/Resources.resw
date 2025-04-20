@@ -1090,7 +1090,7 @@
     <value>正在扫描路径:{0}</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>扫描完成, 共添加了{0}个游戏</value>
+    <value>扫描库{1}完成, 共添加了{0}个游戏</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
     <value>消息通知</value>

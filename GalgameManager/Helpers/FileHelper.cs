@@ -44,9 +44,9 @@ public static class FileHelper
         FileService.SaveWithoutJson(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName, content);
     }
     
-    public static void SaveNow<T> (string fileName, T content, string? subFolder = null)
+    public static void SaveNow<T> (string fileName, T content, string? subFolder = null, bool json = true)
     {
-        FileService.SaveNow(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName, content);
+        FileService.SaveNow(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName, content, json);
     }
     
     /// <summary>

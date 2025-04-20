@@ -45,14 +45,14 @@ public class FileService : IFileService
         WritingQueue.Add((filePath, JsonConvert.SerializeObject(content, settings)));
     }
 
-    public void SaveNow<T>(string folderPath, string fileName, T content)
+    public void SaveNow<T>(string folderPath, string fileName, T content, bool json = true)
     {
         if (folderPath == null)
             throw new Exception("folderPath is null");
         if (!Directory.Exists(folderPath))
             Directory.CreateDirectory(folderPath);
         var filePath = Path.Combine(folderPath, fileName);
-        File.WriteAllText(filePath, JsonConvert.SerializeObject(content));
+        File.WriteAllText(filePath, json ? JsonConvert.SerializeObject(content) : content?.ToString());
     }
 
     public void SaveWithoutJson(string folderPath, string fileName, string content)

@@ -41,6 +41,7 @@ public class GalgameFolderSource : GalgameSourceBase
         
         Queue<(string Path, int Depth)> pathToCheck = new();
         pathToCheck.Enqueue((Path, 0));
+        HashSet<string> addedPaths = new(GetGamesIncludingSub().Select(g => g.Path));
         while (pathToCheck.Count > 0)
         {
             var (currentPath, currentDepth) = pathToCheck.Dequeue();
@@ -51,12 +52,30 @@ public class GalgameFolderSource : GalgameSourceBase
             }
             if (IsGameFolder(currentPath, fileMustContain, fileShouldContain))
             {
-                yield return (currentPath, "");
+                if (!addedPaths.Contains(currentPath))
+                    yield return (currentPath, "");
                 continue;
             }
             if (!searchSubFolder) continue;
             foreach (var subPath in Directory.GetDirectories(currentPath))
                 pathToCheck.Enqueue((subPath, currentDepth + 1));
+        }
+        yield break;
+
+        List<GalgameAndPath> GetGamesIncludingSub()
+        {
+            List<GalgameAndPath> result = [];
+            result.AddRange(Galgames);
+            Queue<GalgameSourceBase> queue = new(SubSources);
+            while (queue.Count > 0)
+            {
+                GalgameFolderSource? source = queue.Dequeue() as GalgameFolderSource;
+                if (source == null) continue;
+                result.AddRange(source.Galgames);
+                foreach (GalgameSourceBase subSource in source.SubSources)
+                    queue.Enqueue(subSource);
+            }
+            return result;
         }
     }
 

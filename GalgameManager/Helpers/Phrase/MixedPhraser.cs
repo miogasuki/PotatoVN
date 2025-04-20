@@ -284,7 +284,7 @@ public class MixedPhraserOrder
 {
     // 版本号，每次添加新搜刮器/添加新字段的时候都应该把这个数字+1，以便galgameCollectionService能够更新配置中已有的顺序配置
     // 更新配置不需要手动编写，已经在GalgameCollectionService中使用反射实现，会自动添加新的默认配置
-    public const int Version = 9;
+    public const int Version = 10;
     
     // 为什么使用ObservableCollection：为了能够在MixedPhraserOrderDialog中使顺序能够drag&drop
     // 所有变量都应该命名为：{字段名}Order，此处字段名应该与Galgame中对应的字段名一致（为了让GetValue中的反射能够找到对应的字段）
@@ -310,7 +310,7 @@ public class MixedPhraserOrder
             DescriptionOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             ExpectedPlayTimeOrder = new() { RssType.Vndb };
             RatingOrder = new() { RssType.Bangumi, RssType.Ymgal };
-            ImageUrlOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Ymgal,  };
+            ImageUrlOrder = new() { RssType.Vndb, RssType.Bangumi, RssType.Ymgal,  };
             ReleaseDateOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             CharactersOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             CnNameOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };

@@ -355,7 +355,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 }
             }
             galgame.Characters = tmp.Characters;
-            galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageAsync(galgame.ImageUrl) ?? Galgame.DefaultImagePath;
+            galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl) ?? Galgame.DefaultImagePath;
             galgame.ReleaseDate.Value = tmp.ReleaseDate.Value;
             galgame.LastFetchInfoTime = DateTime.Now;
         });

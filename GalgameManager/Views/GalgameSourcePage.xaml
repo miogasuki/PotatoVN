@@ -256,9 +256,7 @@
                                     IsOn="{x:Bind ViewModel.IncludeSubSources, Mode=TwoWay}" />
                                     
                                 <ListView Grid.Row="1" ItemsSource="{x:Bind ViewModel.Galgames}" 
-                                      SelectionMode="Extended"
-                                      ScrollViewer.VerticalScrollMode="Disabled"
-                                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                      SelectionMode="Extended" MaxHeight="500">
                                     <ListView.Header>
                                         <Grid Padding="16,12"
                                               Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"

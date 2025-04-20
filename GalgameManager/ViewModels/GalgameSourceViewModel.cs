@@ -34,17 +34,13 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     public ObservableCollection<GalgameAndPath> Galgames { get; } = new();
     public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None};
     private readonly List<Galgame> _selectedGalgames = new();
-    private BgTaskBase? _getGalTask;
-    private GetGalgameInfoFromRssTask? _getGalgameInfoFromRss;
     private UnpackGameTask? _unpackGameTask;
     
     [ObservableProperty] private bool _isUnpacking;
     [ObservableProperty] private int _progressValue;
     [ObservableProperty] private string _progressMsg = string.Empty;
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(AddGalgameCommand))] 
-    [NotifyCanExecuteChangedFor(nameof(GetInfoFromRssCommand))]
-    [NotifyCanExecuteChangedFor(nameof(GetGalInFolderCommand))]
+    [NotifyCanExecuteChangedFor(nameof(GetInfoFromRssCommand), nameof(ScanAllCommand))]
     private bool _canExecute; //是否正在运行命令
     [ObservableProperty] private bool _logExists; //是否存在日志文件
 
@@ -55,6 +51,89 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private double _pageWidth;
 
     [ObservableProperty] private bool _includeSubSources;
+    
+    #region SORTING
+    // 为XAML绑定添加静态枚举值属性
+    public SortKeys NameSortKey => SortKeys.Name;
+    public SortKeys LastPlaySortKey => SortKeys.LastPlay;
+    public SortKeys DeveloperSortKey => SortKeys.Developer;
+    public SortKeys RatingSortKey => SortKeys.Rating;
+    public SortKeys ReleaseDateSortKey => SortKeys.ReleaseDate;
+    public SortKeys LastFetchInfoTimeSortKey => SortKeys.LastFetchInfoTime;
+    public SortKeys AddTimeSortKey => SortKeys.AddTime;
+
+    [ObservableProperty] private SortKeys _currentSortKey = SortKeys.Name;
+    [ObservableProperty] private bool _sortDescending = true;
+    
+    [RelayCommand]
+    private void Sort(SortKeys sortKey)
+    {
+        // 如果点击当前排序键，则切换排序方向
+        if (CurrentSortKey == sortKey)
+        {
+            SortDescending = !SortDescending;
+        }
+        else
+        {
+            CurrentSortKey = sortKey;
+        }
+        
+        ApplySorting();
+    }
+    
+    [RelayCommand]
+    private void ApplySorting()
+    {
+        // 创建一个新的AdvancedCollectionView来应用排序
+        var sortedGames = new List<GalgameAndPath>(Galgames);
+
+        // 根据当前排序键和方向应用排序
+        Comparison<GalgameAndPath> comparison = (x, y) =>
+        {
+            int result = 0;
+            switch (CurrentSortKey)
+            {
+                case SortKeys.Name:
+                    result = string.Compare(x.Galgame.Name.Value, y.Galgame.Name.Value, StringComparison.CurrentCultureIgnoreCase);
+                    break;
+                case SortKeys.LastPlay:
+                    result = DateTime.Compare(x.Galgame.LastPlayTime, y.Galgame.LastPlayTime);
+                    break;
+                case SortKeys.Developer:
+                    result = string.Compare(x.Galgame.Developer, y.Galgame.Developer, StringComparison.CurrentCultureIgnoreCase);
+                    break;
+                case SortKeys.Rating:
+                    result = x.Galgame.Rating.CompareTo(y.Galgame.Rating);
+                    break;
+                case SortKeys.ReleaseDate:
+                    result = DateTime.Compare(x.Galgame.ReleaseDate, y.Galgame.ReleaseDate);
+                    break;
+                case SortKeys.AddTime:
+                    result = DateTime.Compare(x.Galgame.AddTime, y.Galgame.AddTime);
+                    break;
+            }
+            
+            return SortDescending ? -result : result; // 如果是降序，则反转结果
+        };
+
+        // 应用排序
+        sortedGames.Sort(comparison);
+        
+        // 更新集合
+        Galgames.Clear();
+        foreach (var game in sortedGames)
+        {
+            Galgames.Add(game);
+        }
+
+        // 保存排序设置到本地设置
+        _ = Task.Run(async () =>
+        {
+            await _settingsService.SaveSettingAsync(KeyValues.LibrarySortKey, (int)CurrentSortKey);
+            await _settingsService.SaveSettingAsync(KeyValues.LibraryGameSortDescending, SortDescending);
+        });
+    }
+    #endregion
 
     #region UI_STRING
 
@@ -114,25 +193,30 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         {
             LoadSubSourceGames(_item);
         }
-    }
-
-    private void LoadSubSourceGames(GalgameSourceBase source)
-    {
-        foreach (var subSource in source.SubSources)
+        
+        // 应用排序
+        ApplySorting();
+        
+        return;
+        
+        void LoadSubSourceGames(GalgameSourceBase source)
         {
-            foreach (GalgameAndPath g in subSource.Galgames)
+            foreach (GalgameSourceBase subSource in source.SubSources)
             {
-                if (!Galgames.Any(existing => existing.Galgame == g.Galgame))
+                foreach (GalgameAndPath g in subSource.Galgames)
                 {
-                    Galgames.Add(g);
+                    if (!Galgames.Any(existing => existing.Galgame == g.Galgame))
+                    {
+                        Galgames.Add(g);
+                    }
                 }
-            }
             
-            // 递归加载子库的子库
-            LoadSubSourceGames(subSource);
+                // 递归加载子库的子库
+                LoadSubSourceGames(subSource);
+            }
         }
     }
-
+    
     private void ReloadGalgameList(Galgame game, bool isDeleted)
     {
         if (_item == null) return;
@@ -154,6 +238,9 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         }
         // 更新UI
         OnPropertyChanged(nameof(Galgames));
+        
+        // 重新应用排序
+        ApplySorting();
     }
 
     private bool CheckSubSourcesForGame(GalgameSourceBase source, Galgame game)
@@ -178,17 +265,15 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     public void OnNavigatedTo(object parameter)
     {
         IncludeSubSources = _settingsService.ReadSettingAsync<bool>(KeyValues.GalgameSourcePageShowSubSourceGames).Result;
+        
+        // 加载排序设置
+        CurrentSortKey = (SortKeys)_settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
+        SortDescending = _settingsService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending).Result;
+        
         if (parameter is not string url) return;
         //TODO
         Item = _sourceService.GetGalgameSourceFromUrl(url);
         if (Item == null) return;
-        
-        _getGalTask = _bgTaskService.GetBgTask<GetGalgameInSourceTask>(Item.Url);
-        if (_getGalTask != null)
-        {
-            _getGalTask.OnProgress += UpdateNotifyGetGal;
-            UpdateNotifyGetGal(_getGalTask.CurrentProgress);
-        }
         
         _unpackGameTask = _bgTaskService.GetBgTask<UnpackGameTask>(Item.Url);
         if (_unpackGameTask != null)
@@ -196,22 +281,14 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             _unpackGameTask.OnProgress += UpdateNotifyUnpack;
             UpdateNotifyUnpack(_unpackGameTask.CurrentProgress);
         }
-        _getGalgameInfoFromRss = _bgTaskService.GetBgTask<GetGalgameInfoFromRssTask>(Item.Url);
-        if (_getGalgameInfoFromRss != null)
-        {
-            _getGalgameInfoFromRss.OnProgress += UpdateNotifyGetInfoFromRss;
-            UpdateNotifyGetGal(_getGalgameInfoFromRss.CurrentProgress);
-        }
         Update();
     }
 
     public void OnNavigatedFrom()
     {
-        if (_getGalTask != null) _getGalTask.OnProgress -= UpdateNotifyGetGal;
-        if (_getGalgameInfoFromRss != null) _getGalgameInfoFromRss.OnProgress -= UpdateNotifyGetInfoFromRss;
         if (_unpackGameTask != null)
         {
-            _unpackGameTask.OnProgress -= UpdateNotifyGetGal;
+            _unpackGameTask.OnProgress -= UpdateNotifyUnpack;
             _unpackGameTask.OnProgress -= HandelUnpackError;
         }
         Item = null; //确保监听注销
@@ -233,75 +310,13 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         ProgressMsg = progress.Message;
     }
 
-    private void UpdateNotifyGetGal(Progress progress)
-    {
-        if(Item == null) return;
-        Update();
-        _infoService.Info(progress.ToSeverity(), msg: progress.Message, displayTimeMs: progress.ToSeverity() switch
-        {
-            InfoBarSeverity.Informational => 300000,
-            _ => 3000
-        });
-    }
-    
-    private void UpdateNotifyGetInfoFromRss(Progress progress)
-    {
-        if(Item == null) return;
-        Update();
-        _infoService.Info(progress.ToSeverity(), msg: progress.Message, displayTimeMs: progress.ToSeverity() switch
-        {
-            InfoBarSeverity.Informational => 300000,
-            _ => 3000
-        });
-    }
-
     [RelayCommand(CanExecute = nameof(CanExecute))]
-    private async Task AddGalgame()
+    private async Task GetInfoFromRss(object parameter)
     {
-        //TODO
-        FileOpenPicker openPicker = new();
-        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
-        openPicker.ViewMode = PickerViewMode.Thumbnail;
-        openPicker.FileTypeFilter.Add(".exe");
-        StorageFile? file = await openPicker.PickSingleFileAsync();
-        if (file != null)
-        {
-            var folder = file.Path.Substring(0, Math.Max(file.Path.LastIndexOf('\\'), 0));
-            await TryAddGalgame(folder);
-        }
-    }
+        if (Item == null) return;
+        
 
-    /// <summary>
-    /// 试图添加游戏，如果添加失败，会显示错误信息
-    /// </summary>
-    /// <param name="folder">游戏文件夹路径</param>
-    private async Task TryAddGalgame(string folder)
-    {
-        try
-        {
-            if (!Item!.IsInSource(folder))
-            {
-                _infoService.Info(InfoBarSeverity.Error, msg:"GalgameSourcePage_NotInSource".GetLocalized());
-                return;
-            }
-            Galgame game = await _galgameService.AddGameAsync(Item!.SourceType, folder, true);
-            if (game.IsIdsEmpty())
-                _infoService.Info(InfoBarSeverity.Warning, msg: "AddGalgameResult_NotFoundInRss".GetLocalized());
-            else
-                _infoService.Info(InfoBarSeverity.Success, msg: "AddGalgameResult_Success".GetLocalized());
-        }
-        catch (Exception e)
-        { 
-            _infoService.Info(InfoBarSeverity.Error, msg: e.Message);
-        }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanExecute))]
-    private void GetInfoFromRss(object parameter)
-    {
-        if (_item == null) return;
-
-        // 检查是否是 isNameOnly 模式
+        // 检查是否是 从游戏名下载信息 模式
         if (parameter is string isNameOnly && isNameOnly == "True")
         {
             // 清除目前存储的id信息
@@ -316,31 +331,166 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                 }
             }
         }
-        
-        if (_selectedGalgames.Count == 0)
+
+        if (_selectedGalgames.Count > 0)
         {
-            _getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(_item);
-            _getGalgameInfoFromRss.OnProgress += UpdateNotifyGetInfoFromRss;
-            _ = _bgTaskService.AddBgTask(_getGalgameInfoFromRss);
+            var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(Item, _selectedGalgames);
+            getGalgameInfoFromRss.OnProgress += progress =>
+            {
+                Update();
+                _infoService.Info(progress.ToSeverity(), msg: progress.Message,
+                    displayTimeMs: progress.ToSeverity() switch
+                    {
+                        InfoBarSeverity.Informational => 300000,
+                        _ => 3000
+                    });
+            };
+            _ = _bgTaskService.AddBgTask(getGalgameInfoFromRss);
+            return;
         }
-        else
+
+        // 没有选中任何游戏，获取当前库下所有游戏的信息
+
+        // 创建确认对话框
+        CheckBox includeSubfoldersCheckBox = new()
         {
-            _getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(_item, _selectedGalgames);
-            _getGalgameInfoFromRss.OnProgress += UpdateNotifyGetInfoFromRss;
-            _ = _bgTaskService.AddBgTask(_getGalgameInfoFromRss);
+            Content = "LibraryPage_GetInfoFromRss_IncludeSubfolders".GetLocalized(),
+            IsChecked = true
+        };
+
+        StackPanel dialogContent = new()
+        {
+            Spacing = 10
+        };
+        dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_GetInfoFromRss_Content".GetLocalized() });
+        dialogContent.Children.Add(includeSubfoldersCheckBox);
+        
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "LibraryPage_GetInfoFromRss_Title".GetLocalized(),
+            Content = dialogContent,
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        bool scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
+
+        // 获取当前目录下所有库
+        List<GalgameSourceBase> sources = new();
+        sources.Add(Item);
+
+        // 如果用户选择包含子文件夹，则添加所有子库
+        if (scanSubfolders)
+        {
+            var allSources = _sourceService.GetGalgameSources();
+            AddSubSources(Item, allSources);
+        }
+
+        // 对于这个列表，每个库都创建一个GetGalgameInfoFromRssTask，并加入到BgTaskService中
+        foreach (GalgameSourceBase source in sources)
+        {
+            var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(source);
+            getGalgameInfoFromRss.OnProgress += progress =>
+            {
+                Update();
+                _infoService.Info(progress.ToSeverity(), msg: progress.Message,
+                    displayTimeMs: progress.ToSeverity() switch
+                    {
+                        InfoBarSeverity.Informational => 300000,
+                        _ => 3000
+                    });
+            };
+            _ = _bgTaskService.AddBgTask(getGalgameInfoFromRss);
+        }
+
+        return;
+
+        void AddSubSources(GalgameSourceBase parent, IEnumerable<GalgameSourceBase> allSources)
+        {
+            foreach (var source in allSources.Where(s => s.ParentSource == parent))
+            {
+                sources.Add(source);
+                AddSubSources(source, allSources);
+            }
         }
     }
 
     [RelayCommand(CanExecute = nameof(CanExecute))]
-    private void GetGalInFolder()
+    private async Task ScanAll()
     {
-        if (_item == null) return;
-        //TODO
-        _getGalTask = new GetGalgameInSourceTask(_item);
-        _getGalTask.OnProgress += UpdateNotifyGetGal;
-        _ = _bgTaskService.AddBgTask(_getGalTask);
+        // 和 LibraryViewModel 中的 ScanAll() 基本一致
+        if (Item == null) return;
+        // 创建确认对话框
+        CheckBox includeSubfoldersCheckBox = new()
+        {
+            Content = "LibraryPage_ScanAll_IncludeSubfolders".GetLocalized(),
+            IsChecked = true
+        };
+
+        StackPanel dialogContent = new()
+        {
+            Spacing = 10
+        };
+        dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_ScanAll_Content".GetLocalized() });
+        dialogContent.Children.Add(includeSubfoldersCheckBox);
+
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "LibraryPage_ScanAll_Title".GetLocalized(),
+            Content = dialogContent,
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        bool scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
+
+        // 获取当前目录下所有库
+        List<GalgameSourceBase> sources = new();
+        sources.Add(Item);
+
+        // 如果用户选择包含子文件夹，则添加所有子库
+        if (scanSubfolders)
+        {
+            var allSources = _sourceService.GetGalgameSources();
+            AddSubSources(Item, allSources);
+        }
+
+        foreach (var source in sources)
+        {
+            Update();
+            _sourceService.Scan(source);
+            _infoService.Info(InfoBarSeverity.Success, msg: "LibraryPage_Scan_Success".GetLocalized(source.Name));
+        }
+
+        return;
+
+        void AddSubSources(GalgameSourceBase parent, IEnumerable<GalgameSourceBase> allSources)
+        {
+            foreach (var source in allSources.Where(s => s.ParentSource == parent))
+            {
+                sources.Add(source);
+                AddSubSources(source, allSources);
+            }
+        }
+        
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalFolder))]
     private async Task AddGalFromZip(string? passWord = null)
     {
@@ -442,6 +592,69 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         var path = Item.GetLogPath();
         if(FileHelper.Exists(path) == false) return; 
         await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(FileHelper.GetFullPath(path)));
+    }
+
+    [RelayCommand]
+    private async Task DeleteSingleGame(GalgameAndPath gameAndPath)
+    {
+        if (gameAndPath?.Galgame == null) return;
+        
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "GalgameSourcePage_Remove_Title".GetLocalized(),
+            Content = string.Format("GalgameSourcePage_Remove_SingleGame".GetLocalized(), gameAndPath.Galgame.Name.Value),
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+        
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            await _galgameService.RemoveGalgame(gameAndPath.Galgame);
+            // 如果当前游戏在选中列表中，也要将其移除
+            if (_selectedGalgames.Contains(gameAndPath.Galgame))
+            {
+                _selectedGalgames.Remove(gameAndPath.Galgame);
+                // 更新UI状态
+                if (_selectedGalgames.Count == 0)
+                {
+                    UiDownloadInfo = "GalgameFolderPage_DownloadInfo".GetLocalized();
+                    IsDownloadFromNameVisible = false;
+                }
+            }
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteGame()
+    {
+        if (_selectedGalgames.Count == 0) return;
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "GalgameSourcePage_Remove_Title".GetLocalized(),
+            Content = string.Format("GalgameSourcePage_Remove_Message".GetLocalized(), _selectedGalgames.Count),
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+        dialog.PrimaryButtonClick += async (_, _) =>
+        {
+            // 创建选中游戏的副本，避免在遍历过程中集合被修改
+            List<Galgame> gamesToRemove = new(_selectedGalgames);
+            foreach (var galgame in gamesToRemove)
+            {
+                await _galgameService.RemoveGalgame(galgame);
+            }
+            // 操作完成后清空选中集合
+            _selectedGalgames.Clear();
+            UiDownloadInfo = "GalgameFolderPage_DownloadInfo".GetLocalized();
+            IsDownloadFromNameVisible = false;
+        };
+    
+        await dialog.ShowAsync();
     }
 
     [RelayCommand]

@@ -196,6 +196,17 @@ public enum GalgameSourceType
     Virtual,
 }
 
+public enum GalgameSourceSortKeys
+{
+    Name,
+    LastPlay,
+    LastClick,
+    Path,
+    SourceType,
+    GalgameCount,
+}
+
+
 public static class SourceTypeHelper
 {
     public static string? SourceTypeToString(this GalgameSourceType sourceType)

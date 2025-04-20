@@ -29,6 +29,7 @@ public partial class LibraryViewModel(
     private GalgameSourceBase? _currentSource;
     private GalgameSourceBase? _lastBackSource;
     private static GalgameSourceBase? _beforeNavigateFromSource; //用于从该页跳转到Galgame详情界面后返回时直接回到某个库的界面
+    private static readonly List<GetGalgameInfoFromRssTask> RssTasks = [];
 
     [ObservableProperty]
     private AdvancedCollectionView _source = null!;
@@ -88,10 +89,12 @@ public partial class LibraryViewModel(
 
     public void OnNavigatedTo(object parameter)
     {
-
         // 加载排序设置
         CurrentSortKey = (SortKeys)settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
-        SortDescending = settingsService.ReadSettingAsync<bool>(KeyValues.LibrarySortDescending).Result;
+        GameSortDescending = settingsService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending).Result;
+
+        CurrentFolderSortKey = (GalgameSourceSortKeys)settingsService.ReadSettingAsync<int>(KeyValues.LibraryFolderSortKey).Result;
+        FolderSortDescending = settingsService.ReadSettingAsync<bool>(KeyValues.LibraryFolderSortDescending).Result;
 
         Source = new AdvancedCollectionView(new ObservableCollection<IDisplayableGameObject>(), true);
         Source.Filter = s =>
@@ -108,13 +111,18 @@ public partial class LibraryViewModel(
         NavigateTo(parameter as GalgameSourceBase); //显示根库 / 指定库
         _beforeNavigateFromSource = null;
         galSourceService.OnSourceChanged += HandleSourceCollectionChanged;
-
+        foreach (GetGalgameInfoFromRssTask task in RssTasks.Where(t => t.IsRunning))
+            task.OnProgress += HandleGetGalInfoProgressChanged;
     }
 
     public void OnNavigatedFrom()
     {
         galSourceService.OnSourceChanged -= HandleSourceCollectionChanged;
         _lastBackSource = CurrentSource = null;
+        foreach (GetGalgameInfoFromRssTask task in RssTasks)
+            task.OnProgress -= HandleGetGalInfoProgressChanged;
+        List<GetGalgameInfoFromRssTask> toRemove = RssTasks.Where(t => !t.IsRunning).ToList();
+        foreach (GetGalgameInfoFromRssTask task in toRemove) RssTasks.Remove(task);
     }
 
     private void HandleSourceCollectionChanged()
@@ -214,8 +222,40 @@ public partial class LibraryViewModel(
     }
 
     [RelayCommand]
-    private void GetInfoFromRss()
+    private async Task GetInfoFromRss()
     {
+        // 创建确认对话框
+        CheckBox includeSubfoldersCheckBox = new()
+        {
+            Content = "LibraryPage_GetInfoFromRss_IncludeSubfolders".GetLocalized(),
+            IsChecked = true
+        };
+
+        StackPanel dialogContent = new ()
+        {
+            Spacing = 10
+        };
+        dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_GetInfoFromRss_Content".GetLocalized() });
+        dialogContent.Children.Add(includeSubfoldersCheckBox);
+        
+        ContentDialog dialog = new ()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "LibraryPage_GetInfoFromRss_Title".GetLocalized(),
+            Content = dialogContent,
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        bool scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
+        
         List<GalgameSourceBase> sources = new();
         if (CurrentSource is null)
         {
@@ -224,26 +264,23 @@ public partial class LibraryViewModel(
         }
         else
         {
-            // 获取当前库及其所有子库
+            // 获取当前库及其子库
             sources.Add(CurrentSource);
-            var allSources = galSourceService.GetGalgameSources();
             
-            AddSubSources(CurrentSource, allSources);
+            // 如果用户选择包含子文件夹，则添加所有子库
+            if (scanSubfolders)
+            {
+                var allSources = galSourceService.GetGalgameSources();
+                AddSubSources(CurrentSource, allSources);
+            }
         }
 
         // 对于这个列表，每个库都创建一个GetGalgameInfoFromRssTask，并加入到BgTaskService中
         foreach (GalgameSourceBase source in sources)
         {
             var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(source);
-            getGalgameInfoFromRss.OnProgress += progress =>
-            {
-                infoService.Info(progress.ToSeverity(), msg: progress.Message,
-                    displayTimeMs: progress.ToSeverity() switch
-                    {
-                        InfoBarSeverity.Informational => 300000,
-                        _ => 3000
-                    });
-            };
+            getGalgameInfoFromRss.OnProgress += HandleGetGalInfoProgressChanged;
+            RssTasks.Add(getGalgameInfoFromRss);
             _ = bgTaskService.AddBgTask(getGalgameInfoFromRss);
         }
         
@@ -309,8 +346,40 @@ public partial class LibraryViewModel(
     }
 
     [RelayCommand]
-    private void ScanAll()
+    private async Task ScanAll()
     {
+        // 创建确认对话框
+        CheckBox includeSubfoldersCheckBox = new ()
+        {
+            Content = "LibraryPage_ScanAll_IncludeSubfolders".GetLocalized(),
+            IsChecked = true
+        };
+
+        StackPanel dialogContent = new ()
+        {
+            Spacing = 10
+        };
+        dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_ScanAll_Content".GetLocalized() });
+        dialogContent.Children.Add(includeSubfoldersCheckBox);
+
+        ContentDialog dialog = new ()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            Title = "LibraryPage_ScanAll_Title".GetLocalized(),
+            Content = dialogContent,
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized()
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        bool scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
+        
         if (CurrentSource is null)
         {
             galSourceService.ScanAll();
@@ -321,9 +390,13 @@ public partial class LibraryViewModel(
             // 获取当前目录下所有库
             List<GalgameSourceBase> sources = new();
             sources.Add(CurrentSource);
-            var allSources = galSourceService.GetGalgameSources();
             
-            AddSubSources(CurrentSource, allSources);
+            // 如果用户选择包含子文件夹，则添加所有子库
+            if (scanSubfolders)
+            {
+                var allSources = galSourceService.GetGalgameSources();
+                AddSubSources(CurrentSource, allSources);
+            }
             
             foreach (var source in sources)
             {
@@ -431,6 +504,15 @@ public partial class LibraryViewModel(
         // 重新应用排序
         ApplySorting();
     }
+    
+    private void HandleGetGalInfoProgressChanged(Progress progress)
+    {
+        infoService.Info(progress.ToSeverity(), msg: progress.Message, displayTimeMs: progress.ToSeverity() switch
+        {
+            InfoBarSeverity.Informational => 300000,
+            _ => 3000
+        });
+    }
 
     #region SORTING
     // 为XAML绑定添加静态枚举值属性
@@ -443,7 +525,17 @@ public partial class LibraryViewModel(
     public SortKeys AddTimeSortKey => SortKeys.AddTime;
 
     [ObservableProperty] private SortKeys _currentSortKey = SortKeys.Name;
-    [ObservableProperty] private bool _sortDescending = true;
+    [ObservableProperty] private bool _gameSortDescending = true;
+
+    // 当前文件夹的排序键
+    [ObservableProperty] private GalgameSourceSortKeys _currentFolderSortKey = GalgameSourceSortKeys.Name;
+    [ObservableProperty] private bool _folderSortDescending = true;
+    // 为XAML绑定添加文件夹排序的静态枚举值属性
+    public GalgameSourceSortKeys LibraryNameSortKey => GalgameSourceSortKeys.Name;
+    public GalgameSourceSortKeys LibraryLastPlayedSortKey => GalgameSourceSortKeys.LastPlay;
+    public GalgameSourceSortKeys LibraryPathSortKey => GalgameSourceSortKeys.Path;
+    public GalgameSourceSortKeys LibrarySourceTypeSortKey => GalgameSourceSortKeys.SourceType;
+    public GalgameSourceSortKeys LibraryGalgameCountSortKey => GalgameSourceSortKeys.GalgameCount;
     
     [RelayCommand]
     private void Sort(SortKeys sortKey)
@@ -451,7 +543,7 @@ public partial class LibraryViewModel(
         // 如果点击当前排序键，则切换排序方向
         if (CurrentSortKey == sortKey)
         {
-            SortDescending = !SortDescending;
+            GameSortDescending = !GameSortDescending;
         }
         else
         {
@@ -460,41 +552,88 @@ public partial class LibraryViewModel(
         
         ApplySorting();
     }
+
+    [RelayCommand]
+    private void SortLibrary(GalgameSourceSortKeys sortKey)
+    {
+        // 如果点击当前排序键，则切换排序方向
+        if (CurrentFolderSortKey == sortKey)
+        {
+            FolderSortDescending = !FolderSortDescending;
+        }
+        else
+        {
+            CurrentFolderSortKey = sortKey;
+        }
+        
+        ApplySorting();
+    }
+    
     [RelayCommand]
     private void ApplySorting()
     {
+        // 应用游戏排序 - 保持不变
         Galgames.SortDescriptions.Clear();
 
         // 根据当前排序键和方向应用排序
-        var direction = SortDescending ? SortDirection.Descending : SortDirection.Ascending;
+        var gameDirection = GameSortDescending ? SortDirection.Descending : SortDirection.Ascending;
 
         switch (CurrentSortKey)
         {
             case SortKeys.Name:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Name), gameDirection));
                 break;
             case SortKeys.LastPlay:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastPlayTime), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.LastPlayTime), gameDirection));
                 break;
             case SortKeys.Developer:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Developer), gameDirection));
                 break;
             case SortKeys.Rating:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Rating), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.Rating), gameDirection));
                 break;
             case SortKeys.ReleaseDate:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.ReleaseDate), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.ReleaseDate), gameDirection));
                 break;
             case SortKeys.AddTime:
-                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), direction));
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), gameDirection));
                 break;
+        }
+
+        // 应用文件夹排序逻辑
+        if (Source.Count > 0)
+        {
+            var sorted = Source.Cast<IDisplayableGameObject>().ToList();
+            sorted.Sort((x, y) =>
+            {
+                if (x is GalgameSourceBase sx && y is GalgameSourceBase sy)
+                {
+                    int result = CurrentFolderSortKey switch
+                    {
+                        GalgameSourceSortKeys.Name => string.Compare(sx.Name, sy.Name, StringComparison.CurrentCultureIgnoreCase),
+                        GalgameSourceSortKeys.LastPlay => DateTime.Compare(sx.LastPlayed, sy.LastPlayed),
+                        GalgameSourceSortKeys.Path => string.Compare(sx.Path, sy.Path, StringComparison.CurrentCultureIgnoreCase),
+                        GalgameSourceSortKeys.SourceType => sx.SourceType.CompareTo(sy.SourceType),
+                        GalgameSourceSortKeys.GalgameCount => sx.Galgames.Count.CompareTo(sy.Galgames.Count),
+                        _ => 0
+                    };
+                    return FolderSortDescending ? -result : result;
+                }
+                return 0;
+            });
+            Source.Clear();
+            foreach (var item in sorted)
+                Source.Add(item);
         }
 
         // 保存排序设置到本地设置
         _ = Task.Run(async () =>
         {
             await settingsService.SaveSettingAsync(KeyValues.LibrarySortKey, (int)CurrentSortKey);
-            await settingsService.SaveSettingAsync(KeyValues.LibrarySortDescending, SortDescending);
+            await settingsService.SaveSettingAsync(KeyValues.LibraryGameSortDescending, GameSortDescending);
+
+            await settingsService.SaveSettingAsync(KeyValues.LibraryFolderSortKey, (int)CurrentFolderSortKey);
+            await settingsService.SaveSettingAsync(KeyValues.LibraryFolderSortDescending, FolderSortDescending);
         });
     }
 

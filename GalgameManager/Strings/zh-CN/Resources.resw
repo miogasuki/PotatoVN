@@ -478,10 +478,10 @@
     <value>下载游戏数据</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfo" xml:space="preserve">
-    <value>使用游戏ID下载选定游戏数据</value>
+    <value>使用游戏ID下载数据</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfoFromName.Label" xml:space="preserve">
-    <value>使用游戏名下载选定游戏数据</value>
+    <value>使用游戏名下载数据</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>搜索</value>
@@ -1090,7 +1090,7 @@
     <value>正在扫描路径:{0}</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>扫描完成, 共添加了{0}个游戏</value>
+    <value>扫描库{1}完成, 共添加了{0}个游戏</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
     <value>消息通知</value>
@@ -1202,12 +1202,6 @@
   </data>
   <data name="HomePage_Sort_Title" xml:space="preserve">
     <value>排序</value>
-  </data>
-  <data name="HomePage_Sort_FirstKey" xml:space="preserve">
-    <value>第一关键字</value>
-  </data>
-  <data name="HomePage_Sort_SecondKey" xml:space="preserve">
-    <value>第二关键字</value>
   </data>
   <data name="HomePage_Sort_DescendOrAscend" xml:space="preserve">
     <value>降序/升序</value>
@@ -2286,6 +2280,15 @@
   <data name="GalgameSourcePage_GamesTable_OpenInExplorer.Text" xml:space="preserve">
     <value>在文件管理器中打开</value>
   </data>
+  <data name="GalgameSourcePage_GamesTable_Delete.Text" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Remove_Title" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Remove_SingleGame" xml:space="preserve">
+    <value>是否要从游戏库中移除游戏：{0}</value>
+  </data>
   <data name="AnnualReportPage_Calculating.Text" xml:space="preserve">
     <value>正在计算年度数据，请稍后</value>
   </data>
@@ -2511,6 +2514,9 @@
   <data name="ManageGalgamePageLayoutDialog_ShowMusician.Text" xml:space="preserve">
     <value>显示音乐</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
+    <value>显示背景图</value>
+  </data>
   <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
     <value>游戏信息</value>
   </data>
@@ -2682,6 +2688,9 @@
   <data name="ManageGalgamePageLayoutDialog_ShowCover.Text" xml:space="preserve">
     <value>显示封面图</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowCoverWhenNoBackground.Content" xml:space="preserve">
+    <value>仅在未显示背景图片的时候显示封面图</value>
+  </data>
   <data name="GetHeaderFromRssTask_Title" xml:space="preserve">
     <value>下载游戏横幅图任务</value>
   </data>
@@ -2693,5 +2702,92 @@
   </data>
   <data name="QueueTaskBase_Empty" xml:space="preserve">
     <value>已完成所有任务，等待新任务中</value>
+  </data>
+  <data name="LibraryPage_GetInfoFromRss_Title" xml:space="preserve">
+    <value>获取所有游戏信息</value>
+  </data>
+  <data name="LibraryPage_GetInfoFromRss_Content" xml:space="preserve">
+    <value>下载当前库的所有游戏数据，这需要很长时间来下载所有信息</value>
+  </data>
+  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders" xml:space="preserve">
+    <value>包括所有子文件夹</value>
+  </data>
+  <data name="LibraryPage_ScanAll_Title" xml:space="preserve">
+    <value>扫描游戏库</value>
+  </data>
+  <data name="LibraryPage_ScanAll_Content" xml:space="preserve">
+    <value>重新扫描当前库，这可能需要一段时间来下载所有信息</value>
+  </data>
+  <data name="LibraryPage_ScanAll_IncludeSubfolders" xml:space="preserve">
+    <value>包括所有子文件夹</value>
+  </data>
+  <data name="GalgameFolderPage_Delete.Label" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Remove_Title" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameSourcePage_Remove_Message" xml:space="preserve">
+    <value>确定要从库中移除所选游戏吗？一共选中了{0}个</value>
+  </data>
+  <data name="LibraryPage_SortGameSubMenu.Text" xml:space="preserve">
+    <value>游戏排序</value>
+  </data>
+  <data name="LibraryPage_SortFolderSubMenu.Text" xml:space="preserve">
+    <value>库排序</value>
+  </data>
+  <data name="LibraryPage_GameSortDescending.Text" xml:space="preserve">
+    <value>降序</value>
+  </data>
+  <data name="LibraryPage_FolderSortDescending.Text" xml:space="preserve">
+    <value>降序</value>
+  </data>
+  <data name="LibraryPage_FolderSortByName.Text" xml:space="preserve">
+    <value>按名字</value>
+  </data>
+  <data name="LibraryPage_FolderSortByLastPlayed.Text" xml:space="preserve">
+    <value>按最近游玩时间</value>
+  </data>
+  <data name="LibraryPage_FolderSortByPath.Text" xml:space="preserve">
+    <value>按路径</value>
+  </data>
+  <data name="LibraryPage_FolderSortBySourceType.Text" xml:space="preserve">
+    <value>按库类型</value>
+  </data>
+  <data name="LibraryPage_FolderSortByGalgameCount.Text" xml:space="preserve">
+    <value>按游戏数量</value>
+  </data>
+  <data name="HomePage_Sort_FirstKey.Text" xml:space="preserve">
+    <value>主要排序方式</value>
+  </data>
+  <data name="HomePage_Sort_SecondKey.Text" xml:space="preserve">
+    <value>次要排序方式</value>
+  </data>
+  <data name="HomePage_Sort_Name.Text" xml:space="preserve">
+    <value>按游戏名</value>
+  </data>
+  <data name="HomePage_Sort_Developer.Text" xml:space="preserve">
+    <value>按开发商</value>
+  </data>
+  <data name="HomePage_Sort_Rating.Text" xml:space="preserve">
+    <value>按评分</value>
+  </data>
+  <data name="HomePage_Sort_LastPlay.Text" xml:space="preserve">
+    <value>按最后游玩时间</value>
+  </data>
+  <data name="HomePage_Sort_ReleaseDate.Text" xml:space="preserve">
+    <value>按发售日期</value>
+  </data>
+  <data name="HomePage_Sort_LastFetchInfoTime.Text" xml:space="preserve">
+    <value>按最后更新时间</value>
+  </data>
+  <data name="HomePage_Sort_AddTime.Text" xml:space="preserve">
+    <value>按添加时间</value>
+  </data>
+  <data name="HomePage_Sort_PrimaryAscending.Text" xml:space="preserve">
+    <value>升序</value>
+  </data>
+  <data name="HomePage_Sort_SecondaryAscending.Text" xml:space="preserve">
+    <value>升序</value>
   </data>
 </root>

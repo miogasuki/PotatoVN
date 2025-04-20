@@ -67,8 +67,7 @@
                                                                   FontSize=12}"
                                 SuggestedItemsSource="{x:Bind ViewModel.FilterInputSuggestions, Mode=OneWay}"
                                 AllowFocusOnInteraction="True"
-                                Text="{x:Bind ViewModel.FilterInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                >
+                                Text="{x:Bind ViewModel.FilterInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                 <cmtkControl:TokenizingTextBox.AutoSuggestBoxStyle>
                                     <Style TargetType="AutoSuggestBox">
                                         <Setter Property="MinWidth" Value="200"/>
@@ -122,10 +121,96 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <!-- 排序 -->
-                <AppBarButton x:Uid="HomePage_Sort" Command="{x:Bind ViewModel.SortCommand}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8CB;" />
-                    </AppBarButton.Icon>
+                <AppBarButton x:Uid="HomePage_Sort" Icon="Sort">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+                            <!-- 第一排序键 -->
+                            <MenuFlyoutSubItem x:Uid="HomePage_Sort_FirstKey">
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name" 
+                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
+                                               CommandParameter="Name"
+                                               GroupName="PrimarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('Name'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Developer" 
+                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
+                                               CommandParameter="Developer"
+                                               GroupName="PrimarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('Developer'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Rating" 
+                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
+                                               CommandParameter="Rating"
+                                               GroupName="PrimarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('Rating'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastPlay" 
+                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
+                                               CommandParameter="LastPlay"
+                                               GroupName="PrimarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('LastPlay'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_ReleaseDate" 
+                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
+                                               CommandParameter="ReleaseDate"
+                                               GroupName="PrimarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('ReleaseDate'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastFetchInfoTime" 
+                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
+                                               CommandParameter="LastFetchInfoTime"
+                                               GroupName="PrimarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('LastFetchInfoTime'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_AddTime" 
+                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
+                                               CommandParameter="AddTime"
+                                               GroupName="PrimarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('AddTime'), Mode=OneWay}"/>
+                                <MenuFlyoutSeparator/>
+                                <ToggleMenuFlyoutItem x:Uid="HomePage_Sort_PrimaryAscending"
+                                                 IsChecked="{x:Bind ViewModel.IsPrimaryAscending, Mode=TwoWay}"
+                                                 Command="{x:Bind ViewModel.ApplySortCommand}"/>
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSeparator/>
+                            <!-- 第二排序键 -->
+                            <MenuFlyoutSubItem x:Uid="HomePage_Sort_SecondKey">
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name" 
+                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
+                                               CommandParameter="Name"
+                                               GroupName="SecondarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('Name'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Developer" 
+                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
+                                               CommandParameter="Developer"
+                                               GroupName="SecondarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('Developer'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Rating" 
+                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
+                                               CommandParameter="Rating"
+                                               GroupName="SecondarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('Rating'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastPlay" 
+                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
+                                               CommandParameter="LastPlay"
+                                               GroupName="SecondarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('LastPlay'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_ReleaseDate" 
+                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
+                                               CommandParameter="ReleaseDate"
+                                               GroupName="SecondarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('ReleaseDate'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastFetchInfoTime" 
+                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
+                                               CommandParameter="LastFetchInfoTime"
+                                               GroupName="SecondarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('LastFetchInfoTime'), Mode=OneWay}"/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_AddTime" 
+                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
+                                               CommandParameter="AddTime"
+                                               GroupName="SecondarySorting"
+                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('AddTime'), Mode=OneWay}"/>
+                                <MenuFlyoutSeparator/>
+                                <ToggleMenuFlyoutItem x:Uid="HomePage_Sort_SecondaryAscending"
+                                                 IsChecked="{x:Bind ViewModel.IsSecondaryAscending, Mode=TwoWay}"
+                                                 Command="{x:Bind ViewModel.ApplySortCommand}"/>
+                            </MenuFlyoutSubItem>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control" Key="S"/>
                     </AppBarButton.KeyboardAccelerators>

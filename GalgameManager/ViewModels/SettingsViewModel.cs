@@ -21,6 +21,7 @@ using GalgameManager.Models.Sources;
 using GalgameManager.Views.Dialog;
 using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
 using Windows.Globalization;
+using Windows.ApplicationModel.Store.Preview;
 
 namespace GalgameManager.ViewModels;
 
@@ -562,7 +563,81 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     partial void OnMinToTrayWhenAutoStartChanged(bool value) =>
         _localSettingsService.SaveSettingAsync(KeyValues.MinToTrayWhenAutoStart, value);
-    
+
+    [RelayCommand]
+    private async Task CreateDesktopShortcut()
+    {
+        bool isPinnedSuccessfully = false;
+        string shortcutPath = string.Empty;
+
+        shortcutPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            "PotatoVN.lnk");
+
+        if (File.Exists(shortcutPath))
+        {
+            await DisplayMsgAsync(InfoBarSeverity.Informational, "SettingsPage_Start_DesktopShortcut_AlreadyExists".GetLocalized());
+            return;
+        }
+
+        await Task.Run(() =>
+        {
+            try
+            {
+                var pkgFamilyName = Package.Current.Id.FamilyName;
+
+                if (StoreConfiguration.IsPinToDesktopSupported())
+                {
+                    StoreConfiguration.PinToDesktop(pkgFamilyName);
+                    isPinnedSuccessfully = true;
+                }
+            }
+            catch (Exception e)
+            {
+                _infoService.Info(InfoBarSeverity.Error, "SettingsPage_Start_DesktopShortcut_Fail".GetLocalized(), e.Message);
+            }
+        });
+
+        if (isPinnedSuccessfully)
+        {
+            try
+            {
+                string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "WindowIcon.ico");
+
+                if (File.Exists(iconPath) && File.Exists(shortcutPath))
+                {
+                    // 使用PowerShell命令修改快捷方式图标
+                    string command = $@"$shell = New-Object -ComObject WScript.Shell; " +
+                                    $@"$shortcut = $shell.CreateShortcut('{shortcutPath.Replace("\\", "\\\\")}'); " +
+                                    $@"$shortcut.IconLocation = '{iconPath.Replace("\\", "\\\\")}'; " +
+                                    $@"$shortcut.Save()";
+
+                    var process = new System.Diagnostics.Process
+                    {
+                        StartInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = "powershell.exe",
+                            Arguments = $"-Command \"{command}\"",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true
+                        }
+                    };
+
+                    process.Start();
+                    await process.WaitForExitAsync();
+                }
+                await DisplayMsgAsync(InfoBarSeverity.Success, "SettingsPage_Start_DesktopShortcut_Success".GetLocalized());
+            }
+            catch (Exception ex)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Start_DesktopShortcut_Success".GetLocalized(),
+                    "SettingsPage_Start_DesktopShortcut_IconFail".GetLocalized());
+            }
+        }
+    }
+
     #endregion
 
     #region Other

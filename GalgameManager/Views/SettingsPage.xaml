@@ -478,7 +478,15 @@
                                 <local:SettingToggleSwitch 
                                     x:Uid="SettingsPage_Start_AutoStartGame"
                                     IsOn="{x:Bind ViewModel.QuitStart, Mode=TwoWay}" />
-                            </control:Panel>              
+                            </control:Panel> 
+                            <!-- 创建桌面快捷方式 -->
+                            <control:Panel>
+                                <control:Setting  x:Uid="SettingsPage_Start_DesktopShortcut">
+                                    <Button Content="Go"
+                                            MinWidth="{StaticResource ButtonMinWidth}"
+                                            Command="{x:Bind ViewModel.CreateDesktopShortcutCommand}"/>
+                                </control:Setting>
+                            </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
                 </control:SettingExpander>

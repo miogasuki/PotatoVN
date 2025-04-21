@@ -632,8 +632,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             }
             catch (Exception ex)
             {
-                _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Start_DesktopShortcut_Success".GetLocalized(),
-                    "SettingsPage_Start_DesktopShortcut_IconFail".GetLocalized());
+                _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Start_DesktopShortcut_IconFail".GetLocalized(),
+                    ex.Message);
             }
         }
     }

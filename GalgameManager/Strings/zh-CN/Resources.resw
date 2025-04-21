@@ -2812,7 +2812,7 @@
     <value>创建PotatoVN的桌面快捷方式失败</value>
   </data>
   <data name="SettingsPage_Start_DesktopShortcut_IconFail" xml:space="preserve">
-    <value>替换默认图标失败</value>
+    <value>创建PotatoVN的桌面快捷方式成功,替换默认图标失败</value>
   </data>
   <data name="SettingsPage_Start_DesktopShortcut_AlreadyExists" xml:space="preserve">
     <value>桌面快捷方式已存在</value>

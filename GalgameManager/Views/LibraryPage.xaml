@@ -9,12 +9,12 @@
     xmlns:prefab="using:GalgameManager.Views.Prefab"
     xmlns:models="using:GalgameManager.Models"
     xmlns:behaviors="using:GalgameManager.Behaviors"
-    xmlns:converters="using:GalgameManager.Converters"
+    xmlns:converter="using:GalgameManager.Helpers.Converter"
     mc:Ignorable="d"
     x:Name="Page">
     
     <Page.Resources>
-        <converters:EnumEqualsConverter x:Key="EnumEqualsConverter" />
+        <converter:EnumEqualsConverter x:Key="EnumEqualsConverter" />
         <MenuFlyout Placement="Right" x:Key="FolderFlyout">
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditFolder"
                             Command="{x:Bind ViewModel.EditLibraryCommand}" CommandParameter="{Binding}"/>
@@ -58,14 +58,7 @@
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="Left"/>
                 </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
-            <!-- 下载游戏数据 -->
-            <AppBarButton Icon="Download" x:Uid="LibraryPage_DownloadAllData"
-                          Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
-                <AppBarButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Modifiers="Control" Key="D"/>
-                </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
+            </AppBarButton>       
             <!-- 新增游戏库 -->
             <AppBarButton Icon="Add" x:Uid="LibraryPage_AddGalgameFolder"
                           Command="{x:Bind ViewModel.AddLibraryCommand}">
@@ -91,38 +84,89 @@
                     <KeyboardAccelerator Modifiers="Control" Key="F" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
+            <!-- 下载游戏数据 -->
+            <AppBarButton Icon="Download"
+                    x:Uid="LibraryPage_DownloadAllData"
+                          Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control"
+                            Key="D"/>
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
             <!-- 添加排序按钮 -->
             <AppBarButton Icon="Sort" x:Uid="LibraryPage_Sort">
                 <AppBarButton.Flyout>
                     <MenuFlyout Placement="Bottom">
-                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByName" 
-                                           Command="{x:Bind ViewModel.SortCommand}" 
-                                           CommandParameter="{x:Bind ViewModel.NameSortKey}"
-                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Name}"/>
-                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByLastPlay" 
-                                           Command="{x:Bind ViewModel.SortCommand}" 
-                                           CommandParameter="{x:Bind ViewModel.LastPlaySortKey}"
-                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=LastPlay}"/>
-                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByDeveloper" 
-                                           Command="{x:Bind ViewModel.SortCommand}" 
-                                           CommandParameter="{x:Bind ViewModel.DeveloperSortKey}"
-                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Developer}"/>
-                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByRating" 
-                                           Command="{x:Bind ViewModel.SortCommand}" 
-                                           CommandParameter="{x:Bind ViewModel.RatingSortKey}"
-                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Rating}"/>
-                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByReleaseDate" 
-                                           Command="{x:Bind ViewModel.SortCommand}" 
-                                           CommandParameter="{x:Bind ViewModel.ReleaseDateSortKey}"
-                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=ReleaseDate}"/>
-                        <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByAddTime" 
-                                           Command="{x:Bind ViewModel.SortCommand}" 
-                                           CommandParameter="{x:Bind ViewModel.AddTimeSortKey}"
-                                           IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=AddTime}"/>
+                        <!-- 游戏排序 -->
+                        <MenuFlyoutSubItem x:Uid="LibraryPage_SortGameSubMenu" >
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByName" 
+                                               Command="{x:Bind ViewModel.SortCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.NameSortKey}"
+                                               GroupName="GameSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Name}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByLastPlay" 
+                                               Command="{x:Bind ViewModel.SortCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.LastPlaySortKey}"
+                                               GroupName="GameSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=LastPlay}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByDeveloper" 
+                                               Command="{x:Bind ViewModel.SortCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.DeveloperSortKey}"
+                                               GroupName="GameSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Developer}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByRating" 
+                                               Command="{x:Bind ViewModel.SortCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.RatingSortKey}"
+                                               GroupName="GameSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Rating}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByReleaseDate" 
+                                               Command="{x:Bind ViewModel.SortCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.ReleaseDateSortKey}"
+                                               GroupName="GameSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=ReleaseDate}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByAddTime" 
+                                               Command="{x:Bind ViewModel.SortCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.AddTimeSortKey}"
+                                               GroupName="GameSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=AddTime}"/>
+                            <MenuFlyoutSeparator/>
+                            <ToggleMenuFlyoutItem x:Uid="LibraryPage_GameSortDescending"
+                                                 IsChecked="{x:Bind ViewModel.GameSortDescending, Mode=TwoWay}"
+                                                 Command="{x:Bind ViewModel.ApplySortingCommand}"/>
+                        </MenuFlyoutSubItem>
                         <MenuFlyoutSeparator/>
-                        <ToggleMenuFlyoutItem x:Uid="LibraryPage_SortDescending"
-                                              Command="{x:Bind ViewModel.ApplySortingCommand}"
-                                              IsChecked="{x:Bind ViewModel.SortDescending, Mode=TwoWay}"/>
+                        <!-- 库排序 -->
+                        <MenuFlyoutSubItem x:Uid="LibraryPage_SortFolderSubMenu" >
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByName" 
+                                               Command="{x:Bind ViewModel.SortLibraryCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.LibraryNameSortKey}"
+                                               GroupName="FolderSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Name}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByLastPlayed" 
+                                               Command="{x:Bind ViewModel.SortLibraryCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.LibraryLastPlayedSortKey}"
+                                               GroupName="FolderSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=LastPlay}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByPath" 
+                                               Command="{x:Bind ViewModel.SortLibraryCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.LibraryPathSortKey}"
+                                               GroupName="FolderSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Path}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortBySourceType" 
+                                               Command="{x:Bind ViewModel.SortLibraryCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.LibrarySourceTypeSortKey}"
+                                               GroupName="FolderSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=SourceType}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByGalgameCount" 
+                                               Command="{x:Bind ViewModel.SortLibraryCommand}" 
+                                               CommandParameter="{x:Bind ViewModel.LibraryGalgameCountSortKey}"
+                                               GroupName="FolderSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=GalgameCount}"/>
+                            <MenuFlyoutSeparator/>
+                            <ToggleMenuFlyoutItem x:Uid="LibraryPage_FolderSortDescending"
+                                                 IsChecked="{x:Bind ViewModel.FolderSortDescending, Mode=TwoWay}"
+                                                 Command="{x:Bind ViewModel.ApplySortingCommand}"/>
+                        </MenuFlyoutSubItem>
                     </MenuFlyout>
                 </AppBarButton.Flyout>
                 <AppBarButton.KeyboardAccelerators>

@@ -134,7 +134,7 @@ public class PvnSyncTask : BgTaskBase
                     game.Rating = dto.Rating;
                     game.ReleaseDate = dto.ReleasedDateTimeStamp.ToDateTime().ToLocalTime();
                     if (dto.ImageUrl is not null)
-                        game.ImagePath = await DownloadHelper.DownloadAndSaveImageAsync(dto.ImageUrl, 0,
+                        game.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dto.ImageUrl, 0,
                             $"pvn_{dto.Id}") ?? game.ImagePath.Value ?? Galgame.DefaultImagePath;
                     if (dto.Tags is not null)
                     {

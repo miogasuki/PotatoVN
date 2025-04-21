@@ -1001,7 +1001,7 @@ If play time can record correctly, just cancel this popup.
     <value>Scanning path: {0}</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>Scan finished, adding {0} games</value>
+    <value>Scan {1} finished, adding {0} games</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
     <value>Notifications</value>

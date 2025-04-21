@@ -57,34 +57,28 @@ public class GetGalgameInSourceTask : BgTaskBase
                 
                 ChangeProgress(0, 1, "GalgameFolder_GetGalInFolder_Progress".GetLocalized(path));
                 var msg = $"{path}: ";
-                await UiThreadInvokeHelper.InvokeAsync(async Task() =>
+                try
                 {
-                    try
-                    {
-                        await galgameService.AddGameAsync(_galgameFolderSource.SourceType, path, ignoreFetchResult,
-                            false);
-                        cnt++;
-                        msg += "AddGalgameResult_Success".GetLocalized();
-                    }
-                    catch (Exception e)
-                    {
-                        msg += e.Message;
-                    }
-                    msg += "\n";
-                });
+                    await galgameService.AddGameAsync(_galgameFolderSource.SourceType, path, ignoreFetchResult,
+                        false);
+                    cnt++;
+                    msg += "AddGalgameResult_Success".GetLocalized();
+                }
+                catch (Exception e)
+                {
+                    msg += e.Message;
+                }
+                msg += "\n";
                 log += msg;
-
             }
             ChangeProgress(0, 1, "GalgameFolder_GetGalInFolder_Saving".GetLocalized(cnt));
-            FileHelper.SaveWithoutJson(_galgameFolderSource.GetLogName(), log, "Logs");
-            await Task.Delay(1000); //等待文件保存
-            
-            ChangeProgress(1, 1, "GalgameFolder_GetGalInFolder_Done".GetLocalized(cnt));
+            FileHelper.SaveNow(_galgameFolderSource.GetLogName(), log, "Logs", false);
+            ChangeProgress(1, 1, "GalgameFolder_GetGalInFolder_Done".GetLocalized(cnt, _galgameFolderSource.Name));
             _galgameFolderSource.IsRunning = false;
             if (App.MainWindow is null && await localSettings.ReadSettingAsync<bool>(KeyValues.NotifyWhenGetGalgameInFolder))
             {
                 App.SystemTray?.ShowNotification(nameof(NotificationIcon.Info), 
-                    "GalgameFolder_GetGalInFolder_Done".GetLocalized(cnt));
+                    "GalgameFolder_GetGalInFolder_Done".GetLocalized(cnt, _galgameFolderSource.Name));
             }
         })!);
     }

@@ -6,7 +6,7 @@ namespace GalgameManager.Contracts.Services;
 public interface IStaffService
 {
     /// <summary>
-    /// 当某个游戏的staff列表发生变化时触发
+    /// 当某个游戏的staff列表发生变化时触发 (UI线程触发)
     /// </summary>
     public event Action<Galgame> OnGameStaffChanged;
     public event Action<Staff> OnStaffSaved;
@@ -44,6 +44,13 @@ public interface IStaffService
     /// <param name="rss">信息源</param>
     /// <returns></returns>
     public Task<Staff> ParseStaffAsync(Staff staff, RssType rss);
+
+    /// <summary>
+    /// 搜刮某个游戏的staffs
+    /// </summary>
+    /// <param name="game"></param>
+    /// <returns></returns>
+    public Task ParseStaffAsync(Galgame game);
     
     /// <summary>
     /// 

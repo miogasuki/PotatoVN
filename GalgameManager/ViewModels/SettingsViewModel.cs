@@ -21,6 +21,7 @@ using GalgameManager.Models.Sources;
 using GalgameManager.Views.Dialog;
 using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
 using Windows.Globalization;
+using Windows.ApplicationModel.Store.Preview;
 
 namespace GalgameManager.ViewModels;
 
@@ -108,6 +109,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _backgroundMaterial = _localSettingsService.ReadSettingAsync<BackgroundMaterialEnum>(KeyValues.BackgroundMaterial).Result;
         _fixHorizontalPicture = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture).Result;
         TimeAsHour = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour).Result;
+        _transparentNavigationView = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TransparentNavigationView).Result;
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
         _playingWindowMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode).Result;
@@ -124,6 +126,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         //LIBRARY
         _galgameCollectionService = ((GalgameCollectionService?)galgameService)!;
         _galgameCollectionService.MetaSavedEvent += SetSaveMetaPopUp;
+        _searchSubFolder = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SearchChildFolder).Result;
         _metaBackup = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SaveBackupMetadata).Result;
         _ignoreFetchResult = _localSettingsService.ReadSettingAsync<bool>(KeyValues.IgnoreFetchResult).Result;
         _regex = _localSettingsService.ReadSettingAsync<string>(KeyValues.RegexPattern).Result ?? ".+";
@@ -218,7 +221,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region THEME
     public readonly ElementTheme[] Themes = { ElementTheme.Default, ElementTheme.Light, ElementTheme.Dark };
     [ObservableProperty ]private ElementTheme _elementTheme;
-
+    [ObservableProperty] private bool _transparentNavigationView;
     public readonly LanguageEnum[] Languages = { LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English };
     [ObservableProperty] private LanguageEnum _language;
 
@@ -229,6 +232,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         _localSettingsService.SaveSettingAsync(KeyValues.BackgroundMaterial, value);
         _themeSelectorService.SetBackgroundMaterialAsync();
+    }
+
+    partial void OnTransparentNavigationViewChanged(bool value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.TransparentNavigationView, value);
+        _infoService.Info(InfoBarSeverity.Informational,
+            "SettingsPage_Theme_RestartRequired".GetLocalized(),
+            displayTimeMs: 5000);
+
     }
 
     partial void OnElementThemeChanged(ElementTheme value)
@@ -551,7 +563,81 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     partial void OnMinToTrayWhenAutoStartChanged(bool value) =>
         _localSettingsService.SaveSettingAsync(KeyValues.MinToTrayWhenAutoStart, value);
-    
+
+    [RelayCommand]
+    private async Task CreateDesktopShortcut()
+    {
+        bool isPinnedSuccessfully = false;
+        string shortcutPath = string.Empty;
+
+        shortcutPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            "PotatoVN.lnk");
+
+        if (File.Exists(shortcutPath))
+        {
+            await DisplayMsgAsync(InfoBarSeverity.Informational, "SettingsPage_Start_DesktopShortcut_AlreadyExists".GetLocalized());
+            return;
+        }
+
+        await Task.Run(() =>
+        {
+            try
+            {
+                var pkgFamilyName = Package.Current.Id.FamilyName;
+
+                if (StoreConfiguration.IsPinToDesktopSupported())
+                {
+                    StoreConfiguration.PinToDesktop(pkgFamilyName);
+                    isPinnedSuccessfully = true;
+                }
+            }
+            catch (Exception e)
+            {
+                _infoService.Info(InfoBarSeverity.Error, "SettingsPage_Start_DesktopShortcut_Fail".GetLocalized(), e.Message);
+            }
+        });
+
+        if (isPinnedSuccessfully)
+        {
+            try
+            {
+                string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "WindowIcon.ico");
+
+                if (File.Exists(iconPath) && File.Exists(shortcutPath))
+                {
+                    // 使用PowerShell命令修改快捷方式图标
+                    string command = $@"$shell = New-Object -ComObject WScript.Shell; " +
+                                    $@"$shortcut = $shell.CreateShortcut('{shortcutPath.Replace("\\", "\\\\")}'); " +
+                                    $@"$shortcut.IconLocation = '{iconPath.Replace("\\", "\\\\")}'; " +
+                                    $@"$shortcut.Save()";
+
+                    var process = new System.Diagnostics.Process
+                    {
+                        StartInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = "powershell.exe",
+                            Arguments = $"-Command \"{command}\"",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true
+                        }
+                    };
+
+                    process.Start();
+                    await process.WaitForExitAsync();
+                }
+                await DisplayMsgAsync(InfoBarSeverity.Success, "SettingsPage_Start_DesktopShortcut_Success".GetLocalized());
+            }
+            catch (Exception ex)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Start_DesktopShortcut_IconFail".GetLocalized(),
+                    ex.Message);
+            }
+        }
+    }
+
     #endregion
 
     #region Other

@@ -48,6 +48,8 @@ public partial class LockableProperty<T> : ObservableObject, IComparable
 
     public int CompareTo(object? obj)
     {
+        if (Value is null && obj is null) return 0;
+        if (Value is null) return -1; //null在前面
         if (Value is IComparable value)
         {
             if (obj is LockableProperty<T> lockableProperty) return value.CompareTo(lockableProperty._value);

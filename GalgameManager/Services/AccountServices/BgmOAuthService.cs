@@ -191,7 +191,7 @@ public class BgmOAuthService : IBgmOAuthService
             if (userJson["avatar"]?["large"] != null)
             {
                 var avatarUrl = userJson["avatar"]!["large"]!.ToString();
-                var path = await DownloadHelper.DownloadAndSaveImageAsync(avatarUrl,
+                var path = await DownloadHelper.DownloadAndSaveImageWithDiffThread(avatarUrl,
                     fileNameWithoutExtension: "bgmAvatar", onException: (e) =>
                     {
                         _infoService.Event(EventType.BgmOAuthEvent, InfoBarSeverity.Warning,

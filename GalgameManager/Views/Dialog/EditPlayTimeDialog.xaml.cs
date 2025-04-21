@@ -83,11 +83,18 @@ public class DisplayPlayTime
 
     public static bool operator < (DisplayPlayTime x, DisplayPlayTime y)
     {
-        var arrX = x.Date.Split('/');
-        var arrY = y.Date.Split('/');
-        if (int.Parse(arrX[0]) != int.Parse(arrY[0])) return int.Parse(arrX[0]) < int.Parse(arrY[0]);
-        if (int.Parse(arrX[1]) != int.Parse(arrY[1])) return int.Parse(arrX[1]) < int.Parse(arrY[1]);
-        return int.Parse(arrX[2]) < int.Parse(arrY[2]);
+        try
+        {
+            var arrX = x.Date.Split('/');
+            var arrY = y.Date.Split('/');
+            if (int.Parse(arrX[0]) != int.Parse(arrY[0])) return int.Parse(arrX[0]) < int.Parse(arrY[0]);
+            if (int.Parse(arrX[1]) != int.Parse(arrY[1])) return int.Parse(arrX[1]) < int.Parse(arrY[1]);
+            return int.Parse(arrX[2]) < int.Parse(arrY[2]);
+        }
+        catch (Exception)
+        {
+            return true; // 如果日期格式不正确，默认认为 x < y
+        }
     }
 
     public static bool operator > (DisplayPlayTime x, DisplayPlayTime y)

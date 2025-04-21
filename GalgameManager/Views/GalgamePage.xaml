@@ -11,6 +11,7 @@
     xmlns:galgamePagePanel="using:GalgameManager.Views.GalgamePagePanel"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:behaviors="using:GalgameManager.Behaviors"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -243,9 +244,10 @@
             </Grid>
             <!-- Layout New -->
             <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <ScrollViewer IsTabStop="True" Margin="-70 0 0 0">
+                <ScrollViewer IsTabStop="True" Margin="-55 0 -55 0" CornerRadius="8">
                     <Grid RowDefinitions="*,*">
-                        <Grid Grid.Row="0" Height="{x:Bind ViewModel.HeaderHeight, Mode=OneWay}" 
+                        <Grid Grid.Row="0" Height="{x:Bind ViewModel.HeaderHeight, Mode=OneWay}"
+                              Visibility="{x:Bind ViewModel.ShowBackgroundImage, Mode=OneWay}"
                               Margin="{x:Bind ViewModel.HeaderMargin, Mode=OneWay}">
                             <Grid.Background>
                                 <ImageBrush Stretch="UniformToFill"
@@ -255,7 +257,7 @@
                             </Grid.Background>
                         </Grid>
 
-                        <StackPanel Grid.Row="0" Grid.RowSpan="2" Margin="70 0 0 0">
+                        <StackPanel Grid.Row="0" Grid.RowSpan="2">
                             <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
                             <Grid ColumnDefinitions="2*,1,1*">
                                 <galgamePagePanel:GameDescriptionPanel
@@ -274,6 +276,7 @@
                                 <core:EventTriggerBehavior EventName="SizeChanged">
                                     <core:InvokeCommandAction Command="{x:Bind ViewModel.NewLayoutSizeChangedCommand}"/>
                                 </core:EventTriggerBehavior>
+                                <behaviors:ResponsivePaddingBehavior OrinWidth="1000" OrinPadding="100 0 100 0"/>
                             </interactivity:Interaction.Behaviors>
                         </StackPanel>
                     </Grid>

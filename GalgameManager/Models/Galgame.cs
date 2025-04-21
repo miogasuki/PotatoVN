@@ -42,10 +42,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private string _cnName = "";
     [ObservableProperty] private LockableProperty<string> _description = "";
     [ObservableProperty] private LockableProperty<string> _developer = DefaultString;
-    [JsonIgnore][BsonIgnore]
-    public DateTime LastPlayTime => PlayedTime.Count > 0 
-        ? PlayedTime.Keys.Select(Utils.TryParseDateGuessCulture).Max() 
-        : DateTime.MinValue;
+    [ObservableProperty] private DateTime _lastPlayTime = DateTime.MinValue; //上次游玩时间（新）
     [ObservableProperty] private LockableProperty<string> _expectedPlayTime = DefaultString;
     [ObservableProperty] private LockableProperty<float> _rating = 0;
     [ObservableProperty] private LockableProperty<DateTime> _releaseDate = DateTime.MinValue;
@@ -77,6 +74,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public bool PvnUpdate { get; set; } //是否需要更新
     public PvnUploadProperties PvnUploadProperties { get; set; } // 要更新到Pvn的属性
     [JsonIgnore] public long PvnLastCharacterFetchTime { get; set; } // 上次从Pvn下载角色信息的时间
+    /// 某个游戏的自动获取字段的状态（旧版本不存在的字段在新版本中点进游戏详情也后会试图自动获取）
+    public GalgameAutoFetchStatus AutoFetchStatus { get; set; } = new();
 
     #region OBSOLETE_PROPERTIES //已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据）
 
@@ -84,7 +83,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [JsonProperty]
     public LockableProperty<string> LastPlay
     {
-        set => Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
+        set => LastPlayTime = Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
     }
     
     [Obsolete($"Use {nameof(LocalPath)} instead")][BsonIgnore]
@@ -282,9 +281,10 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         PlayedTime = PlayedTime.OrderBy(pair => Utils.TryParseDateGuessCulture(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         TotalPlayTime = PlayedTime.Values.Sum();
+        LastPlayTime = PlayedTime.Count > 0
+            ? PlayedTime.Keys.Select(Utils.TryParseDateGuessCulture).Max()
+            : DateTime.MinValue;
         ReleaseDate.Value = other.ReleaseDate.Value > ReleaseDate.Value ? other.ReleaseDate.Value : ReleaseDate.Value;
-        
-        
     }
 
     public string GetLogName() => $"Galgame_{(Name.Value ?? string.Empty).RemoveInvalidChars()}.txt";
@@ -299,6 +299,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// 触发属性变更事件，用于手动更新页面
     public void RaisePropertyChanged(string propertyName) => OnPropertyChanged(propertyName);
 
+    partial void OnLastPlayTimeChanged(DateTime value) => GalPropertyChanged?.Invoke(this, nameof(LastPlayTime), value);
     partial void OnPlayTypeChanged(PlayType value) => GalPropertyChanged?.Invoke(this, nameof(PlayType), value);
 
     // 监控游戏exe路径变化，如果exe路径变化则设置HighDpi为false
@@ -306,6 +307,12 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     {
         if (value != null)
             HighDpi = false;
+    }
+
+    public class GalgameAutoFetchStatus
+    {
+        public bool HeaderImage { get; set; }
+        public bool Staff { get; set; }
     }
 }
 

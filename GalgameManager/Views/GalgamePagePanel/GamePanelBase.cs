@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Markup;
 using DependencyPropertyGenerator;
 using GalgameManager.Models;
+using Microsoft.UI.Xaml;
 
 namespace GalgameManager.Views.GalgamePagePanel;
 
@@ -9,9 +10,15 @@ namespace GalgameManager.Views.GalgamePagePanel;
 [ContentProperty(Name = "Content")]
 public partial class GamePanelBase : UserControl
 {
+    protected GamePanelBase()
+    {
+        Loaded += (_, _) => Update();
+    }
+    
     partial void OnGameChanged()
     {
-        Update();
+        if (IsLoaded && Visibility == Visibility.Visible)
+            Update();
     }
 
     /// <summary>

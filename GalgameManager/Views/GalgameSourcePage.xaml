@@ -19,20 +19,29 @@
     <Page.Resources>
         <converter:EnumToStringConverter x:Key="EnumStringConverter" />
         <converter:ImagePathConverter x:Key="ImagePathConverter" />
-        
+        <converter:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
+
         <MenuFlyout Placement="Right" x:Key="GameItemFlyout">
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Edit"
                            Command="{x:Bind ViewModel.EditGameCommand}"
                            CommandParameter="{Binding}" />
+            <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_OpenInExplorer"
+                            Command="{x:Bind ViewModel.OpenGameInExplorerCommand}"
+                            CommandParameter="{Binding}"/>
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_CopyName"
                            Command="{x:Bind ViewModel.CopyGameNameCommand}"
                            CommandParameter="{Binding}" />
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_CopyPath"
                            Command="{x:Bind ViewModel.CopyGamePathCommand}"
                            CommandParameter="{Binding}" />
-            <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_OpenInExplorer"
-                           Command="{x:Bind ViewModel.OpenGameInExplorerCommand}"
-                           CommandParameter="{Binding}" />
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Delete"
+                           Command="{x:Bind ViewModel.DeleteSingleGameCommand}"
+                           CommandParameter="{Binding}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
         </MenuFlyout>
     </Page.Resources>
     
@@ -56,13 +65,15 @@
                            MaxWidth="{x:Bind ViewModel.TitleMaxWidth, Mode=OneWay}" />
                 <CommandBar RelativePanel.AlignRightWithPanel="True" Background="Transparent" IsOpen="False"
                             DefaultLabelPosition="Right" Margin="{StaticResource CommandBarMargin}">
-                    <!-- 手动添加游戏 -->
-                    <AppBarButton Icon="Add" x:Uid="GalgameFolderPage_AddManually" 
-                                  Command="{x:Bind ViewModel.AddGalgameCommand}"
+                    <!-- 扫描游戏 -->
+                    <AppBarButton Icon="Refresh"
+                            x:Uid="GalgameFolderPage_Refresh"
                                   AllowFocusOnInteraction="True"
-                                  IsEnabled="{x:Bind ViewModel.Item.IsGameAddable, FallbackValue=False, Mode=OneWay}">
+                                  Command="{x:Bind ViewModel.ScanAllCommand}"
+                                  IsEnabled="{x:Bind ViewModel.Item.IsSourceScanable, FallbackValue=False, Mode=OneWay}">
                         <AppBarButton.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="N" />
+                            <KeyboardAccelerator Modifiers="Control"
+                                    Key="R"/>
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
                     <!-- 从压缩包添加游戏 -->
@@ -76,14 +87,15 @@
                             <KeyboardAccelerator Modifiers="Control" Key="A"/>
                         </AppBarButton.KeyboardAccelerators>
                     </AppBarButton>
-                    <!-- 扫描游戏 -->
-                    <AppBarButton Icon="Refresh" x:Uid="GalgameFolderPage_Refresh"
-                                  AllowFocusOnInteraction="True"
-                                  Command="{x:Bind ViewModel.GetGalInFolderCommand}"
-                                  IsEnabled="{x:Bind ViewModel.Item.IsSourceScanable, FallbackValue=False, Mode=OneWay}">
-                        <AppBarButton.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="R"/>
-                        </AppBarButton.KeyboardAccelerators>
+                    <!-- 删除游戏 -->
+                    <AppBarButton x:Uid="GalgameFolderPage_Delete"
+                                  Visibility="{x:Bind ViewModel.IsDownloadFromNameVisible, Mode=OneWay}"
+                                  Command="{x:Bind ViewModel.DeleteGameCommand}"
+                                  AllowFocusOnInteraction="True">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons"
+                                    Glyph="&#xE74D;"/>
+                        </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 下载游戏数据 -->
                     <AppBarButton Icon="Download" Label="{x:Bind ViewModel.UiDownloadInfo, Mode=OneWay}" 
@@ -95,6 +107,44 @@
                                   Command="{x:Bind ViewModel.GetInfoFromRssCommand}" 
                                   CommandParameter="True"
                                   AllowFocusOnInteraction="True"/>
+                    <!-- 添加排序按钮 -->
+                    <AppBarButton Icon="Sort" x:Uid="LibraryPage_Sort">
+                        <AppBarButton.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByName" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.NameSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Name}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByLastPlay" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.LastPlaySortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=LastPlay}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByDeveloper" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.DeveloperSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Developer}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByRating" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.RatingSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Rating}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByReleaseDate" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.ReleaseDateSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=ReleaseDate}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByAddTime" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.AddTimeSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=AddTime}"/>
+                                <MenuFlyoutSeparator/>
+                                <ToggleMenuFlyoutItem x:Uid="LibraryPage_SortDescending"
+                                                      Command="{x:Bind ViewModel.ApplySortingCommand}"
+                                                      IsChecked="{x:Bind ViewModel.SortDescending, Mode=TwoWay}"/>
+                            </MenuFlyout>
+                        </AppBarButton.Flyout>
+                        <AppBarButton.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="S"/>
+                        </AppBarButton.KeyboardAccelerators>
+                    </AppBarButton>
                     <CommandBar.SecondaryCommands>
                         <!-- 打开Log文件 -->
                         <AppBarButton x:Uid="GalgameFolderPage_Log" 
@@ -206,9 +256,7 @@
                                     IsOn="{x:Bind ViewModel.IncludeSubSources, Mode=TwoWay}" />
                                     
                                 <ListView Grid.Row="1" ItemsSource="{x:Bind ViewModel.Galgames}" 
-                                      SelectionMode="Extended"
-                                      ScrollViewer.VerticalScrollMode="Disabled"
-                                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                      SelectionMode="Extended" MaxHeight="500">
                                     <ListView.Header>
                                         <Grid Padding="16,12"
                                               Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
@@ -224,9 +272,6 @@
                                                 <TextBlock Text="ID"
                                                            Style="{StaticResource DescriptionTextStyle}" />
                                             </StackPanel>
-                                            <interactivity:Interaction.Behaviors>
-                                                <behaviors:StickyHeaderBehavior />
-                                            </interactivity:Interaction.Behaviors>
                                         </Grid>
                                     </ListView.Header>
                                     <ListView.ItemTemplate>

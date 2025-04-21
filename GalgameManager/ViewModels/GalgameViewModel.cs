@@ -58,6 +58,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _canOpenInCngal;
     [ObservableProperty] private Thickness _headerMargin = new(0, 0, 0, 0);
     [ObservableProperty] private double _headerHeight = 400;
+    [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
     private bool IsNotLocalGame => !IsLocalGame;
 
     [ObservableProperty]
@@ -83,9 +84,13 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     }
     
     // 布局更改时更新视图
-    private void OnLayoutChanged(object? sender, bool newLayoutValue)
+    private async void OnLayoutChanged(object? sender, bool newLayoutValue)
     {
         UseNewLayout = newLayoutValue;
+        // 更新背景图显示设置
+        ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
         // 重新初始化面板
         Update(Item);
     }
@@ -100,6 +105,10 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
         // 加载布局设置
         UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
+        // 加载背景图显示设置
+        ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
 
         Item = param.Galgame;
         IsLocalGame = Item.IsLocalGame;
@@ -124,18 +133,18 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         void TryUpdateGameInfo()
         {
             if (Item is null) return;
-            if (Item.HeaderImagePath.Value is null)
+            if (Item.HeaderImagePath.Value is null && !Item.AutoFetchStatus.HeaderImage)
                 _ = _galgameService.ParseGalInfoAsync(Item, GameParseType.HeaderImage);
+            if (_staffService.GetStaffs(Item).Count == 0 && !Item.AutoFetchStatus.Staff)
+                _ = _staffService.ParseStaffAsync(Item);
         }
     }
 
-    public async void OnNavigatedFrom()
+    public void OnNavigatedFrom()
     {
         _galgameService.PhrasedEvent2 -= Update;
         _staffService.OnGameStaffChanged -= Update;
         ManageGalgamePageLayoutDialog.LayoutChanged -= OnLayoutChanged;
-        await Task.Delay(2000);
-        Item = null; //确保各个UI组件取消监听注册
     }
     
     /// <summary>
@@ -175,9 +184,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         IsRemoveSelectedThreadVisible = Item?.ProcessName is not null ? Visibility.Visible : Visibility.Collapsed;
         IsSelectProcessVisible = Item?.ProcessName is null ? Visibility.Visible : Visibility.Collapsed;
         IsResetPathVisible = Item?.ExePath is not null || Item?.TextPath is not null ? Visibility.Visible : Visibility.Collapsed;
-        Galgame? tmp = Item;
-        Item = null; Item = tmp;
-        // OnPropertyChanged(nameof(Item)); //不知道为什么没有用，暂时用上面的替代
+        OnPropertyChanged(nameof(Item));
     }
 
     #region INFOBAR_CTRL
@@ -253,6 +260,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         try
         {
             process.Start();
+            Item.LastPlayTime = DateTime.Now;
+            await _galgameService.SaveGalgameAsync(Item);
             // _galgameService.Sort();
             if (Item.ProcessName is not null)
             {

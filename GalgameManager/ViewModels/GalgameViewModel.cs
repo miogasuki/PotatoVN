@@ -260,6 +260,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         try
         {
             process.Start();
+            Item.LastPlayTime = DateTime.Now;
+            await _galgameService.SaveGalgameAsync(Item);
             // _galgameService.Sort();
             if (Item.ProcessName is not null)
             {

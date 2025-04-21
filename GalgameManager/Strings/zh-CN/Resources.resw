@@ -2790,4 +2790,31 @@
   <data name="HomePage_Sort_SecondaryAscending.Text" xml:space="preserve">
     <value>升序</value>
   </data>
+  <data name="SettingsPage_Theme_TransparentNavigationView.Title" xml:space="preserve">
+    <value>显示导航栏分界线</value>
+  </data>
+  <data name="SettingsPage_Theme_TransparentNavigationView.Description" xml:space="preserve">
+    <value>打开后将显示导航栏和标题栏的分界线，使得软件布局更清晰</value>
+  </data>
+  <data name="SettingsPage_Theme_RestartRequired" xml:space="preserve">
+    <value>请重启应用以应用新的背景</value>
+  </data>
+  <data name="SettingsPage_Start_DesktopShortcut.Title" xml:space="preserve">
+    <value>创建桌面快捷方式</value>
+  </data>
+  <data name="SettingsPage_Start_DesktopShortcut.Description" xml:space="preserve">
+    <value>将在桌面创建一个打开PotatoVN的快捷方式</value>
+  </data>
+  <data name="SettingsPage_Start_DesktopShortcut_Success" xml:space="preserve">
+    <value>已成功创建PotatoVN的桌面快捷方式</value>
+  </data>
+  <data name="SettingsPage_Start_DesktopShortcut_Fail" xml:space="preserve">
+    <value>创建PotatoVN的桌面快捷方式失败</value>
+  </data>
+  <data name="SettingsPage_Start_DesktopShortcut_IconFail" xml:space="preserve">
+    <value>创建PotatoVN的桌面快捷方式成功,替换默认图标失败</value>
+  </data>
+  <data name="SettingsPage_Start_DesktopShortcut_AlreadyExists" xml:space="preserve">
+    <value>桌面快捷方式已存在</value>
+  </data>
 </root>

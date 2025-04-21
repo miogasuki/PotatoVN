@@ -199,14 +199,24 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     private void UpdateFilterPanelDisplay(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        UiFilter = "HomePage_Filter".GetLocalized() + (Filters.Count > 0 ? " ●" : string.Empty);
+        bool hasActiveFilters = Filters.Count > 0 && (DisplayVirtualGame || Filters.Any(f => !(f is VirtualGameFilter)));
+        UiFilter = "HomePage_Filter".GetLocalized() + (hasActiveFilters ? " ●" : string.Empty);
         Source.RefreshFilter();
     }
     
     [RelayCommand]
     private void FilterRemoved(object args)
     {
-        if (args is FilterBase filter) _filterService.RemoveFilter(filter);
+        if (args is FilterBase filter) 
+        {
+            _filterService.RemoveFilter(filter);
+            
+            // 如果删除的是虚拟游戏过滤器，同步更新DisplayVirtualGame属性
+            if (filter is VirtualGameFilter)
+            {
+                DisplayVirtualGame = false;
+            }
+        }
     }
 
     [RelayCommand]
@@ -437,7 +447,12 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     private void OnGalgameServicePhrased() => IsPhrasing = false;
     
-    private void OnGalgameLoadedEvent() => Source.Source = _galgameService.Galgames;
+    // private void OnGalgameLoadedEvent() => Source.Source = _galgameService.Galgames;
+    private void OnGalgameLoadedEvent()
+    {
+        Source.Source = _galgameService.Galgames;
+        Source.Refresh();
+    }
 
     private void UpdateGalgame(Galgame game)
     {

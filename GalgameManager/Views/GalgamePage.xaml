@@ -244,7 +244,7 @@
             </Grid>
             <!-- Layout New -->
             <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <ScrollViewer IsTabStop="True" Margin="-70 0 0 0">
+                <ScrollViewer IsTabStop="True" Margin="-55 0 -55 0" CornerRadius="8">
                     <Grid RowDefinitions="*,*">
                         <Grid Grid.Row="0" Height="{x:Bind ViewModel.HeaderHeight, Mode=OneWay}"
                               Visibility="{x:Bind ViewModel.ShowBackgroundImage, Mode=OneWay}"

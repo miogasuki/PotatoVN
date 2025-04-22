@@ -32,24 +32,34 @@
                            Converter={StaticResource ImagePathConverter}, ConverterParameter='null' }" />
                 </Grid>
 
-                <Grid Grid.Column="1" RowDefinitions="Auto,*" SizeChanged="TitleSizeChanged">
-                    <StackPanel Grid.Row="0" Margin="0 0 0 5"
-                                Orientation="Horizontal">
-                        <!-- 游戏名 -->
-                        <TextBlock x:Name="TitleTextBlock"
-                                   Style="{ThemeResource TitleTextBlockStyle}"
-                                   Text="{x:Bind Game.Name.Value, Mode=OneWay, FallbackValue={}}"
-                                   TextWrapping="Wrap"
-                                   IsTextSelectionEnabled="True" />
+                <Grid Grid.Column="1" RowDefinitions="Auto,*" >
+                    <!-- 游戏名和中文名作为整体，评分在右侧 -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0 0 0 5">
+                        <!-- 游戏名和中文名整体 -->
+                        <StackPanel Grid.Column="0" SizeChanged="TitleSizeChanged">
+                            <TextBlock x:Name="PrimaryTitleTextBlock"
+                                       Style="{ThemeResource TitleTextBlockStyle}"
+                                    Text="{x:Bind PrimaryTitleText, Mode=OneWay, FallbackValue={}}"
+                                    TextWrapping="Wrap"
+                                    IsTextSelectionEnabled="True" />
+                            
+                            <TextBlock x:Name="SecondaryTitleTextBlock" 
+                                    Style="{ThemeResource SubtitleTextBlockStyle}"
+                                    Text="{x:Bind SecondaryTitleText, Mode=OneWay, FallbackValue={}}"
+                                    TextWrapping="Wrap" Opacity="0.7"
+                                    IsTextSelectionEnabled="True"
+                                    Visibility="{x:Bind IsSecondaryTitleVisible, Mode=OneWay}"/>
+                        </StackPanel>
+                                
                         <!-- 评分 -->
-                        <Grid x:Name="RatingGrid" VerticalAlignment="Center"
-                              Background="{ThemeResource  ControlAltFillColorSecondaryBrush}"
-                              CornerRadius="5" Margin="10 2 0 0"
-                              Visibility="Collapsed">
-                            <TextBlock Padding="10 0 10 0"
-                                       Text="{x:Bind Game.Rating.Value, Mode=OneWay,FallbackValue=0.0}" />
+                        <Grid x:Name="RatingGrid" Grid.Column="1" VerticalAlignment="Center"
+                              Background="{ThemeResource ControlAltFillColorSecondaryBrush}"
+                              CornerRadius="6" Margin="10 0 0 0" Padding="4"
+                              Visibility="{x:Bind Game.Rating.Value, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Padding="8 2 8 2" FontSize="22" FontWeight="SemiBold"
+                                       Text="{x:Bind Game.Rating.Value, Mode=OneWay, FallbackValue=0.0}" />
                         </Grid>
-                    </StackPanel>
+                    </Grid>
 
                     <StackPanel Grid.Row="1" Spacing="3">
                         <!-- 开发商 -->

@@ -40,6 +40,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public Dictionary<string, int> PlayedTime { get; set; }= new(); //ShortDateString() -> PlayedTime, 分钟
     [ObservableProperty] private LockableProperty<string> _name = "";
     [ObservableProperty] private string _cnName = "";
+    [ObservableProperty] private LockableProperty<string> _originalName = "";
+    [ObservableProperty] private LockableProperty<string> _chineseName = "";
     [ObservableProperty] private LockableProperty<string> _description = "";
     [ObservableProperty] private LockableProperty<string> _developer = DefaultString;
     [ObservableProperty] private DateTime _lastPlayTime = DateTime.MinValue; //上次游玩时间（新）
@@ -327,4 +329,12 @@ public enum SortKeys
     LastFetchInfoTime,
     AddTime,
     Path
+}
+
+public enum DisplayName
+{
+    ChineseName,
+    OriginalName,
+    Name,
+    None
 }

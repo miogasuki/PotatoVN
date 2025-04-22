@@ -873,6 +873,12 @@
   <data name="GalgameSettingPage_GalgameName.Title" xml:space="preserve">
     <value>游戏名</value>
   </data>
+  <data name="GalgameSettingPage_GalgameNameOriginal.Title" xml:space="preserve">
+    <value>游戏原名</value>
+  </data>
+  <data name="GalgameSettingPage_GalgameNameChinese.Title" xml:space="preserve">
+    <value>游戏中文名</value>
+  </data>
   <data name="GalgameSettingPage_GalgameId.Text" xml:space="preserve">
     <value>游戏ID</value>
   </data>
@@ -2307,6 +2313,18 @@
   <data name="SortKeys_Rating" xml:space="preserve">
     <value>评分</value>
   </data>
+  <data name="DisplayName_ChineseName" xml:space="preserve">
+    <value>游戏中文名</value>
+  </data>
+  <data name="DisplayName_OriginalName" xml:space="preserve">
+    <value>游戏原名</value>
+  </data>
+  <data name="DisplayName_Name" xml:space="preserve">
+    <value>默认游戏名</value>
+  </data>
+  <data name="DisplayName_None" xml:space="preserve">
+    <value>隐藏</value>
+  </data>
   <data name="SortKeys_LastPlay" xml:space="preserve">
     <value>最后游玩时间</value>
   </data>
@@ -2500,7 +2518,7 @@
     <value>管理游戏页面布局</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_Description.Text" xml:space="preserve">
-    <value>选择是否显示游戏页面中的各个部分</value>
+    <value>管理游戏页面中的各个部分的元素</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowPainter.Text" xml:space="preserve">
     <value>显示原画</value>
@@ -2683,7 +2701,7 @@
     <value>设置软件窗口的背景样式，在部分系统中可能没有效果</value>
   </data>
   <data name="GalgamePage_ManageLayout.Label" xml:space="preserve">
-    <value>管理游戏页面布局</value>
+    <value>自定义页面布局</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OffContent" xml:space="preserve">
       <value>不显示</value>    
@@ -2834,5 +2852,18 @@
   </data>
   <data name="MixedPhraserOrderDialog_ResetButton.Content" xml:space="preserve">
     <value>重置</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_PrimaryTitle.Text" xml:space="preserve">
+    <value>主标题</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_SecondaryTitle.Text" xml:space="preserve">
+    <value>副标题</value>
+  </data>
+  <data name="SettingsPage_Theme_DefaultGameName.Title" xml:space="preserve">
+    <value>显示来自信息源的游戏名称</value>
+  </data>
+  <data name="SettingsPage_Theme_DefaultGameName.Description" xml:space="preserve">
+    <value>使用来自信息源的游戏名覆盖默认游戏名，修改后将对目前所有游戏名进行替换
+替换的优先级优先级：中文名 > 原名 > 默认名</value>
   </data>
 </root>

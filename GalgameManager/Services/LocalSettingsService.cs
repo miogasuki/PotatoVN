@@ -270,6 +270,8 @@ public class LocalSettingsService : ILocalSettingsService
                                          System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
 
                 return (T?)(object)new MixedPhraserOrder().SetToDefault(isChineseCulture);
+            case KeyValues.DefaultGameName:
+                return (T?)(object)DisplayName.Name;
             default:
                 return default;
         }

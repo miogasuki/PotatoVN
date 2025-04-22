@@ -110,6 +110,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _fixHorizontalPicture = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture).Result;
         TimeAsHour = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour).Result;
         _transparentNavigationView = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TransparentNavigationView).Result;
+        _defaultGameName = _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.DefaultGameName).Result;
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
         _playingWindowMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode).Result;
@@ -118,8 +119,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         //RSS
         RssType = _localSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType).Result;
         //DOWNLOAD_BEHAVIOR
-        _overrideLocalName = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalName).Result;
-        _overrideLocalNameWithChinese = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalNameWithChinese).Result;
+        // _overrideLocalName = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalName).Result;
+        // _overrideLocalNameWithChinese = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalNameWithChinese).Result;
         _autoCategory = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoCategory).Result;
         _downloadPlayStatusWhenPhrasing = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncPlayStatusWhenPhrasing).Result;
         _downloadCharacters = _localSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result;
@@ -252,15 +253,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         _localSettingsService.SaveSettingAsync(KeyValues.Language, value);
 
-        // 尝试立即改变当前应用的语言设置
         try
         {
-            // 根据选择的语言获取对应的语言标记
             string languageTag = GetLanguageTag(value);
-
-            // 应用语言设置
             ApplicationLanguages.PrimaryLanguageOverride = languageTag;
-
 
             // 提醒用户完全应用新语言还需要重启应用
             _infoService.Info(InfoBarSeverity.Informational,
@@ -293,6 +289,51 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     // 时间显示单位改为小时
     [ObservableProperty] private bool _timeAsHour;
     partial void OnTimeAsHourChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.TimeAsHour, value);
+
+    // 软件默认使用的游戏名
+    public DisplayName[] DefaultGameNames { get; } = { DisplayName.ChineseName, DisplayName.OriginalName, DisplayName.Name };
+    [ObservableProperty] private DisplayName _defaultGameName;
+
+    async partial void OnDefaultGameNameChanged(DisplayName value)
+    {
+        await _localSettingsService.SaveSettingAsync(KeyValues.DefaultGameName, value);
+
+        // 批量更新所有游戏的名称
+        List<Galgame> gamesToUpdate = new List<Galgame>();
+
+        switch (value)
+        {
+            case DisplayName.ChineseName:
+                foreach (Galgame game in _galgameCollectionService.Galgames)
+                {
+                    if (!string.IsNullOrEmpty(game.ChineseName.Value) && game.Name.Value != game.ChineseName.Value)
+                    {
+                        game.Name.Value = game.ChineseName.Value;
+                        gamesToUpdate.Add(game);
+                    }
+                }
+                break;
+            case DisplayName.OriginalName:
+                foreach (Galgame game in _galgameCollectionService.Galgames)
+                {
+                    if (game.OriginalName.Value != null && game.Name.Value != game.OriginalName.Value)
+                    {
+                        game.Name.Value = game.OriginalName.Value;
+                        gamesToUpdate.Add(game);
+                    }
+                }
+                break;
+            case DisplayName.Name:
+                break;
+        }
+
+        // 批量保存更改过的游戏
+        if (gamesToUpdate.Count > 0)
+        {
+            await Task.WhenAll(gamesToUpdate.Select(game => _galgameCollectionService.SaveGalgameAsync(game)));
+        }
+    }
+
     #endregion
 
     #region GAME
@@ -357,15 +398,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     #region DOWNLOAD_BEHAVIOR
 
-    [ObservableProperty] private bool _overrideLocalName;
-    [ObservableProperty] private bool _overrideLocalNameWithChinese;
+    // [ObservableProperty] private bool _overrideLocalName;
+    // [ObservableProperty] private bool _overrideLocalNameWithChinese;
     [ObservableProperty] private bool _autoCategory;
     [ObservableProperty] private bool _downloadPlayStatusWhenPhrasing;
     [ObservableProperty] private bool _downloadCharacters;
     
-    partial void OnOverrideLocalNameChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.OverrideLocalName, value);
+    // partial void OnOverrideLocalNameChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.OverrideLocalName, value);
     
-    partial void OnOverrideLocalNameWithChineseChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.OverrideLocalNameWithChinese, value);
+    // partial void OnOverrideLocalNameWithChineseChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.OverrideLocalNameWithChinese, value);
     
     partial void OnAutoCategoryChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AutoCategory, value);
     

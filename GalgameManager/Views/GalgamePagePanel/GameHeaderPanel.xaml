@@ -15,7 +15,7 @@
 
     <UserControl.Resources>
         <converter:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
-        <converters:DoubleToVisibilityConverter x:Key="DoubleToVisibilityConverter" GreaterThan="1" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converter:ImagePathConverter x:Key="ImagePathConverter"/>
     </UserControl.Resources>
 
@@ -42,13 +42,12 @@
                                    TextWrapping="Wrap"
                                    IsTextSelectionEnabled="True" />
                         <!-- 评分 -->
-                        <Grid VerticalAlignment="Center"
+                        <Grid x:Name="RatingGrid" VerticalAlignment="Center"
                               Background="{ThemeResource  ControlAltFillColorSecondaryBrush}"
                               CornerRadius="5" Margin="10 2 0 0"
-                              Visibility="{x:Bind Game.Rating.Value, Mode=OneWay, FallbackValue=0,
-                              Converter={StaticResource DoubleToVisibilityConverter}}">
+                              Visibility="Collapsed">
                             <TextBlock Padding="10 0 10 0"
-                                               Text="{x:Bind Game.Rating.Value, Mode=OneWay,FallbackValue=0.0}" />
+                                       Text="{x:Bind Game.Rating.Value, Mode=OneWay,FallbackValue=0.0}" />
                         </Grid>
                     </StackPanel>
 
@@ -70,7 +69,8 @@
                                 Converter={StaticResource DateTimeToStringConverter}}" />
                         </StackPanel>
                         <!-- 预计游玩时长 -->
-                        <StackPanel Style="{StaticResource KeyValue}">
+                        <StackPanel x:Name="PlayTimePanel" Style="{StaticResource KeyValue}" 
+                                  Visibility="Collapsed">                           
                             <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
                                        x:Uid="GalgamePage_HeaderPanel_ExpectedPlayTime" />
                             <TextBlock Style="{ThemeResource BodyTextBlockStyle}"

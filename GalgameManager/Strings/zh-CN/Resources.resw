@@ -2514,6 +2514,18 @@
   <data name="ManageGalgamePageLayoutDialog_ShowMusician.Text" xml:space="preserve">
     <value>显示音乐</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowPlayTime.Text" xml:space="preserve">
+    <value>显示预计游玩时长</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowRating.Text" xml:space="preserve">
+    <value>显示评分</value>
+  </data> 
+  <data name="ManageGalgamePageLayoutDialog_ShowTags.Text" xml:space="preserve">
+    <value>显示标签</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowCharacters.Text" xml:space="preserve">
+    <value>显示游戏角色</value>
+  </data>
   <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
     <value>显示背景图</value>
   </data>
@@ -2648,6 +2660,9 @@
   </data>
   <data name="LibraryPage_SortByAddTime.Text" xml:space="preserve">
     <value>按添加时间</value>
+  </data>
+  <data name="LibraryPage_SortByPath.Text" xml:space="preserve">
+    <value>按游戏路径</value>
   </data>
   <data name="LibraryPage_SortDescending.Text" xml:space="preserve">
     <value>降序排序</value>
@@ -2816,5 +2831,8 @@
   </data>
   <data name="SettingsPage_Start_DesktopShortcut_AlreadyExists" xml:space="preserve">
     <value>桌面快捷方式已存在</value>
+  </data>
+  <data name="MixedPhraserOrderDialog_ResetButton.Content" xml:space="preserve">
+    <value>重置</value>
   </data>
 </root>

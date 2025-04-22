@@ -88,6 +88,10 @@ public static class KeyValues
     public const string GalgamePageNewLayout_ShowHeaderImage = "galgamePageNewLayout_showHeaderImage"; //bool, 游戏页是否显示背景图
     public const string GalgamePageNewLayout_CoverImage = "galgamePageNewLayout_coverImage"; //bool, 游戏页是否显示封面
     public const string GalgamePageNewLayout_ShowCoverWhenNoBackground = "galgamePageNewLayout_showCoverWhenNoBackground"; //bool, 游戏页是否在没有背景图时显示封面
+    public const string GalgamePageNewLayout_ShowExpectedPlayTime = "galgamePageNewLayout_showExpectedPlayTime"; //bool, 游戏页是否显示预计游玩时间
+    public const string GalgamePageNewLayout_ShowRating = "galgamePageNewLayout_showRating"; //bool, 游戏页是否显示评分
+    public const string GalgamePageNewLayout_ShowTags = "galgamePageNewLayout_showTags"; //bool, 游戏页是否显示标签
+    public const string GalgamePageNewLayout_ShowCharacters = "galgamePageNewLayout_showCharacters"; //bool, 游戏页是否显示角色
     public const string GalgameSourcePageShowSubSourceGames = "galgameSourcePageShowSubSourceGames"; //bool, 游戏源页面是否显示子源游戏
     public const string PrimarySortKey = "primarySortKey"; //string, 主排序的key，默认是“playtime”，可选值有：playtime（游玩时间）/lastUpdate（最后更新时间）/name（名称）/releaseDate（发售日期）/rating（评分）/category（分类）
     public const string SecondarySortKey = "SecondarySortKey"; //string, 次排序的key，默认是“playtime”，可选值有：playtime（游玩时间）/lastUpdate（最后更新时间）/name（名称）/releaseDate（发售日期）/rating（评分）/category（分类）

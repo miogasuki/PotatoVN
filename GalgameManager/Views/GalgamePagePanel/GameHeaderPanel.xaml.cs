@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -54,6 +56,12 @@ public partial class GameHeaderPanel
                 case KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground:
                     UiThreadInvokeHelper.Invoke(UpdateHeaderImgAndCoverImg);
                     break;
+                case KeyValues.GalgamePageNewLayout_ShowRating:
+                    UiThreadInvokeHelper.Invoke(UpdateRatingVisibility);
+                    break;
+                case KeyValues.GalgamePageNewLayout_ShowExpectedPlayTime:
+                    UiThreadInvokeHelper.Invoke(UpdatePlayTimeVisibility);
+                    break;
             }
         }
         
@@ -75,6 +83,12 @@ public partial class GameHeaderPanel
             if (Game is null) return;
             _lastGame = Game;
             Game.HeaderImagePath.OnValueChanged += HeaderImagePathOnOnValueChanged;
+            
+            // 更新UI元素可见性
+            await UpdateRatingVisibility();
+            await UpdatePlayTimeVisibility();
+            
+            // 继续执行现有更新逻辑
             await UpdateHeaderImgAndCoverImg();
             await UpdateStaffs();
         }
@@ -82,6 +96,26 @@ public partial class GameHeaderPanel
         {
             _infoService.DeveloperEvent(e: e);
         }
+    }
+    
+    // 设置评分控件的可见性
+    private async Task UpdateRatingVisibility()
+    {
+        if (Game is null) return;
+        bool showRatingSetting = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowRating);
+        bool shouldShow = showRatingSetting && Game.Rating.Value > 0;
+        // 直接设置UI元素可见性
+        RatingGrid.Visibility = shouldShow ? Visibility.Visible : Visibility.Collapsed;
+    }
+    
+    // 设置游戏时长控件的可见性
+    private async Task UpdatePlayTimeVisibility()
+    {
+        if (Game is null) return;
+        bool showPlayTimeSetting = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowExpectedPlayTime);
+        bool shouldShow = showPlayTimeSetting && !string.IsNullOrEmpty(Game.ExpectedPlayTime.Value);
+        // 直接设置UI元素可见性
+        PlayTimePanel.Visibility = shouldShow ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private async void HeaderImagePathOnOnValueChanged(string? arg)

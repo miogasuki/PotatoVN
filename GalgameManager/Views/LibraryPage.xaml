@@ -129,6 +129,11 @@
                                                CommandParameter="{x:Bind ViewModel.AddTimeSortKey}"
                                                GroupName="GameSorting"
                                                IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=AddTime}"/>
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByPath"
+                                                  Command="{x:Bind ViewModel.SortCommand}" 
+                                                  CommandParameter="{x:Bind ViewModel.PathSortKey}"
+                                                  GroupName="GameSorting"
+                                                  IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Path}"/>
                             <MenuFlyoutSeparator/>
                             <ToggleMenuFlyoutItem x:Uid="LibraryPage_GameSortDescending"
                                                  IsChecked="{x:Bind ViewModel.GameSortDescending, Mode=TwoWay}"

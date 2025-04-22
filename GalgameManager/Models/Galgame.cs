@@ -326,4 +326,5 @@ public enum SortKeys
     ReleaseDate,
     LastFetchInfoTime,
     AddTime,
+    Path
 }

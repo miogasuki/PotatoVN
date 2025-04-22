@@ -59,6 +59,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private Thickness _headerMargin = new(0, 0, 0, 0);
     [ObservableProperty] private double _headerHeight = 400;
     [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
+    [ObservableProperty] private Visibility _showTagPanel = Visibility.Collapsed;
+    [ObservableProperty] private Visibility _showCharacterPanel = Visibility.Collapsed;
     private bool IsNotLocalGame => !IsLocalGame;
 
     [ObservableProperty]
@@ -91,6 +93,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
             ? Visibility.Visible 
             : Visibility.Collapsed;
+        // 更新标签面板显示设置
+        ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
+        // 更新角色面板显示设置
+        ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
         // 重新初始化面板
         Update(Item);
     }
@@ -107,6 +117,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
         // 加载背景图显示设置
         ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
+        // 加载标签面板显示设置
+        ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
+        // 加载角色面板显示设置
+        ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
             ? Visibility.Visible 
             : Visibility.Collapsed;
 

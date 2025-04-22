@@ -135,6 +135,10 @@
                                                    Command="{x:Bind ViewModel.SortCommand}" 
                                                    CommandParameter="{x:Bind ViewModel.AddTimeSortKey}"
                                                    IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=AddTime}"/>
+                                <RadioMenuFlyoutItem x:Uid="LibraryPage_SortByPath" 
+                                                   Command="{x:Bind ViewModel.SortCommand}" 
+                                                   CommandParameter="{x:Bind ViewModel.PathSortKey}"
+                                                   IsChecked="{x:Bind ViewModel.CurrentSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Path}"/>
                                 <MenuFlyoutSeparator/>
                                 <ToggleMenuFlyoutItem x:Uid="LibraryPage_SortDescending"
                                                       Command="{x:Bind ViewModel.ApplySortingCommand}"

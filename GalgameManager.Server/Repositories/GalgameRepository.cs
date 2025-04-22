@@ -14,7 +14,17 @@ public class GalgameRepository (DataContext context): IGalgameRepository
             query = query.Include(g => g.PlayTime);
         return await query.FirstOrDefaultAsync(g => g.Id == id);
     }
-
+    
+    public async Task<Galgame?> GetGalgameCompleteAsync(int id)
+    {
+        return await context.Galgame
+            .Include(g => g.PlayTime)
+            .Include(g => g.Characters)
+            .Include(g => g.StaffGames)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(g => g.Id == id);
+    }
+    
     public Task<List<Galgame>> GetGalgamesAsync(List<int> ids)
     {
         return context.Galgame.Where(g => ids.Contains(g.Id)).ToListAsync();

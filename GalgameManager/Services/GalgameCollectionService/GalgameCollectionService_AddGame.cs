@@ -125,7 +125,7 @@ public partial class GalgameCollectionService
         return result;
     }
 
-    private async Task<string> GetNameFromPath(GalgameSourceType sourceType, string path)
+    public async Task<string> GetNameFromPath(GalgameSourceType sourceType, string path)
     {
         switch (sourceType)
         {

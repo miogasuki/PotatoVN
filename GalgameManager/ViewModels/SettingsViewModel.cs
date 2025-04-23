@@ -324,6 +324,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 }
                 break;
             case DisplayName.Name:
+                foreach (Galgame game in _galgameCollectionService.Galgames)
+                {
+                    if (game.LocalPath != null )
+                    {
+                        game.Name.Value = await _galgameCollectionService.GetNameFromPath(GalgameSourceType.LocalZip, game.LocalPath);
+                        gamesToUpdate.Add(game);
+                    }
+                    
+                }
                 break;
         }
 

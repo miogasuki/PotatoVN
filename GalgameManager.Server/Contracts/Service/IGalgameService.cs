@@ -4,7 +4,9 @@ namespace GalgameManager.Server.Contracts;
 
 public interface IGalgameService
 {
-    public Task<Galgame?> GetGalgameAsync(int id);
+    /// <exception cref="ArgumentException">galgame不存在</exception>
+    /// <exception cref="UnauthorizedAccessException">userId与galgame拥有者不一致</exception>
+    public Task<Galgame> GetGalgameAsync(int userId, int id, bool complete = false);
     
     public Task<PagedResult<Galgame>> GetGalgamesAsync(int userId, long timestamp, int pageIndex, int pageSize);
     

@@ -5,6 +5,8 @@ namespace GalgameManager.Server.Contracts;
 public interface IGalgameRepository
 {
     public Task<Galgame?> GetGalgameAsync(int id, bool includePlayTime = false);
+
+    public Task<Galgame?> GetGalgameCompleteAsync(int id);
     
     /// <summary>
     /// 获取一系列galgame，找不到游戏不返回在列表中

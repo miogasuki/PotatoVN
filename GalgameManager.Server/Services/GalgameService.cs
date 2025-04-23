@@ -10,9 +10,12 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
     IMapper mapper)
     : IGalgameService
 {
-    public async Task<Galgame?> GetGalgameAsync(int id)
+    public async Task<Galgame> GetGalgameAsync(int userId, int id, bool complete = false)
     {
-        return await galRep.GetGalgameAsync(id);
+        Galgame? galgame = complete ? await galRep.GetGalgameCompleteAsync(id) : await galRep.GetGalgameAsync(id);
+        if (galgame == null) throw new ArgumentException("Galgame not found.");
+        if (galgame.UserId != userId) throw new UnauthorizedAccessException("You are not the owner of this galgame.");
+        return galgame;
     }
 
     public async Task<PagedResult<Galgame>> GetGalgamesAsync(int userId, long timestamp, int pageIndex, int pageSize)

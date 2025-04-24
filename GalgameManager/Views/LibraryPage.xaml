@@ -73,6 +73,17 @@
                     <KeyboardAccelerator Modifiers="Control" Key="R"/>
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
+            <!-- 编辑当前库 -->
+            <AppBarButton Icon="Edit"
+                    x:Uid="LibraryPage_EditCurrentFolder_AppBarButton"
+                          Command="{x:Bind ViewModel.EditCurrentFolderCommand}"
+                          IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control"
+                            Key="E"/>
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <!-- 搜索 -->
             <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}">
                 <AppBarButton.Flyout>
                     <Flyout Placement="Bottom">
@@ -84,15 +95,7 @@
                     <KeyboardAccelerator Modifiers="Control" Key="F" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <!-- 下载游戏数据 -->
-            <AppBarButton Icon="Download"
-                    x:Uid="LibraryPage_DownloadAllData"
-                          Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
-                <AppBarButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Modifiers="Control"
-                            Key="D"/>
-                </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
+            
             <!-- 添加排序按钮 -->
             <AppBarButton Icon="Sort" x:Uid="LibraryPage_Sort">
                 <AppBarButton.Flyout>
@@ -195,11 +198,13 @@
                     </AppBarToggleButton.Icon>
                 </AppBarToggleButton>
                 <AppBarSeparator/>
-                <AppBarButton Icon="Edit" x:Uid="LibraryPage_EditCurrentFolder_AppBarButton"
-                    Command="{x:Bind ViewModel.EditCurrentFolderCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}">
+                <!-- 下载游戏数据 -->
+                <AppBarButton Icon="Download"
+                              x:Uid="LibraryPage_DownloadAllData"
+                              Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="E" />
+                        <KeyboardAccelerator Modifiers="Control"
+                                             Key="D"/>
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
             </CommandBar.SecondaryCommands>

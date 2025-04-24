@@ -20,8 +20,7 @@
                                                                        Storyboard.TargetProperty="Fill">
                                             <DiscreteObjectKeyFrame KeyTime="0">
                                                 <DiscreteObjectKeyFrame.Value>
-                                                    <ThemeResource
-                                                        ResourceKey="CardBackgroundFillColorDefaultBrush" />
+                                                    <SolidColorBrush Color="{ThemeResource SystemAccentColor}" Opacity="0.12" />
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>

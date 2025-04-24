@@ -173,6 +173,12 @@
   <data name="Shell_GalgameSetting.Content" xml:space="preserve">
     <value>编辑游戏</value>
   </data>
+  <data name="HomePage_PlayStatus" xml:space="preserve">
+    <value>游玩状态</value>
+  </data>
+  <data name="HomePage_MoreSetting" xml:space="preserve">
+    <value>更多设置...</value>
+  </data>
   <data name="HomePage_Edit" xml:space="preserve">
     <value>修改游戏信息</value>
   </data>
@@ -320,7 +326,7 @@
     <value>转换存档位置</value>
   </data>
   <data name="GalgamePage_Developers.Text" xml:space="preserve">
-    <value>开发商</value>
+    <value>制作公司</value>
   </data>
   <data name="GalgamePage_ExpectedPlayTime.Text" xml:space="preserve">
     <value>预计游戏时长</value>
@@ -616,7 +622,7 @@
     <value>该游戏不在该分类中</value>
   </data>
   <data name="CategoryService_Developer" xml:space="preserve">
-    <value>开发商</value>
+    <value>制作公司</value>
   </data>
   <data name="CategoryService_Status" xml:space="preserve">
     <value>游玩状态</value>
@@ -652,7 +658,7 @@
     <value>自动分类</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>启用后自动按开发商和游玩状态对游戏进行分类</value>
+    <value>启用后自动按制作公司和游玩状态对游戏进行分类</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
     <value>分类所有游戏</value>
@@ -862,7 +868,7 @@
     <value>已添加入解析队列</value>
   </data>
   <data name="CategorySettingPage_CommandBar_DownloadImg.Label" xml:space="preserve">
-    <value>下载开发商图</value>
+    <value>下载制作公司图片</value>
   </data>
   <data name="GalgameSettingPage_GetInfoFromRss.Label" xml:space="preserve">
     <value>使用游戏ID从数据源更新数据</value>
@@ -892,7 +898,7 @@
     <value>评分</value>
   </data>
   <data name="GalgameSettingPage_GalgameDeveloper.Title" xml:space="preserve">
-    <value>开发商</value>
+    <value>制作公司</value>
   </data>
   <data name="GalgameSettingPage_GalgameExpectedPlayTime.Title" xml:space="preserve">
     <value>预计游戏时长</value>
@@ -922,25 +928,25 @@
     <value>私密</value>
   </data>
   <data name="CategoryPage_AddCategoryDialog_Title" xml:space="preserve">
-    <value>新增分类</value>
+    <value>新建分类</value>
   </data>
   <data name="CategoryPage_AddCategory.Label" xml:space="preserve">
-    <value>新增分类</value>
+    <value>新建分类</value>
   </data>
   <data name="CategoryPage_AddCategoryGroup.Label" xml:space="preserve">
-    <value>新增分类组</value>
+    <value>新建分类组</value>
   </data>
   <data name="CategoryPage_AddCategoryGroupDialog_Title" xml:space="preserve">
-    <value>新增分类组</value>
+    <value>新建分类组</value>
   </data>
   <data name="CategoryPage_AddCategoryGroupDialog_Msg" xml:space="preserve">
     <value>分类组名</value>
   </data>
   <data name="CategoryPage_DeleteCategoryGroup.Label" xml:space="preserve">
-    <value>删除分类组</value>
+    <value>删除当前分类组</value>
   </data>
   <data name="CategoryPage_DeleteCategoryGroupDialog_Title" xml:space="preserve">
-    <value>删除分类组</value>
+    <value>删除当前分类组</value>
   </data>
   <data name="CategoryPage_DeleteCategoryGroupDialog_Msg" xml:space="preserve">
     <value>确定要删除这个分类组吗？</value>
@@ -1198,7 +1204,7 @@
     <value>本地游戏</value>
   </data>
   <data name="HomePage_FilterInputBox.PlaceholderText" xml:space="preserve">
-    <value>Tag/开发商/游玩状态/分类</value>
+    <value>Tag/制作公司/游玩状态/分类</value>
   </data>
   <data name="HomePage_Filter_Not_Found" xml:space="preserve">
     <value>找不到匹配的过滤器</value>
@@ -1777,7 +1783,7 @@
     <value>中文名</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Dev" xml:space="preserve">
-    <value>开发商</value>
+    <value>制作公司</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Tag" xml:space="preserve">
     <value>Tag</value>
@@ -1804,7 +1810,7 @@
     <value>上次拉取数据：{0}</value>
   </data>
   <data name="HomePage_NoDeveloperCategory" xml:space="preserve">
-    <value>无任何开发商分类包含本游戏</value>
+    <value>无任何制作公司分类包含本游戏</value>
   </data>
   <data name="LibraryPage_EditFolder.Text" xml:space="preserve">
     <value>管理库</value>
@@ -2030,7 +2036,7 @@
     <value>搜索</value>
   </data>
   <data name="MultiStreamPage_SearchFailed" xml:space="preserve">
-    <value>没有找到与该关键字匹配的游戏/开发商</value>
+    <value>没有找到与该关键字匹配的游戏/制作公司</value>
   </data>
   <data name="MultiStreamPage_Cmd_Setting.Label" xml:space="preserve">
     <value>设置显示列表</value>
@@ -2308,7 +2314,7 @@
     <value>游戏名</value>
   </data>
   <data name="SortKeys_Developer" xml:space="preserve">
-    <value>开发商</value>
+    <value>制作公司</value>
   </data>
   <data name="SortKeys_Rating" xml:space="preserve">
     <value>评分</value>
@@ -2668,7 +2674,7 @@
     <value>按最近游玩时间</value>
   </data>
   <data name="LibraryPage_SortByDeveloper.Text" xml:space="preserve">
-    <value>按开发商</value>
+    <value>按制作公司</value>
   </data>
   <data name="LibraryPage_SortByRating.Text" xml:space="preserve">
     <value>按评分</value>
@@ -2800,7 +2806,7 @@
     <value>按游戏名</value>
   </data>
   <data name="HomePage_Sort_Developer.Text" xml:space="preserve">
-    <value>按开发商</value>
+    <value>按制作公司</value>
   </data>
   <data name="HomePage_Sort_Rating.Text" xml:space="preserve">
     <value>按评分</value>

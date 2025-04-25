@@ -294,52 +294,49 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public DisplayName[] DefaultGameNames { get; } = { DisplayName.ChineseName, DisplayName.OriginalName, DisplayName.Name };
     [ObservableProperty] private DisplayName _defaultGameName;
 
+    /// <summary>
+    /// 默认显示名称变更时批量更新游戏名字
+    /// </summary>
     async partial void OnDefaultGameNameChanged(DisplayName value)
     {
-        await _localSettingsService.SaveSettingAsync(KeyValues.DefaultGameName, value);
-
-        // 批量更新所有游戏的名称
-        List<Galgame> gamesToUpdate = new List<Galgame>();
-
-        switch (value)
+        try
         {
-            case DisplayName.ChineseName:
-                foreach (Galgame game in _galgameCollectionService.Galgames)
+            await _localSettingsService.SaveSettingAsync(KeyValues.DefaultGameName, value);
+            // 根据枚举返回目标名字的局部函数
+            async Task<string?> SelectNameAsync(Galgame g)
+            {
+                switch (value)
                 {
-                    if (!string.IsNullOrEmpty(game.ChineseName.Value) && game.Name.Value != game.ChineseName.Value)
-                    {
-                        game.Name.Value = game.ChineseName.Value;
-                        gamesToUpdate.Add(game);
-                    }
+                    case DisplayName.ChineseName:
+                        if (!string.IsNullOrWhiteSpace(g.ChineseName.Value)) return g.ChineseName.Value;
+                        goto case DisplayName.OriginalName;
+                    case DisplayName.OriginalName:
+                        if (!string.IsNullOrWhiteSpace(g.OriginalName.Value)) return g.OriginalName.Value;
+                        goto case DisplayName.Name;
+                    case DisplayName.Name:
+                        return g.LocalPath is null
+                            ? null
+                            : await _galgameCollectionService.GetNameFromPath(GalgameSourceType.LocalZip, g.LocalPath);
+                    default:
+                        return null;
                 }
-                break;
-            case DisplayName.OriginalName:
-                foreach (Galgame game in _galgameCollectionService.Galgames)
+            }
+
+            IEnumerable<Task> saveTasks = _galgameCollectionService.Galgames.Select(async g =>
+            {
+                var newName = await SelectNameAsync(g);
+                if (!string.IsNullOrEmpty(newName) && g.Name.Value != newName)
                 {
-                    if (game.OriginalName.Value != null && game.Name.Value != game.OriginalName.Value)
-                    {
-                        game.Name.Value = game.OriginalName.Value;
-                        gamesToUpdate.Add(game);
-                    }
+                    g.Name.Value = newName;
+                    await _galgameCollectionService.SaveGalgameAsync(g);
                 }
-                break;
-            case DisplayName.Name:
-                foreach (Galgame game in _galgameCollectionService.Galgames)
-                {
-                    if (game.LocalPath != null )
-                    {
-                        game.Name.Value = await _galgameCollectionService.GetNameFromPath(GalgameSourceType.LocalZip, game.LocalPath);
-                        gamesToUpdate.Add(game);
-                    }
-                    
-                }
-                break;
+            });
+
+            await Task.WhenAll(saveTasks);
         }
-
-        // 批量保存更改过的游戏
-        if (gamesToUpdate.Count > 0)
+        catch (Exception e)
         {
-            await Task.WhenAll(gamesToUpdate.Select(game => _galgameCollectionService.SaveGalgameAsync(game)));
+            _infoService.DeveloperEvent(e: e);
         }
     }
 

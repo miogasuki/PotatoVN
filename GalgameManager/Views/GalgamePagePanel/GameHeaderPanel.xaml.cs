@@ -226,8 +226,11 @@ public partial class GameHeaderPanel
 
     private void TitleSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        // var width = Game?.Name.Value?.Length * 40 ?? 0;
-        // TitleTextBlock.MaxWidth = Math.Max(Math.Min(e.NewSize.Width - 80, width), 50);
+        var width = Game?.Name.Value?.Length * 40 ?? 0;
+        width = Math.Max(Game?.ChineseName.Value?.Length * 40 ?? 0, width);
+        width = Math.Max(Game?.OriginalName.Value?.Length * 40 ?? 0, width);
+        PrimaryTitleTextBlock.MaxWidth = Math.Max(Math.Min(e.NewSize.Width - 80, width), 50);
+        SecondaryTitleTextBlock.MaxWidth = PrimaryTitleTextBlock.MaxWidth;
     }
     
     private async Task UpdateStaffs()

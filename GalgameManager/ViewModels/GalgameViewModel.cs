@@ -437,6 +437,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             Item.ExePath = null;
             await RemoveSelectedThread();
         }
+        _infoService.Info(InfoBarSeverity.Error, msg: "GalgamePage_InvalidLocaleEmulatorPath".GetLocalized(),
+            displayTimeMs: 5000);
         await SaveAsync();
     }
 
@@ -446,6 +448,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         if (Item is null || string.IsNullOrEmpty(Item.ExePath)) 
         {
             _infoService.Info(InfoBarSeverity.Error, "GalgamePage_HighDpi_ExePathIsEmpty".GetLocalized());
+            if (Item != null)
+                Item.HighDpi = false;
             return;
         }
         
@@ -476,7 +480,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                     await process.WaitForExitAsync();
                     if (process.ExitCode == 0)
                     {
-                        Item.HighDpi = !Item.HighDpi;
                         await SaveAsync();
                         _ = DisplayMsg(InfoBarSeverity.Success, "GalgamePage_HighDpi_Success".GetLocalized());
                     }
@@ -490,6 +493,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             {
                 // 用户取消了UAC提示
                 _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_HighDpi_NeedAdmin".GetLocalized());
+                Item.HighDpi = !Item.HighDpi;
             }
         }
         catch (Exception ex)

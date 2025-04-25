@@ -437,8 +437,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             Item.ExePath = null;
             await RemoveSelectedThread();
         }
-        _infoService.Info(InfoBarSeverity.Error, msg: "GalgamePage_InvalidLocaleEmulatorPath".GetLocalized(),
-            displayTimeMs: 5000);
+
+        await CheckLocaleEmulator();
         await SaveAsync();
     }
 

@@ -329,17 +329,30 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 galgame.Developer.Value = tmp.Developer.Value;
             if (tmp.ExpectedPlayTime != Galgame.DefaultString)
                 galgame.ExpectedPlayTime.Value = tmp.ExpectedPlayTime.Value;
-            if (await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalName))
+            // if (await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalName))
+            // {
+            //     if (await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalNameWithChinese))
+            //     {
+            //         galgame.Name.Value = !string.IsNullOrEmpty(tmp.CnName) ? tmp.CnName : tmp.Name.Value;
+            //     }
+            //     else
+            //     {
+            //         galgame.Name.Value = tmp.Name.Value;
+            //     }
+            // }
+            switch (await LocalSettingsService.ReadSettingAsync<DisplayName>(KeyValues.DefaultGameName))
             {
-                if (await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalNameWithChinese))
-                {
+                case DisplayName.Name:
+                    break;
+                case DisplayName.ChineseName:
                     galgame.Name.Value = !string.IsNullOrEmpty(tmp.CnName) ? tmp.CnName : tmp.Name.Value;
-                }
-                else
-                {
+                    break;
+                case DisplayName.OriginalName:
                     galgame.Name.Value = tmp.Name.Value;
-                }
+                    break;
             }
+            galgame.ChineseName.Value = tmp.CnName;
+            galgame.OriginalName.Value = tmp.Name.Value ?? string.Empty;
             galgame.ImageUrl = tmp.ImageUrl;
             galgame.Rating.Value = tmp.Rating.Value;
             if (!galgame.Tags.IsLock && tmp.Tags.Value?.Count > 0) // Tags不能直接赋值，直接替换容器会抛出奇怪的绑定异常

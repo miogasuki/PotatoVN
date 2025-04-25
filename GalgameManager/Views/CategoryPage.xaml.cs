@@ -1,5 +1,5 @@
-﻿using GalgameManager.ViewModels;
-
+﻿using GalgameManager.Models;
+using GalgameManager.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Views;
@@ -16,10 +16,5 @@ public sealed partial class CategoryPage : Page
         ViewModel = App.GetService<CategoryViewModel>();
         DataContext = ViewModel;
         InitializeComponent();
-    }
-
-    private void CategoryGroupFlyout_OnOpening(object? sender, object e)
-    {
-        ViewModel.UpdateCategoryGroupFlyout(CategoryGroupFlyout);
     }
 }

@@ -62,6 +62,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     public SortKeys ReleaseDateSortKey => SortKeys.ReleaseDate;
     public SortKeys LastFetchInfoTimeSortKey => SortKeys.LastFetchInfoTime;
     public SortKeys AddTimeSortKey => SortKeys.AddTime;
+    public SortKeys PathSortKey => SortKeys.Path;
 
     [ObservableProperty] private SortKeys _currentSortKey = SortKeys.Name;
     [ObservableProperty] private bool _sortDescending = true;
@@ -111,6 +112,9 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                     break;
                 case SortKeys.AddTime:
                     result = DateTime.Compare(x.Galgame.AddTime, y.Galgame.AddTime);
+                    break;
+                case SortKeys.Path:
+                    result = string.Compare(x.Path, y.Path, StringComparison.CurrentCultureIgnoreCase);
                     break;
             }
             

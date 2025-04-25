@@ -29,7 +29,8 @@ public partial class CategorySettingViewModel : ObservableObject, INavigationAwa
     [ObservableProperty] private InfoBarSeverity _infoBarSeverity = InfoBarSeverity.Informational;
     [ObservableProperty] private bool _infoBarIsOpen;
     [ObservableProperty] private string _galgameSearchKey = string.Empty;
-    
+    [ObservableProperty] private Visibility _allowEdit = Visibility.Visible;
+
     [RelayCommand]
     private void GalgameSearch(string searchKey)
     {
@@ -48,13 +49,21 @@ public partial class CategorySettingViewModel : ObservableObject, INavigationAwa
     {
         if (parameter is Category category)
         {
+            // 只有‘开发者’分组允许下载图片
             if (_categoryService.IsInCategoryGroup(category, CategoryGroupType.Developer))
                 DownloadImgVisibility = Visibility.Visible;
-            
+            // ‘游玩状态’分组不允许编辑
+            if (_categoryService.IsInCategoryGroup(category, CategoryGroupType.Status))
+                AllowEdit = Visibility.Collapsed;
+
             Category = category;
             ObservableCollection<CategoryGroup> tmpCategoryGroups = await _categoryService.GetCategoryGroupsAsync();
             foreach (CategoryGroup group in tmpCategoryGroups)
             {
+                // 不允许移动到‘游玩状态’分组
+                if (group.Type == CategoryGroupType.Status)
+                    continue;
+
                 CategoryGroupChecker tmp = new()
                 {
                     Group = group,

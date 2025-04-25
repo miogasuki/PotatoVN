@@ -100,7 +100,7 @@
                     <!-- 高DPI替代缩放 -->
                     <AppBarToggleButton x:Uid="GalgamePage_HighDpi"
                                         Command="{x:Bind ViewModel.ChangeHighDpiCommand}"
-                                        IsChecked="{x:Bind ViewModel.Item.HighDpi, Mode=OneWay, FallbackValue=False}"
+                                        IsChecked="{x:Bind ViewModel.Item.HighDpi, Mode=TwoWay, FallbackValue=False}"
                                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}">
                         <AppBarToggleButton.Icon>
                             <control:ConditionalFontIcon Symbol="GoToStart"
@@ -270,8 +270,10 @@
                                     Grid.Column="2" Game="{x:Bind ViewModel.Item, Mode=OneWay}"
                                     Margin="30 0 30 0" />
                             </Grid>
-                            <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                            <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                            <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.ShowTagPanel, Mode=OneWay}"/>
+                            <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.ShowCharacterPanel, Mode=OneWay}"/>
                             <interactivity:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="SizeChanged">
                                     <core:InvokeCommandAction Command="{x:Bind ViewModel.NewLayoutSizeChangedCommand}"/>

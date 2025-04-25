@@ -41,7 +41,7 @@ public static class PhraseHelper
         await TryGetMapAsync(name) is { } mapModel ? mapModel.VndbId : null;
 
     public static async Task<int?> TryGetBgmIdAsync(string name) =>
-        await TryGetMapAsync(name) is { } mapModel ? mapModel.BgmId : null;
+        await TryGetMapAsync(name) is { } mapModel && mapModel.BgmSimilarity > 0.95 ? mapModel.BgmId : null;
     
     public static async Task<int?> TryGetSteamIdAsync(string name) =>
         await TryGetMapAsync(name) is { } mapModel ? mapModel.SteamId : null;

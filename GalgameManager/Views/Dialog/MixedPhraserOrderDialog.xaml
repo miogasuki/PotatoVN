@@ -10,7 +10,10 @@
     Style="{ThemeResource DefaultContentDialogStyle}">
 
     <StackPanel>
-        <TextBlock Style="{StaticResource DescriptionTextStyle}" x:Uid="MixedPhraserOrderDialog_Description"/>
+        <Grid Margin="0,0,0,8">
+            <TextBlock Style="{StaticResource DescriptionTextStyle}" x:Uid="MixedPhraserOrderDialog_Description" VerticalAlignment="Center"/>
+            <Button x:Uid="MixedPhraserOrderDialog_ResetButton" Click="ResetButton_Click" HorizontalAlignment="Right" Margin="0,0,50,0" />
+        </Grid>
         <ListView ItemsSource="{x:Bind Items}" SelectionMode="None" IsItemClickEnabled="False" MinWidth="400"
                   MaxHeight="200">
             <ListView.ItemTemplate>

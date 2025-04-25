@@ -199,7 +199,7 @@ public class GalgameSourceCollectionService(
         CalcSubSources();
         galgameSource.DetectChanged += DetectionChanged;
         DetectionChanged(galgameSource); // 手动触发一次，挂上监听
-        OnSourceChanged?.Invoke();
+        UiThreadInvokeHelper.Invoke(() => OnSourceChanged?.Invoke());
         
         return galgameSource;
     }

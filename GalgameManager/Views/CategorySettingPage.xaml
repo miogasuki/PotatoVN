@@ -61,9 +61,11 @@
                 </Grid>
 
                 <!-- 归属分类组 -->
-                <TextBlock x:Uid="CategorySettingPage_CategoryGroups" VerticalAlignment="Center" />
+                <TextBlock x:Uid="CategorySettingPage_CategoryGroups" VerticalAlignment="Center" 
+                           Visibility="{x:Bind ViewModel.AllowEdit, Mode=OneWay}" />
                 <ItemsRepeater
-                    ItemsSource="{x:Bind ViewModel.CategoryGroups, Mode=OneWay}" Margin="0 -15 0 0">
+                    ItemsSource="{x:Bind ViewModel.CategoryGroups, Mode=OneWay}" Margin="0 -15 0 0"
+                    Visibility="{x:Bind ViewModel.AllowEdit, Mode=OneWay}">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="viewModels:CategoryGroupChecker">
                             <ToggleButton Content="{x:Bind Group.Name}"

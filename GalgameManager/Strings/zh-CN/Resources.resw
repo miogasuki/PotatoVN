@@ -928,10 +928,10 @@
     <value>私密</value>
   </data>
   <data name="CategoryPage_AddCategoryDialog_Title" xml:space="preserve">
-    <value>新建分类</value>
+    <value>新建分类标签</value>
   </data>
   <data name="CategoryPage_AddCategory.Label" xml:space="preserve">
-    <value>新建分类</value>
+    <value>新建分类标签</value>
   </data>
   <data name="CategoryPage_AddCategoryGroup.Label" xml:space="preserve">
     <value>新建分类组</value>
@@ -2892,5 +2892,15 @@
   </data>
   <data name="LibraryPage_PlayStatusMoreSettings.Text" xml:space="preserve">
     <value>更多设置...</value>
+  </data>
+  <data name="CategoryPage_CategoryNow_ConfirmTitle" xml:space="preserve">
+    <value>分类所有游戏</value>
+  </data>
+  <data name="CategoryPage_CategoryNow_ConfirmMsg" xml:space="preserve">
+    <value>按照游戏的制作公司和PotatoVN内的实际游玩情况进行分类
+这将部分覆盖目前已分类的制作公司和游玩状态</value>
+  </data>
+  <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
+    <value>重命名分类组</value>
   </data>
 </root>

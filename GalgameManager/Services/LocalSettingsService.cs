@@ -272,6 +272,10 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)new MixedPhraserOrder().SetToDefault(isChineseCulture);
             case KeyValues.DefaultGameName:
                 return (T?)(object)DisplayName.Name;
+            case KeyValues.GalgamePagePrimaryTitleType:
+                return (T?)(object)DisplayName.ChineseName;
+            case KeyValues.GalgamePageSecondaryTitleType:
+                return (T?)(object)DisplayName.OriginalName;
             default:
                 return default;
         }

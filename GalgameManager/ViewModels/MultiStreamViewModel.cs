@@ -217,7 +217,7 @@ namespace GalgameManager.ViewModels
         #region SEARCH
 
         [ObservableProperty]
-        private GalgameSearchSuggestionsProvider _galgameSearchSuggestionsProvider = new(true, true, false);
+        private GalgameSearchSuggestionsProvider _galgameSearchSuggestionsProvider = new(true, true, false, true, true);
         [ObservableProperty] private string _searchKey = string.Empty;
 
         [RelayCommand]

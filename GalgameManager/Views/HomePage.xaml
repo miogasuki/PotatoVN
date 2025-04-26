@@ -21,38 +21,39 @@
     <Page.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <MenuFlyout x:Name="GalFlyout" Opening="{x:Bind ViewModel.GalFlyout_Opening}">
-            <MenuFlyoutSubItem Text="{x:Bind ViewModel.PlayStatus}">
+            <MenuFlyoutSubItem x:Uid="LibraryPage_PlayStatusSubMenu">
                 <MenuFlyoutSubItem.Icon>
                     <FontIcon FontFamily="Segoe Fluent Icons"
                             Glyph="&#xE74C;"/>
                 </MenuFlyoutSubItem.Icon>
-                <RadioMenuFlyoutItem Text="{x:Bind ViewModel.PlayTypePlaying}" 
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlaying"
                                      Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
                                      CommandParameter="Playing"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Playing'), Mode=OneWay}"
                                      GroupName="PlayStatus"/>
-                <RadioMenuFlyoutItem Text="{x:Bind ViewModel.PlayTypePlayed}" 
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlayed"
                                      Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
                                      CommandParameter="Played"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Played'), Mode=OneWay}"
                                      GroupName="PlayStatus"/>
-                <RadioMenuFlyoutItem Text="{x:Bind ViewModel.PlayTypeShelved}" 
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusOnHold"
                                      Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
                                      CommandParameter="Shelved"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Shelved'), Mode=OneWay}"
                                      GroupName="PlayStatus"/>
-                <RadioMenuFlyoutItem Text="{x:Bind ViewModel.PlayTypeAbandoned}" 
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusAbandoned"
                                      Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
                                      CommandParameter="Abandoned"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Abandoned'), Mode=OneWay}"
                                      GroupName="PlayStatus"/>
-                <RadioMenuFlyoutItem Text="{x:Bind ViewModel.PlayTypeWantToPlay}" 
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusWantToPlay"
                                      Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
                                      CommandParameter="WantToPlay"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'WantToPlay'), Mode=OneWay}"
                                      GroupName="PlayStatus"/>
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="{x:Bind ViewModel.MoreSetting}" Command="{x:Bind ViewModel.ShowChangePlayStatusDialogCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusMoreSettings"
+                        Command="{x:Bind ViewModel.ShowChangePlayStatusDialogCommand}" CommandParameter="{Binding}" />
             </MenuFlyoutSubItem>
             <MenuFlyoutItem Icon="Edit" Text="{x:Bind ViewModel.UiEdit}" Command="{x:Bind ViewModel.GalFlyOutEditCommand}" CommandParameter="{Binding}"/>
             <MenuFlyoutItem Icon="Download" Text="{x:Bind ViewModel.UiDownLoad}" Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}" CommandParameter="{Binding}"/>

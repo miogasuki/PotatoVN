@@ -38,7 +38,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _displayPlayTypePolygon = true; // 是否显示游玩状态的小三角形
     [ObservableProperty] private bool _displayVirtualGame; //是否显示虚拟游戏
     [ObservableProperty] private bool _specialDisplayVirtualGame; //是否特殊显示虚拟游戏（降低透明度）
-    [ObservableProperty] private Galgame? _currentContextGame; // 当前右键菜单上下文游戏对象
 
     #region UI
     public readonly string PlayStatus = "HomePage_PlayStatus".GetLocalized();
@@ -46,12 +45,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     public readonly string UiDownLoad = "HomePage_Download".GetLocalized();
     public readonly string UiRemove = "HomePage_Remove".GetLocalized();
     private readonly string _uiSearch = "Search".GetLocalized();
-    public readonly string PlayTypePlaying = PlayType.Playing.GetLocalized();
-    public readonly string PlayTypePlayed = PlayType.Played.GetLocalized();
-    public readonly string PlayTypeShelved = PlayType.Shelved.GetLocalized();
-    public readonly string PlayTypeAbandoned = PlayType.Abandoned.GetLocalized();
-    public readonly string PlayTypeWantToPlay = PlayType.WantToPlay.GetLocalized();
-    public readonly string MoreSetting = "HomePage_MoreSetting".GetLocalized();
     #endregion
 
     /// <summary>
@@ -161,41 +154,49 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private bool _displayDragArea;
 
-    public async Task Grid_Drop(object sender, DragEventArgs e)
+    public async void Grid_Drop(object sender, DragEventArgs e)
     {
-
-        if (e.DataView.Contains(StandardDataFormats.StorageItems))
+        try
         {
+            if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
             IReadOnlyList<IStorageItem>? items = await e.DataView.GetStorageItemsAsync();
-            if (items.Count <= 0) return;
+            switch (items.Count)
+            {
+                case <= 0:
+                    return;
+                // 限制只能拖入一个项目
+                case > 1:
+                    _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_TooManyItems".GetLocalized());
+                    break;
+                default:
+                {
+                    // 只处理单个项目
+                    IStorageItem storageItem = items[0];
+                    if (storageItem is StorageFile file && 
+                        (file.FileType.Equals(".exe", StringComparison.OrdinalIgnoreCase) ||
+                         file.FileType.Equals(".bat", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var folder = file.Path.Substring(0, file.Path.LastIndexOf('\\'));
+                        _ = AddGalgameInternal(folder);
+                    }
+                    else if (storageItem is StorageFolder folder)
+                    {
+                        _ = AddGalgameInternal(folder.Path);
+                    }
+                    else
+                    {
+                        _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_InvalidItem".GetLocalized());
+                    }
 
-            // 限制只能拖入一个项目
-            if (items.Count > 1)
-            {
-                _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_TooManyItems".GetLocalized());
-            }
-            else
-            {
-                // 只处理单个项目
-                IStorageItem storageItem = items[0];
-                if (storageItem is StorageFile file && 
-                    (file.FileType.Equals(".exe", StringComparison.OrdinalIgnoreCase) ||
-                     file.FileType.Equals(".bat", StringComparison.OrdinalIgnoreCase)))
-                {
-                    var folder = file.Path.Substring(0, file.Path.LastIndexOf('\\'));
-                    _ = AddGalgameInternal(folder);
-                }
-                else if (storageItem is StorageFolder folder)
-                {
-                    _ = AddGalgameInternal(folder.Path);
-                }
-                else
-                {
-                    _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_InvalidItem".GetLocalized());
+                    break;
                 }
             }
 
             DisplayDragArea = false;
+        }
+        catch (Exception ex)
+        {
+            _infoService.DeveloperEvent(e: ex);
         }
     }
 
@@ -489,7 +490,10 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             _infoService.Info(InfoBarSeverity.Error, msg: e.Message);
         }
     }
-    
+
+    #region MenuFlyout
+    [ObservableProperty] private Galgame? _currentContextGame; // 当前右键菜单上下文游戏对象
+
     [RelayCommand]
     private async Task GalFlyOutDelete(Galgame? galgame)
     {
@@ -544,8 +548,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         CurrentContextGame.PlayType = playType;
         
         await _galgameService.SaveGalgameAsync(CurrentContextGame);
-        
-        UpdateGalgame(CurrentContextGame);
     }
 
     public bool IsCurrentPlayType(Galgame? game, string playTypeString)
@@ -569,10 +571,19 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         if (!dialog.Canceled)
         {
             await _galgameService.SaveGalgameAsync(game);
-            
-            UpdateGalgame(game);
         }
     }
+
+    public void GalFlyout_Opening(object sender, object e)
+    {
+        if (sender is MenuFlyout flyout && flyout.Target != null)
+        {
+            Galgame? game = flyout.Target.DataContext as Galgame;
+            SetCurrentContextGame(game);
+        }
+    }
+
+    #endregion
     
     partial void OnFixHorizontalPictureChanged(bool value)
     {
@@ -593,15 +604,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         _localSettingsService.SaveSettingAsync(KeyValues.SpecialDisplayVirtualGame, value);
         GameToOpacityConverter.SpecialDisplayVirtualGame = value;
         Source.Refresh();
-    }
-
-    public void GalFlyout_Opening(object sender, object e)
-    {
-        if (sender is MenuFlyout flyout && flyout.Target != null)
-        {
-            Galgame? game = flyout.Target.DataContext as Galgame;
-            SetCurrentContextGame(game);
-        }
     }
 }
 

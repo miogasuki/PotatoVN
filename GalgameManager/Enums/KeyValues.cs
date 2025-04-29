@@ -79,6 +79,9 @@ public static class KeyValues
     public const string SpecialDisplayVirtualGame = "specialDisplayVirtualGame"; //bool, 游戏页是否特殊显示虚拟游戏（降低透明度）
     public const string MultiStreamPageAllowScroll = "multiStreamPageAllowScroll"; //bool, 主页列表是否允许横向滚动
     public const string TimeAsHour = "timeAsHour"; //bool，时间是否显示为“__h__m"，若为false则显示为“__分钟”
+    public const string TransparentNavigationView = "transparentNavigationView"; //bool, 是否使用透明导航视图背景
+    public const string GalgamePagePrimaryTitleType = "GalgamePagePrimaryTitleType"; //string, 游戏页主标题类型
+    public const string GalgamePageSecondaryTitleType = "GalgamePageSecondaryTitleType"; //string, 游戏页副标题类型
     public const string GalgamePageNewLayout = "galgamePageNewLayout"; //bool, 游戏页是否使用新界面
     public const string GalgamePageNewLayout_ShowPainter = "galgamePageNewLayout_showPainter"; //bool, 游戏页是否显示原画
     public const string GalgamePageNewLayout_ShowSeiyu = "galgamePageNewLayout_showSeiyu"; //bool, 游戏页是否显示声优
@@ -87,11 +90,17 @@ public static class KeyValues
     public const string GalgamePageNewLayout_ShowHeaderImage = "galgamePageNewLayout_showHeaderImage"; //bool, 游戏页是否显示背景图
     public const string GalgamePageNewLayout_CoverImage = "galgamePageNewLayout_coverImage"; //bool, 游戏页是否显示封面
     public const string GalgamePageNewLayout_ShowCoverWhenNoBackground = "galgamePageNewLayout_showCoverWhenNoBackground"; //bool, 游戏页是否在没有背景图时显示封面
+    public const string GalgamePageNewLayout_ShowExpectedPlayTime = "galgamePageNewLayout_showExpectedPlayTime"; //bool, 游戏页是否显示预计游玩时间
+    public const string GalgamePageNewLayout_ShowRating = "galgamePageNewLayout_showRating"; //bool, 游戏页是否显示评分
+    public const string GalgamePageNewLayout_ShowTags = "galgamePageNewLayout_showTags"; //bool, 游戏页是否显示标签
+    public const string GalgamePageNewLayout_ShowCharacters = "galgamePageNewLayout_showCharacters"; //bool, 游戏页是否显示角色
     public const string GalgameSourcePageShowSubSourceGames = "galgameSourcePageShowSubSourceGames"; //bool, 游戏源页面是否显示子源游戏
     public const string PrimarySortKey = "primarySortKey"; //string, 主排序的key，默认是“playtime”，可选值有：playtime（游玩时间）/lastUpdate（最后更新时间）/name（名称）/releaseDate（发售日期）/rating（评分）/category（分类）
     public const string SecondarySortKey = "SecondarySortKey"; //string, 次排序的key，默认是“playtime”，可选值有：playtime（游玩时间）/lastUpdate（最后更新时间）/name（名称）/releaseDate（发售日期）/rating（评分）/category（分类）
     public const string PrimarySortAscending = "PrimarySortAscending"; //bool, 主排序是否降序排列，默认是false（升序）
     public const string SecondarySortAscending = "SecondarySortAscending"; //bool, 次排序是否降序排列，默认是false（升序）
+    public const string DefaultGameName = "defaultGameName"; //string, 默认游戏名称
+
     //库页面
     public const string LibraryNavBar = "libraryNavBar"; //bool, 是否显示库页面的导航栏
     public const string LibraryStatistics = "libraryStatistics"; //bool, 是否显示库页面的统计信息（当前页游戏库/游戏数）

@@ -60,7 +60,7 @@ public class OssService(
             return await client.PresignedGetObjectAsync(new PresignedGetObjectArgs()
                 .WithBucket(BucketName)
                 .WithObject(GetFullKey(userId, objectFullName))
-                .WithExpiry(10 * 60));
+                .WithExpiry(604800)); // 7 days
         }
         catch (Exception e)
         {

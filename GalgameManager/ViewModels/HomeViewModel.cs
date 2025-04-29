@@ -19,6 +19,7 @@ using CommunityToolkit.WinUI.Controls;
 using GalgameManager.Helpers.Converter;
 using GalgameManager.Models.Filters;
 using GalgameManager.Models.Sources;
+using GalgameManager.Views.Dialog;
 
 // ReSharper disable CollectionNeverQueried.Global
 
@@ -37,12 +38,20 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _displayPlayTypePolygon = true; // 是否显示游玩状态的小三角形
     [ObservableProperty] private bool _displayVirtualGame; //是否显示虚拟游戏
     [ObservableProperty] private bool _specialDisplayVirtualGame; //是否特殊显示虚拟游戏（降低透明度）
+    [ObservableProperty] private Galgame? _currentContextGame; // 当前右键菜单上下文游戏对象
 
     #region UI
+    public readonly string PlayStatus = "HomePage_PlayStatus".GetLocalized();
     public readonly string UiEdit = "HomePage_Edit".GetLocalized();
     public readonly string UiDownLoad = "HomePage_Download".GetLocalized();
     public readonly string UiRemove = "HomePage_Remove".GetLocalized();
     private readonly string _uiSearch = "Search".GetLocalized();
+    public readonly string PlayTypePlaying = PlayType.Playing.GetLocalized();
+    public readonly string PlayTypePlayed = PlayType.Played.GetLocalized();
+    public readonly string PlayTypeShelved = PlayType.Shelved.GetLocalized();
+    public readonly string PlayTypeAbandoned = PlayType.Abandoned.GetLocalized();
+    public readonly string PlayTypeWantToPlay = PlayType.WantToPlay.GetLocalized();
+    public readonly string MoreSetting = "HomePage_MoreSetting".GetLocalized();
     #endregion
 
     /// <summary>
@@ -199,14 +208,24 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     private void UpdateFilterPanelDisplay(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        UiFilter = "HomePage_Filter".GetLocalized() + (Filters.Count > 0 ? " ●" : string.Empty);
+        bool hasActiveFilters = Filters.Count > 0 && (DisplayVirtualGame || Filters.Any(f => !(f is VirtualGameFilter)));
+        UiFilter = "HomePage_Filter".GetLocalized() + (hasActiveFilters ? " ●" : string.Empty);
         Source.RefreshFilter();
     }
     
     [RelayCommand]
     private void FilterRemoved(object args)
     {
-        if (args is FilterBase filter) _filterService.RemoveFilter(filter);
+        if (args is FilterBase filter) 
+        {
+            _filterService.RemoveFilter(filter);
+            
+            // 如果删除的是虚拟游戏过滤器，同步更新DisplayVirtualGame属性
+            if (filter is VirtualGameFilter)
+            {
+                DisplayVirtualGame = false;
+            }
+        }
     }
 
     [RelayCommand]
@@ -437,7 +456,12 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     private void OnGalgameServicePhrased() => IsPhrasing = false;
     
-    private void OnGalgameLoadedEvent() => Source.Source = _galgameService.Galgames;
+    // private void OnGalgameLoadedEvent() => Source.Source = _galgameService.Galgames;
+    private void OnGalgameLoadedEvent()
+    {
+        Source.Source = _galgameService.Galgames;
+        Source.Refresh();
+    }
 
     private void UpdateGalgame(Galgame game)
     {
@@ -507,6 +531,53 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         IsPhrasing = false;
     }
 
+    [RelayCommand]
+    public void SetCurrentContextGame(Galgame? game)
+    {
+        CurrentContextGame = game;
+    }
+
+    [RelayCommand]
+    private async Task GalFlyOutChangePlayStatus(string playTypeString)
+    {
+        if (CurrentContextGame == null) return;
+        
+        if (!Enum.TryParse(playTypeString, out PlayType playType))
+            return;
+
+        CurrentContextGame.PlayType = playType;
+        
+        await _galgameService.SaveGalgameAsync(CurrentContextGame);
+        
+        UpdateGalgame(CurrentContextGame);
+    }
+
+    public bool IsCurrentPlayType(Galgame? game, string playTypeString)
+    {
+        if (game == null) return false;
+
+        if (!Enum.TryParse(playTypeString, out PlayType playType))
+            return false;
+            
+        return game.PlayType == playType;
+    }
+
+    [RelayCommand]
+    private async Task ShowChangePlayStatusDialog(Galgame? game)
+    {
+        if (game == null) return;
+        
+        var dialog = new ChangePlayStatusDialog(game);
+        await dialog.ShowAsync();
+        
+        if (!dialog.Canceled)
+        {
+            await _galgameService.SaveGalgameAsync(game);
+            
+            UpdateGalgame(game);
+        }
+    }
+    
     partial void OnFixHorizontalPictureChanged(bool value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.FixHorizontalPicture, value);
@@ -526,6 +597,15 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         _localSettingsService.SaveSettingAsync(KeyValues.SpecialDisplayVirtualGame, value);
         GameToOpacityConverter.SpecialDisplayVirtualGame = value;
         Source.Refresh();
+    }
+
+    public void GalFlyout_Opening(object sender, object e)
+    {
+        if (sender is MenuFlyout flyout && flyout.Target != null)
+        {
+            var game = ((FrameworkElement)flyout.Target).DataContext as Galgame;
+            SetCurrentContextGame(game);
+        }
     }
 }
 

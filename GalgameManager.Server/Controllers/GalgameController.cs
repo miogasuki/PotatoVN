@@ -31,6 +31,32 @@ public class GalgameController (IGalgameService galService, IOssService ossServi
         return Ok(result);
     }
 
+    /// <summary>获取单个游戏的完整信息</summary>
+    /// <remarks>包含角色、游玩时间等所有相关信息</remarks>
+    /// <param name="id">游戏ID</param>
+    /// <response code="200">成功获取游戏信息</response>
+    /// <response code="404">指定ID的游戏不存在</response>
+    /// <response code="400">调用方不是该游戏所属者</response>
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<ActionResult<GalgameDto>> GetGalgameAsync([FromRoute][Required] int id)
+    {
+        var userId = this.GetUserId();
+        try
+        {
+            Galgame galgame = await galService.GetGalgameAsync(userId, id, true);
+            return Ok(await new GalgameDto(galgame).Init(ossService, userId, mapper));
+        }
+        catch (ArgumentException)
+        {
+            return NotFound("Galgame with given id not found");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return BadRequest("You are not the owner of the galgame.");
+        }
+    }
+    
     /// <summary>获取已删除的galgame列表</summary>
     /// <remarks>获取删除时间严格晚于给定时间戳的galgame列表</remarks>
     [HttpGet("deleted")]

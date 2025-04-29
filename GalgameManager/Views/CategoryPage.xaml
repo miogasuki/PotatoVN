@@ -15,9 +15,9 @@
             <MenuFlyoutItem x:Uid="CategoryPage_Category_Edit" Command="{x:Bind ViewModel.EditCategoryCommand}"
                             CommandParameter="{Binding}"/>
             <MenuFlyoutItem x:Uid="CategoryPage_Category_Combine" Command="{x:Bind ViewModel.CombineCategoryCommand}"
-                            CommandParameter="{Binding}"/>
+                            CommandParameter="{Binding}" IsEnabled="{x:Bind ViewModel.CanCombineCategory, Mode=OneWay}"/>
             <MenuFlyoutItem x:Uid="CategoryPage_Category_Delete" Command="{x:Bind ViewModel.DeleteCategoryCommand}" 
-                            CommandParameter="{Binding}"/>
+                            CommandParameter="{Binding}" IsEnabled="{x:Bind ViewModel.CanDeleteCategory, Mode=OneWay}"/>
         </MenuFlyout>
     </Page.Resources>
 
@@ -32,6 +32,9 @@
             <AppBarButton Icon="Add" x:Uid="CategoryPage_AddCategory" 
                           Command="{x:Bind ViewModel.AddCategoryCommand}"
                           IsEnabled="{x:Bind ViewModel.CanAddCategory, Mode=OneWay}"/>
+            <AppBarButton Icon="Flag"
+                    x:Uid="CategoryPage_AddCategoryGroup"
+                          Command="{x:Bind ViewModel.AddCategoryGroupCommand}"/>
             <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}">
                 <AppBarButton.Flyout>
                     <Flyout Placement="Bottom">
@@ -44,11 +47,6 @@
                     <KeyboardAccelerator Modifiers="Control" Key="F" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton Icon="ViewAll" x:Uid="CategoryPage_CategoryGroup">
-                <AppBarButton.Flyout>
-                    <MenuFlyout Placement="Bottom" x:Name="CategoryGroupFlyout" Opening="CategoryGroupFlyout_OnOpening"/>
-                </AppBarButton.Flyout>
-            </AppBarButton>
             <AppBarButton Command="{x:Bind ViewModel.CategoryNowCommand}" x:Uid="CategoryPage_CategoryNow">
                 <AppBarButton.Flyout>
                     <Flyout Placement="Bottom">
@@ -59,35 +57,54 @@
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE777;"/>
                 </AppBarButton.Icon>
             </AppBarButton>
-            <CommandBar.SecondaryCommands>
-                <AppBarButton Icon="Flag" x:Uid="CategoryPage_AddCategoryGroup" 
-                              Command="{x:Bind ViewModel.AddCategoryGroupCommand}"/>
+            <CommandBar.SecondaryCommands>   
                 <AppBarButton Icon="Delete" x:Uid="CategoryPage_DeleteCategoryGroup"
                               Command="{x:Bind ViewModel.DeleteCategoryGroupCommand}"
                               IsEnabled="{x:Bind ViewModel.CanDeleteCategoryGroup, Mode=OneWay}"/>
             </CommandBar.SecondaryCommands>
         </CommandBar>
         
-        <ScrollViewer Grid.Row="1">
-            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}">
-                <ItemsRepeater.ItemTemplate>
-                    <DataTemplate x:DataType="models:Category">
-                        <Button
-                            Style="{StaticResource TransparentButtonWithHover}"
-                            DataContext="{x:Bind}"
-                            Command="{Binding ElementName=Page, Path=ViewModel.ItemClickCommand}"
-                            CommandParameter="{x:Bind}"
-                            MinWidth="220" MinHeight="145"
-                            ContextFlyout="{StaticResource Flyout}">
-                            <prefab:CategoryPrefab Category="{x:Bind}"
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Button>
-                    </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-                <ItemsRepeater.Layout>
-                    <UniformGridLayout ItemsStretch="Fill" MinRowSpacing="1"/>
-                </ItemsRepeater.Layout>
-            </ItemsRepeater>
-        </ScrollViewer>
+        <!-- 修改的横向NavigationView -->
+        <NavigationView Grid.Row="1" 
+                        x:Name="CategoryNavView"
+                        PaneDisplayMode="Top"
+                        IsBackButtonVisible="Collapsed"
+                        IsSettingsVisible="False"
+                        MenuItemsSource="{x:Bind ViewModel.CategoryGroups, Mode=OneWay}"
+                        SelectedItem="{x:Bind ViewModel.SelectedCategoryGroup, Mode=TwoWay}"
+                        Background="Transparent"
+                        Margin="0,0,0,5">
+            <NavigationView.Resources>
+                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent"/>
+                <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent"/>
+            </NavigationView.Resources>
+            <NavigationView.MenuItemTemplate>
+                <DataTemplate x:DataType="models:CategoryGroup">
+                    <TextBlock Text="{x:Bind Name}"/>
+                </DataTemplate>
+            </NavigationView.MenuItemTemplate>
+            
+            <ScrollViewer>
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="models:Category">
+                            <Button
+                                Style="{StaticResource TransparentButtonWithHover}"
+                                DataContext="{x:Bind}"
+                                Command="{Binding ElementName=Page, Path=ViewModel.ItemClickCommand}"
+                                CommandParameter="{x:Bind}"
+                                MinWidth="220" MinHeight="145"
+                                ContextFlyout="{StaticResource Flyout}">
+                                <prefab:CategoryPrefab Category="{x:Bind}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Button>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                    <ItemsRepeater.Layout>
+                        <UniformGridLayout ItemsStretch="Fill" MinRowSpacing="1"/>
+                    </ItemsRepeater.Layout>
+                </ItemsRepeater>
+            </ScrollViewer>
+        </NavigationView>
     </Grid>
 </Page>

@@ -74,7 +74,7 @@ public class Program
 
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "PotatoVN.Server", Version = "v1.2", 
+                Title = "PotatoVN.Server", Version = "v1.3", 
                 Description = "PotatoVN 同步服务器\n最新更新：支持staff同步",
             });
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PotatoVN.Server.xml"));

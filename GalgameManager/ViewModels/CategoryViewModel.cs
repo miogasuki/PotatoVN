@@ -23,10 +23,49 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     // ReSharper disable once CollectionNeverQueried.Global
     // 必须用new ObservableCollection<Category>()初始化
     public readonly AdvancedCollectionView Source = new(new ObservableCollection<Category>());
-    private ObservableCollection<CategoryGroup> _categoryGroups = new();
-    private CategoryGroup? _currentGroup;
+    
+    [ObservableProperty] private ObservableCollection<CategoryGroup> _categoryGroups = new();
+    
+    private CategoryGroup? _selectedCategoryGroup;
+    public CategoryGroup? SelectedCategoryGroup 
+    { 
+        get => _selectedCategoryGroup;
+        set
+        {
+            // 只在值实际变化时更新
+            if (SetProperty(ref _selectedCategoryGroup, value) && value != null)
+            {
+                // 直接在UI线程中同步更新Source和设置
+                UpdateSourceFromSelectedGroup(value);
+            }
+        }
+    }
+    
+    // 简化为单一方法
+    private void UpdateSourceFromSelectedGroup(CategoryGroup group)
+    {
+        // 创建一个新的 ObservableCollection，包含所选组中的分类
+        var newCollection = new ObservableCollection<Category>(group.Categories);
+        
+        // 替换 Source 的底层集合
+        Source.Source = newCollection;
+        
+        // 更新UI控制属性
+        CanDeleteCategoryGroup = group.Type == CategoryGroupType.Custom;
+        CanAddCategory = group.Type != CategoryGroupType.Status;
+        
+        // 更新菜单项可见性控制
+        CanCombineCategory = group.Type != CategoryGroupType.Status;
+        CanDeleteCategory = group.Type != CategoryGroupType.Status;
+        
+        // 异步保存设置但不等待结果
+        _ = _localSettingsService.SaveSettingAsync(KeyValues.CategoryGroup, group.Name);
+    }
+    
     [ObservableProperty] private bool _canDeleteCategoryGroup; //能否删除当前分类组（仅custom分类组能删除）
     [ObservableProperty] private bool _canAddCategory; //能否添加分类（状态分类组不能添加）
+    [ObservableProperty] private bool _canCombineCategory; //能否组合分类（仅非custom分类组可以）
+    [ObservableProperty] private bool _canDeleteCategory; //能否删除分类（仅非custom分类组可以）
 
     public CategoryViewModel(ICategoryService categoryService, INavigationService navigationService,
         ILocalSettingsService localSettingsService, IFilterService filterService)
@@ -47,7 +86,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     private async Task CategoryNow()
     {
         await _categoryService.UpdateAllGames();
-        await SelectCategoryGroup(await GetCategoryGroup());
+        SelectCategoryGroup(await GetCategoryGroup());
     }
 
     public async void OnNavigatedTo(object parameter)
@@ -61,22 +100,10 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
 
             return false;
         };
-        _categoryGroups = await _categoryService.GetCategoryGroupsAsync();
-        await SelectCategoryGroup(parameter as CategoryGroup ?? await GetCategoryGroup());
-    }
-
-    // 并不符合MVVM要求，但暂时没有更好的办法
-    public void UpdateCategoryGroupFlyout(MenuFlyout? categoryGroupFlyout)
-    {
-        if (categoryGroupFlyout == null) return;
-        categoryGroupFlyout.Items.Clear();
-        foreach (CategoryGroup group in _categoryGroups)
-            categoryGroupFlyout.Items.Add(new MenuFlyoutItem
-            {
-                Text = group.Name,
-                Command = SelectCategoryGroupCommand,
-                CommandParameter = group
-            });
+        CategoryGroups = await _categoryService.GetCategoryGroupsAsync();
+        
+        // 设置SelectedCategoryGroup，通过绑定更新UI
+        SelectedCategoryGroup = parameter as CategoryGroup ?? await GetCategoryGroup();
     }
 
     /// <summary>
@@ -85,7 +112,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     private async Task<CategoryGroup> GetCategoryGroup()
     {
         var groupStr = await _localSettingsService.ReadSettingAsync<string>(KeyValues.CategoryGroup);
-        CategoryGroup? result = _categoryGroups.FirstOrDefault(c => c.Name == groupStr);
+        CategoryGroup? result = CategoryGroups.FirstOrDefault(c => c.Name == groupStr);
         if (result == null)
         {
             result = _categoryService.StatusGroup;
@@ -123,8 +150,8 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     [RelayCommand]
     private async Task CombineCategory(Category source)
     {
-        if (_currentGroup == null) return;
-        CombineCategoryDialog dialog = new(_currentGroup, source);
+        if (SelectedCategoryGroup == null) return;
+        CombineCategoryDialog dialog = new(SelectedCategoryGroup, source);
         await dialog.ShowAsync();
         if (dialog.Target == null) return;
         _categoryService.Merge(dialog.Target, source);
@@ -171,14 +198,9 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     /// </summary>
     /// <param name="group">分类组</param>
     [RelayCommand]
-    private async Task SelectCategoryGroup(CategoryGroup group)
+    private void SelectCategoryGroup(CategoryGroup group)
     {
-        _currentGroup = group;
-        Source.Clear();
-        _currentGroup!.Categories.ForEach(c => Source.Add(c));
-        CanDeleteCategoryGroup = _currentGroup.Type == CategoryGroupType.Custom;
-        CanAddCategory = _currentGroup.Type != CategoryGroupType.Status;
-        await _localSettingsService.SaveSettingAsync(KeyValues.CategoryGroup, group.Name);
+        UpdateSourceFromSelectedGroup(group);
     }
 
     [RelayCommand]
@@ -201,10 +223,10 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         };
         dialog.PrimaryButtonClick += (_, _) =>
         {
-            if (_currentGroup is null) return;
+            if (SelectedCategoryGroup is null) return;
             name = (dialog.Content as TextBox)!.Text;
             Category category = new(name);
-            _currentGroup.Categories.Add(category);
+            SelectedCategoryGroup.Categories.Add(category);
             Source.Add(category);
         };
         
@@ -233,8 +255,8 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         {
             name = (dialog.Content as TextBox)!.Text;
             CategoryGroup group = _categoryService.AddCategoryGroup(name);
-            _categoryGroups = await _categoryService.GetCategoryGroupsAsync();
-            await SelectCategoryGroup(group);
+            CategoryGroups = await _categoryService.GetCategoryGroupsAsync();
+            SelectCategoryGroup(group);
         };
         
         await dialog.ShowAsync();
@@ -255,10 +277,10 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         };
         dialog.PrimaryButtonClick += async (_, _) =>
         {
-            if (_currentGroup == null) return;
-            _categoryService.DeleteCategoryGroup(_currentGroup);
-            _categoryGroups = await _categoryService.GetCategoryGroupsAsync();
-            await SelectCategoryGroup(_categoryService.StatusGroup);
+            if (SelectedCategoryGroup == null) return;
+            _categoryService.DeleteCategoryGroup(SelectedCategoryGroup);
+            CategoryGroups = await _categoryService.GetCategoryGroupsAsync();
+            SelectCategoryGroup(_categoryService.StatusGroup);
         };
         
         await dialog.ShowAsync();
@@ -283,7 +305,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     public async Task<IEnumerable<string>?> GetSearchSuggestionsAsync(string key)
     {
         await Task.CompletedTask;
-        return from category in  _currentGroup?.Categories
+        return from category in  SelectedCategoryGroup?.Categories
             where category.Name.ContainX(key)
             select category.Name;
     }

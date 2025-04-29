@@ -26,7 +26,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
     /// id eg:g530[1..]=530=(int)530
     /// </summary>
     private const string VndbFields = "title, titles.title, titles.lang, description, image.url, id, rating, length, " +
-                                      "length_minutes, tags.id, tags.rating, developers.original, developers.name, released";
+                                      "length_minutes, tags.id, tags.rating, tags.spoiler, developers.original, developers.name, released";
     private const string StaffFields = "id, aid, name, original, lang, gender, description";
 
     private bool _authed;
@@ -215,7 +215,8 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             result.Tags.Value = new ObservableCollection<string>();
             if (rssItem.Tags != null)
             {
-                IOrderedEnumerable<VndbTag> tmpTags = rssItem.Tags.OrderByDescending(t => t.Rating);
+                var tmpTags = rssItem.Tags.OrderByDescending(t => t.Rating)
+                    .Where(t => t.Spoiler == null || t.Spoiler <= 1);  // 过滤掉剧透程度大于1的标签（仅显示轻微剧透）
                 foreach (VndbTag tag in tmpTags)
                 {
                     if (!int.TryParse(tag.Id![1..], out var i)) continue;

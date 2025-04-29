@@ -29,7 +29,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private readonly IInfoService _infoService;
     private readonly INavigationService _navigationService;
     private readonly ILocalSettingsService _settingsService;
-    
+    private static readonly List<GetGalgameInfoFromRssTask> RssTasks = [];
+
     private GalgameSourceBase? _item;
     public ObservableCollection<GalgameAndPath> Galgames { get; } = new();
     public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None};
@@ -61,6 +62,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     public SortKeys ReleaseDateSortKey => SortKeys.ReleaseDate;
     public SortKeys LastFetchInfoTimeSortKey => SortKeys.LastFetchInfoTime;
     public SortKeys AddTimeSortKey => SortKeys.AddTime;
+    public SortKeys PathSortKey => SortKeys.Path;
 
     [ObservableProperty] private SortKeys _currentSortKey = SortKeys.Name;
     [ObservableProperty] private bool _sortDescending = true;
@@ -110,6 +112,9 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                     break;
                 case SortKeys.AddTime:
                     result = DateTime.Compare(x.Galgame.AddTime, y.Galgame.AddTime);
+                    break;
+                case SortKeys.Path:
+                    result = string.Compare(x.Path, y.Path, StringComparison.CurrentCultureIgnoreCase);
                     break;
             }
             
@@ -281,6 +286,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             _unpackGameTask.OnProgress += UpdateNotifyUnpack;
             UpdateNotifyUnpack(_unpackGameTask.CurrentProgress);
         }
+        foreach (GetGalgameInfoFromRssTask task in RssTasks.Where(t => t.IsRunning))
+            task.OnProgress += HandleGetGalInfoProgressChanged;
         Update();
     }
 
@@ -291,6 +298,12 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             _unpackGameTask.OnProgress -= UpdateNotifyUnpack;
             _unpackGameTask.OnProgress -= HandelUnpackError;
         }
+
+        foreach (GetGalgameInfoFromRssTask task in RssTasks)
+            task.OnProgress -= HandleGetGalInfoProgressChanged;
+        List<GetGalgameInfoFromRssTask> toRemove = RssTasks.Where(t => !t.IsRunning).ToList();
+        foreach (GetGalgameInfoFromRssTask task in toRemove) RssTasks.Remove(task);
+
         Item = null; //确保监听注销
     }
 
@@ -335,16 +348,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         if (_selectedGalgames.Count > 0)
         {
             var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(Item, _selectedGalgames);
-            getGalgameInfoFromRss.OnProgress += progress =>
-            {
-                Update();
-                _infoService.Info(progress.ToSeverity(), msg: progress.Message,
-                    displayTimeMs: progress.ToSeverity() switch
-                    {
-                        InfoBarSeverity.Informational => 300000,
-                        _ => 3000
-                    });
-            };
+            getGalgameInfoFromRss.OnProgress += HandleGetGalInfoProgressChanged;
+            RssTasks.Add(getGalgameInfoFromRss);
             _ = _bgTaskService.AddBgTask(getGalgameInfoFromRss);
             return;
         }
@@ -398,16 +403,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         foreach (GalgameSourceBase source in sources)
         {
             var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(source);
-            getGalgameInfoFromRss.OnProgress += progress =>
-            {
-                Update();
-                _infoService.Info(progress.ToSeverity(), msg: progress.Message,
-                    displayTimeMs: progress.ToSeverity() switch
-                    {
-                        InfoBarSeverity.Informational => 300000,
-                        _ => 3000
-                    });
-            };
+            getGalgameInfoFromRss.OnProgress += HandleGetGalInfoProgressChanged;
+            RssTasks.Add(getGalgameInfoFromRss);
             _ = _bgTaskService.AddBgTask(getGalgameInfoFromRss);
         }
 
@@ -421,6 +418,16 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                 AddSubSources(source, allSources);
             }
         }
+    }
+
+    private void HandleGetGalInfoProgressChanged(Progress progress)
+    {
+        Update();
+        _infoService.Info(progress.ToSeverity(), msg: progress.Message, displayTimeMs: progress.ToSeverity() switch
+        {
+            InfoBarSeverity.Informational => 300000,
+            _ => 3000
+        });
     }
 
     [RelayCommand(CanExecute = nameof(CanExecute))]

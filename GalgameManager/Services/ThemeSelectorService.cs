@@ -95,4 +95,42 @@ public class ThemeSelectorService : IThemeSelectorService
         await Task.CompletedTask;
     }
     
+    /// <summary>
+    /// 设置导航视图是否使用透明背景，设置页面的描述文字和实际设置相反
+    /// </summary>
+    /// <returns></returns>
+    public async Task SetNavigationViewTransparencyAsync()
+    {
+        if (App.MainWindow?.Content is not FrameworkElement rootElement)
+        {
+            return;
+        }
+
+        var useTransparentNav = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.TransparentNavigationView);
+        
+        var navView = rootElement.FindName("NavigationViewControl") as Microsoft.UI.Xaml.Controls.NavigationView;
+        if (navView != null)
+        {
+            var transparentBrush = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+            
+            // 不使用透明背景即为显示导航栏边框边框
+            if (!useTransparentNav)
+            {
+                
+                navView.Resources["NavigationViewContentBackground"] = transparentBrush;
+                navView.Resources["NavigationViewContentGridBorderBrush"] = transparentBrush;
+                
+                navView.UpdateLayout();
+            }
+            else
+            {
+                navView.Resources.Remove("NavigationViewContentBackground");
+                navView.Resources.Remove("NavigationViewContentGridBorderBrush");
+                
+                navView.UpdateLayout();
+            }
+        }
+
+        await Task.CompletedTask;
+    }
 }

@@ -59,6 +59,7 @@ public class PageService : IPageService
             App.MainWindow.Content = shell;
             await App.GetService<IThemeSelectorService>().SetRequestedThemeAsync();
             await App.GetService<IThemeSelectorService>().SetBackgroundMaterialAsync();
+            await App.GetService<IThemeSelectorService>().SetNavigationViewTransparencyAsync();
             OnInit?.Invoke();
         }
     }

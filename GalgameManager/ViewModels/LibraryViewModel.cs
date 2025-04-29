@@ -523,6 +523,7 @@ public partial class LibraryViewModel(
     public SortKeys ReleaseDateSortKey => SortKeys.ReleaseDate;
     public SortKeys LastFetchInfoTimeSortKey => SortKeys.LastFetchInfoTime;
     public SortKeys AddTimeSortKey => SortKeys.AddTime;
+    public SortKeys PathSortKey => SortKeys.Path;
 
     [ObservableProperty] private SortKeys _currentSortKey = SortKeys.Name;
     [ObservableProperty] private bool _gameSortDescending = true;
@@ -597,6 +598,9 @@ public partial class LibraryViewModel(
                 break;
             case SortKeys.AddTime:
                 Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.AddTime), gameDirection));
+                break;
+            case SortKeys.Path:
+                Galgames.SortDescriptions.Add(new SortDescription(nameof(Galgame.LocalPath), gameDirection));
                 break;
         }
 

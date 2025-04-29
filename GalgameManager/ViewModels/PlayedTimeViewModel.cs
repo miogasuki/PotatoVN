@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
+using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.Services;
 using GalgameManager.Views.Dialog;
@@ -76,6 +77,9 @@ public partial class PlayedTimeViewModel : ObservableObject, INavigationAware
         await new EditPlayTimeDialog(Game).ShowAsync();
         await _galgameCollectionService.SaveGalgameAsync(Game);
         Update();
+        Game.LastPlayTime = Game.PlayedTime.Count > 0
+            ? Game.PlayedTime.Keys.Select(Utils.TryParseDateGuessCulture).Max()
+            : DateTime.MinValue;
         _pvnService.Upload(Game, PvnUploadProperties.PlayTime);
     }
 }

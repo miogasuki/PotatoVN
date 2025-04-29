@@ -117,6 +117,22 @@
                                     IsLock="{x:Bind ViewModel.Gal.Name.IsLock, Mode=TwoWay}"
                                     AcceptsReturn="False" />
                             </control:Panel>
+                            <!-- 游戏原始名 -->
+                            <control:Panel>
+                                <control:LockableTextBox
+                                    x:Uid="GalgameSettingPage_GalgameNameOriginal"
+                                    Value="{x:Bind ViewModel.Gal.OriginalName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsLock="{x:Bind ViewModel.Gal.OriginalName.IsLock, Mode=TwoWay}"
+                                    AcceptsReturn="False" />
+                            </control:Panel>
+                            <!-- 游戏中文名 -->
+                            <control:Panel>
+                                <control:LockableTextBox
+                                    x:Uid="GalgameSettingPage_GalgameNameChinese"
+                                    Value="{x:Bind ViewModel.Gal.ChineseName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsLock="{x:Bind ViewModel.Gal.ChineseName.IsLock, Mode=TwoWay}"
+                                    AcceptsReturn="False" />
+                            </control:Panel>
                             <!-- 游戏ID -->
                             <control:Panel>
                                 <Grid ColumnDefinitions="Auto,5*,Auto,2*,Auto" ColumnSpacing="20">

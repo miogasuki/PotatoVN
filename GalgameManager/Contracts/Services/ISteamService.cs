@@ -8,5 +8,5 @@ namespace GalgameManager.Contracts.Services;
 public interface ISteamService
 {
     public Task InitAsync();
-    public 
+
 }

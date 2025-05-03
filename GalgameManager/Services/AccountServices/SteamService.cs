@@ -19,15 +19,9 @@ public class SteamService : ISteamService
         this.key = key;
         this.steamId = steamId;
     }
-    public async Task<bool> CheckSteamAccountResponseDto(string steamid)
-    {
-        if (steamId == null)
-        {
-            return false; //这里到时候加报错 没有steamid
-        }
-        var response = await steamApi.GetPlayerSummariesAsync(key, steamId);
-        if(response)
-    }
+    public  bool CheckSteamAccountResponseDto(string steamid) => throw new NotImplementedException();
+
+
     public SteamAccountDto GetSteamAccount(string steamid) => throw new NotImplementedException();
     public SteamGameDto GetSteamGameDto(string appid) => throw new NotImplementedException();
     public SteamGameListResponseDto GetSteamGameListResponse(string steamid) => throw new NotImplementedException();

@@ -32,33 +32,25 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         get => _selectedCategoryGroup;
         set
         {
-            // 只在值实际变化时更新
             if (SetProperty(ref _selectedCategoryGroup, value) && value != null)
             {
-                // 直接在UI线程中同步更新Source和设置
                 UpdateSourceFromSelectedGroup(value);
             }
         }
     }
     
-    // 简化为单一方法
     private void UpdateSourceFromSelectedGroup(CategoryGroup group)
     {
-        // 创建一个新的 ObservableCollection，包含所选组中的分类
-        var newCollection = new ObservableCollection<Category>(group.Categories);
+        ObservableCollection<Category> newCollection = new ObservableCollection<Category>(group.Categories);
         
-        // 替换 Source 的底层集合
         Source.Source = newCollection;
         
-        // 更新UI控制属性
         CanDeleteCategoryGroup = group.Type == CategoryGroupType.Custom;
         CanAddCategory = group.Type != CategoryGroupType.Status;
         
-        // 更新菜单项可见性控制
         CanCombineCategory = group.Type != CategoryGroupType.Status;
         CanDeleteCategory = group.Type != CategoryGroupType.Status;
         
-        // 异步保存设置但不等待结果
         _ = _localSettingsService.SaveSettingAsync(KeyValues.CategoryGroup, group.Name);
     }
     
@@ -85,6 +77,23 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     [RelayCommand]
     private async Task CategoryNow()
     {
+        var confirm = false;
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
+            Title = "CategoryPage_CategoryNow_ConfirmTitle".GetLocalized(),
+            Content = "CategoryPage_CategoryNow_ConfirmMsg".GetLocalized(),
+            PrimaryButtonText = "Yes".GetLocalized(),
+            SecondaryButtonText = "Cancel".GetLocalized(),
+            PrimaryButtonCommand = new RelayCommand(() => confirm = true),
+            DefaultButton = ContentDialogButton.Secondary,
+            Width = 400 
+        };
+        await dialog.ShowAsync();
+
+        if (!confirm) return;
+        
         await _categoryService.UpdateAllGames();
         SelectCategoryGroup(await GetCategoryGroup());
     }
@@ -132,7 +141,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
             Title = "CategoryPage_DeleteCategory_Title".GetLocalized(),
             Content = "CategoryPage_DeleteCategory_Msg".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
@@ -210,7 +219,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
             Title = "CategoryPage_AddCategoryDialog_Title".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
@@ -240,7 +249,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
             Title = "CategoryPage_AddCategoryGroupDialog_Title".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
@@ -268,7 +277,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
             Title = "CategoryPage_DeleteCategoryGroupDialog_Title".GetLocalized(),
             Content = "CategoryPage_DeleteCategoryGroupDialog_Msg".GetLocalized(),
             PrimaryButtonText = "Yes".GetLocalized(),
@@ -287,16 +296,15 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
     }
     
     #region SERACH
-
-    public static string UiSearch = "Search".GetLocalized();
+    
     [ObservableProperty] private string _searchTitle = "Search".GetLocalized();
     [ObservableProperty] private string _searchKey = "";
-    [ObservableProperty] private ObservableCollection<string> _searchSuggestions = new();
+    [ObservableProperty] private ObservableCollection<string> _searchSuggestions = [];
     
     [RelayCommand]
     private void Search(string searchKey)
     {
-        SearchTitle = searchKey == string.Empty ? UiSearch : UiSearch + " ●";
+        SearchTitle = searchKey == string.Empty ? "Search".GetLocalized() : "Search".GetLocalized() + " ●";
         Source.RefreshFilter();
     }
     

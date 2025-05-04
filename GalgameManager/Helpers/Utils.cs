@@ -106,6 +106,8 @@ public static class Utils
     /// <returns></returns>
     public static bool ContainX(this string self, string target)
     {
+        if (self == null || target == null)
+            return false;
         self = self.ToLower().Replace(" ",string.Empty);
         target = target.ToLower().Replace(" ",string.Empty);
         if (self.Contains(target)) return true;

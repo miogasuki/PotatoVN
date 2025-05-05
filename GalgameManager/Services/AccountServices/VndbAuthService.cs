@@ -1,4 +1,9 @@
-﻿using GalgameManager.Contracts.Services;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+
+using Newtonsoft.Json.Linq;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.API;
@@ -6,13 +11,13 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Services;
 
-public class VndbAuthService: IVndbAuthService
+public class VndbAuthService : IVndbAuthService
 {
     private VndbApi _vndbApi = new();
 
     private readonly ILocalSettingsService _localSettingsService;
     private readonly IInfoService _infoService;
-    
+
     public VndbAuthService(ILocalSettingsService localSettingsService, IInfoService infoService)
     {
         _localSettingsService = localSettingsService;
@@ -51,12 +56,34 @@ public class VndbAuthService: IVndbAuthService
     {
         await _localSettingsService.RemoveSettingAsync(KeyValues.VndbAccount);
     }
+
+    public async Task<bool> SteamGameCheckAsync(string token, string appId)
+    {
+        _vndbApi.UpdateToken(token);
+        var filterArray = new JArray(
+        "extlink",
+        "=",
+        new JArray("steam", int.Parse(appId))
+        );
+
+        // Use the VndbFiltersConverter to create a VndbFilters object from the JArray
+        var filter = new JsonSerializer()
+            .Deserialize<VndbFilters>(new JTokenReader(filterArray));
+
+        var response = await _vndbApi.GetSteamGalgame(new VndbQuery()
+        {
+            Filters = filter
+        });
+        var content = response.Data as JObject;
+        var result = content?["result"] as JArray;
+        return result.Count > 0;
+    }
 }
 
 public class VndbAccount
 {
-    public string Id="";
-    public string Token="";
+    public string Id = "";
+    public string Token = "";
     public string Username = "";
     public required List<VndbApiPermission> Permissions;
 }

@@ -474,7 +474,8 @@
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content" xml:space="preserve">
     <value>删除库会删除子库，并取消托管所有游戏</value>
   </data>
-  <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_RemoveFromLibrary" xml:space="preserve">
+  <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_RemoveFromLibrary"
+    xml:space="preserve">
     <value>一并从游戏库中移除游戏</value>
   </data>
   <data name="LibraryPage_DeleteFolder.Text" xml:space="preserve">
@@ -2543,7 +2544,7 @@
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowRating.Text" xml:space="preserve">
     <value>显示评分</value>
-  </data> 
+  </data>
   <data name="ManageGalgamePageLayoutDialog_ShowTags.Text" xml:space="preserve">
     <value>显示标签</value>
   </data>

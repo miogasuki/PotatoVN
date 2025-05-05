@@ -11,7 +11,7 @@ public class SteamResponseDto<T>
 public class SteamAccountResponseDto
 {
     [JsonPropertyName("players")]
-    List<SteamAccountDto> players { get; set; } = new List<SteamAccountDto>();
+    public List<SteamAccountDto> players { get; set; } = new List<SteamAccountDto>();
 }
 
 public class SteamAccountDto

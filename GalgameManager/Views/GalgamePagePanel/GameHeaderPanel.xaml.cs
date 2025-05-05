@@ -133,7 +133,6 @@ public partial class GameHeaderPanel
     {
         if (Game == null) return;
         
-        // 直接读取DisplayName枚举
         PrimaryTitleType = await _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.GalgamePagePrimaryTitleType);
         SecondaryTitleType = await _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.GalgamePageSecondaryTitleType);
         
@@ -261,7 +260,7 @@ public partial class GameHeaderPanel
     private async Task UpdateHeaderImgAndCoverImg()
     {
         if (Game is null) return;
-        // Header图是否应该显示
+
         var showBackground = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage);
         if (showBackground && File.Exists(Game.HeaderImagePath.Value))
         {
@@ -271,8 +270,7 @@ public partial class GameHeaderPanel
         }
         else
             Cover.Visibility = Visibility.Visible;
-
-        // 禁用了封面图显示
+        
         if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_CoverImage) is false)
             Cover.Visibility = Visibility.Collapsed;
     }

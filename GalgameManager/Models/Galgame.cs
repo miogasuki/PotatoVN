@@ -294,6 +294,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public bool ApplySearchKey(string searchKey)
     {
         return Name.Value!.ContainX(searchKey) || 
+               ChineseName.Value!.ContainX(searchKey) ||
+               OriginalName.Value!.ContainX(searchKey) ||
                Developer.Value!.ContainX(searchKey) || 
                Tags.Value!.Any(str => str.ContainX(searchKey));
     }

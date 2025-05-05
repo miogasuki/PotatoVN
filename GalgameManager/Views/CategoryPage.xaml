@@ -47,17 +47,20 @@
                     <KeyboardAccelerator Modifiers="Control" Key="F" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton Command="{x:Bind ViewModel.CategoryNowCommand}" x:Uid="CategoryPage_CategoryNow">
-                <AppBarButton.Flyout>
-                    <Flyout Placement="Bottom">
-                        <TextBlock Text="Done!"/>
-                    </Flyout>
-                </AppBarButton.Flyout>
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE777;"/>
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <CommandBar.SecondaryCommands>   
+            <CommandBar.SecondaryCommands>
+                <!-- 分类所有游戏 -->
+                <AppBarButton Command="{x:Bind ViewModel.CategoryNowCommand}"
+                        x:Uid="CategoryPage_CategoryNow">
+                    <AppBarButton.Flyout>
+                        <Flyout Placement="Bottom">
+                            <TextBlock Text="Done!"/>
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe Fluent Icons"
+                                Glyph="&#xE777;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
                 <AppBarButton Icon="Delete" x:Uid="CategoryPage_DeleteCategoryGroup"
                               Command="{x:Bind ViewModel.DeleteCategoryGroupCommand}"
                               IsEnabled="{x:Bind ViewModel.CanDeleteCategoryGroup, Mode=OneWay}"/>

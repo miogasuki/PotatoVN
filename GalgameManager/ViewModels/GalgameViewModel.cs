@@ -35,7 +35,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private readonly IPvnService _pvnService;
     private readonly IInfoService _infoService;
     [ObservableProperty] private Galgame? _item;
-    public ObservableCollection<GamePanelBase> Panels { get; } = new();
+    public ObservableCollection<GamePanelBase> Panels { get; } = [];
     [NotifyCanExecuteChangedFor(nameof(PlayCommand))]
     [NotifyCanExecuteChangedFor(nameof(ChangeSavePositionCommand))]
     [NotifyCanExecuteChangedFor(nameof(ResetExePathCommand))]
@@ -88,73 +88,79 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     // 布局更改时更新视图
     private async void OnLayoutChanged(object? sender, bool newLayoutValue)
     {
-        UseNewLayout = newLayoutValue;
-        // 更新背景图显示设置
-        ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
-            ? Visibility.Visible 
-            : Visibility.Collapsed;
-        // 更新标签面板显示设置
-        ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
-            ? Visibility.Visible 
-            : Visibility.Collapsed;
-        // 更新角色面板显示设置
-        ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
-            ? Visibility.Visible 
-            : Visibility.Collapsed;
-        // 重新初始化面板
-        Update(Item);
+        try
+        {
+            UseNewLayout = newLayoutValue;
+            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
+            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
+            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
+            Update(Item);
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
     }
     
     public async void OnNavigatedTo(object parameter)
     {
-        if (parameter is not GalgamePageParameter param) //参数不正确，返回主菜单
+        try
         {
-            _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
+            if (parameter is not GalgamePageParameter param)
+            {
+                _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
+                return;
+            }
+            
+            UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
+            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
+            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
+            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
+
+            Item = param.Galgame;
+            IsLocalGame = Item.IsLocalGame;
+            Item.SavePath = Item.SavePath;
+            _galgameService.PhrasedEvent2 += Update;
+            _staffService.OnGameStaffChanged += Update;
+            // 初始化面板
+            Update(Item);
+        
+            if (param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
+                await Play();
+            if (param.SelectProgress)
+            {
+                await Task.Delay(1000);
+                await SelectProcess();
+            }
+        
+            TryUpdateGameInfo();
             return;
+
+            // 尝试补充之前版本没有的信息
+            void TryUpdateGameInfo()
+            {
+                if (Item is null) return;
+                if (Item.HeaderImagePath.Value is null && !Item.AutoFetchStatus.HeaderImage)
+                    _ = _galgameService.ParseGalInfoAsync(Item, GameParseType.HeaderImage);
+                if (_staffService.GetStaffs(Item).Count == 0 && !Item.AutoFetchStatus.Staff)
+                    _ = _staffService.ParseStaffAsync(Item);
+            }
         }
-
-        // 加载布局设置
-        UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
-        // 加载背景图显示设置
-        ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
-            ? Visibility.Visible 
-            : Visibility.Collapsed;
-        // 加载标签面板显示设置
-        ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
-            ? Visibility.Visible 
-            : Visibility.Collapsed;
-        // 加载角色面板显示设置
-        ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
-            ? Visibility.Visible 
-            : Visibility.Collapsed;
-
-        Item = param.Galgame;
-        IsLocalGame = Item.IsLocalGame;
-        Item.SavePath = Item.SavePath; //更新存档位置显示
-        _galgameService.PhrasedEvent2 += Update;
-        _staffService.OnGameStaffChanged += Update;
-        // 初始化面板
-        Update(Item);
-        
-        if (param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
-            await Play();
-        if (param.SelectProgress)
+        catch (Exception e)
         {
-            await Task.Delay(1000);
-            await SelectProcess();
-        }
-        
-        TryUpdateGameInfo();
-        return;
-
-        // 尝试补充之前版本没有的信息
-        void TryUpdateGameInfo()
-        {
-            if (Item is null) return;
-            if (Item.HeaderImagePath.Value is null && !Item.AutoFetchStatus.HeaderImage)
-                _ = _galgameService.ParseGalInfoAsync(Item, GameParseType.HeaderImage);
-            if (_staffService.GetStaffs(Item).Count == 0 && !Item.AutoFetchStatus.Staff)
-                _ = _staffService.ParseStaffAsync(Item);
+            _infoService.Event(EventType.PageError, InfoBarSeverity.Error, "Oops, something went wrong", e);
         }
     }
 
@@ -350,7 +356,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
             Title = "HomePage_Delete_Title".GetLocalized(),
             Content = new StackPanel
             {
@@ -366,14 +372,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         };
         dialog.PrimaryButtonClick += async (_, _) =>
         {
-            var checkBox = (CheckBox)((StackPanel)dialog.Content).Children[1];
-            bool deleteFromLibrary = checkBox.IsChecked ?? false;
+            CheckBox? checkBox = (CheckBox)((StackPanel)dialog.Content).Children[1];
+            var deleteFromLibrary = checkBox.IsChecked ?? false;
             var path = Item.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(Item);
             if (path is not null)
             {
                 try
                 {
-                    var folder = await StorageFolder.GetFolderFromPathAsync(path);
+                    StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(path);
                     await folder.DeleteAsync(StorageDeleteOption.Default);
                 }
                 catch (Exception e)
@@ -387,7 +393,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             }
             else
             {
-                var source = _sourceService.GetGalgameSources().FirstOrDefault(s => s.Galgames.Any(g => g.Galgame == Item));
+                GalgameSourceBase? source = _sourceService.GetGalgameSources().FirstOrDefault(s => s.Galgames.Any(g => g.Galgame == Item));
                 if (source != null)
                 {
                     _sourceService.MoveOutNoOperate(source, Item);
@@ -457,12 +463,12 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         {
             // 构建 PowerShell 命令
             var regPath = @"HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
-            var command = Item.HighDpi
+            var command = !Item.HighDpi
                 ? $"Remove-ItemProperty -Path '{regPath}' -Name '{Item.ExePath.Replace("'", "''")}'"
                 : $"Set-ItemProperty -Path '{regPath}' -Name '{Item.ExePath.Replace("'", "''")}' -Value '~ PERPROCESSSYSTEMDPIFORCEOFF HIGHDPIAWARE'";
 
             // 创建启动管理员权限的 PowerShell 进程
-            var startInfo = new ProcessStartInfo
+            ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = "powershell.exe",
                 Arguments = $"-Command \"{command}\"",
@@ -474,7 +480,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
             try
             {
-                var process = Process.Start(startInfo);
+                Process? process = Process.Start(startInfo);
                 if (process != null)
                 {
                     await process.WaitForExitAsync();
@@ -607,7 +613,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         var path = Item.TextPath;
         if (path is null || File.Exists(path) == false)
         {
-            SelectFileDialog dialog = new(Item!.LocalPath!, new[] { ".txt", ".pdf" },
+            SelectFileDialog dialog = new(Item!.LocalPath!, [".txt", ".pdf"],
                 "GalgamePage_SelectText_Title".GetLocalized());
             await dialog.ShowAsync();
             path = dialog.SelectedFilePath;

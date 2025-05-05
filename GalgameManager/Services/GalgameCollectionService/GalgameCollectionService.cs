@@ -439,9 +439,11 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// <param name="searchName">是否包括游戏名的搜索建议</param>
     /// <param name="searchDeveloper">是否包括开发商搜索建议</param>
     /// <param name="searchTag">是否包括Tag搜索建议</param>
+    /// <param name="searchChineseName">是否包括中文名搜索建议</param>
+    /// <param name="searchOriginalName">是否包括游戏原名搜索建议</param>
     /// <returns>搜索建议，若没有则返回空List</returns>
     public async Task<List<string>> GetSearchSuggestions(string current, bool searchName = true,
-        bool searchDeveloper = true, bool searchTag = true)
+        bool searchDeveloper = true, bool searchTag = true, bool searchChineseName = true, bool searchOriginalName = true)
     {
         List<string> tmp = new();
         await Task.Run(() =>
@@ -459,6 +461,14 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     from tag in galgame.Tags.Value ?? new ObservableCollection<string>()
                     where tag.ContainX(current)
                     select tag);
+            if (searchChineseName) //ChineseName
+                tmp.AddRange(from galgame in _galgames
+                    where galgame.ChineseName.Value is not null && galgame.ChineseName.Value.ContainX(current)
+                    select galgame.ChineseName.Value);
+            if (searchOriginalName) //OriginalName
+                tmp.AddRange(from galgame in _galgames
+                    where galgame.OriginalName.Value is not null && galgame.OriginalName.Value.ContainX(current)
+                    select galgame.OriginalName.Value);
         });
         //去重
         tmp.Sort((a,b)=> a.CompareX(b));

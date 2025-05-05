@@ -28,7 +28,41 @@
                            IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"/>
         </MenuFlyout>
 
-        <MenuFlyout Placement="Right" x:Key="GameFlyout">
+        <MenuFlyout Placement="Right" x:Key="GameFlyout" Opening="{x:Bind ViewModel.GalFlyout_Opening}">
+            <MenuFlyoutSubItem x:Uid="LibraryPage_PlayStatusSubMenu">
+                <MenuFlyoutSubItem.Icon>
+                    <FontIcon FontFamily="Segoe Fluent Icons"
+                            Glyph="&#xE74C;"/>
+                </MenuFlyoutSubItem.Icon>
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlaying"
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     CommandParameter="Playing"
+                                     IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Playing'), Mode=OneWay}"
+                                     GroupName="PlayStatus"/>
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlayed"
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     CommandParameter="Played"
+                                     IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Played'), Mode=OneWay}"
+                                     GroupName="PlayStatus"/>
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusOnHold"
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     CommandParameter="Shelved"
+                                     IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Shelved'), Mode=OneWay}"
+                                     GroupName="PlayStatus"/>
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusAbandoned"
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     CommandParameter="Abandoned"
+                                     IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Abandoned'), Mode=OneWay}"
+                                     GroupName="PlayStatus"/>
+                <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusWantToPlay"
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     CommandParameter="WantToPlay"
+                                     IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'WantToPlay'), Mode=OneWay}"
+                                     GroupName="PlayStatus"/>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusMoreSettings"
+                     Command="{x:Bind ViewModel.ShowChangePlayStatusDialogCommand}" CommandParameter="{Binding}" />
+            </MenuFlyoutSubItem>
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditGameInfo"
                            Command="{x:Bind ViewModel.GalFlyOutEditCommand}"
                            CommandParameter="{Binding}"/>
@@ -152,24 +186,16 @@
                                                IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Name}"/>
                             <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByLastPlayed" 
                                                Command="{x:Bind ViewModel.SortLibraryCommand}" 
-                                               CommandParameter="{x:Bind ViewModel.LibraryLastPlayedSortKey}"
-                                               GroupName="FolderSorting"
-                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=LastPlay}"/>
+                                               CommandParameter="{x:Bind ViewModel.LibraryLastPlayedSortKey}"/>
                             <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByPath" 
                                                Command="{x:Bind ViewModel.SortLibraryCommand}" 
-                                               CommandParameter="{x:Bind ViewModel.LibraryPathSortKey}"
-                                               GroupName="FolderSorting"
-                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Path}"/>
+                                               CommandParameter="{x:Bind ViewModel.LibraryPathSortKey}"/>
                             <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortBySourceType" 
                                                Command="{x:Bind ViewModel.SortLibraryCommand}" 
-                                               CommandParameter="{x:Bind ViewModel.LibrarySourceTypeSortKey}"
-                                               GroupName="FolderSorting"
-                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=SourceType}"/>
+                                               CommandParameter="{x:Bind ViewModel.LibrarySourceTypeSortKey}"/>
                             <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByGalgameCount" 
                                                Command="{x:Bind ViewModel.SortLibraryCommand}" 
-                                               CommandParameter="{x:Bind ViewModel.LibraryGalgameCountSortKey}"
-                                               GroupName="FolderSorting"
-                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=GalgameCount}"/>
+                                               CommandParameter="{x:Bind ViewModel.LibraryGalgameCountSortKey}"/>
                             <MenuFlyoutSeparator/>
                             <ToggleMenuFlyoutItem x:Uid="LibraryPage_FolderSortDescending"
                                                  IsChecked="{x:Bind ViewModel.FolderSortDescending, Mode=TwoWay}"
@@ -195,6 +221,13 @@
                                     IsChecked="{x:Bind ViewModel.IsStatisticsVisible, Mode=TwoWay}">
                     <AppBarToggleButton.Icon>
                         <control:ConditionalFontIcon Symbol="Setting" FluentGlyph="&#xE8A1;"/>
+                    </AppBarToggleButton.Icon>
+                </AppBarToggleButton>
+                <!-- 游玩状态标记 -->
+                <AppBarToggleButton x:Uid="HomePage_DisplayPlayType" 
+                                    IsChecked="{x:Bind ViewModel.DisplayPlayTypePolygon, Mode=TwoWay}">
+                    <AppBarToggleButton.Icon>
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE890;"/>
                     </AppBarToggleButton.Icon>
                 </AppBarToggleButton>
                 <AppBarSeparator/>
@@ -266,7 +299,8 @@
                                     Command="{Binding ElementName=Page, Path=ViewModel.NavigateToCommand}"
                                     CommandParameter="{x:Bind}"
                                     ContextFlyout="{StaticResource GameFlyout}">
-                                <prefab:GalgamePrefab Galgame="{x:Bind}" />
+                                <prefab:GalgamePrefab Galgame="{x:Bind}"
+                                        PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"/>
                             </Button>
                         </DataTemplate>
                     </GridView.ItemTemplate>

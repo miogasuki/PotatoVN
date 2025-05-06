@@ -42,9 +42,6 @@ public interface IVndbApi
     [Delete("/ulist/{id}")]
     public Task<ApiResponse<object>> DeleteUserVnAsync(string id);
 
-    [Headers("Authorization: Token")]
-    [Post("/release")]
-    public Task<ApiResponse<object>> GetSteamGalgame([Body] VndbQuery vndbQuery);
 }
 
 public class VndbApi : IVndbApi
@@ -78,7 +75,6 @@ public class VndbApi : IVndbApi
     public async Task<ApiResponse<object>> DeleteUserVnAsync(string id) => 
         await _vndbApiImplementation.DeleteUserVnAsync(id);
 
-    public async Task<ApiResponse<object>> GetSteamGalgame([Body] VndbQuery vndbQuery) => await _vndbApiImplementation.GetSteamGalgame(vndbQuery);
 
     public void UpdateToken(string? token)
     {

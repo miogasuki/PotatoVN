@@ -1,5 +1,6 @@
 using GalgameManager.Contracts.Services;
 using GalgameManager.Helpers.API.Steam;
+using GalgameManager.Helpers.Phrase;
 using GalgameManager.Models;
 namespace GalgameManager.Services.AccountServices;
 
@@ -8,8 +9,7 @@ public class SteamService : ISteamService
     private const string key = "";
     private string steamId { get; set; }
     private ISteamApi steamApi = SteamAPi.GetApi();
-    private readonly VndbAuthService vndbAuthService;
-
+    private GalgameCollectionService galgameCollectionService;
 
 
     public async Task InitAsync(string steamid)
@@ -34,17 +34,32 @@ public class SteamService : ISteamService
         return gameList.response.games;
     }
 
-    public async Task<List<SteamGameDto>> GetGalgameListResponseAsync(string token)
+    public async Task<List<SteamGameDto>> GetGalgameListResponseAsync()
     {
         var gameList = await GetSteamGameListResponseAsync();
         List<SteamGameDto> galgameList = new List<SteamGameDto>();
         foreach (var game in gameList)
         {
-            if (await vndbAuthService.SteamGameCheckAsync(token, game.appid.ToString()))
+            if (PhraseHelper.TryGetSteamIdAsync(game.name) != null)
+            {
                 galgameList.Add(game);
+            }
         }
         return galgameList;
     }
 
+    public async Task UpdateSteamGalGameAsync(List<SteamGameDto> list, Galgame galgame)
+    {
+        foreach (var game in list)
+        {
+            if (game.appid == galgame.appId)
+            {
+                galgame.TotalPlayTime = game.playtime_forever;
+                galgame.LastPlayTime = DateTimeOffset.FromUnixTimeSeconds(game.rtime_last_played).LocalDateTime;
+                await galgameCollectionService.SaveGalgameAsync(galgame);
+                break;
+            }
 
+        }
+    }
 }

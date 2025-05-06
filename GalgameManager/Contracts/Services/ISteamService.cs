@@ -1,4 +1,5 @@
 using GalgameManager.Helpers.API.Steam;
+using GalgameManager.Models;
 
 namespace GalgameManager.Contracts.Services;
 
@@ -28,5 +29,12 @@ public interface ISteamService
     /// 获取galgame列表
     /// </summary>
     /// <returns></returns>
-    public Task<List<SteamGameDto>> GetGalgameListResponseAsync(string token);
+    public Task<List<SteamGameDto>> GetGalgameListResponseAsync();
+
+    /// <summary>
+    /// 更新steam游戏的方法
+    /// </summary>
+    /// <param name="galgame"></param>
+    /// <returns></returns>
+    public Task UpdateSteamGalGameAsync(List<SteamGameDto> list, Galgame galgame);
 }

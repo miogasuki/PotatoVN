@@ -57,26 +57,7 @@ public class VndbAuthService : IVndbAuthService
         await _localSettingsService.RemoveSettingAsync(KeyValues.VndbAccount);
     }
 
-    public async Task<bool> SteamGameCheckAsync(string token, string appId)
-    {
-        _vndbApi.UpdateToken(token);
-        var filterArray = new JArray(
-        "extlink",
-        "=",
-        new JArray("steam", int.Parse(appId))
-        );
-        // 主要是这个过滤器
-        var filter = new JsonSerializer()
-            .Deserialize<VndbFilters>(new JTokenReader(filterArray));
 
-        var response = await _vndbApi.GetSteamGalgame(new VndbQuery()
-        {
-            Filters = filter
-        });
-        var content = response.Data as JObject;
-        var result = content?["result"] as JArray;
-        return result.Count > 0;
-    }
 }
 
 public class VndbAccount

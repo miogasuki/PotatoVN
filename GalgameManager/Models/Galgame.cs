@@ -15,11 +15,12 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public const string DefaultString = "——";
     public const string MetaPath = ".PotatoVN";
     public static readonly int PhraserNumber = 7;
-    
+
     public event Action<Galgame, string, object>? GalPropertyChanged;
     public event Action<Exception>? ErrorOccurred; //非致命异常产生时触发
-    
-    [JsonIgnore][BsonIgnore]
+
+    [JsonIgnore]
+    [BsonIgnore]
     public GalgameUid Uid => new()
     {
         Name = Name.Value!,
@@ -29,15 +30,15 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         PvnId = Ids[(int)RssType.PotatoVn],
     };
     /// 唯一标识， 若要判断两个游戏是否为同一个游戏，应使用<see cref="GalgameUid"/>
-    [BsonId] public Guid Uuid { get; set; }  = Guid.NewGuid();
-    
+    [BsonId] public Guid Uuid { get; set; } = Guid.NewGuid();
+
     [ObservableProperty] private LockableProperty<string> _imagePath = DefaultImagePath;
     [ObservableProperty] private LockableProperty<string?> _headerImagePath = new(null);
 
     [JsonIgnore][BsonIgnore] public string? ImageUrl;
     public string? HeaderImageUrl { get; set; }
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public Dictionary<string, int> PlayedTime { get; set; }= new(); //ShortDateString() -> PlayedTime, 分钟
+    public Dictionary<string, int> PlayedTime { get; set; } = new(); //ShortDateString() -> PlayedTime, 分钟
     [ObservableProperty] private LockableProperty<string> _name = "";
     [ObservableProperty] private string _cnName = "";
     [ObservableProperty] private LockableProperty<string> _originalName = "";
@@ -73,6 +74,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
     public string? ProcessName { get; set; } //手动指定的进程名，用于正确获取游戏进程
     public string? TextPath { get; set; } //记录的要打开的文本的路径
+    public int appId { get; set; } = 0; //Steam的appid
     public bool PvnUpdate { get; set; } //是否需要更新
     public PvnUploadProperties PvnUploadProperties { get; set; } // 要更新到Pvn的属性
     [JsonIgnore] public long PvnLastCharacterFetchTime { get; set; } // 上次从Pvn下载角色信息的时间
@@ -87,12 +89,14 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     {
         set => LastPlayTime = Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
     }
-    
-    [Obsolete($"Use {nameof(LocalPath)} instead")][BsonIgnore]
+
+    [Obsolete($"Use {nameof(LocalPath)} instead")]
+    [BsonIgnore]
     public string Path { get; set; } = "";
     #endregion
 
-    [JsonIgnore][BsonIgnore]
+    [JsonIgnore]
+    [BsonIgnore]
     public string? Id
     {
         get => Ids[(int)RssType];
@@ -101,14 +105,14 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         {
             if (Ids[(int)RssType] != value)
             {
-               Ids[(int)RssType] = value;
-               OnPropertyChanged();
-               if (_rssType == RssType.Mixed) UpdateIdFromMixed();
-               else UpdateMixedId();
+                Ids[(int)RssType] = value;
+                OnPropertyChanged();
+                if (_rssType == RssType.Mixed) UpdateIdFromMixed();
+                else UpdateMixedId();
             }
         }
     }
-    
+
     public RssType RssType
     {
         get => _rssType;
@@ -122,7 +126,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
             }
         }
     }
-    
+
     public string? SavePath
     {
         get => _savePath;
@@ -176,7 +180,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <summary>
     /// 获取该游戏的本地文件夹路径，若其不是本地游戏则返回null
     /// </summary>
-    [JsonIgnore][BsonIgnore]
+    [JsonIgnore]
+    [BsonIgnore]
     public string? LocalPath =>
         Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(this);
 
@@ -193,7 +198,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         result.AddRange(Directory.GetFiles(path).Where(file => file.ToLower().EndsWith(".lnk")));
         return result;
     }
-    
+
     /// <summary>
     /// 获取游戏文件夹下的所有子文件夹
     /// </summary>
@@ -262,7 +267,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
             ErrorOccurred?.Invoke(e);
         }
     }
-    
+
     /// 检查是否所有的id都为空
     public bool IsIdsEmpty() => Ids.All(string.IsNullOrEmpty);
 
@@ -290,13 +295,13 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     }
 
     public string GetLogName() => $"Galgame_{(Name.Value ?? string.Empty).RemoveInvalidChars()}.txt";
-    
+
     public bool ApplySearchKey(string searchKey)
     {
-        return Name.Value!.ContainX(searchKey) || 
+        return Name.Value!.ContainX(searchKey) ||
                ChineseName.Value!.ContainX(searchKey) ||
                OriginalName.Value!.ContainX(searchKey) ||
-               Developer.Value!.ContainX(searchKey) || 
+               Developer.Value!.ContainX(searchKey) ||
                Tags.Value!.Any(str => str.ContainX(searchKey));
     }
 

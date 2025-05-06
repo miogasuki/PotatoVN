@@ -74,6 +74,9 @@ public class SteamGameListResponseDto
 }
 public class SteamGameDto
 {
+    [JsonPropertyName("rtime_last_played")]
+    public long rtime_last_played;
+
     [JsonPropertyName("appid")]
     public int appid { get; set; }
 

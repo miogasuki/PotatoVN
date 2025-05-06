@@ -19,8 +19,14 @@ public interface ISteamService
     public Task<SteamAccountDto> GetSteamAccountAsync();
 
     /// <summary>
-    /// 通过steamid得到游戏列表的返回值
+    /// 得到所有的steam游戏
     /// </summary>
     /// <returns></returns>
     public Task<List<SteamGameDto>> GetSteamGameListResponseAsync();
+
+    /// <summary>
+    /// 获取galgame列表
+    /// </summary>
+    /// <returns></returns>
+    public Task<List<SteamGameDto>> GetGalgameListResponseAsync(string token);
 }

@@ -8,8 +8,9 @@ public class SteamService : ISteamService
     private const string key = "";
     private string steamId { get; set; }
     private ISteamApi steamApi = SteamAPi.GetApi();
+    private readonly VndbAuthService vndbAuthService;
 
-    
+
 
     public async Task InitAsync(string steamid)
     {
@@ -33,5 +34,17 @@ public class SteamService : ISteamService
         return gameList.response.games;
     }
 
-   
+    public async Task<List<SteamGameDto>> GetGalgameListResponseAsync(string token)
+    {
+        var gameList = await GetSteamGameListResponseAsync();
+        List<SteamGameDto> galgameList = new List<SteamGameDto>();
+        foreach (var game in gameList)
+        {
+            if (await vndbAuthService.SteamGameCheckAsync(token, game.appid.ToString()))
+                galgameList.Add(game);
+        }
+        return galgameList;
+    }
+
+
 }

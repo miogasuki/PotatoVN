@@ -65,8 +65,7 @@ public class VndbAuthService : IVndbAuthService
         "=",
         new JArray("steam", int.Parse(appId))
         );
-
-        // Use the VndbFiltersConverter to create a VndbFilters object from the JArray
+        // 主要是这个过滤器
         var filter = new JsonSerializer()
             .Deserialize<VndbFilters>(new JTokenReader(filterArray));
 

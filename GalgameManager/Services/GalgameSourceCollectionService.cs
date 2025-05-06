@@ -554,6 +554,14 @@ public class GalgameSourceCollectionService(
         {
             _galgameSources = await localSettingsService.ReadSettingAsync<ObservableCollection<GalgameSourceBase>>
                 (KeyValues.GalgameSources, true, converters: _converters) ?? new();
+            foreach (GalgameSourceBase source in _galgameSources)
+            {
+                List<GalgameAndPath> toRemove = source.Galgames
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                    .Where(g => g.Galgame is null).ToList();
+                foreach (GalgameAndPath g in toRemove)
+                    source.Galgames.Remove(g);
+            }
             await SaveAllAsync();
             await localSettingsService.RemoveSettingAsync(KeyValues.GalgameSources, true);
         }

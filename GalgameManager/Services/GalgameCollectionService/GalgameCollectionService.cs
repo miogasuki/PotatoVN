@@ -107,7 +107,12 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         List<Galgame> galgames = [];
         await Task.Run(() =>
         {
-            galgames = _dbSet.FindAll().ToList();
+            LocalSettingStatus status =
+                LocalSettingsService.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true).Result ?? new();
+            if (status.GameLiteDbUpgrade)
+                galgames = _dbSet.FindAll().ToList();
+            else
+                galgames = LocalSettingsService.ReadSettingAsync<List<Galgame>>(KeyValues.Galgames, true).Result ?? [];
         }); //用Task.Run运行，防止阻塞UI线程
         _galgames.SyncCollection(galgames);
         

@@ -539,7 +539,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// <param name="galgame"></param>
     private async Task SaveMetaAsync(Galgame galgame)
     {
-        IEnumerable<GalgameSourceType> types = galgame.Sources.Select(s => s.SourceType).Distinct();
+        IEnumerable<GalgameSourceType> types = galgame.Sources.Select(s => s.SourceType)
+            .Where(t => t != GalgameSourceType.Virtual).Distinct();
         List<(Task, GalgameSourceType)> tasks = new();
         foreach (GalgameSourceType type in types) 
             tasks.Add((SourceServiceFactory.GetSourceService(type).SaveMetaAsync(galgame), type));

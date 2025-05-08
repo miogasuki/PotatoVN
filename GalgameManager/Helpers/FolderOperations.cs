@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace GalgameManager.Helpers;
 
@@ -151,10 +153,60 @@ public static class FolderOperations
 
     public static DirectoryInfo CreateSubdirectoryEx(this DirectoryInfo directory, string subdirectory,
         bool overWrite = false)
-
     {
         if (overWrite && Directory.Exists(Path.Combine(directory.FullName, subdirectory)))
             Directory.Delete(Path.Combine(directory.FullName, subdirectory), true);
         return directory.CreateSubdirectory(subdirectory);
     }
+
+    #region COPY_EX
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern bool CopyFileEx(
+        string lpExistingFileName,
+        string lpNewFileName,
+        IntPtr lpProgressRoutine,   // 进度回调，用不上可填 0
+        IntPtr lpData,              // 传给回调的数据
+        ref bool pbCancel,          // 复制过程中可以设为 true 来取消
+        CopyFileFlags dwCopyFlags);
+    
+    [Flags]
+    private enum CopyFileFlags : uint
+    {
+        NONE                                    = 0x00000000,
+        COPY_FILE_FAIL_IF_EXISTS                = 0x00000001, // 不覆盖
+        COPY_FILE_RESTARTABLE                   = 0x00000002,
+        COPY_FILE_OPEN_SOURCE_FOR_WRITE         = 0x00000004,
+        COPY_FILE_ALLOW_DECRYPTED_DESTINATION   = 0x00000008  // 允许非加密目标
+        // 其余标志见 MSDN
+    }
+    
+    /// <summary>
+    /// 复制文件，支持：
+    /// 1. 选择是否覆盖已存在目标文件
+    /// 2. 源文件为 EFS 加密时，可选择让目标以“非加密”形式保存
+    /// </summary>
+    /// <param name="src">源文件完整路径</param>
+    /// <param name="dst">目标文件完整路径</param>
+    /// <param name="overwrite">true = 覆盖；false = 若目标已存在则抛异常</param>
+    /// <param name="allowDecrypted">
+    /// true  = 若源文件加密，允许目标写成“未加密”；  
+    /// false = 保持与源一致（默认）
+    /// </param>
+    public static void CopyEx(
+        string src,
+        string dst,
+        bool overwrite = true,
+        bool allowDecrypted = false)
+    {
+        CopyFileFlags flags = CopyFileFlags.NONE;
+        if (!overwrite) flags |= CopyFileFlags.COPY_FILE_FAIL_IF_EXISTS;
+        if (allowDecrypted) flags |= CopyFileFlags.COPY_FILE_ALLOW_DECRYPTED_DESTINATION;
+        var cancel = false;
+        if (!CopyFileEx(src, dst, IntPtr.Zero, IntPtr.Zero, ref cancel, flags))
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+    }
+
+    #endregion
+    
 }

@@ -268,18 +268,16 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             args = Item.ExePath;
         }
 
-        Process process = new()
+        ProcessStartInfo info = new()
         {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = exePath,
-                Arguments = args ?? string.Empty,
-                CreateNoWindow = !string.IsNullOrEmpty(args),
-                WorkingDirectory = Item.LocalPath,
-                UseShellExecute = Item.RunAsAdmin | Item.ExePath!.ToLower().EndsWith("lnk"),
-                Verb = Item.RunAsAdmin ? "runas" : null,
-            },
+            FileName = exePath,
+            CreateNoWindow = !string.IsNullOrEmpty(args),
+            WorkingDirectory = Item.LocalPath,
+            UseShellExecute = Item.RunAsAdmin | Item.ExePath!.ToLower().EndsWith("lnk"),
+            Verb = Item.RunAsAdmin ? "runas" : null,
         };
+        if (args is not null) info.ArgumentList.Add(args);
+        Process process = new(){ StartInfo = info };
 
         try
         {

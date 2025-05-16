@@ -114,6 +114,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
         _playingWindowMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode).Result;
+        _minPlayTimeRecordThreshold = _localSettingsService.ReadSettingAsync<int>(KeyValues.MinPlayTimeRecordThreshold).Result;
         LocalEmulatorPath = _localSettingsService.ReadSettingAsync<string>(KeyValues.LocaleEmulatorPath).Result;
         PlayingWindowModes = new[] {WindowMode.Minimize, WindowMode.SystemTray, WindowMode.None };
         //RSS
@@ -346,12 +347,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private bool _recordOnlyForeground;
     [ObservableProperty] private WindowMode _playingWindowMode;
+    [ObservableProperty] private int _minPlayTimeRecordThreshold;
     [ObservableProperty] private string? _localEmulatorPath;
     public WindowMode[] PlayingWindowModes;
     
     partial void OnRecordOnlyForegroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.RecordOnlyWhenForeground, value);
     
     partial void OnPlayingWindowModeChanged(WindowMode value) => _localSettingsService.SaveSettingAsync(KeyValues.PlayingWindowMode, value);
+
+    partial void OnMinPlayTimeRecordThresholdChanged(int value) => _localSettingsService.SaveSettingAsync(KeyValues.MinPlayTimeRecordThreshold, value);
     
     partial void OnLocalEmulatorPathChanged(string? value) => _localSettingsService.SaveSettingAsync(KeyValues.LocaleEmulatorPath, value);
     

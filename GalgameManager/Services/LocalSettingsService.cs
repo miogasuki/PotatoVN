@@ -276,6 +276,8 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)DisplayName.ChineseName;
             case KeyValues.GalgamePageSecondaryTitleType:
                 return (T?)(object)DisplayName.OriginalName;
+            case KeyValues.MinPlayTimeRecordThreshold:
+                return (T?)(object)5; // 默认5分钟
             default:
                 return default;
         }

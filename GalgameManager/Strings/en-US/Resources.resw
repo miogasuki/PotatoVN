@@ -427,6 +427,9 @@ Failure reasons:</value>
   <data name="GalgamePage_TotalPlayTime.Text" xml:space="preserve">
     <value>Time Played</value>
   </data>
+  <data name="GalgamePage_PlayCount.Text" xml:space="preserve">
+    <value>Play Count</value>
+  </data>
   <data name="Minute" xml:space="preserve">
     <value>mins</value>
   </data>

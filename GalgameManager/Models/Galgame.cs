@@ -52,6 +52,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private DateTime _addTime = DateTime.MinValue; //游戏添加时间
     [ObservableProperty] private ObservableCollection<GalgameCharacter> _characters = new();
     [JsonIgnore][BsonIgnore][ObservableProperty] private string _savePosition = string.Empty;
+    [ObservableProperty] private int _playCount; //游玩次数
     [ObservableProperty] private string? _exePath;
     [ObservableProperty] private string? _exeArguments;
     [ObservableProperty] private LockableProperty<ObservableCollection<string>> _tags;

@@ -6,13 +6,14 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Views.Dialog;
 
-public sealed partial class EditPlayTimeDialog
+public sealed partial class EditPlayTimeDialog : ContentDialog
 {
     private readonly ObservableCollection<DisplayPlayTime> _playTimes = new();
-
+    private readonly Galgame _galgame;
 
     public EditPlayTimeDialog(Galgame galgame)
     {
+        _galgame = galgame; // Store the galgame object
         InitializeComponent();
         RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
 
@@ -21,7 +22,9 @@ public sealed partial class EditPlayTimeDialog
         PrimaryButtonText = "Yes".GetLocalized();
         SecondaryButtonText = "Cancel".GetLocalized();
 
-        foreach (var (date, playedTime) in galgame.PlayedTime)
+        PlayCountNumberBox.Value = _galgame.PlayCount; // Initialize NumberBox
+
+        foreach (var (date, playedTime) in _galgame.PlayedTime)
         {
             DisplayPlayTime displayPlayTime = new()
             {
@@ -34,22 +37,32 @@ public sealed partial class EditPlayTimeDialog
 
         PrimaryButtonClick += (_, _) =>
         {
-            galgame.PlayedTime.Clear();
+            // PlayCount is already updated by PlayCountNumberBox_OnValueChanged
+            _galgame.PlayedTime.Clear();
             var totalTime = 0;
             
             foreach (DisplayPlayTime time in _playTimes)
             {
                 if (time.PlayedTime > 0)
                 {
-                    galgame.PlayedTime.Add(time.Date, time.PlayedTime);
+                    _galgame.PlayedTime.Add(time.Date, time.PlayedTime);
                     totalTime += time.PlayedTime;
                 }
             }
             
-            galgame.TotalPlayTime = totalTime;
+            _galgame.TotalPlayTime = totalTime;
             
             // LastPlayTime 现在是自动计算的，不需要手动设置
         };
+    }
+
+    private void PlayCountNumberBox_OnValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        if (_galgame != null)
+        {
+            // Ensure the value is not NaN, which can happen if the box is cleared. Default to 0.
+            _galgame.PlayCount = (int)(double.IsNaN(args.NewValue) ? 0 : args.NewValue);
+        }
     }
 
     private void DatePickerFlyout_OnDatePicked(DatePickerFlyout sender, DatePickedEventArgs args)

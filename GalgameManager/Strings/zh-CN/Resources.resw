@@ -2912,4 +2912,7 @@
   <data name="SettingsPage_Game_MinPlayTimeRecordThreshold.Description" xml:space="preserve">
     <value>单次游玩游戏时，只有游玩时长大于这个数（分钟），才会被计入为一次游玩</value>
   </data>
+  <data name="EditPlayTimeDialog_PlayCountLabel.Text" xml:space="preserve">
+    <value>游玩次数:</value>
+  </data>
 </root>

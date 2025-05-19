@@ -38,6 +38,7 @@ public static class KeyValues
     public const string RecordOnlyWhenForeground = "recordOnlyWhenForeground"; //bool, 是否只在游戏窗口在前台时记录游玩时间
     public const string PlayingWindowMode = "playingWindowMode"; // WindowMode,游玩时窗口模式
     public const string LocaleEmulatorPath = "localeEmulatorPath"; //string?, 本地模拟器路径
+    public const string MinPlayTimeRecordThreshold = "minPlayTimeRecordThreshold"; //int, 记录一次游玩的最小游玩时长 (分钟)
     
     //启动与跳转相关
     public const string QuitStart = "quitStart"; //bool, 是否在jump list跳转打开游戏时启动游戏

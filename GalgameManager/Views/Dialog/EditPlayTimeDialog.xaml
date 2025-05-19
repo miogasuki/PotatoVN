@@ -13,6 +13,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <ListView Grid.Row="0" x:Name="ListView">
@@ -27,8 +28,14 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="0 10 0 0">
+            <TextBlock x:Uid="EditPlayTimeDialog_PlayCountLabel" VerticalAlignment="Center"/>
+            <NumberBox x:Name="PlayCountNumberBox" MinWidth="100" ValueChanged="PlayCountNumberBox_OnValueChanged"
+                       SpinButtonPlacementMode="Inline" SmallChange="1" LargeChange="1"/>
+        </StackPanel>
         
-        <Grid Grid.Row="1" Margin="0 5 0 -15">
+        <Grid Grid.Row="2" Margin="0 5 0 -15">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>

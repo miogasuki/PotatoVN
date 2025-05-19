@@ -456,6 +456,9 @@
   <data name="GalgamePage_TotalPlayTime.Text" xml:space="preserve">
     <value>游玩时间</value>
   </data>
+  <data name="GalgamePage_PlayCount.Text" xml:space="preserve">
+    <value>游玩次数</value>
+  </data>
   <data name="Minute" xml:space="preserve">
     <value>分钟</value>
   </data>
@@ -2903,5 +2906,14 @@
   </data>
   <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
     <value>重命名分类组</value>
+  </data>
+  <data name="SettingsPage_Game_MinPlayTimeRecordThreshold.Title" xml:space="preserve">
+    <value>单词游戏次数计入时长阈值</value>
+  </data>
+  <data name="SettingsPage_Game_MinPlayTimeRecordThreshold.Description" xml:space="preserve">
+    <value>单次游玩游戏时，只有游玩时长大于这个数（分钟），才会被计入为一次游玩</value>
+  </data>
+  <data name="EditPlayTimeDialog_PlayCountLabel.Text" xml:space="preserve">
+    <value>游玩次数:</value>
   </data>
 </root>

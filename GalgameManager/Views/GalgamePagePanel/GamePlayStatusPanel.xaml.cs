@@ -47,7 +47,7 @@ public partial class GamePlayStatusPanel
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
         // 最上侧的信息栏有两种不通模式，一种是窄模式，一种是宽模式
-        var isWide = e.NewSize.Width > 200;
+        var isWide = e.NewSize.Width > 266;
         InfoStackPanel.Orientation = isWide ? Orientation.Horizontal : Orientation.Vertical;
         InfoStackPanel.Spacing = isWide ? 15 : 8;
         foreach (StackPanel child in InfoStackPanel.Children.OfType<StackPanel>())

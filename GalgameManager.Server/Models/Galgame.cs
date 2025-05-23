@@ -39,6 +39,7 @@ public class Galgame
     #region PLAY_STATUS
     public List<PlayLog>? PlayTime { get; set; } = new();
     public int TotalPlayTime { get; set; } //单位：分钟
+    public int PlayCount { get; set; } //游玩次数
     public PlayType PlayType { get; set; } //游玩状态
     [MaxLength(1000)] public string Comment { get; set; } = string.Empty; //吐槽（评论）
     public int MyRate { get; set; } //我的评分

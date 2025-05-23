@@ -75,4 +75,5 @@ public class GalgameUpdateDto
     public string? Comment { get; set; }
     public int? MyRate { get; set; }
     public bool? PrivateComment { get; set; }
+    public int? PlayCount { get; set; }
 }

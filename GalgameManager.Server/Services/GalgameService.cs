@@ -75,6 +75,7 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         galgame.Comment = payload.Comment ?? galgame.Comment;
         galgame.MyRate = payload.MyRate ?? galgame.MyRate;
         galgame.PrivateComment = payload.PrivateComment ?? galgame.PrivateComment;
+        galgame.PlayCount = payload.PlayCount ?? galgame.PlayCount;
 
         if (payload.Characters is not null)
         {

@@ -278,6 +278,8 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)DisplayName.OriginalName;
             case KeyValues.MinPlayTimeRecordThreshold:
                 return (T?)(object)5; // 默认5分钟
+            case KeyValues.CustomTextFileExtensions:
+                return (T?)(object)new List<string> { ".doc", ".docx", ".pdf", ".txt", ".md" };
             default:
                 return default;
         }

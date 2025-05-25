@@ -155,6 +155,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         WindowModes = new[] { WindowMode.Normal, WindowMode.Close, WindowMode.SystemTray };
         CloseMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.CloseMode).Result;
         DevelopmentMode = _localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result;
+        List<string> extensionsList = _localSettingsService.ReadSettingAsync<List<string>>(KeyValues.CustomTextFileExtensions).Result ?? [];
+        _customTextFileExtensionsString = string.Join(", ", extensionsList);
         
         //Check the availability of Windows Hello
         UserConsentVerifierAvailability verifierAvailability = UserConsentVerifier.CheckAvailabilityAsync().AsTask().Result;
@@ -376,6 +378,28 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             if (file.Name != "LEProc.exe")
                 _infoService.Info(InfoBarSeverity.Warning,
                     msg: "SettingsPage_Game_LocalEmulatorPathWarning".GetLocalized(), displayTimeMs: 5000);
+        }
+    }
+    
+    [ObservableProperty]
+    private string _customTextFileExtensionsString = string.Empty;
+
+    async partial void OnCustomTextFileExtensionsStringChanged(string value)
+    {
+        try
+        {
+            List<string> extensionsList = value.Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Select(ext => ext.Trim())
+                .Where(ext => !string.IsNullOrWhiteSpace(ext))
+                .ToList();
+            for(var i=0; i < extensionsList.Count; i++)
+                if(!extensionsList[i].StartsWith("."))
+                    extensionsList[i] = "." + extensionsList[i];
+            await _localSettingsService.SaveSettingAsync(KeyValues.CustomTextFileExtensions, extensionsList);
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
         }
     }
 

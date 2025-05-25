@@ -611,7 +611,15 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         var path = Item.TextPath;
         if (path is null || File.Exists(path) == false)
         {
-            SelectFileDialog dialog = new(Item!.LocalPath!, [".txt", ".pdf"],
+            List<string>? customExtensions =
+                await _localSettingsService.ReadSettingAsync<List<string>>(KeyValues.CustomTextFileExtensions);
+            if (customExtensions is null || customExtensions.Count == 0)
+            {
+                // Fallback to a basic default list if settings are somehow empty/corrupt,
+                // though LocalSettingsService.TryGetDefaultValue should prevent nulls.
+                customExtensions = [".txt", ".pdf", ".md", ".doc", ".docx"];
+            }
+            SelectFileDialog dialog = new(Item!.LocalPath!, customExtensions,
                 "GalgamePage_SelectText_Title".GetLocalized());
             await dialog.ShowAsync();
             path = dialog.SelectedFilePath;

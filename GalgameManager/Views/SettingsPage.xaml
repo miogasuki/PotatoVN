@@ -307,6 +307,17 @@
                                                Width="100"/>
                                 </control:Setting>
                             </control:Panel>
+                            <!-- 自定义打开文本文件类型 -->
+                            <control:Panel>
+                                <StackPanel>
+                                    <TextBlock x:Uid="SettingsPage_Game_CustomTextFileExtensions_Title"/>
+                                    <TextBlock x:Uid="SettingsPage_Game_CustomTextFileExtensions_Description"
+                                               Style="{ThemeResource DescriptionTextStyle}"/>
+                                    <TextBox x:Uid="SettingsPage_Game_CustomTextFileExtensions_EditBox"
+                                             Text="{x:Bind ViewModel.CustomTextFileExtensionsString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             AcceptsReturn="False" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
                 </control:SettingExpander>

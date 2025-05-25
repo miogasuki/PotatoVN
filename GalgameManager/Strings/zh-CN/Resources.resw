@@ -2915,4 +2915,13 @@
   <data name="EditPlayTimeDialog_PlayCountLabel.Text" xml:space="preserve">
     <value>游玩次数:</value>
   </data>
+  <data name="SettingsPage_Game_CustomTextFileExtensions_Title.Text" xml:space="preserve">
+    <value>自定义打开文本文件类型</value>
+  </data>
+  <data name="SettingsPage_Game_CustomTextFileExtensions_Description.Text" xml:space="preserve">
+    <value>设置在游戏中“打开文本”时，文件选择器中显示的文件扩展名。使用英文逗号 (,) 分隔，例如：.txt, .log, .md</value>
+  </data>
+  <data name="SettingsPage_Game_CustomTextFileExtensions_EditBox.PlaceholderText" xml:space="preserve">
+    <value>.txt, .docx, .pdf</value>
+  </data>
 </root>

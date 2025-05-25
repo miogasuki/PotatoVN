@@ -18,8 +18,8 @@ The client application implements the core functionalities of PotatoVN:
 *   **Information Fetching:** Retrieves game metadata (details, cover art, etc.) from multiple online databases (currently supports Bangumi and Visual Novel Database).
 *   **Status Synchronization:** Synchronizes game play status (e.g., playing, completed, planned) with user accounts on supported platforms (e.g., Bangumi).
 *   **Cloud Save Sync (Conceptual):** Facilitates tracking of game save locations. Actual synchronization to cloud storage relies on third-party sync software (e.g., OneDrive, NextCloud) monitoring the designated save folders.
-*   **Playtime Tracking:** Monitors and records the time spent playing games.
-*   **Automated Game Processing:** Can extract games from compressed archives, attempt to identify them, and add them to the user's library.
+    *   **Playtime Tracking:** Monitors and records the time spent playing games. This includes individual play sessions (`PlayedTime`) and total play count (`PlayCount`). Both `PlayCount` and `PlayedTime` are synchronized with the `GalgameManager.Server`.
+    *   **Automated Game Processing:** Can extract games from compressed archives, attempt to identify them, and add them to the user's library.
 
 ## 3. Architecture and Technology
 
@@ -65,7 +65,10 @@ This section highlights important files and directories specific to the client a
         *   `PlayedTime` (Dictionary<string, int>): Stores individual play sessions, mapping a date string to play duration in minutes.
         *   `PlayCount` (int): Stores the total number of times the game has been played.
         *   `TotalPlayTime` (int): Stores the sum of all play session durations in minutes.
+        *   `PvnUpdate` (bool): A flag indicating if the game's data needs to be synced with the server.
+        *   `PvnUploadProperties` (enum `PvnUploadProperties`): A flags enum specifying which particular properties of the game need to be uploaded to the server. The `PlayTime` flag is used to indicate that `PlayedTime`, `TotalPlayTime`, and `PlayCount` should be synced.
 *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
+    *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.
     *   File operations.
     *   Navigation within the application.
@@ -82,15 +85,17 @@ This section highlights important files and directories specific to the client a
 *   **`Activation/`**: Includes classes responsible for handling different ways the application can be activated (e.g., normal launch, protocol activation, file association).
     *   `IActivationHandler.cs`: Interface for activation handlers.
     *   Specific handlers like `DefaultActivationHandler.cs`, `BgmOAuthActivationHandler.cs`.
+*   **`Models/BgTasks/PvnSyncTask.cs`**: Responsible for the background synchronization logic with `GalgameManager.Server`. The `UploadGame` method within this class constructs the `GalgameUpdateDto` (from the generated `PotatoVN.Client.Model` namespace) to send updates to the server. When `PvnUploadProperties.PlayTime` is flagged, it includes `PlayCount`, `TotalPlayTime`, and the `PlayedTime` dictionary (converted to a list of `PlayLogDto`).
 *   **`Behaviors/`**: Contains custom UI behaviors that can be attached to XAML elements to add specific functionalities or modify their behavior without extensive code-behind.
 *   **`Enums/`**: Defines enumeration types used throughout the client application for representing sets of named constants (e.g., game status, filter types, page identifiers).
+    *   `Enums/PotatoVN/PvnUploadProperties.cs`: Defines the `PvnUploadProperties` flags enum used to control which parts of a `Galgame` object are synchronized with the server.
 *   **`Styles/`**: May contain XAML resource dictionaries defining common styles and templates for UI controls, ensuring a consistent look and feel. (e.g., `Resource.xaml`)
 *   **`Usings.cs`**: Often used in newer C# projects for global using directives to reduce boilerplate in individual files.
 
 ## 5. Interaction with Other Components
 
 *   **`GalgameManager.Core`**: The client heavily relies on this library for shared business logic, data models, and core services that might also be used by other parts of the PotatoVN ecosystem (like the server, if applicable for certain models/contracts).
-*   **`GalgameManager.Server`**: The client interacts with this server component for features like data synchronization and backup via its RESTful API.
+*   **`GalgameManager.Server`**: The client interacts with this server component for features like data synchronization and backup via its RESTful API. This includes synchronizing game details, play status, play time (`PlayedTime`, `TotalPlayTime`), and play count (`PlayCount`). The client uses a generated API client library (namespace `PotatoVN.Client`) to communicate with the server.
 *   **External Databases (Bangumi, VNDB):** The client fetches game information directly from these online databases.
 *   **Cloud Sync Software (OneDrive, etc.):** The client manages game save paths, but the actual file synchronization to the cloud is handled by external software chosen by the user.
 

@@ -481,6 +481,7 @@ public class PvnSyncTask : BgTaskBase
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.PlayTime))
         {
             payload.TotalPlayTime = galgame.TotalPlayTime;
+            payload.PlayCount = galgame.PlayCount; // Add PlayCount here
             List<PlayLogDto> logs = new();
             foreach (KeyValuePair<string, int> pair in galgame.PlayedTime)
                 if(DateTimeExtensions.ToDateTime(pair.Key) != DateTime.MinValue)

@@ -39,6 +39,10 @@ public static class KeyValues
     public const string RecordOnlyWhenForeground = "recordOnlyWhenForeground"; //bool, 是否只在游戏窗口在前台时记录游玩时间
     public const string PlayingWindowMode = "playingWindowMode"; // WindowMode,游玩时窗口模式
     public const string LocaleEmulatorPath = "localeEmulatorPath"; //string?, 本地模拟器路径
+    public const string MagpieTotalSwitch = "magpieTotalSwitch"; //bool, 是否启用Magpie总开关
+    public const string MagpiePath = "magpiePath"; //string?, Magpie可执行文件路径
+    public const string MagpieHotkeys = "magpieHotkeys"; //List<int>, Magpie快捷键 VirtualKey codes
+    public const string AlwaysEnableMagpie = "AlwaysEnableMagpie"; //bool, 是否无视各个游戏设置总是启用Magpie
     public const string MinPlayTimeRecordThreshold = "minPlayTimeRecordThreshold"; //int, 记录一次游玩的最小游玩时长 (分钟)
     
     //启动与跳转相关

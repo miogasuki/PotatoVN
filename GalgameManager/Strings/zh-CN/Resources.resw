@@ -2907,7 +2907,7 @@
     <value>重命名分类组</value>
   </data>
   <data name="SettingsPage_Game_MinPlayTimeRecordThreshold.Title" xml:space="preserve">
-    <value>单词游戏次数计入时长阈值</value>
+    <value>单次游戏次数计入时长阈值</value>
   </data>
   <data name="SettingsPage_Game_MinPlayTimeRecordThreshold.Description" xml:space="preserve">
     <value>单次游玩游戏时，只有游玩时长大于这个数（分钟），才会被计入为一次游玩</value>
@@ -2923,5 +2923,71 @@
   </data>
   <data name="SettingsPage_Game_CustomTextFileExtensions_EditBox.PlaceholderText" xml:space="preserve">
     <value>.txt, .docx, .pdf</value>
+  </data>
+  <data name="SettingsPage_Game_Magpie.Title" xml:space="preserve">
+    <value>Magpie 可执行文件路径</value>
+  </data>
+  <data name="SettingsPage_Game_Magpie_PathDescription.Text" xml:space="preserve">
+    <value>当前路径：</value>
+  </data>
+  <data name="SettingsPage_Game_MagpiePathWarning" xml:space="preserve">
+    <value>选择的文件似乎不是 Magpie.exe，请确认选择是否正确。</value>
+  </data>
+  <data name="SettingsPage_Game_Magpie.Description" xml:space="preserve">
+    <value>设置Magpie的路径，用于超分辨率运行游戏，请选择Magpie.exe</value>
+  </data>
+  <data name="WindowHelper_FocusProcessWindow_Failed" xml:space="preserve">
+    <value>将窗口置于前台失败，错误代码: {0}</value>
+  </data>
+  <data name="GalgamePage_EnableMagpie.Label" xml:space="preserve">
+    <value>启用 Magpie</value>
+  </data>
+  <data name="SettingsPage_Game_MagpieHotkeys_Title.Text" xml:space="preserve">
+    <value>Magpie 快捷键</value>
+  </data>
+  <data name="SettingsPage_Game_MagpieHotkeys_Description.Text" xml:space="preserve">
+    <value>请修改为 Magpie 里设置的快捷键（不正确的快捷键会导致自动magpie调用失效），使用 + 分隔，例如：Win + Shift + A</value>
+  </data>
+  <data name="SettingsPage_Game_MagpieHotkeys_EditBox.PlaceholderText" xml:space="preserve">
+    <value>Win + Shift + A</value>
+  </data>
+  <data name="SettingsPage_Game_MagpieHotkeysError" xml:space="preserve">
+    <value>无法识别按键：{0}</value>
+  </data>
+  <data name="SettingSuccess" xml:space="preserve">
+    <value>设置成功</value>
+  </data>
+  <data name="SettingsPage_Game_MagpiePath_Success" xml:space="preserve">
+    <value>设置成功。如果你修改过Magepie的快捷键，请修改下面的快捷键设置~</value>
+  </data>
+  <data name="CallMagpieTask_Title" xml:space="preserve">
+    <value>调用Magpie任务</value>
+  </data>
+  <data name="CallMagpieTask_ReachedMaxRetry" xml:space="preserve">
+    <value>已达到最大重试次数后仍无法找到游戏窗口</value>
+  </data>
+  <data name="CallMagpieTask_ProgressMsg" xml:space="preserve">
+    <value>已成功调用Magpie超分辨率游戏 {0}</value>
+  </data>
+  <data name="CallMagpieTask_LaunchingMagpie" xml:space="preserve">
+    <value>正在启动Magpie</value>
+  </data>
+  <data name="CallMagpieTask_NoMagpiePath" xml:space="preserve">
+    <value>Magpie路径未设置，请在设置-&gt;游戏中设置它的文件路径</value>
+  </data>
+  <data name="CallMagpieTask_Trying" xml:space="preserve">
+    <value>正在尝试调用Magpie中，第{0}次尝试</value>
+  </data>
+  <data name="SettingsPage_Game_Magpie_TotalSwitch.Title" xml:space="preserve">
+    <value>Magpie联动</value>
+  </data>
+  <data name="SettingsPage_Game_Magpie_TotalSwitch.Description" xml:space="preserve">
+    <value>是否启用和Magpie（一个超分辨率软件）的联动功能</value>
+  </data>
+  <data name="SettingsPage_AlwaysEnableMagpie.Title" xml:space="preserve">
+    <value>始终启用 Magpie (无视各游戏设置)</value>
+  </data>
+  <data name="SettingsPage_AlwaysEnableMagpie.Description" xml:space="preserve">
+    <value>开启后，将无视每个游戏各自的Magpie启用设置，强制全局启用Magpie</value>
   </data>
 </root>

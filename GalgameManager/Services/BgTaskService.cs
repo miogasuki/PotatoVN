@@ -28,6 +28,7 @@ public class BgTaskService : IBgTaskService
         _bgTasksString[typeof(UnpackGameTask)] = "-unpack";
         _bgTasksString[typeof(SourceMoveTask)] = "-sourceMove";
         _bgTasksString[typeof(GetGalgameCharactersFromRssTask)] = "-getGalChar";
+        _bgTasksString[typeof(CallMagpieTask)] = "-callMagpie";
         
         _converters.Add(new GalgameAndUidConverter());
     }

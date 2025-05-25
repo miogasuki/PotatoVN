@@ -20,6 +20,7 @@ The client application implements the core functionalities of PotatoVN:
 *   **Cloud Save Sync (Conceptual):** Facilitates tracking of game save locations. Actual synchronization to cloud storage relies on third-party sync software (e.g., OneDrive, NextCloud) monitoring the designated save folders.
     *   **Playtime Tracking:** Monitors and records the time spent playing games. This includes individual play sessions (`PlayedTime`) and total play count (`PlayCount`). Both `PlayCount` and `PlayedTime` are synchronized with the `GalgameManager.Server`.
     *   **Automated Game Processing:** Can extract games from compressed archives, attempt to identify them, and add them to the user's library.
+    *   **Magpie Integration:** Allows users to toggle the use of Magpie (a screen scaling tool) for individual games. A global override setting is also available to always enable Magpie, regardless of individual game settings.
 
 ## 3. Architecture and Technology
 
@@ -58,9 +59,10 @@ This section highlights important files and directories specific to the client a
     *   `MainWindow.xaml.cs`: Contains the code-behind logic for the main window, including event handlers and interaction with ViewModels.
 *   **`appsettings.json`**: Configuration file for the client application. May store settings like API keys (if not user-specific), default paths, feature flags, etc. Note that user-specific settings are typically managed by `LocalSettingsService.cs` and stored in `LocalSettings.json` or individual `data.{key}.json` files.
 *   **`ViewModels/`**: Contains ViewModel classes that drive the application's UI logic and data binding. These ViewModels often orchestrate interactions with dialogs for editing specific pieces of data (e.g., `PlayedTimeViewModel.cs` launching `EditPlayTimeDialog`).
-    *   `SettingsViewModel.cs`: Manages application settings, including the new `CustomTextFileExtensionsString` property for user-defined text file extensions.
-    *   `GalgameViewModel.cs`: Handles logic for the individual game page, including the "Open Text" feature which now uses the `CustomTextFileExtensions` setting.
+    *   `SettingsViewModel.cs`: Manages application settings, including the `CustomTextFileExtensionsString` property for user-defined text file extensions, the `MagpiePath` property (with `SelectMagpiePathCommand`) for the Magpie executable path, and the `AlwaysEnableMagpie` property for globally overriding Magpie settings.
+    *   `GalgameViewModel.cs`: Handles logic for the individual game page, including the "Open Text" feature which now uses the `CustomTextFileExtensions` setting. It also checks the global `AlwaysEnableMagpie` setting when determining Magpie activation for a game.
 *   **`Views/`**: Contains XAML files defining the user interface pages and controls. Each View typically corresponds to a ViewModel.
+    *   `SettingsPage.xaml`: Contains the UI for application settings, including the "Magpie executable path" setting in the "Game" section.
     *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
 *   **`Models/`**: Contains data model classes representing the entities and data structures used within the client.
     *   **`Galgame.cs`**: A key model representing a game. It includes various properties like `Name`, `ImagePath`, as well as fields for tracking play history such as:
@@ -91,7 +93,7 @@ This section highlights important files and directories specific to the client a
 *   **`Models/BgTasks/PvnSyncTask.cs`**: Responsible for the background synchronization logic with `GalgameManager.Server`. The `UploadGame` method within this class constructs the `GalgameUpdateDto` (from the generated `PotatoVN.Client.Model` namespace) to send updates to the server. When `PvnUploadProperties.PlayTime` is flagged, it includes `PlayCount`, `TotalPlayTime`, and the `PlayedTime` dictionary (converted to a list of `PlayLogDto`).
 *   **`Behaviors/`**: Contains custom UI behaviors that can be attached to XAML elements to add specific functionalities or modify their behavior without extensive code-behind.
 *   **`Enums/`**: Defines enumeration types used throughout the client application for representing sets of named constants (e.g., game status, filter types, page identifiers).
-    *   `KeyValues.cs`: Contains constant strings for settings keys. The `CustomTextFileExtensions` key has been added here.
+    *   `KeyValues.cs`: Contains constant strings for settings keys. Keys like `MagpieTotalSwitch`, `MagpiePath`, `MagpieHotkeys`, and `AlwaysEnableMagpie` are defined here for Magpie integration settings. The `CustomTextFileExtensions` key has also been added.
     *   `Enums/PotatoVN/PvnUploadProperties.cs`: Defines the `PvnUploadProperties` flags enum used to control which parts of a `Galgame` object are synchronized with the server.
 *   **`Styles/`**: May contain XAML resource dictionaries defining common styles and templates for UI controls, ensuring a consistent look and feel. (e.g., `Resource.xaml`)
 *   **`Usings.cs`**: Often used in newer C# projects for global using directives to reduce boilerplate in individual files.

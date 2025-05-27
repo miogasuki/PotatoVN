@@ -404,7 +404,8 @@ public class GalgameSourceCollectionService(
             GalgameSourceBase? target = null;
             foreach (GalgameSourceBase current in _galgameSources)
                 if (src != current && Utils.IsPathContained(current.Path, src.Path) &&
-                    (target is null || current.Path.Length > target.Path.Length))
+                    (target is null || current.Path.Length > target.Path.Length) &&
+                    !Utils.ArePathsEqual(src.Path, current.Path))
                     target = current;
             src.ParentSource = target;
             target?.SubSources.Add(src);

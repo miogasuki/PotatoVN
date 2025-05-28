@@ -22,10 +22,8 @@
     <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
         <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing"
-  mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework
-  object]</value>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
                 
@@ -61,8 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -115,12 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0,
-      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
-      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
     <value>PotatoVN</value>
@@ -377,7 +372,7 @@
     <value>限制递归搜索子目录的深度</value>
   </data>
   <data name="SettingsPage_Library_NameDescription" xml:space="preserve">
-  <value>下面为正则表达式的高级功能，如果不了解请保持默认设置
+    <value>下面为正则表达式的高级功能，如果不了解请保持默认设置
 本软件会用正则表达式匹配游戏文件夹名字，并取选定的匹配子串作游戏名。</value>
   </data>
   <data name="SettingsPage_Library_SearchRegex" xml:space="preserve">
@@ -1888,7 +1883,7 @@
     <value>成功设置游戏启动文件</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetCanceled" xml:space="preserve">
-        <value>用户取消了操作</value>
+    <value>用户取消了操作</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetFailed" xml:space="preserve">
     <value>设置游戏启动文件失败</value>
@@ -2095,8 +2090,7 @@
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListFull.Text" xml:space="preserve">
     <value>游戏列表（全部游戏）</value>
   </data>
-  <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListCategory.Text"
-    xml:space="preserve">
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListCategory.Text" xml:space="preserve">
     <value>游戏列表（某分类中）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListSource.Text" xml:space="preserve">
@@ -2108,8 +2102,7 @@
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListFull.Text" xml:space="preserve">
     <value>库列表（全部库）</value>
   </data>
-  <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListSubSource.Text"
-    xml:space="preserve">
+  <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListSubSource.Text" xml:space="preserve">
     <value>库列表（某库中）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_NewGameList" xml:space="preserve">
@@ -2515,13 +2508,13 @@
     <value>选择游戏</value>
   </data>
   <data name="SelectGameDialog_Search.PlaceholderText" xml:space="preserve">
-      <value>搜索游戏...</value>
+    <value>搜索游戏...</value>
   </data>
   <data name="SelectGameDialog_Confirm" xml:space="preserve">
-      <value>确定</value>
+    <value>确定</value>
   </data>
   <data name="SelectGameDialog_Cancel" xml:space="preserve">
-      <value>取消</value>
+    <value>取消</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_Title" xml:space="preserve">
     <value>管理游戏页面布局</value>
@@ -2546,7 +2539,7 @@
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowRating.Text" xml:space="preserve">
     <value>显示评分</value>
-  </data> 
+  </data>
   <data name="ManageGalgamePageLayoutDialog_ShowTags.Text" xml:space="preserve">
     <value>显示标签</value>
   </data>
@@ -2647,7 +2640,7 @@
     <value>选择软件使用的语言</value>
   </data>
   <data name="LanguageEnum_English" xml:space="preserve">
-    <value>英语</value>
+    <value>English</value>
   </data>
   <data name="LanguageEnum_ChineseSimplified" xml:space="preserve">
     <value>简体中文</value>
@@ -2713,10 +2706,10 @@
     <value>自定义页面布局</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OffContent" xml:space="preserve">
-      <value>不显示</value>    
+    <value>不显示</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OnContent" xml:space="preserve">
-      <value>显示</value>
+    <value>显示</value>
   </data>
   <data name="LibraryPage_Root" xml:space="preserve">
     <value>根目录</value>
@@ -2764,9 +2757,6 @@
     <value>包括所有子文件夹</value>
   </data>
   <data name="GalgameFolderPage_Delete.Label" xml:space="preserve">
-    <value>从库中移除游戏</value>
-  </data>
-  <data name="GalgameSourcePage_Remove_Title" xml:space="preserve">
     <value>从库中移除游戏</value>
   </data>
   <data name="GalgameSourcePage_Remove_Message" xml:space="preserve">
@@ -2873,7 +2863,7 @@
   </data>
   <data name="SettingsPage_Theme_DefaultGameName.Description" xml:space="preserve">
     <value>使用来自信息源的游戏名覆盖默认游戏名，修改后将对目前所有游戏名进行替换
-替换的优先级优先级：中文名 > 原名 > 默认名</value>
+替换的优先级优先级：中文名 &gt; 原名 &gt; 默认名</value>
   </data>
   <data name="LibraryPage_PlayStatusSubMenu.Text" xml:space="preserve">
     <value>游玩状态</value>
@@ -2989,5 +2979,8 @@
   </data>
   <data name="SettingsPage_AlwaysEnableMagpie.Description" xml:space="preserve">
     <value>开启后，将无视每个游戏各自的Magpie启用设置，强制全局启用Magpie</value>
+  </data>
+  <data name="LanguageEnum_Japanese" xml:space="preserve">
+    <value>日本語</value>
   </data>
 </root>

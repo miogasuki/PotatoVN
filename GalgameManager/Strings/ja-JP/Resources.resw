@@ -22,10 +22,8 @@
     <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
         <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing"
-  mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework
-  object]</value>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
                 
@@ -61,46 +59,46 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -114,12 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0,
-      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
-      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
     <value>PotatoVN</value>
@@ -164,10 +160,10 @@
     <value>https://github.com/GoldenPotato137/GalgameManager/blob/main/PrivacyPolicy.md</value>
   </data>
   <data name="Shell_Library.Content" xml:space="preserve">
-    <value>ゲームライブラリ</value>
+    <value>ライブラリ</value>
   </data>
   <data name="Shell_LibraryText.Text" xml:space="preserve">
-    <value>ゲームライブラリ</value>
+    <value>ライブラリ</value>
   </data>
   <data name="Shell_GalgameSetting.Content" xml:space="preserve">
     <value>ゲームを編集</value>
@@ -376,7 +372,7 @@
     <value>再帰的にサブディレクトリを検索する深さを制限する</value>
   </data>
   <data name="SettingsPage_Library_NameDescription" xml:space="preserve">
-  <value>以下は正規表現の高度な機能です。内容を理解していない場合は、既定の設定を維持してください。
+    <value>以下は正規表現の高度な機能です。内容を理解していない場合は、既定の設定を維持してください。
 本ソフトウェアは、正規表現を使用してゲームフォルダー名を照合し、選択した一致するサブ文字列をゲーム名として使用します。</value>
   </data>
   <data name="SettingsPage_Library_SearchRegex" xml:space="preserve">
@@ -1104,7 +1100,7 @@
     <value>パス:{0}をスキャンしています</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>ライブラリのスキャンが完了し、合計個のゲームが追加されました</value>
+    <value>ライブラリ{1} のスキャンが完了し、合計個{0}のゲームが追加されました</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
     <value>通知</value>
@@ -1398,7 +1394,7 @@
     <value>ゲームの解凍タスク</value>
   </data>
   <data name="RecordPlayTimeTask_ProgressMsg" xml:space="preserve">
-    <value>プレイ時間を記録中: </value>
+    <value>プレイ時間を記録中: {0}</value>
   </data>
   <data name="SettingsPage_Other_DevelopmentMode_Description.Text" xml:space="preserve">
     <value>開発者モードを有効にしますか？</value>
@@ -1488,10 +1484,10 @@
     <value>Pvn同期削除記録(id:{0})のアップロードに失敗しました</value>
   </data>
   <data name="PvnSyncTask_Deleting" xml:space="preserve">
-    <value>削除記録 (id:) をアップロード中</value>
+    <value>削除記録 (id:{0}) をアップロード中</value>
   </data>
   <data name="PvnSyncTask_Commit_Delete" xml:space="preserve">
-    <value>ゲーム id: を削除</value>
+    <value>ゲーム id: {0}を削除</value>
   </data>
   <data name="GalgameCharacterPage_BirthDate.Text" xml:space="preserve">
     <value>誕生日</value>
@@ -1536,7 +1532,7 @@
     <value>RSSからキャラクター情報の取得が完了しました。記録を保存しています。</value>
   </data>
   <data name="Galgame_GetCharacterInfo_Done" xml:space="preserve">
-    <value>のキャラクター情報を正常にダウンロードしました</value>
+    <value>{0}のキャラクター情報を正常にダウンロードしました</value>
   </data>
   <data name="GetCharacterInfoTask_Title" xml:space="preserve">
     <value>キャラクターデータダウンロードタスク</value>
@@ -1650,7 +1646,7 @@
     <value>予期せぬエラー</value>
   </data>
   <data name="GalgameCollectionService_BackupMetaFailed" xml:space="preserve">
-    <value>のメタデータをソースへバックアップできませんでした</value>
+    <value>{0}のメタデータをソースへバックアップ{1}できませんでした</value>
   </data>
   <data name="GalgamePage_MoveToAnotherSource.Label" xml:space="preserve">
     <value>別のソースへ移動</value>
@@ -1665,16 +1661,16 @@
     <value>保存先フォルダー</value>
   </data>
   <data name="ChangeSourceDialog_Space" xml:space="preserve">
-    <value> 利用可能、合計 </value>
+    <value>{0} 利用可能、合計 {1}</value>
   </data>
   <data name="ChangeSourceDialog_RemoveFromSource.Content" xml:space="preserve">
     <value>選択したソースからゲームを移動</value>
   </data>
   <data name="LocalFolderSourceService_MoveInDescription" xml:space="preserve">
-    <value>ゲームをコピー: </value>
+    <value>ゲームをコピー:  {0}</value>
   </data>
   <data name="LocalFolderSourceService_MoveOutDescription" xml:space="preserve">
-    <value>フォルダーを削除: </value>
+    <value>フォルダーを削除: {0}</value>
   </data>
   <data name="ChangeSourceDialog_OperateDescription.Text" xml:space="preserve">
     <value>OKをクリックすると、PotatoVNは以下を実行します:</value>
@@ -1695,25 +1691,25 @@
     <value>ゲーム詳細ページの各セクションの表示/非表示を選択できます</value>
   </data>
   <data name="BgTaskService_TaskFailed" xml:space="preserve">
-    <value>が失敗しました</value>
+    <value>{0}が失敗しました</value>
   </data>
   <data name="BgTaskService_TaskSuccess" xml:space="preserve">
-    <value>が完了しました</value>
+    <value>{0}が完了しました</value>
   </data>
   <data name="RecordPlayTimeTask_Done" xml:space="preserve">
-    <value>今回ののプレイ時間：</value>
+    <value>今回の{0}のプレイ時間：{1}</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Title" xml:space="preserve">
     <value>ゲームコピー処理</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Progress" xml:space="preserve">
-    <value>をコピー中です</value>
+    <value>{0}をコピー中です</value>
   </data>
   <data name="SourceMoveInBase_Success" xml:space="preserve">
     <value>ゲームを別のソースへ正常にコピーしました</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Success" xml:space="preserve">
-    <value>ゲーム「」を「」に正常にコピーしました</value>
+    <value>ゲーム「{0}」を「{1}」に正常にコピーしました</value>
   </data>
   <data name="SourceMoveTask_Title" xml:space="preserve">
     <value>ゲームのソース移動処理</value>
@@ -1887,7 +1883,7 @@
     <value>ゲーム起動ファイルの設定に成功しました</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetCanceled" xml:space="preserve">
-        <value>ユーザーが操作をキャンセルしました</value>
+    <value>ユーザーが操作をキャンセルしました</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetFailed" xml:space="preserve">
     <value>ゲーム起動ファイルの設定に失敗しました</value>
@@ -1905,16 +1901,16 @@
     <value>パス {0} は存在しません。</value>
   </data>
   <data name="GalgameFolder_UnpackGame_PathNotEmpty" xml:space="preserve">
-    <value> は空ではありません。解凍する前にこのフォルダーを削除してください。</value>
+    <value>{0} は空ではありません。解凍する前にこのフォルダーを削除してください。</value>
   </data>
   <data name="PackGameTask_Title" xml:space="preserve">
     <value>ゲーム圧縮タスク</value>
   </data>
   <data name="PackGameTask_ZipExist" xml:space="preserve">
-    <value> は既に存在します。圧縮する前にこのファイルを削除してください。</value>
+    <value>{0} は既に存在します。圧縮する前にこのファイルを削除してください。</value>
   </data>
   <data name="PackGameTask_GamePathNotExist" xml:space="preserve">
-    <value>フォルダー  は存在しません。</value>
+    <value>フォルダー  {0}は存在しません。</value>
   </data>
   <data name="ConfirmGalInfoDialog_GalgameName.Text" xml:space="preserve">
     <value>ゲーム名</value>
@@ -1981,7 +1977,7 @@
     <value>ゲームのexeパスが指定されていません。まずゲームパスを設定してください</value>
   </data>
   <data name="GalgamePage_Delete_Game_Error" xml:space="preserve">
-    <value>ゲームの削除中にエラーが発生しました：</value>
+    <value>ゲームの削除中にエラーが発生しました：{0}</value>
   </data>
   <data name="GalgamePage_Delete_Game_Success" xml:space="preserve">
     <value>ゲームを正常に削除しました</value>
@@ -2167,19 +2163,19 @@
     <value>ゲームライブラリをエクスポート中です：{0}</value>
   </data>
   <data name="CategoryService_Export_Progress" xml:space="preserve">
-    <value>カテゴリをエクスポート中: </value>
+    <value>カテゴリをエクスポート中: {0}</value>
   </data>
   <data name="GalgameCollectionService_Export_Progress" xml:space="preserve">
-    <value>ゲームをエクスポート中: </value>
+    <value>ゲームをエクスポート中: {0}</value>
   </data>
   <data name="ActivationService_LoadDataError" xml:space="preserve">
     <value>PotatoVNデータを読み取れません。データが破損していますか？
-古いデータは以下にバックアップされました: 
+古いデータは以下にバックアップされました: {0}
 以前にエクスポートしたデータ（もしあれば）を復元するか、同期サーバーからデータ（もしあれば）を取得するか、またはGitHubでissueを提出して開発者に連絡し、データの復元を試みることができます。
 ソフトウェアは初期状態に復元されました。</value>
   </data>
   <data name="ImportWindow_Extracting" xml:space="preserve">
-    <value>バックアップファイルを解凍中: </value>
+    <value>バックアップファイルを解凍中: {0}</value>
   </data>
   <data name="ImportWindow_BackingUp" xml:space="preserve">
     <value>現在のデータをバックアップ中</value>
@@ -2188,7 +2184,7 @@
     <value>データのインポートに失敗しました</value>
   </data>
   <data name="ImportWindow_Restoring" xml:space="preserve">
-    <value>データのインポートに失敗しました。元のデータを復元中です。失敗の原因:
+    <value>データのインポートに失敗しました。元のデータを復元中です。失敗の原因: {0}
 </value>
   </data>
   <data name="ImportWindow_Importing" xml:space="preserve">
@@ -2267,7 +2263,7 @@
     <value>すべてのゲームディレクトリにある.PotatoVNバックアップファイルを削除します（バックアップコピーのみが削除され、現在使用中のデータには影響しません）</value>
   </data>
   <data name="SettingsPage_Library_RemoveMetaBackupProgress" xml:space="preserve">
-    <value> の.PotatoVNバックアップファイルを削除しています</value>
+    <value>{0} の.PotatoVNバックアップファイルを削除しています</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_RssType.Text" xml:space="preserve">
     <value>情報源</value>
@@ -2306,7 +2302,7 @@
     <value>ゲーム詳細</value>
   </data>
   <data name="Galgame_GetCharacterInfo_Waiting" xml:space="preserve">
-    <value>ターゲットのスクレイピング元が混雑しています。キューで待機中です。 秒後に再試行します</value>
+    <value>ターゲットのスクレイピング元が混雑しています。キューで待機中です。 {0}秒後に再試行します</value>
   </data>
   <data name="SortKeys_Name" xml:space="preserve">
     <value>ゲーム名</value>
@@ -2510,13 +2506,13 @@
     <value>ゲームを選択</value>
   </data>
   <data name="SelectGameDialog_Search.PlaceholderText" xml:space="preserve">
-      <value>ゲームを検索...</value>
+    <value>ゲームを検索...</value>
   </data>
   <data name="SelectGameDialog_Confirm" xml:space="preserve">
-      <value>確定</value>
+    <value>確定</value>
   </data>
   <data name="SelectGameDialog_Cancel" xml:space="preserve">
-      <value>キャンセル</value>
+    <value>キャンセル</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_Title" xml:space="preserve">
     <value>ゲームページレイアウトの管理</value>
@@ -2541,7 +2537,7 @@
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowRating.Text" xml:space="preserve">
     <value>評価を表示</value>
-  </data> 
+  </data>
   <data name="ManageGalgamePageLayoutDialog_ShowTags.Text" xml:space="preserve">
     <value>タグを表示</value>
   </data>
@@ -2618,13 +2614,13 @@
     <value>スタッフの変更リストを取得しています</value>
   </data>
   <data name="PvnSyncTask_Staff_Commit" xml:space="preserve">
-    <value>スタッフをアップロードしています：</value>
+    <value>スタッフをアップロードしています：{0}</value>
   </data>
   <data name="PvnSyncTask_Staff_Commit_Success" xml:space="preserve">
-    <value>スタッフをアップロードしました:  (ID: )</value>
+    <value>スタッフ{0}をアップロードしました:  (ID: {1})</value>
   </data>
   <data name="PvnSyncTask_Pull_Staff_Success" xml:space="preserve">
-    <value>スタッフを更新しました： (ID：)</value>
+    <value>スタッフを更新しました：{0} (ID：{1})</value>
   </data>
   <data name="AccountPage_Pvn_SyncStaff.Title" xml:space="preserve">
     <value>スタッフを同期</value>
@@ -2642,10 +2638,10 @@
     <value>ソフトウェアで使用する言語を選択します</value>
   </data>
   <data name="LanguageEnum_English" xml:space="preserve">
-    <value>英語</value>
+    <value>English</value>
   </data>
   <data name="LanguageEnum_ChineseSimplified" xml:space="preserve">
-    <value>簡体字中国語</value>
+    <value>简体中文</value>
   </data>
   <data name="LanguageEnum_Auto" xml:space="preserve">
     <value>システムに従う</value>
@@ -2708,10 +2704,10 @@
     <value>ページレイアウトをカスタマイズ</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OffContent" xml:space="preserve">
-      <value>表示しない</value>    
+    <value>表示しない</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OnContent" xml:space="preserve">
-      <value>表示</value>
+    <value>表示</value>
   </data>
   <data name="LibraryPage_Root" xml:space="preserve">
     <value>ルート</value>
@@ -2761,11 +2757,8 @@
   <data name="GalgameFolderPage_Delete.Label" xml:space="preserve">
     <value>ライブラリからゲームを削除</value>
   </data>
-  <data name="GalgameSourcePage_Remove_Title" xml:space="preserve">
-    <value>ライブラリからゲームを削除</value>
-  </data>
   <data name="GalgameSourcePage_Remove_Message" xml:space="preserve">
-    <value>選択したゲームをライブラリから削除しますか？個選択されています。</value>
+    <value>選択したゲームをライブラリから削除しますか？{0}個選択されています。</value>
   </data>
   <data name="LibraryPage_SortGameSubMenu.Text" xml:space="preserve">
     <value>ゲームの並べ替え</value>
@@ -2932,7 +2925,7 @@
     <value>Magpieのパスを設定します。ゲームを超解像度で実行するために使用されます。Magpie.exeを選択してください。</value>
   </data>
   <data name="WindowHelper_FocusProcessWindow_Failed" xml:space="preserve">
-    <value>ウィンドウを前面に表示できませんでした。エラーコード: </value>
+    <value>ウィンドウを前面に表示できませんでした。エラーコード: {0}</value>
   </data>
   <data name="GalgamePage_EnableMagpie.Label" xml:space="preserve">
     <value>Magpie を有効にする</value>
@@ -2971,7 +2964,7 @@
     <value>Magpieパスが設定されていません。設定-&gt;ゲームでそのファイルパスを設定してください。</value>
   </data>
   <data name="CallMagpieTask_Trying" xml:space="preserve">
-    <value>Magpieを呼び出し中、回目の試行</value>
+    <value>Magpieを呼び出し中、{0}回目の試行</value>
   </data>
   <data name="SettingsPage_Game_Magpie_TotalSwitch.Title" xml:space="preserve">
     <value>Magpie連携</value>
@@ -2984,5 +2977,8 @@
   </data>
   <data name="SettingsPage_AlwaysEnableMagpie.Description" xml:space="preserve">
     <value>オンにすると、各ゲームのMagpie有効化設定を無視し、強制的にグローバルでMagpieを有効にします。</value>
+  </data>
+  <data name="LanguageEnum_Japanese" xml:space="preserve">
+    <value>日本語</value>
   </data>
 </root>

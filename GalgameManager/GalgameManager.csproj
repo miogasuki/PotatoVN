@@ -213,6 +213,7 @@
   <ItemGroup>
     <Content Include="Strings\zh-CN\Resources.resw" />
     <Content Include="Strings\en-US\Resources.resw" />
+    <Content Include="Strings\ja-JP\Resources.resw" />
   </ItemGroup>
   
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">

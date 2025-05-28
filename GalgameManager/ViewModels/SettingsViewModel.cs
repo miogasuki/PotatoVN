@@ -233,7 +233,11 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public readonly ElementTheme[] Themes = { ElementTheme.Default, ElementTheme.Light, ElementTheme.Dark };
     [ObservableProperty ]private ElementTheme _elementTheme;
     [ObservableProperty] private bool _transparentNavigationView;
-    public readonly LanguageEnum[] Languages = { LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English };
+
+    public readonly LanguageEnum[] Languages =
+    [
+        LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English, LanguageEnum.Japanese,
+    ];
     [ObservableProperty] private LanguageEnum _language;
 
     public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic };
@@ -288,6 +292,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         {
             LanguageEnum.ChineseSimplified => "zh-CN",
             LanguageEnum.English => "en-US",
+            LanguageEnum.Japanese => "ja-JP",
             LanguageEnum.Auto => "", // 空字符串表示使用系统默认语言
             _ => ""
         };

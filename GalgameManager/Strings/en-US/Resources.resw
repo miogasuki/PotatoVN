@@ -22,10 +22,8 @@
     <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
         <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing"
-  mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework
-  object]</value>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
                 
@@ -61,46 +59,46 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -114,12 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0,
-      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
-      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
     <value>PotatoVN</value>
@@ -376,7 +372,7 @@ If you would like to use cloud saves, dropping local saves, pls chose Cloud.</va
     <value>Limit the depth of recursive search subdirectories</value>
   </data>
   <data name="SettingsPage_Library_NameDescription" xml:space="preserve">
-  <value>Below are advanced features for regular expressions. If you don't understand, please keep the default settings.
+    <value>Below are advanced features for regular expressions. If you don't understand, please keep the default settings.
 This software will use regular expressions to match game folder names and take the selected matching substring as the game name.</value>
   </data>
   <data name="SettingsPage_Library_SearchRegex" xml:space="preserve">
@@ -1557,7 +1553,7 @@ If play time can record correctly, just cancel this popup.
     <value>These spaces are used to store game covers synced to the cloud.</value>
   </data>
   <data name="AccountPage_Pvn_SpaceUsedPercent" xml:space="preserve">
-    <value>Used %</value>
+    <value>Used {0}%</value>
   </data>
   <data name="PvnService_DownloadAvatarFailed" xml:space="preserve">
     <value>Failed to download Pvn account avatar</value>
@@ -1572,7 +1568,7 @@ If play time can record correctly, just cancel this popup.
     <value>Not yet logged in to Bangumi account!</value>
   </data>
   <data name="AccountPage_Bgm_LoginedDescription" xml:space="preserve">
-    <value>User ID: , Authorized until: {1}, Next authorization refresh: {2}</value>
+    <value>User ID: {0}, Authorized until: {1}, Next authorization refresh: {2}</value>
   </data>
   <data name="AccountPage_LogoutSuccess" xml:space="preserve">
     <value>Logout successful</value>
@@ -1650,7 +1646,7 @@ If play time can record correctly, just cancel this popup.
     <value>Unexpected Error</value>
   </data>
   <data name="GalgameCollectionService_BackupMetaFailed" xml:space="preserve">
-    <value>Failed to backup 's metadata to source </value>
+    <value>Failed to backup {0}'s metadata to source {1}.</value>
   </data>
   <data name="GalgamePage_MoveToAnotherSource.Label" xml:space="preserve">
     <value>Move to another source</value>
@@ -1665,16 +1661,16 @@ If play time can record correctly, just cancel this popup.
     <value>Target Folder</value>
   </data>
   <data name="ChangeSourceDialog_Space" xml:space="preserve">
-    <value> available, total </value>
+    <value>{0} available, total {1}</value>
   </data>
   <data name="ChangeSourceDialog_RemoveFromSource.Content" xml:space="preserve">
     <value>And remove the game from the selected source</value>
   </data>
   <data name="LocalFolderSourceService_MoveInDescription" xml:space="preserve">
-    <value>Copy game to: </value>
+    <value>Copy game to: {0}</value>
   </data>
   <data name="LocalFolderSourceService_MoveOutDescription" xml:space="preserve">
-    <value>Delete folder: </value>
+    <value>Delete folder: {0}</value>
   </data>
   <data name="ChangeSourceDialog_OperateDescription.Text" xml:space="preserve">
     <value>After clicking OK, PotatoVN will:</value>
@@ -1851,16 +1847,16 @@ If play time can record correctly, just cancel this popup.
     <value>Unable to get game name from path</value>
   </data>
   <data name="GalgameSourceCollectionService_InitAsync_GalgameIsNull" xml:space="preserve">
-    <value>Library management: The Galgame for  is null. This game has been removed from source: </value>
+    <value>Library management: The Galgame for {0} is null. This game has been removed from source:  {1}.</value>
   </data>
   <data name="GalgameSourceCollectionService_CheckGamesInSourceFailed" xml:space="preserve">
-    <value>An error occurred while checking for games in library </value>
+    <value>An error occurred while checking for games in library {0}</value>
   </data>
   <data name="GalgameSourceCollectionService_CheckGamesInSource_Title" xml:space="preserve">
-    <value>Some games have been removed from library </value>
+    <value>Some games have been removed from library : {0}</value>
   </data>
   <data name="GalgameSourceCollectionService_CheckGamesInSource_Msg" xml:space="preserve">
-    <value>The following games have been removed from this library because they could not be detected within it: </value>
+    <value>The following games have been removed from this library because they could not be detected within it:  {0}</value>
   </data>
   <data name="GalgameSettingPage_GameSetting_Parameter.Text" xml:space="preserve">
     <value>Game Launch Parameters</value>
@@ -1887,7 +1883,7 @@ If play time can record correctly, just cancel this popup.
     <value>Game launch file set successfully</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetCanceled" xml:space="preserve">
-        <value>User cancelled the operation</value>
+    <value>User cancelled the operation</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetFailed" xml:space="preserve">
     <value>Failed to set game launch file</value>
@@ -1902,19 +1898,19 @@ If play time can record correctly, just cancel this popup.
     <value>This game does not belong to this library (the game must be inside the library folder)</value>
   </data>
   <data name="GalgameFolder_UnpackGame_PathNotExist" xml:space="preserve">
-    <value>Path  does not exist</value>
+    <value>Path {0} does not exist</value>
   </data>
   <data name="GalgameFolder_UnpackGame_PathNotEmpty" xml:space="preserve">
-    <value> is not empty. Please delete this folder before unpacking.</value>
+    <value>{0} is not empty. Please delete this folder before unpacking.</value>
   </data>
   <data name="PackGameTask_Title" xml:space="preserve">
     <value>Pack Game Task</value>
   </data>
   <data name="PackGameTask_ZipExist" xml:space="preserve">
-    <value> already exists. Please delete this file before packing.</value>
+    <value>{0} already exists. Please delete this file before packing.</value>
   </data>
   <data name="PackGameTask_GamePathNotExist" xml:space="preserve">
-    <value>Folder  does not exist</value>
+    <value>Folder {0} does not exist</value>
   </data>
   <data name="ConfirmGalInfoDialog_GalgameName.Text" xml:space="preserve">
     <value>Game Name</value>
@@ -2139,7 +2135,7 @@ If play time can record correctly, just cancel this popup.
     <value>Export data failed</value>
   </data>
   <data name="ExportTask_PathNotWritable" xml:space="preserve">
-    <value>Path  is not writable.</value>
+    <value>Path {0} is not writable.</value>
   </data>
   <data name="ExportTask_Title" xml:space="preserve">
     <value>Export Data Task</value>
@@ -2148,10 +2144,10 @@ If play time can record correctly, just cancel this popup.
     <value>An export task is already running. Please wait for the current task to complete before starting a new export.</value>
   </data>
   <data name="ExportTask_Success" xml:space="preserve">
-    <value>Successfully exported data to: </value>
+    <value>Successfully exported data to: {0}</value>
   </data>
   <data name="ExportTask_FileExist" xml:space="preserve">
-    <value>Export file  already exists. Please delete or move it before exporting again.</value>
+    <value>Export file {0} already exists. Please delete or move it before exporting again.</value>
   </data>
   <data name="ExportTask_Compressing" xml:space="preserve">
     <value>Compressing export file</value>
@@ -2160,22 +2156,22 @@ If play time can record correctly, just cancel this popup.
     <value>Deleted Libraries Not Found</value>
   </data>
   <data name="GalgameSourceCollectionService_RemoveNonExist_Msg" xml:space="preserve">
-    <value>The following libraries could not be found in the file system and have been deleted from PotatoVN. Please check the corresponding locations carefully (were they renamed?) and re-add the libraries. </value>
+    <value>The following libraries could not be found in the file system and have been deleted from PotatoVN. Please check the corresponding locations carefully (were they renamed?) and re-add the libraries. {0}</value>
   </data>
   <data name="GalgameSourceCollectionService_Export_Progress" xml:space="preserve">
-    <value>Exporting game library: </value>
+    <value>Exporting game library: {0}</value>
   </data>
   <data name="CategoryService_Export_Progress" xml:space="preserve">
-    <value>Exporting category: </value>
+    <value>Exporting category: {0}</value>
   </data>
   <data name="GalgameCollectionService_Export_Progress" xml:space="preserve">
-    <value>Exporting game: </value>
+    <value>Exporting game: {0}</value>
   </data>
   <data name="ActivationService_LoadDataError" xml:space="preserve">
-    <value>Unable to read PotatoVN data, is it corrupted?\nOld data has been backed up to: \nYou can try to restore previously exported data (if any), or obtain data from the sync server (if any), or raise an issue on GitHub to contact the developer to try and recover the data.\nThe software has been restored to its initial state.</value>
+    <value>Unable to read PotatoVN data, is it corrupted?\nOld data has been backed up to: {0}\nYou can try to restore previously exported data (if any), or obtain data from the sync server (if any), or raise an issue on GitHub to contact the developer to try and recover the data.\nThe software has been restored to its initial state.</value>
   </data>
   <data name="ImportWindow_Extracting" xml:space="preserve">
-    <value>Extracting backup file: </value>
+    <value>Extracting backup file: {0}</value>
   </data>
   <data name="ImportWindow_BackingUp" xml:space="preserve">
     <value>Backing up current data</value>
@@ -2184,7 +2180,7 @@ If play time can record correctly, just cancel this popup.
     <value>Data import failed</value>
   </data>
   <data name="ImportWindow_Restoring" xml:space="preserve">
-    <value>Data import failed, restoring original data. Reason for failure:\n</value>
+    <value>Data import failed, restoring original data. Reason for failure:\n{0}</value>
   </data>
   <data name="ImportWindow_Importing" xml:space="preserve">
     <value>Modules are reading data</value>
@@ -2262,7 +2258,7 @@ If play time can record correctly, just cancel this popup.
     <value>Delete all .PotatoVN backup files in game directories (only removes backup copies, does not affect currently used data)</value>
   </data>
   <data name="SettingsPage_Library_RemoveMetaBackupProgress" xml:space="preserve">
-    <value>Deleting  .PotatoVN backup files</value>
+    <value>Deleting {0}'s  .PotatoVN backup files</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_RssType.Text" xml:space="preserve">
     <value>Scraping Source</value>
@@ -2292,7 +2288,7 @@ If play time can record correctly, just cancel this popup.
     <value>Remove Game from Library</value>
   </data>
   <data name="GalgameSourcePage_Remove_SingleGame" xml:space="preserve">
-    <value>Do you want to remove game from library: </value>
+    <value>Do you want to remove game from library: {0}</value>
   </data>
   <data name="AnnualReportPage_Calculating.Text" xml:space="preserve">
     <value>Calculating annual data, please wait.</value>
@@ -2301,7 +2297,7 @@ If play time can record correctly, just cancel this popup.
     <value>Game Details</value>
   </data>
   <data name="Galgame_GetCharacterInfo_Waiting" xml:space="preserve">
-    <value>Target scraping source congestion control, waiting in queue, retrying in  seconds.</value>
+    <value>Target scraping source congestion control, waiting in queue, retrying in {0}  seconds.</value>
   </data>
   <data name="SortKeys_Name" xml:space="preserve">
     <value>Name</value>
@@ -2505,13 +2501,13 @@ If play time can record correctly, just cancel this popup.
     <value>Select Game</value>
   </data>
   <data name="SelectGameDialog_Search.PlaceholderText" xml:space="preserve">
-      <value>Search game...</value>
+    <value>Search game...</value>
   </data>
   <data name="SelectGameDialog_Confirm" xml:space="preserve">
-      <value>OK</value>
+    <value>OK</value>
   </data>
   <data name="SelectGameDialog_Cancel" xml:space="preserve">
-      <value>Cancel</value>
+    <value>Cancel</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_Title" xml:space="preserve">
     <value>Manage Game Page Layout</value>
@@ -2536,7 +2532,7 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowRating.Text" xml:space="preserve">
     <value>Display rating</value>
-  </data> 
+  </data>
   <data name="ManageGalgamePageLayoutDialog_ShowTags.Text" xml:space="preserve">
     <value>Display tags</value>
   </data>
@@ -2589,7 +2585,7 @@ If play time can record correctly, just cancel this popup.
     <value>This library cannot be deleted.</value>
   </data>
   <data name="StaffService_Export" xml:space="preserve">
-    <value>Exporting staff: </value>
+    <value>Exporting staff: {0}</value>
   </data>
   <data name="PvnService_AccountTokenExpire" xml:space="preserve">
     <value>Your account login has expired, please log in again.</value>
@@ -2607,19 +2603,19 @@ If play time can record correctly, just cancel this popup.
     <value>Sync Options</value>
   </data>
   <data name="PvnSyncTask_Pull_Staff" xml:space="preserve">
-    <value>Downloading staff from remote: </value>
+    <value>Downloading staff from remote: {0}</value>
   </data>
   <data name="PvnSyncTask_Pull_Staff_Get" xml:space="preserve">
     <value>Retrieving staff update list</value>
   </data>
   <data name="PvnSyncTask_Staff_Commit" xml:space="preserve">
-    <value>Uploading staff: </value>
+    <value>Uploading staff: {0}</value>
   </data>
   <data name="PvnSyncTask_Staff_Commit_Success" xml:space="preserve">
-    <value>Uploaded staff:  (id: )</value>
+    <value>Uploaded staff: {0} (id: {1})</value>
   </data>
   <data name="PvnSyncTask_Pull_Staff_Success" xml:space="preserve">
-    <value>Updated staff:  (id: )</value>
+    <value>Updated staff: {0} (id: {1})</value>
   </data>
   <data name="AccountPage_Pvn_SyncStaff.Title" xml:space="preserve">
     <value>Sync Staff</value>
@@ -2640,7 +2636,7 @@ If play time can record correctly, just cancel this popup.
     <value>English</value>
   </data>
   <data name="LanguageEnum_ChineseSimplified" xml:space="preserve">
-    <value>Simplified Chinese</value>
+    <value>简体中文</value>
   </data>
   <data name="LanguageEnum_Auto" xml:space="preserve">
     <value>Follow system</value>
@@ -2703,10 +2699,10 @@ If play time can record correctly, just cancel this popup.
     <value>Customize page layout</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OffContent" xml:space="preserve">
-      <value>Hide</value>    
+    <value>Hide</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OnContent" xml:space="preserve">
-      <value>Show</value>
+    <value>Show</value>
   </data>
   <data name="LibraryPage_Root" xml:space="preserve">
     <value>Root</value>
@@ -2730,7 +2726,7 @@ If play time can record correctly, just cancel this popup.
     <value>Fetching the following game header images:</value>
   </data>
   <data name="GetHeaderFromRssTask_Progress_Waiting" xml:space="preserve">
-    <value>There {0, plural, one {is} other {are}} {0} game{0, plural, one {} other {s}} in the queue.</value>
+    <value>There {0} games in the queue.</value>
   </data>
   <data name="QueueTaskBase_Empty" xml:space="preserve">
     <value>All tasks completed, waiting for new tasks.</value>
@@ -2754,9 +2750,6 @@ If play time can record correctly, just cancel this popup.
     <value>Include all subfolders</value>
   </data>
   <data name="GalgameFolderPage_Delete.Label" xml:space="preserve">
-    <value>Remove Game from Library</value>
-  </data>
-  <data name="GalgameSourcePage_Remove_Title" xml:space="preserve">
     <value>Remove Game from Library</value>
   </data>
   <data name="GalgameSourcePage_Remove_Message" xml:space="preserve">
@@ -2964,7 +2957,7 @@ If play time can record correctly, just cancel this popup.
     <value>Magpie path not set. Please set its file path in Settings -&gt; Game.</value>
   </data>
   <data name="CallMagpieTask_Trying" xml:space="preserve">
-    <value>Attempting to call Magpie, attempt </value>
+    <value>Attempting to call Magpie, attempt {0}</value>
   </data>
   <data name="SettingsPage_Game_Magpie_TotalSwitch.Title" xml:space="preserve">
     <value>Magpie Integration</value>
@@ -2977,5 +2970,8 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="SettingsPage_AlwaysEnableMagpie.Description" xml:space="preserve">
     <value>When enabled, it will ignore each game's individual Magpie settings and force global Magpie enablement.</value>
+  </data>
+  <data name="LanguageEnum_Japanese" xml:space="preserve">
+    <value>日本語</value>
   </data>
 </root>

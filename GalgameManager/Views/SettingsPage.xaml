@@ -318,6 +318,7 @@
                                         </StackPanel>
                                     </StackPanel>
                                     <Rectangle Height="1"  Margin="0 2 0 5"
+                                               Visibility="{x:Bind ViewModel.MagpieTotalSwitch, Mode=OneWay}"
                                                Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"/>
                                     <!-- Magpie快捷键 -->
                                     <StackPanel Visibility="{x:Bind ViewModel.MagpieTotalSwitch, Mode=OneWay}">
@@ -329,7 +330,8 @@
                                                  AcceptsReturn="False" Margin="0,4,0,0" />
                                     </StackPanel>
                                     <Rectangle Height="1" Margin="0 2 0 5"
-                                               Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"/>
+                                               Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                                               Visibility="{x:Bind ViewModel.MagpieTotalSwitch, Mode=OneWay}"/>
                                     <!-- 始终启用 Magpie -->
                                     <local:SettingToggleSwitch 
                                         x:Uid="SettingsPage_AlwaysEnableMagpie"

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -118,6 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
+    <value>PotatoVN</value>
+  </data>
+  <data name="AppDisplayName2" xml:space="preserve">
+    <value>PotatoVN</value>
+  </data>
+  <data name="AppDisplayName1" xml:space="preserve">
     <value>PotatoVN</value>
   </data>
   <data name="AppDescription" xml:space="preserve">
@@ -2982,5 +2988,33 @@
   </data>
   <data name="LanguageEnum_Japanese" xml:space="preserve">
     <value>日本語</value>
+  </data>
+  <data name="Settings_Game_MuteInBackground.Text" xml:space="preserve">
+    <value>后台时静音游戏</value>
+  </data>
+  <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
+    <value>后台静音</value>
+  </data>
+  <data name="Settings_Game_AlwaysMuteInBackground.Title" xml:space="preserve">
+    <value>总是后台时静音游戏</value>
+  </data>
+  <data name="Settings_Game_AlwaysMuteInBackground.Description" xml:space="preserve">
+    <value>覆盖单独的游戏设置。如果启用，所有游戏都将在后台时静音。</value>
+  </data>
+  <data name="GameMuteTask_Muted" xml:space="preserve">
+    <value>已静音游戏：{0}</value>
+  </data>
+  <data name="GameMuteTask_Unmuted" xml:space="preserve">
+    <value>已将游戏 {0} 取消静音</value>
+  </data>
+  <data name="GameMuteTask_MonitorError" xml:space="preserve">
+    <value>无法调整游戏声音，原因为：
+{0}</value>
+  </data>
+  <data name="GameMuteTask_Title" xml:space="preserve">
+    <value>游戏后台静音任务</value>
+  </data>
+  <data name="GameMuteTask_Starting" xml:space="preserve">
+    <value>正在检查游戏 {0} 状态，随时准备静音/恢复该游戏声音</value>
   </data>
 </root>

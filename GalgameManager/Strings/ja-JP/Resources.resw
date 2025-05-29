@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -118,6 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
+    <value>PotatoVN</value>
+  </data>
+  <data name="AppDisplayName2" xml:space="preserve">
+    <value>PotatoVN</value>
+  </data>
+  <data name="AppDisplayName1" xml:space="preserve">
     <value>PotatoVN</value>
   </data>
   <data name="AppDescription" xml:space="preserve">
@@ -2980,5 +2986,17 @@
   </data>
   <data name="LanguageEnum_Japanese" xml:space="preserve">
     <value>日本語</value>
+  </data>
+  <data name="Settings_Game_MuteInBackground.Text" xml:space="preserve">
+    <value>バックグラウンド時にゲームをミュート</value>
+  </data>
+  <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
+    <value>バックグラウンドでミュート</value>
+  </data>
+  <data name="Settings_Game_AlwaysMuteInBackground.Title" xml:space="preserve">
+    <value>常にバックグラウンド時にゲームをミュート</value>
+  </data>
+  <data name="Settings_Game_AlwaysMuteInBackground.Description" xml:space="preserve">
+    <value>個別のゲーム設定を上書きします。有効にすると、すべてのゲームがバックグラウンド時にミュートされます。</value>
   </data>
 </root>

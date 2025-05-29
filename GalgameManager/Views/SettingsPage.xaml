@@ -339,6 +339,12 @@
                                         Visibility="{x:Bind ViewModel.MagpieTotalSwitch, Mode=OneWay}"/>
                                 </StackPanel>
                             </control:Panel>
+                            <!-- 始终后台时静音游戏 -->
+                            <control:Panel>
+                                <local:SettingToggleSwitch
+                                    x:Uid="Settings_Game_AlwaysMuteInBackground"
+                                    IsOn="{x:Bind ViewModel.AlwaysMuteInBackground, Mode=TwoWay}"/>
+                            </control:Panel>
                             <!-- 记录游玩次数的最小游玩时长 -->
                             <control:Panel>
                                 <control:Setting x:Uid="SettingsPage_Game_MinPlayTimeRecordThreshold">

@@ -121,6 +121,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _magpieTotalSwitch = _localSettingsService.ReadSettingAsync<bool>(KeyValues.MagpieTotalSwitch).Result;
         MagpiePath = _localSettingsService.ReadSettingAsync<string>(KeyValues.MagpiePath).Result; // Initialize MagpiePath
         _alwaysEnableMagpie = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie).Result;
+        _alwaysMuteInBackground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground).Result;
         _magpieHotkeys = _localSettingsService.ReadSettingAsync<List<int>>(KeyValues.MagpieHotkeys).Result ?? [];
         UpdateMagpieHotkeysString();
         PlayingWindowModes = new[] {WindowMode.Minimize, WindowMode.SystemTray, WindowMode.None };
@@ -366,6 +367,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _magpieTotalSwitch;
     [ObservableProperty] private string? _magpiePath; // Magpie executable path
     [ObservableProperty] private bool _alwaysEnableMagpie;
+    [ObservableProperty] private bool _alwaysMuteInBackground;
     [ObservableProperty] private string _magpieHotkeysString = Empty;
     private List<int> _magpieHotkeys;
     public WindowMode[] PlayingWindowModes;
@@ -392,6 +394,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         }
         _localSettingsService.SaveSettingAsync(KeyValues.AlwaysEnableMagpie, value);
     }
+
+    partial void OnAlwaysMuteInBackgroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AlwaysMuteInBackground, value);
 
     async partial void OnMagpieHotkeysStringChanged(string value)
     {

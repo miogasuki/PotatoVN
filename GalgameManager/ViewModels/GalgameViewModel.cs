@@ -307,12 +307,10 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             await _jumpListService.AddToJumpListAsync(Item);
             
             await Task.Delay(1000); //等待1000ms，让游戏进程启动后再最小化
-            var alwaysEnableMagpie = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie);
-            if (alwaysEnableMagpie || Item.EnableMagpie)
-            {
-                CallMagpieTask task = new(Item, process);
-                _ = _bgTaskService.AddBgTask(task);
-            }
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie) || Item.EnableMagpie) 
+                _ = _bgTaskService.AddBgTask(new CallMagpieTask(Item, process));
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground) || Item.MuteInBackground)
+                _ = _bgTaskService.AddBgTask(new GameMuteTask(Item, process));
             if(process.HasExited == false)
                 App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));
             

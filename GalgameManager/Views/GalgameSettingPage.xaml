@@ -91,6 +91,15 @@
                                              ToolTipService.ToolTip="就把他当成cmd来用就行了" />
                                 </Grid>
                             </control:Panel>
+                            <!-- 后台时静音游戏 -->
+                            <control:Panel>
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <TextBlock x:Uid="Settings_Game_MuteInBackground" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1"/>
+                                    <ToggleSwitch Grid.Column="2"
+                                                  IsOn="{x:Bind ViewModel.Gal.MuteInBackground, Mode=TwoWay}"/>
+                                </Grid>
+                            </control:Panel>
                             <!-- 存档位置（尚未做完，隐藏） -->
                             <control:Panel Visibility="Collapsed">
                                 <control:Setting x:Uid="GalgameSettingPage_GameSetting_SavePosition"

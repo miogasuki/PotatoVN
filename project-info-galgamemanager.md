@@ -84,6 +84,7 @@ This section highlights important files and directories specific to the client a
         *   `PlayedTime` (Dictionary<string, int>): Stores individual play sessions, mapping a date string to play duration in minutes.
         *   `PlayCount` (int): Stores the total number of times the game has been played.
         *   `TotalPlayTime` (int): Stores the sum of all play session durations in minutes.
+        *   `MuteInBackground` (bool): A per-game setting to determine if the game audio should be muted when the application is not in the foreground.
         *   `PvnUpdate` (bool): A flag indicating if the game's data needs to be synced with the server.
         *   `PvnUploadProperties` (enum `PvnUploadProperties`): A flags enum specifying which particular properties of the game need to be uploaded to the server. The `PlayTime` flag is used to indicate that `PlayedTime`, `TotalPlayTime`, and `PlayCount` should be synced.
 *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
@@ -108,7 +109,7 @@ This section highlights important files and directories specific to the client a
 *   **`Models/BgTasks/PvnSyncTask.cs`**: Responsible for the background synchronization logic with `GalgameManager.Server`. The `UploadGame` method within this class constructs the `GalgameUpdateDto` (from the generated `PotatoVN.Client.Model` namespace) to send updates to the server. When `PvnUploadProperties.PlayTime` is flagged, it includes `PlayCount`, `TotalPlayTime`, and the `PlayedTime` dictionary (converted to a list of `PlayLogDto`).
 *   **`Behaviors/`**: Contains custom UI behaviors that can be attached to XAML elements to add specific functionalities or modify their behavior without extensive code-behind.
 *   **`Enums/`**: Defines enumeration types used throughout the client application for representing sets of named constants (e.g., game status, filter types, page identifiers).
-    *   `KeyValues.cs`: Contains constant strings for settings keys. Keys like `MagpieTotalSwitch`, `MagpiePath`, `MagpieHotkeys`, and `AlwaysEnableMagpie` are defined here for Magpie integration settings. The `CustomTextFileExtensions` key has also been added.
+    *   `KeyValues.cs`: Contains constant strings for settings keys. Keys like `MagpieTotalSwitch`, `MagpiePath`, `MagpieHotkeys`, `AlwaysEnableMagpie`, and the new `AlwaysMuteInBackground` (for globally overriding per-game background mute settings) are defined here. The `CustomTextFileExtensions` key has also been added.
     *   `Enums/PotatoVN/PvnUploadProperties.cs`: Defines the `PvnUploadProperties` flags enum used to control which parts of a `Galgame` object are synchronized with the server.
 *   **`Styles/`**: May contain XAML resource dictionaries defining common styles and templates for UI controls, ensuring a consistent look and feel. (e.g., `Resource.xaml`)
 *   **`Usings.cs`**: Often used in newer C# projects for global using directives to reduce boilerplate in individual files.

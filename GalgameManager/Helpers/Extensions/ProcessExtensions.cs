@@ -36,6 +36,21 @@ public static class ProcessExtensions
         return placement.showCmd == 2;
     }
     
+    public static bool IsMainWindowFocused(this Process process)
+    {
+        if (process.MainWindowHandle == IntPtr.Zero) return false;
+        try
+        {
+            var foregroundWindow = GetForegroundWindow();
+            GetWindowThreadProcessId(foregroundWindow, out var foregroundProcessId);
+            return process.Id == foregroundProcessId;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
     /// <summary>
     /// 窗口是否处于前台
     /// </summary>

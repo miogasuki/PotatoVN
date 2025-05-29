@@ -32,19 +32,34 @@ The client application implements the core functionalities of PotatoVN:
     *   **Views:** Define the UI structure and appearance (XAML files in `GalgameManager/Views/`).
     *   **ViewModels:** Act as intermediaries between Views and Models, handling UI logic and state (found in `GalgameManager/ViewModels/`).
 *   **Development Framework Base:** Initially generated using TemplateStudio, providing a standardized project structure and common patterns.
-*   **Localization:** Supports multiple languages through localization files, managed via Crowdin (configuration in `crowdin.yml` at the repository root). String resources are located in `GalgameManager/Strings/` within language-specific subfolders (e.g., `zh-CN`, `en-US`), typically in `Resources.resw` files.
-    *   **Implementing XAML Localization:**
-        *   Use the `x:Uid` attribute on XAML elements to mark them for localization. For example: `<TextBlock x:Uid="MyUniqueControlUid" />`.
-        *   In the `.resw` resource file (e.g., `Strings/zh-CN/Resources.resw`), create a `<data>` entry where the `name` attribute is the `x:Uid` value followed by a dot and the target property name. For instance, to set the `Text` property of the `TextBlock` above, the resource key would be `MyUniqueControlUid.Text`.
-        *   Example:
-            *   XAML: `<TextBlock x:Uid="EditPlayTimeDialog_PlayCountLabel" />`
-            *   `Resources.resw` entry:
-                ```xml
-                <data name="EditPlayTimeDialog_PlayCountLabel.Text" xml:space="preserve">
-                  <value>游玩次数:</value>
-                </data>
-                ```
-        *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
+  *   **Localization:** Supports multiple languages through localization files, managed via Crowdin (configuration in `crowdin.yml` at the repository root). String resources are located in `GalgameManager/Strings/` within language-specific subfolders (e.g., `zh-CN`, `en-US`), typically in `Resources.resw` files.
+      *   **Implementing XAML Localization:**
+          *   Use the `x:Uid` attribute on XAML elements to mark them for localization. For example: `<TextBlock x:Uid="MyUniqueControlUid" />`.
+          *   In the `.resw` resource file (e.g., `Strings/zh-CN/Resources.resw`), create a `<data>` entry where the `name` attribute is the `x:Uid` value followed by a dot and the target property name. For instance, to set the `Text` property of the `TextBlock` above, the resource key would be `MyUniqueControlUid.Text`.
+          *   Example:
+              *   XAML: `<TextBlock x:Uid="EditPlayTimeDialog_PlayCountLabel" />`
+              *   `Resources.resw` entry:
+                  ```xml
+                  <data name="EditPlayTimeDialog_PlayCountLabel.Text" xml:space="preserve">
+                    <value>游玩次数:</value>
+                  </data>
+                  ```
+          *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
+          * When Editing localizations files, you should *never* directly read or edit the .resw files. 
+          * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
+          * Usage:
+              ```bash
+              # 搜索所有包含 "Theme" 的key
+            python resw_tool.py search "*Theme*"
+            # 搜索以 "Settings_" 开头的key
+            python resw_tool.py search "Settings_*"
+            # 搜索确切的key
+            python resw_tool.py search "AppDisplayName"
+            # 更新设置项
+            python resw_tool.py update "Settings_Theme.Text" en-US="Theme" ja-JP="テーマ" zh-CN="主题"
+            # 添加新的key
+            python resw_tool.py update "NewFeature.Title" en-US="New Feature" ja-JP="新機能"
+            ```
 
 ## 4. Key Files and Directories within `GalgameManager/`
 

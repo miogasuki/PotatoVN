@@ -124,6 +124,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _alwaysMuteInBackground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground).Result;
         _magpieHotkeys = _localSettingsService.ReadSettingAsync<List<int>>(KeyValues.MagpieHotkeys).Result ?? [];
         UpdateMagpieHotkeysString();
+        MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
         PlayingWindowModes = new[] {WindowMode.Minimize, WindowMode.SystemTray, WindowMode.None };
         //RSS
         RssType = _localSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType).Result;
@@ -369,6 +370,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _alwaysEnableMagpie;
     [ObservableProperty] private bool _alwaysMuteInBackground;
     [ObservableProperty] private string _magpieHotkeysString = Empty;
+    [ObservableProperty] private List<int> _magpieHotkeyKeys = new();
     private List<int> _magpieHotkeys;
     public WindowMode[] PlayingWindowModes;
     
@@ -397,6 +399,35 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     partial void OnAlwaysMuteInBackgroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AlwaysMuteInBackground, value);
 
+    async partial void OnMagpieHotkeyKeysChanged(List<int> value)
+    {
+        try
+        {
+            if (value == null || value.Count == 0)
+            {
+                _magpieHotkeys = [(int)VirtualKey.LeftWindows, (int)VirtualKey.Shift, (int)VirtualKey.A];
+                MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
+            }
+            else
+            {
+                _magpieHotkeys = new List<int>(value);
+            }
+            
+            await _localSettingsService.SaveSettingAsync(KeyValues.MagpieHotkeys, _magpieHotkeys);
+            UpdateMagpieHotkeysString();
+            _infoService.Info(InfoBarSeverity.Success, msg:"SettingSuccess".GetLocalized(), displayTimeMs: 2000);
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e:e);
+            // 恢复到上次有效的值
+            if (_magpieHotkeys != null)
+            {
+                MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
+            }
+        }
+    }
+
     async partial void OnMagpieHotkeysStringChanged(string value)
     {
         try
@@ -405,6 +436,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             {
                 _magpieHotkeys = [(int)VirtualKey.LeftWindows, (int)VirtualKey.Shift, (int)VirtualKey.A];
                 UpdateMagpieHotkeysString(); // Reset to default string
+                MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
             }
             else
             {
@@ -446,6 +478,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                     }
                 }
                 _magpieHotkeys = newHotkeys;
+                MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
             }
             await _localSettingsService.SaveSettingAsync(KeyValues.MagpieHotkeys, _magpieHotkeys);
             _infoService.Info(InfoBarSeverity.Success, msg:"SettingSuccess".GetLocalized(), displayTimeMs: 2000);

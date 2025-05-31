@@ -2942,7 +2942,7 @@
     <value>Magpie 快捷键</value>
   </data>
   <data name="SettingsPage_Game_MagpieHotkeys_Description.Text" xml:space="preserve">
-    <value>请修改为 Magpie 里设置的快捷键（不正确的快捷键会导致自动magpie调用失效），使用 + 分隔，例如：Win + Shift + A</value>
+    <value>请修改为 Magpie 里设置的缩放快捷键，请退出Magpie后修改，防止放大本窗口</value>
   </data>
   <data name="SettingsPage_Game_MagpieHotkeys_EditBox.PlaceholderText" xml:space="preserve">
     <value>Win + Shift + A</value>
@@ -3016,5 +3016,20 @@
   </data>
   <data name="GameMuteTask_Starting" xml:space="preserve">
     <value>正在检查游戏 {0} 状态，随时准备静音/恢复该游戏声音</value>
+  </data>
+  <data name="GalgamePage_Play_Error" xml:space="preserve">
+    <value>启动游戏失败，请尝试使用管理员权限启动游戏：</value>
+  </data>
+  <data name="GalgamePage_Play_CancelledByUser" xml:space="preserve">
+    <value>需要管理员权限才能启动游戏</value>
+  </data>
+  <data name="HotkeyInputBox_PlaceholderText" xml:space="preserve">
+    <value>点击设置快捷键</value>
+  </data>
+  <data name="HotkeyInputBox_StartCapturing" xml:space="preserve">  
+    <value>请按下快捷键组合...</value>
+  </data>
+  <data name="HotkeyInputBox_ClickToSet" xml:space="preserve">
+    <value>点击设置快捷键</value>
   </data>
 </root>

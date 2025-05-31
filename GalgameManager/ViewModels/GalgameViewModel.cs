@@ -268,18 +268,16 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             args = Item.ExePath;
         }
 
-        Process process = new()
+        ProcessStartInfo info = new()
         {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = exePath,
-                Arguments = args ?? string.Empty,
-                CreateNoWindow = !string.IsNullOrEmpty(args),
-                WorkingDirectory = Item.LocalPath,
-                UseShellExecute = Item.RunAsAdmin | Item.ExePath!.ToLower().EndsWith("lnk"),
-                Verb = Item.RunAsAdmin ? "runas" : null,
-            },
+            FileName = exePath,
+            CreateNoWindow = !string.IsNullOrEmpty(args),
+            WorkingDirectory = Item.LocalPath,
+            UseShellExecute = Item.RunAsAdmin | Item.ExePath!.ToLower().EndsWith("lnk"),
+            Verb = Item.RunAsAdmin ? "runas" : null,
         };
+        if (args is not null) info.ArgumentList.Add(args);
+        Process process = new(){ StartInfo = info };
 
         try
         {
@@ -309,6 +307,10 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             await _jumpListService.AddToJumpListAsync(Item);
             
             await Task.Delay(1000); //等待1000ms，让游戏进程启动后再最小化
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie) || Item.EnableMagpie) 
+                _ = _bgTaskService.AddBgTask(new CallMagpieTask(Item, process));
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground) || Item.MuteInBackground)
+                _ = _bgTaskService.AddBgTask(new GameMuteTask(Item, process));
             if(process.HasExited == false)
                 App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));
             
@@ -427,6 +429,11 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task SaveAsync()
     {
         if (Item is null) return;
+        if (string.IsNullOrEmpty(await _localSettingsService.ReadSettingAsync<string>(KeyValues.MagpiePath)))
+        {
+            Item.EnableMagpie = false;
+            _infoService.Info(InfoBarSeverity.Warning, "CallMagpieTask_NoMagpiePath".GetLocalized());
+        }
         await _galgameService.SaveGalgameAsync(Item);
     }
 
@@ -613,7 +620,15 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         var path = Item.TextPath;
         if (path is null || File.Exists(path) == false)
         {
-            SelectFileDialog dialog = new(Item!.LocalPath!, [".txt", ".pdf"],
+            List<string>? customExtensions =
+                await _localSettingsService.ReadSettingAsync<List<string>>(KeyValues.CustomTextFileExtensions);
+            if (customExtensions is null || customExtensions.Count == 0)
+            {
+                // Fallback to a basic default list if settings are somehow empty/corrupt,
+                // though LocalSettingsService.TryGetDefaultValue should prevent nulls.
+                customExtensions = [".txt", ".pdf", ".md", ".doc", ".docx"];
+            }
+            SelectFileDialog dialog = new(Item!.LocalPath!, customExtensions,
                 "GalgamePage_SelectText_Title".GetLocalized());
             await dialog.ShowAsync();
             path = dialog.SelectedFilePath;

@@ -404,7 +404,8 @@ public class GalgameSourceCollectionService(
             GalgameSourceBase? target = null;
             foreach (GalgameSourceBase current in _galgameSources)
                 if (src != current && Utils.IsPathContained(current.Path, src.Path) &&
-                    (target is null || current.Path.Length > target.Path.Length))
+                    (target is null || current.Path.Length > target.Path.Length) &&
+                    !Utils.ArePathsEqual(src.Path, current.Path))
                     target = current;
             src.ParentSource = target;
             target?.SubSources.Add(src);
@@ -554,6 +555,14 @@ public class GalgameSourceCollectionService(
         {
             _galgameSources = await localSettingsService.ReadSettingAsync<ObservableCollection<GalgameSourceBase>>
                 (KeyValues.GalgameSources, true, converters: _converters) ?? new();
+            foreach (GalgameSourceBase source in _galgameSources)
+            {
+                List<GalgameAndPath> toRemove = source.Galgames
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                    .Where(g => g.Galgame is null).ToList();
+                foreach (GalgameAndPath g in toRemove)
+                    source.Galgames.Remove(g);
+            }
             await SaveAllAsync();
             await localSettingsService.RemoveSettingAsync(KeyValues.GalgameSources, true);
         }

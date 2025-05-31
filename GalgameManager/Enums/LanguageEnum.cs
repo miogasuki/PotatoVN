@@ -4,5 +4,6 @@ public enum LanguageEnum
 {
     Auto,
     ChineseSimplified, 
-    English
+    English,
+    Japanese
 }

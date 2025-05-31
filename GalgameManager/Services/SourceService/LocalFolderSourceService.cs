@@ -189,7 +189,7 @@ public class LocalFolderSourceService : IGalgameSourceService
         if (!Utils.IsImageValid(src) || src is null) return;
         var target = Path.Combine(metaPath, Path.GetFileName(src));
         if (File.Exists(target) && new FileInfo(target).Length == new FileInfo(src).Length) return; //文件已存在且大小相同就不复制
-        File.Copy(src, target, true);
+        FolderOperations.CopyEx(src, target, overwrite: true, allowDecrypted: true);
     }
 
     private static string? LoadImg(string? target, string path, string defaultTarget = Galgame.DefaultImagePath, 

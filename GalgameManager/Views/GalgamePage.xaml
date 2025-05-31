@@ -90,7 +90,6 @@
                         Command="{x:Bind ViewModel.OpenInExplorerCommand}"
                               IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
                 <CommandBar.SecondaryCommands>
-                    
                     <!-- 转区运行游戏 -->
                     <AppBarToggleButton Icon="Character"
                             x:Uid="GalgamePage_RunInLocaleEmulator"
@@ -113,6 +112,20 @@
                                         Command="{x:Bind ViewModel.SaveCommand}"
                                         IsChecked="{x:Bind ViewModel.Item.RunAsAdmin, Mode=TwoWay, FallbackValue=False}"
                                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
+                    <!-- Magpie -->
+                    <AppBarToggleButton Icon="FullScreen"
+                                        x:Uid="GalgamePage_EnableMagpie"
+                                        Command="{x:Bind ViewModel.SaveCommand}"
+                                        IsChecked="{x:Bind ViewModel.Item.EnableMagpie, Mode=TwoWay, FallbackValue=False}"
+                                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
+                    <!-- 后台静音 -->
+                    <AppBarToggleButton x:Uid="GamePage_MuteInBackground"
+                                        IsChecked="{x:Bind ViewModel.Item.MuteInBackground, Mode=TwoWay, FallbackValue=False}"
+                                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEA8F;" /> <!-- Mute icon -->
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
                     <AppBarSeparator/>
                     <!-- 在BGM中打开 -->
                     <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}" 

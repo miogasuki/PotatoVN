@@ -23,6 +23,7 @@ public class RecordPlayTimeTask : BgTaskBase
 
     private readonly ILocalSettingsService _localSettingsService = App.GetService<ILocalSettingsService>();
     private readonly IGalgameCollectionService _gameService = App.GetService<IGalgameCollectionService>();
+    private int _minPlayTimeRecordThreshold;
     
     public RecordPlayTimeTask(){}
 
@@ -66,6 +67,7 @@ public class RecordPlayTimeTask : BgTaskBase
                         TimeToDisplayTimeConverter.Convert(CurrentPlayTime)));
                 // 手动通知LastPlayTime属性已更改
                 Galgame.RaisePropertyChanged(nameof(Galgame.LastPlayTime));
+                if (CurrentPlayTime >= _minPlayTimeRecordThreshold) Galgame!.PlayCount++;
             });
             await App.GetService<IGalgameCollectionService>().SaveGalgameAsync(Galgame);
             if(await App.GetService<ILocalSettingsService>().ReadSettingAsync<bool>(KeyValues.SyncGames))
@@ -79,10 +81,11 @@ public class RecordPlayTimeTask : BgTaskBase
 
     private Task RecordPlayTimeAsync()
     {
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             var recordOnlyWhenForeground =
-                _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
+                await _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground);
+            _minPlayTimeRecordThreshold = await _localSettingsService.ReadSettingAsync<int>(KeyValues.MinPlayTimeRecordThreshold);
             try
             {
                 _localSettingsService.OnSettingChanged += OnSettingChanged;
@@ -113,8 +116,10 @@ public class RecordPlayTimeTask : BgTaskBase
 
             void OnSettingChanged(string key, object? value)
             {
-                if(key != KeyValues.RecordOnlyWhenForeground || value is not bool b) return;
-                recordOnlyWhenForeground = b;
+                if(key == KeyValues.RecordOnlyWhenForeground && value is bool b)
+                    recordOnlyWhenForeground = b;
+                if(key == KeyValues.MinPlayTimeRecordThreshold && value is int i)
+                    _minPlayTimeRecordThreshold = i;
             }
         });
     }

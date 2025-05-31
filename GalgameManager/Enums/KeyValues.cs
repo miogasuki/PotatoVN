@@ -24,6 +24,7 @@ public static class KeyValues
     public const string AutoCategory = "autoCategory"; // bool,是否自动分类
     public const string AuthenticationType = "authenticationType"; // AuthenticationType,身份验证类型
     public const string FontInstalled = "fontInstalled"; //bool, 是否安装了Segoe Fluent Icons字体
+    public const string CustomTextFileExtensions = "CustomTextFileExtensions"; // List<string>, 用户自定义的文本文件扩展名列表
     
     //账户相关
     public const string BangumiAccount= "bangumiAccount"; //BgmAccount?, Bangumi账户, 若为null则未登录
@@ -38,6 +39,13 @@ public static class KeyValues
     public const string RecordOnlyWhenForeground = "recordOnlyWhenForeground"; //bool, 是否只在游戏窗口在前台时记录游玩时间
     public const string PlayingWindowMode = "playingWindowMode"; // WindowMode,游玩时窗口模式
     public const string LocaleEmulatorPath = "localeEmulatorPath"; //string?, 本地模拟器路径
+    public const string MagpieTotalSwitch = "magpieTotalSwitch"; //bool, 是否启用Magpie总开关
+    public const string MagpiePath = "magpiePath"; //string?, Magpie可执行文件路径
+    public const string MagpieHotkeys = "magpieHotkeys"; //List<int>, Magpie快捷键 VirtualKey codes
+    public const string AlwaysEnableMagpie = "AlwaysEnableMagpie"; //bool, 是否无视各个游戏设置总是启用Magpie
+    public const string MinPlayTimeRecordThreshold = "minPlayTimeRecordThreshold"; //int, 记录一次游玩的最小游玩时长 (分钟)
+    public const string GameMuteEnabled = "gameMuteEnabled"; //bool, 是否启用游戏静音功能
+    public const string AlwaysMuteInBackground = "AlwaysMuteInBackground"; //bool, 是否无视各个游戏设置总是在后台时静音游戏
     
     //启动与跳转相关
     public const string QuitStart = "quitStart"; //bool, 是否在jump list跳转打开游戏时启动游戏

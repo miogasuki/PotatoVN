@@ -107,7 +107,12 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         List<Galgame> galgames = [];
         await Task.Run(() =>
         {
-            galgames = _dbSet.FindAll().ToList();
+            LocalSettingStatus status =
+                LocalSettingsService.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true).Result ?? new();
+            if (status.GameLiteDbUpgrade)
+                galgames = _dbSet.FindAll().ToList();
+            else
+                galgames = LocalSettingsService.ReadSettingAsync<List<Galgame>>(KeyValues.Galgames, true).Result ?? [];
         }); //用Task.Run运行，防止阻塞UI线程
         _galgames.SyncCollection(galgames);
         
@@ -534,7 +539,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// <param name="galgame"></param>
     private async Task SaveMetaAsync(Galgame galgame)
     {
-        IEnumerable<GalgameSourceType> types = galgame.Sources.Select(s => s.SourceType).Distinct();
+        IEnumerable<GalgameSourceType> types = galgame.Sources.Select(s => s.SourceType)
+            .Where(t => t != GalgameSourceType.Virtual).Distinct();
         List<(Task, GalgameSourceType)> tasks = new();
         foreach (GalgameSourceType type in types) 
             tasks.Add((SourceServiceFactory.GetSourceService(type).SaveMetaAsync(galgame), type));

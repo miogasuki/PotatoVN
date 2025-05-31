@@ -127,448 +127,448 @@
     <value>PotatoVN</value>
   </data>
   <data name="AppDescription" xml:space="preserve">
-    <value>PotatoVN是一个用于管理galgame的游戏的工具，旨在为galgame屯屯鼠们提供一个方便的游戏管理平台。</value>
+    <value>PotatoVNは、ギャルゲーを管理するためのツールであり、ギャルゲーをたくさん持っている人々に便利なゲーム管理プラットフォームを提供することを目的としています。</value>
   </data>
   <data name="Shell_Home.Content" xml:space="preserve">
-    <value>游戏</value>
+    <value>ゲーム</value>
   </data>
   <data name="Shell_Home_Text.Text" xml:space="preserve">
-    <value>游戏</value>
+    <value>ゲーム</value>
   </data>
   <data name="Settings_Main.Text" xml:space="preserve">
-    <value>Main</value>
+    <value>メイン</value>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
-    <value>Personalization</value>
+    <value>パーソナライズ</value>
   </data>
   <data name="Settings_Theme.Text" xml:space="preserve">
-    <value>Theme</value>
+    <value>テーマ</value>
   </data>
   <data name="Settings_Theme_Light.Content" xml:space="preserve">
-    <value>Light</value>
+    <value>ライト</value>
   </data>
   <data name="Settings_Theme_Dark.Content" xml:space="preserve">
-    <value>Dark</value>
+    <value>ダーク</value>
   </data>
   <data name="Settings_Theme_Default.Content" xml:space="preserve">
-    <value>Default</value>
+    <value>既定</value>
   </data>
   <data name="Settings_About.Text" xml:space="preserve">
-    <value>关于</value>
+    <value>バージョン情報</value>
   </data>
   <data name="Settings_AboutDescription" xml:space="preserve">
-    <value>DEV VERSION\nThis is an open source software : https://github.com/GoldenPotato137/GalgameManager</value>
+    <value>DEV VERSION\nこれはオープンソースソフトウェアです: https://github.com/GoldenPotato137/GalgameManager</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
-    <value>隐私声明</value>
+    <value>プライバシーポリシー</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
     <value>https://github.com/GoldenPotato137/GalgameManager/blob/main/PrivacyPolicy.md</value>
   </data>
   <data name="Shell_Library.Content" xml:space="preserve">
-    <value>游戏库</value>
+    <value>ライブラリ</value>
   </data>
   <data name="Shell_LibraryText.Text" xml:space="preserve">
-    <value>游戏库</value>
+    <value>ライブラリ</value>
   </data>
   <data name="Shell_GalgameSetting.Content" xml:space="preserve">
-    <value>编辑游戏</value>
+    <value>ゲームを編集</value>
   </data>
   <data name="HomePage_PlayStatus" xml:space="preserve">
-    <value>游玩状态</value>
+    <value>プレイ状況</value>
   </data>
   <data name="HomePage_MoreSetting" xml:space="preserve">
-    <value>更多设置...</value>
+    <value>その他の設定...</value>
   </data>
   <data name="HomePage_Edit" xml:space="preserve">
-    <value>修改游戏信息</value>
+    <value>ゲーム情報を編集</value>
   </data>
   <data name="HomePage_Download" xml:space="preserve">
-    <value>下载游戏信息</value>
+    <value>ゲーム情報をダウンロード</value>
   </data>
   <data name="HomePage_Remove" xml:space="preserve">
-    <value>从库中移除游戏</value>
+    <value>ライブラリからゲームを削除</value>
   </data>
   <data name="GalgamePage_Delete.Label" xml:space="preserve">
-    <value>彻底删除游戏</value>
+    <value>ゲームを完全に削除</value>
   </data>
   <data name="HomePage_AddNewGame.Label" xml:space="preserve">
-    <value>添加游戏</value>
+    <value>ゲームを追加</value>
   </data>
   <data name="HomePage_Sort.Label" xml:space="preserve">
-    <value>排序</value>
+    <value>並べ替え</value>
   </data>
   <data name="HomePage_Filter" xml:space="preserve">
-    <value>过滤</value>
+    <value>フィルター</value>
   </data>
   <data name="AddGalgameResult_Success" xml:space="preserve">
-    <value>已成功添加游戏</value>
+    <value>ゲームを追加しました</value>
   </data>
   <data name="AddGalgameResult_AlreadyInLibrary" xml:space="preserve">
-    <value>库里已经有这个游戏了</value>
+    <value>このゲームはすでにライブラリにあります</value>
   </data>
   <data name="AddGalgameResult_NotFoundInRss" xml:space="preserve">
-    <value>没有从信息源中找到这个游戏的信息</value>
+    <value>情報源にこのゲームの情報は見つかりませんでした</value>
   </data>
   <data name="HomePage_Remove_Title" xml:space="preserve">
-    <value>取消托管</value>
+    <value>ホスト解除</value>
   </data>
   <data name="HomePage_Remove_Message" xml:space="preserve">
-    <value>确定要取消托管这个游戏吗</value>
+    <value>このゲームのホストを解除しますか？</value>
   </data>
   <data name="Yes" xml:space="preserve">
-    <value>确定</value>
+    <value>確定</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>取消</value>
+    <value>キャンセル</value>
   </data>
   <data name="HomePage_Delete_Title" xml:space="preserve">
-    <value>删除游戏</value>
+    <value>ゲームを削除</value>
   </data>
   <data name="HomePage_Delete_Message" xml:space="preserve">
-    <value>确定要从硬盘上移除这个游戏吗，这个操作不可逆哦</value>
+    <value>このゲームをハードディスクから削除しますか？この操作は元に戻せません。</value>
   </data>
   <data name="HomePage_Delete_FromLibrary" xml:space="preserve">
-    <value>一并从游戏库中移除</value>
+    <value>ゲームライブラリからも削除</value>
   </data>
   <data name="SettingsPage_ThemeTitle" xml:space="preserve">
-    <value>外观</value>
+    <value>外観</value>
   </data>
   <data name="SettingsPage_ThemeDescription" xml:space="preserve">
-    <value>与显示有关的设置</value>
+    <value>表示に関する設定</value>
   </data>
   <data name="SettingsPage_OAuth.SettingTitle" xml:space="preserve">
-    <value>第三方账户</value>
+    <value>サードパーティアカウント</value>
   </data>
   <data name="SettingsPage_OAuth.SettingDescription" xml:space="preserve">
-    <value>管理第三方账户</value>
+    <value>サードパーティアカウントを管理</value>
   </data>
   <data name="SettingsPage_OAuth_LoginBgm.Title" xml:space="preserve">
-    <value>登录Bangumi</value>
+    <value>Bangumiにログイン</value>
   </data>
   <data name="SettingsPage_OAuth_LoginBgm.Description" xml:space="preserve">
-    <value>通过OAuth登录Bangumi</value>
+    <value>OAuthでBangumiにログイン</value>
   </data>
   <data name="Login" xml:space="preserve">
-    <value>登录</value>
+    <value>ログイン</value>
   </data>
   <data name="SettingsPage_OAuth_LogoutBgm.Title" xml:space="preserve">
-    <value>退出Bangumi登录</value>
+    <value>Bangumiからログアウト</value>
   </data>
   <data name="SettingsPage_OAuth_LogoutBgm.Description" xml:space="preserve">
-    <value>退出Bangumi OAuth登录</value>
+    <value>Bangumi OAuthからログアウト</value>
   </data>
   <data name="Logout" xml:space="preserve">
-    <value>退出登录</value>
+    <value>ログアウト</value>
   </data>
   <data name="SettingsPage_RssTitle" xml:space="preserve">
-    <value>信息源</value>
+    <value>情報源</value>
   </data>
   <data name="SettingsPage_RssDescription" xml:space="preserve">
-    <value>选择默认的galgame信息数据来源</value>
+    <value>デフォルトのギャルゲー情報データソースを選択</value>
   </data>
   <data name="SettingsPage_Rss_BgmPlaceholder" xml:space="preserve">
-    <value>输入你的个人令牌，在这里获得:https://next.bgm.tv/demo/access-token/create，不输入的话部分R18游戏信息无法获取哦</value>
+    <value>個人トークンを入力してください。こちらで取得できます: https://next.bgm.tv/demo/access-token/create。入力しない場合、一部のR18ゲーム情報は取得できません。</value>
   </data>
   <data name="SettingsPage_DownloadTitle" xml:space="preserve">
-    <value>下载行为</value>
+    <value>ダウンロード動作</value>
   </data>
   <data name="SettingsPage_DownloadDescription" xml:space="preserve">
-    <value>从信息源获取信息有关的设置</value>
+    <value>情報源から情報を取得するための設定</value>
   </data>
   <data name="SettingsPage_Download_OverrideName.Title" xml:space="preserve">
-    <value>显示来自信息源的游戏名称</value>
+    <value>情報源からのゲーム名を表示</value>
   </data>
   <data name="SettingsPage_Download_OverrideName.Description" xml:space="preserve">
-    <value>使用来自信息源的游戏名覆盖游戏文件夹的名称</value>
+    <value>情報源からのゲーム名を使用してゲームフォルダ名を上書きする</value>
   </data>
   <data name="SettingsPage_CloudSyncTitle" xml:space="preserve">
-    <value>云同步</value>
+    <value>クラウド同期</value>
   </data>
   <data name="SettingsPage_CloudSyncDescription" xml:space="preserve">
-    <value>与游戏存档相关的设置</value>
+    <value>ゲームセーブに関連する設定</value>
   </data>
   <data name="SettingsPage_CloudSync_Root" xml:space="preserve">
-    <value>云存档根目录</value>
+    <value>クラウドセーブのルートフォルダ</value>
   </data>
   <data name="Error" xml:space="preserve">
-    <value>错误</value>
+    <value>エラー</value>
   </data>
   <data name="GalgameCollectionService_CloudRootNotSet" xml:space="preserve">
-    <value>未设置云端存档根文件夹,请在设置中设置</value>
+    <value>クラウドセーブのルートフォルダが設定されていません。設定で指定してください。</value>
   </data>
   <data name="GalgameCollectionService_SelectOperateTitle" xml:space="preserve">
-    <value>选择操作</value>
+    <value>操作を選択</value>
   </data>
   <data name="GalgameCollectionService_SelectOperateMsg" xml:space="preserve">
-    <value>检测到云端已有该游戏存档，请选择： 
-若希望将本地存档覆盖云端存档，请选择本地 
-若希望使用云端存档，丢弃本地存档，请选择云端</value>
+    <value>クラウドにこのゲームセーブが既に存在します。選択してください：
+ローカルセーブでクラウドセーブを上書きしたい場合は、「ローカル」を選択してください。
+クラウドセーブを使用し、ローカルセーブを破棄したい場合は、「クラウド」を選択してください。</value>
   </data>
   <data name="GalgameCollectionService_Local" xml:space="preserve">
-    <value>本地</value>
+    <value>ローカル</value>
   </data>
   <data name="GalgameCollectionService_Cloud" xml:space="preserve">
-    <value>云端</value>
+    <value>クラウド</value>
   </data>
   <data name="GalgameCollectionService_FolderPickerDialog_ChoseAnotherFolder" xml:space="preserve">
-    <value>选择其他文件夹</value>
+    <value>他のフォルダを選択</value>
   </data>
   <data name="GalgamePage_Play.Label" xml:space="preserve">
-    <value>开始游戏</value>
+    <value>ゲームを開始</value>
   </data>
   <data name="GalgamePage_Edit.Label" xml:space="preserve">
-    <value>编辑</value>
+    <value>編集</value>
   </data>
   <data name="GalgamePage_Save.Label" xml:space="preserve">
     <value>保存</value>
   </data>
   <data name="GalgamePage_ChangeSavePosition.Label" xml:space="preserve">
-    <value>转换存档位置</value>
+    <value>セーブ場所を変更</value>
   </data>
   <data name="GalgamePage_Developers.Text" xml:space="preserve">
-    <value>制作公司</value>
+    <value>開発会社</value>
   </data>
   <data name="GalgamePage_ExpectedPlayTime.Text" xml:space="preserve">
-    <value>预计游戏时长</value>
+    <value>予想プレイ時間</value>
   </data>
   <data name="GalgamePage_SavePosition.Text" xml:space="preserve">
-    <value>存档位置</value>
+    <value>セーブ場所</value>
   </data>
   <data name="GalgamePage_LastPlayTime.Text" xml:space="preserve">
-    <value>上次游玩</value>
+    <value>最終プレイ</value>
   </data>
   <data name="GalgamePage_Description.Text" xml:space="preserve">
-    <value>简介</value>
+    <value>概要</value>
   </data>
   <data name="GalgameCollectionService_SelectSavePosition" xml:space="preserve">
-    <value>选择存档文件夹</value>
+    <value>セーブフォルダを選択</value>
   </data>
   <data name="GalgameCollectionService_NotExeFounded" xml:space="preserve">
-    <value>未找到可执行文件</value>
+    <value>実行ファイルが見つかりません</value>
   </data>
   <data name="GalgameCollectionService_SelectExe" xml:space="preserve">
-    <value>选择可执行文件</value>
+    <value>実行ファイルを選択</value>
   </data>
   <data name="GalgamePage_UiPlayFlyOutTitle.Text" xml:space="preserve">
-    <value>重置exe路径？</value>
+    <value>EXEパスをリセットしますか？</value>
   </data>
   <data name="SettingsPage_Start_AutoStartGame.Title" xml:space="preserve">
-    <value>任务栏快速启动游戏</value>
+    <value>タスクバーからゲームをクイック起動</value>
   </data>
   <data name="SettingsPage_Start_AutoStartGame.Description" xml:space="preserve">
-    <value>在任务栏右键菜单选择游戏时直接启动（跳过确认步骤）</value>
+    <value>タスクバーの右クリックメニューでゲームを選択した際に直接起動する（確認手順をスキップ）</value>
   </data>
   <data name="SettingsPage_LibraryTitle" xml:space="preserve">
-    <value>游戏库</value>
+    <value>ゲームライブラリ</value>
   </data>
   <data name="SettingsPage_LibraryDescription" xml:space="preserve">
-    <value>与游戏库相关的设置</value>
+    <value>ゲームライブラリ関連の設定</value>
   </data>
   <data name="SettingsPage_Library_SearchSubPath" xml:space="preserve">
-    <value>递归搜索子目录</value>
+    <value>サブディレクトリを再帰的に検索</value>
   </data>
   <data name="SettingsPage_Library_SearchSubPathDescription" xml:space="preserve">
-    <value>启用后将递归搜索所有子目录；否则只查找游戏库根目录下的一级文件夹。</value>
+    <value>有効にすると、すべてのサブディレクトリが再帰的に検索されます。無効の場合、ゲームライブラリのルートディレクトリ直下のフォルダーのみが検索されます。</value>
   </data>
   <data name="SettingsPage_Library_SearchSubPathDepth" xml:space="preserve">
-    <value>递归搜索深度</value>
+    <value>再帰検索深度</value>
   </data>
   <data name="SettingsPage_Library_SearchSubPathDepthDescription" xml:space="preserve">
-    <value>限制递归搜索子目录的深度</value>
+    <value>再帰的にサブディレクトリを検索する深さを制限する</value>
   </data>
   <data name="SettingsPage_Library_NameDescription" xml:space="preserve">
-    <value>下面为正则表达式的高级功能，如果不了解请保持默认设置
-本软件会用正则表达式匹配游戏文件夹名字，并取选定的匹配子串作游戏名。</value>
+    <value>以下は正規表現の高度な機能です。内容を理解していない場合は、既定の設定を維持してください。
+本ソフトウェアは、正規表現を使用してゲームフォルダー名を照合し、選択した一致するサブ文字列をゲーム名として使用します。</value>
   </data>
   <data name="SettingsPage_Library_SearchRegex" xml:space="preserve">
-    <value>正则表达式</value>
+    <value>正規表現</value>
   </data>
   <data name="SettingsPage_Library_SearchRegexDescription" xml:space="preserve">
-    <value>匹配用的正则表达式，如果你不了解它则请保持默认值(.+)</value>
+    <value>マッチング用の正規表現。理解できない場合はデフォルト値(.+)を維持してください。</value>
   </data>
   <data name="SettingsPage_Library_GameSearchRule" xml:space="preserve">
-    <value>游戏匹配规则</value>
+    <value>ゲームマッチングルール</value>
   </data>
   <data name="SettingsPage_Library_GameSearchRuleDescription" xml:space="preserve">
-    <value>只有满足以下所有规则的文件夹才会被识别为游戏文件夹</value>
+    <value>以下のすべてのルールを満たすフォルダのみがゲームフォルダとして認識されます</value>
   </data>
   <data name="SettingsPage_Library_GameSearchRuleMustContain" xml:space="preserve">
-    <value>必须包含：</value>
+    <value>必須項目：</value>
   </data>
   <data name="SettingsPage_Library_GameSearchRuleShouldContain" xml:space="preserve">
-    <value>且含有以下其中一个：</value>
+    <value>以下のいずれかを含む：</value>
   </data>
   <data name="SettingsPage_Library_SearchRegexIndex" xml:space="preserve">
-    <value>正则匹配子串下标</value>
+    <value>正規表現マッチング部分文字列インデックス</value>
   </data>
   <data name="SettingsPage_Library_SearchRegexIndexDescription" xml:space="preserve">
-    <value>如果有多个正则子串应该选用的下标，从0开始，如果你不了解它请保持默认值(0)</value>
+    <value>複数の正規表現サブストリングが存在する場合に選択するインデックス（0から開始）。不明な場合は、デフォルト値（0）を維持してください。</value>
   </data>
   <data name="SettingsPage_Library_SearchRegexRemoveBorder" xml:space="preserve">
-    <value>移除正则子串边界</value>
+    <value>正規表現サブストリングの境界を削除</value>
   </data>
   <data name="SettingsPage_Library_SearchRegexRemoveBorderDescription" xml:space="preserve">
-    <value>是否要移除所得正则子串的两侧的字符，比如说[xxx]会被改成xxx</value>
+    <value>取得した正規表現サブストリングの両端の文字を削除しますか？例えば、[xxx]はxxxに変換されます。</value>
   </data>
   <data name="SettingsPage_Library_SearchRegexTryItOut" xml:space="preserve">
-    <value>可以在这里输入待匹配串来测试匹配结果</value>
+    <value>マッチング対象の文字列をここに入力して、結果をテストできます。</value>
   </data>
   <data name="Shell_Help.Content" xml:space="preserve">
-    <value>帮助</value>
+    <value>ヘルプ</value>
   </data>
   <data name="Shell_HelpText.Text" xml:space="preserve">
-    <value>帮助</value>
+    <value>ヘルプ</value>
   </data>
   <data name="SettingsPage_RepositoryLink.NavigateUri" xml:space="preserve">
     <value>https://github.com/GoldenPotato137/GalgameManager</value>
   </data>
   <data name="SettingsPage_RepositoryLink.Content" xml:space="preserve">
-    <value>仓库地址</value>
+    <value>リポジトリのアドレス</value>
   </data>
   <data name="SettingsPage_RateLink.Content" xml:space="preserve">
-    <value>评价本应用</value>
+    <value>このアプリケーションを評価する</value>
   </data>
   <data name="App_UnhandledException_Exit" xml:space="preserve">
-    <value>退出应用</value>
+    <value>アプリケーションを終了</value>
   </data>
   <data name="App_UnhandledException_Hyperlink" xml:space="preserve">
-    <value>点此复制错误信息并报告这个问题</value>
+    <value>エラー情報をコピーしてこの問題を報告するには、ここをクリックしてください。</value>
   </data>
   <data name="HelpPage_GettingFaq" xml:space="preserve">
-    <value>正在从网络上获取最新FAQ中</value>
+    <value>ネットワークから最新のFAQを取得中</value>
   </data>
   <data name="HelpPage_Website.Label" xml:space="preserve">
-    <value>在浏览器中打开</value>
+    <value>ブラウザで開く</value>
   </data>
   <data name="HelpPage_NewFeature.Label" xml:space="preserve">
-    <value>新功能建议</value>
+    <value>新機能の提案</value>
   </data>
   <data name="HelpPage_Help.Label" xml:space="preserve">
-    <value>提出新问题</value>
+    <value>新しい質問を提出する</value>
   </data>
   <data name="HelpPage_Download.Label" xml:space="preserve">
-    <value>立刻下载最新FAQ</value>
+    <value>最新のFAQを今すぐダウンロード</value>
   </data>
   <data name="GalgameCollectionService_CreateSymbolicLinkFailed" xml:space="preserve">
-    <value>存档云端化失败啦！但是别担心，你的存档是安全的。
-以下为失败原因：</value>
+    <value>セーブデータのクラウド化に失敗しました！でもご安心ください、セーブデータは安全です。
+失敗原因は以下の通りです：</value>
   </data>
   <data name="GalgamePage_TotalPlayTime.Text" xml:space="preserve">
-    <value>游玩时间</value>
+    <value>プレイ時間</value>
   </data>
   <data name="GalgamePage_PlayCount.Text" xml:space="preserve">
-    <value>游玩次数</value>
+    <value>プレイ回数</value>
   </data>
   <data name="Minute" xml:space="preserve">
-    <value>分钟</value>
+    <value>分</value>
   </data>
   <data name="SettingsPage_Theme_FixHorizontalPicture.Title" xml:space="preserve">
-    <value>自动裁切封面图</value>
+    <value>カバー画像を自動トリミング</value>
   </data>
   <data name="SettingsPage_Theme_FixHorizontalPicture.Description" xml:space="preserve">
-    <value>启用后将自动裁剪所有封面图成竖直样式，确保统一显示风格</value>
+    <value>有効にすると、すべてのカバー画像が自動的に縦型にトリミングされ、統一された表示スタイルになります。</value>
   </data>
   <data name="Back.Label" xml:space="preserve">
-    <value>回到上个界面</value>
+    <value>前の画面に戻る</value>
   </data>
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_Title" xml:space="preserve">
-    <value>删除库</value>
+    <value>ライブラリを削除</value>
   </data>
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content" xml:space="preserve">
-    <value>删除库会删除子库，并取消托管所有游戏</value>
+    <value>ライブラリを削除すると、サブライブラリも削除され、すべてのゲームの管理が解除されます。</value>
   </data>
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_RemoveFromLibrary" xml:space="preserve">
-    <value>一并从游戏库中移除游戏</value>
+    <value>ゲームライブラリからもゲームを削除する</value>
   </data>
   <data name="LibraryPage_DeleteFolder.Text" xml:space="preserve">
-    <value>删除游戏库</value>
+    <value>ゲームライブラリを削除</value>
   </data>
   <data name="GalgameFolderPage_DownloadInfo" xml:space="preserve">
-    <value>下载游戏数据</value>
+    <value>ゲームデータをダウンロード</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfo" xml:space="preserve">
-    <value>使用游戏ID下载数据</value>
+    <value>ゲームIDでデータをダウンロード</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfoFromName.Label" xml:space="preserve">
-    <value>使用游戏名下载数据</value>
+    <value>ゲーム名でデータをダウンロード</value>
   </data>
   <data name="Search" xml:space="preserve">
-    <value>搜索</value>
+    <value>検索</value>
   </data>
   <data name="SettingsPage_Library_MetaBackup" xml:space="preserve">
-    <value>元数据备份</value>
+    <value>メタデータバックアップ</value>
   </data>
   <data name="SettingsPage_Library_MetaBackupDescription" xml:space="preserve">
-    <value>选择是否在游戏文件夹内备份游戏信息数据：
-启用：在游戏文件夹内创建备份文件（.PotatoVN文件夹）
-禁用：数据仅保存在软件内部，可以通过数据导入导出功能手动备份</value>
+    <value>ゲーム情報データをゲームフォルダ内にバックアップするかどうかを選択します：
+有効：ゲームフォルダ内にバックアップファイル（.PotatoVNフォルダ）を作成します
+無効：データはソフトウェア内部にのみ保存され、データインポート/エクスポート機能を使用して手動でバックアップできます</value>
   </data>
   <data name="SettingsPage_Library_BackupNow.Title" xml:space="preserve">
-    <value>备份所有游戏信息</value>
+    <value>すべてのゲーム情報をバックアップ</value>
   </data>
   <data name="SettingsPage_Library_BackupNow.Description" xml:space="preserve">
-    <value>首次启用备份功能时，需要手动执行一次完整备份，后续修改将自动同步</value>
+    <value>初めてバックアップ機能を有効にする際は、手動で一度フルバックアップを実行する必要があります。その後の変更は自動的に同期されます</value>
   </data>
   <data name="SettingsPage_Library_MetaBackupProgress" xml:space="preserve">
-    <value>正在保存：</value>
+    <value>保存中：</value>
   </data>
   <data name="GalgamePage_OpenInExplorer.Label" xml:space="preserve">
-    <value>在文件管理器中打开</value>
+    <value>ファイルエクスプローラーで開く</value>
   </data>
   <data name="GalgamePage_OpenInBgm.Label" xml:space="preserve">
-    <value>在Bangumi中打开</value>
+    <value>Bangumiで開く</value>
   </data>
   <data name="GalgamePage_OpenInVndb.Label" xml:space="preserve">
-    <value>在Vndb中打开</value>
+    <value>Vndbで開く</value>
   </data>
   <data name="GalgamePage_OpenInYmgal.Label" xml:space="preserve">
-    <value>在月幕Galgame中打开</value>
+    <value>月幕Galgameで開く</value>
   </data>
   <data name="GalgamePage_OpenInCngal.Label" xml:space="preserve">
-    <value>在CNGal中打开</value>
+    <value>CNGalで開く</value>
   </data>
   <data name="GalgamePage_SyncFromVndb.Label" xml:space="preserve">
-    <value>下载Vndb游玩状态</value>
+    <value>Vndbのプレイ状況をダウンロード</value>
   </data>
   <data name="GalgamePage_SyncFromBgm.Label" xml:space="preserve">
-    <value>下载Bangumi游玩状态</value>
+    <value>Bangumiプレイ状況をダウンロード</value>
   </data>
   <data name="SettingsPage_Library_IgnoreFetchResult.Title" xml:space="preserve">
-    <value>将所有扫描到的游戏加入游戏库</value>
+    <value>スキャンされたすべてのゲームをゲームライブラリに追加する</value>
   </data>
   <data name="SettingsPage_Library_IgnoreFetchResult.Description" xml:space="preserve">
-    <value>即使未在信息源中找到匹配信息，仍将游戏添加到库中</value>
+    <value>情報源で一致する情報が見つからなくても、ゲームをライブラリに追加します</value>
   </data>
   <data name="UpdateContentPage_Title.Text" xml:space="preserve">
-    <value>最近更新的内容</value>
+    <value>最近の更新内容</value>
   </data>
   <data name="UpdateContentPage_CurrentVersion" xml:space="preserve">
-    <value>当前版本：</value>
+    <value>現在のバージョン：</value>
   </data>
   <data name="UpdateContentPage_MainTitle.Text" xml:space="preserve">
-    <value>欢迎</value>
+    <value>ようこそ</value>
   </data>
   <data name="Shell_Settings.Content" xml:space="preserve">
-    <value>设置</value>
+    <value>設定</value>
   </data>
   <data name="Shell_SettingsText.Text" xml:space="preserve">
-    <value>设置</value>
+    <value>設定</value>
   </data>
   <data name="SettingsPage_UpdateNotification_Title" xml:space="preserve">
-    <value>更新可用！</value>
+    <value>更新が利用可能です！</value>
   </data>
   <data name="SettingsPage_UpdateNotification_Msg" xml:space="preserve">
-    <value>检测到有新更新，可以在应用商店更新到最新版本哦~</value>
+    <value>新しい更新が検出されました。アプリストアで最新バージョンに更新できます。</value>
   </data>
   <data name="SettingsPage_SeeWhatsNew" xml:space="preserve">
-    <value>查看更新</value>
+    <value>更新を確認</value>
   </data>
   <data name="GalgamePage_RunAsAdmin.Label" xml:space="preserve">
-    <value>以管理员身份运行游戏</value>
+    <value>管理者としてゲームを実行</value>
   </data>
   <data name="SettingsPage_Rss_Bangumi.Content" xml:space="preserve">
-    <value>Bangumi 番组计划</value>
+    <value>Bangumi 番組計画</value>
   </data>
   <data name="SettingsPage_Rss_Bangumi.NavigateUri" xml:space="preserve">
     <value>https://github.com/GoldenPotato137/PotatoVN/wiki/%E4%BF%A1%E6%81%AF%E6%BA%90#bangumi-%E7%95%AA%E7%BB%84%E8%AE%A1%E5%88%92</value>
@@ -583,941 +583,941 @@
     <value>https://github.com/GoldenPotato137/PotatoVN/wiki/%E4%BF%A1%E6%81%AF%E6%BA%90#mixed</value>
   </data>
   <data name="SettingsPage_Rss_Mixed.Content" xml:space="preserve">
-    <value>混合信息源</value>
+    <value>混合情報源</value>
   </data>
   <data name="SettingsPage_Rss_Bangumi_Description.Text" xml:space="preserve">
-    <value>Bangumi 番组计划是一个中文ACGN互联网分享与交流项目，基于CC BY-SA协议，保存由用户提供的各类ACG相关事物和人物、电影、电视剧等的相关资料，可以让用户查阅，并提供BBS论坛和留言版供交流探讨。</value>
+    <value>Bangumi 番組計画は、CC BY-SAライセンスに基づき、ユーザーから提供された様々なACGN関連の事物、人物、映画、テレビドラマなどの資料を保存し、ユーザーが閲覧できるようにする中国語のACGNインターネット共有・交流プロジェクトです。また、交流や議論のためのBBSフォーラムや掲示板も提供しています。</value>
   </data>
   <data name="SettingsPage_Rss_VNDB_Description.Text" xml:space="preserve">
-    <value>视觉小说数据库（英语：Visual Novel Database，简称VNDB）是一个面向视觉小说的网络数据库、wiki和网络英语论坛。截至2021年5月，视觉小说数据库一共收录了约29,000部视觉小说，其论坛部分也有约19万名注册用户。</value>
+    <value>ビジュアルノベルデータベース（英語：Visual Novel Database、略称VNDB）は、ビジュアルノベル向けのオンラインデータベース、Wiki、および英語のオンラインフォーラムです。2021年5月現在、ビジュアルノベルデータベースには約29,000本のビジュアルノベルが登録されており、そのフォーラムには約19万人の登録ユーザーがいます。</value>
   </data>
   <data name="SettingsPage_Rss_Mixed_Description.Text" xml:space="preserve">
-    <value>Mixed为一个混合搜刮器，结合多个数据源的数据并取用最优值。目前结合了VNDB,Bangumi和Ymgal的数据。
-由于涉及多个数据源，你需要为每个源配置相关的设置。</value>
+    <value>Mixedは、複数のデータソースのデータを組み合わせて最適な値を取得するハイブリッドスクレーパーです。現在、VNDB、Bangumi、Ymgalのデータを組み合わせています。
+複数のデータソースが関与するため、各ソースに関連する設定を構成する必要があります。</value>
   </data>
   <data name="SettingsPage_Theme_Color.Text" xml:space="preserve">
-    <value>应用主题</value>
+    <value>アプリのテーマ</value>
   </data>
   <data name="SettingsPage_Theme_Color_Description.Text" xml:space="preserve">
-    <value>选择你喜欢的应用主题吧</value>
+    <value>お好みのアプリのテーマを選択してください</value>
   </data>
   <data name="SettingsPage_Other.SettingTitle" xml:space="preserve">
-    <value>其他设置</value>
+    <value>その他の設定</value>
   </data>
   <data name="SettingsPage_Other.SettingDescription" xml:space="preserve">
-    <value>一些不太好分类的设置</value>
+    <value>分類しにくい設定</value>
   </data>
   <data name="SettingsPage_Other_AppCenter.Title" xml:space="preserve">
-    <value>上传匿名事件日志</value>
+    <value>匿名イベントログをアップロード</value>
   </data>
   <data name="SettingsPage_Other_AppCenter.Description" xml:space="preserve">
-    <value>上传的内容不包含任何个人数据，且仅用于统计各功能使用情况以及报错跟踪</value>
+    <value>アップロードされる内容には個人データは一切含まれておらず、各機能の使用状況の統計およびエラー追跡にのみ使用されます</value>
   </data>
   <data name="SettingsPage_UpdateContent.Content" xml:space="preserve">
-    <value>更新记录</value>
+    <value>更新履歴</value>
   </data>
   <data name="UpdateContentPage_AppCenterSuccess" xml:space="preserve">
-    <value>已成功开启匿名日志上传功能，感谢您的贡献！</value>
+    <value>匿名ログアップロード機能が正常に有効になりました。ご協力ありがとうございます！</value>
   </data>
   <data name="EditableCategory_Add_AlreadyExist" xml:space="preserve">
-    <value>该游戏已经存在于该分类中</value>
+    <value>このゲームはすでにこのカテゴリに存在します</value>
   </data>
   <data name="EditableCategory_Remove_NotExist" xml:space="preserve">
-    <value>该游戏不在该分类中</value>
+    <value>このゲームはこのカテゴリに存在しません</value>
   </data>
   <data name="CategoryService_Developer" xml:space="preserve">
-    <value>制作公司</value>
+    <value>開発会社</value>
   </data>
   <data name="CategoryService_Status" xml:space="preserve">
-    <value>游玩状态</value>
+    <value>プレイ状況</value>
   </data>
   <data name="Shell_Category.Content" xml:space="preserve">
-    <value>分类</value>
+    <value>カテゴリ</value>
   </data>
   <data name="Shell_CategoryText.Text" xml:space="preserve">
-    <value>分类</value>
+    <value>カテゴリ</value>
   </data>
   <data name="CategoryPage_Category_Edit.Text" xml:space="preserve">
-    <value>编辑分类</value>
+    <value>カテゴリを編集</value>
   </data>
   <data name="CategoryPage_Category_Delete.Text" xml:space="preserve">
-    <value>删除分类</value>
+    <value>カテゴリを削除</value>
   </data>
   <data name="CategoryPage_Category_Combine.Text" xml:space="preserve">
-    <value>合并分类</value>
+    <value>カテゴリを結合</value>
   </data>
   <data name="CategoryPage_DeleteCategory_Title" xml:space="preserve">
-    <value>删除分类</value>
+    <value>カテゴリを削除</value>
   </data>
   <data name="CategoryPage_DeleteCategory_Msg" xml:space="preserve">
-    <value>确认要删除这个分类吗？</value>
+    <value>このカテゴリを削除してもよろしいですか？</value>
   </data>
   <data name="CategoryPage_CombineCategory_Title" xml:space="preserve">
-    <value>合并分类</value>
+    <value>カテゴリを結合</value>
   </data>
   <data name="CategoryPage_CombineCategory_Msg" xml:space="preserve">
-    <value>这个操作会将目前选定的分类合并到下面选中的分类中（本分类会被删除）</value>
+    <value>この操作により、現在選択されているカテゴリが、以下で選択されたカテゴリに結合されます（このカテゴリは削除されます）</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Title" xml:space="preserve">
-    <value>自动分类</value>
+    <value>自動カテゴリ</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>启用后自动按制作公司和游玩状态对游戏进行分类</value>
+    <value>有効にすると、開発会社とプレイ状況に基づいてゲームを自動的に分類します。</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
-    <value>分类所有游戏</value>
+    <value>すべてのゲームをカテゴリ分け</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Description" xml:space="preserve">
-    <value>首次启用'自动分类'功能后需手动分类现有游戏，之后新增游戏将自动分类</value>
+    <value>「自動分類」機能を初めて有効にした後、既存のゲームは手動で分類する必要があります。その後追加される新しいゲームは自動的に分類されます。</value>
   </data>
   <data name="SettingsPage_Start.SettingTitle" xml:space="preserve">
-    <value>启动</value>
+    <value>起動</value>
   </data>
   <data name="SettingsPage_Start.SettingDescription" xml:space="preserve">
-    <value>与应用启动行为有关的设置</value>
+    <value>アプリの起動動作に関する設定</value>
   </data>
   <data name="SettingsPage_Start_Page.Description" xml:space="preserve">
-    <value>设置应用启动后显示的初始界面</value>
+    <value>アプリケーション起動後に表示される初期画面を設定します。</value>
   </data>
   <data name="SettingsPage_Start_Page.Title" xml:space="preserve">
-    <value>启动页</value>
+    <value>起動ページ</value>
   </data>
   <data name="Home" xml:space="preserve">
-    <value>游戏</value>
+    <value>ゲーム</value>
   </data>
   <data name="Category" xml:space="preserve">
-    <value>分类</value>
+    <value>カテゴリ</value>
   </data>
   <data name="PlayType_None" xml:space="preserve">
-    <value>未设置</value>
+    <value>未設定</value>
   </data>
   <data name="PlayType_Playing" xml:space="preserve">
-    <value>在玩</value>
+    <value>プレイ中</value>
   </data>
   <data name="PlayType_Played" xml:space="preserve">
-    <value>玩过</value>
+    <value>プレイ済</value>
   </data>
   <data name="PlayType_Shelved" xml:space="preserve">
-    <value>搁置</value>
+    <value>一時中断</value>
   </data>
   <data name="PlayType_Abandoned" xml:space="preserve">
-    <value>抛弃</value>
+    <value>放棄</value>
   </data>
   <data name="PlayType_WantToPlay" xml:space="preserve">
-    <value>想玩</value>
+    <value>プレイしたい</value>
   </data>
   <data name="GalgamePage_PlayStatus.Label" xml:space="preserve">
-    <value>游玩状态</value>
+    <value>プレイ状況</value>
   </data>
   <data name="CategoryPage_CategoryGroup.Label" xml:space="preserve">
-    <value>分类组</value>
+    <value>カテゴリグループ</value>
   </data>
   <data name="CategoryPage_CategoryNow.Label" xml:space="preserve">
-    <value>分类所有游戏</value>
+    <value>すべてのゲームを分類</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
-    <value>身份验证</value>
+    <value>認証</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Description" xml:space="preserve">
-    <value>设置应用程序启动时的验证方式</value>
+    <value>アプリケーション起動時の認証方法を設定します。</value>
   </data>
   <data name="AuthenticateUserMessage" xml:space="preserve">
-    <value>为安全起见，PotatoVN 需要验证你的身份</value>
+    <value>セキュリティのため、PotatoVN はあなたの身元を確認する必要があります。</value>
   </data>
   <data name="NoAuthentication" xml:space="preserve">
-    <value>无身份验证</value>
+    <value>認証なし</value>
   </data>
   <data name="WindowsHello" xml:space="preserve">
-    <value>Windows Hello（推荐）</value>
+    <value>Windows Hello（推奨）</value>
   </data>
   <data name="CustomPassword" xml:space="preserve">
-    <value>自定义密码登录</value>
+    <value>カスタムパスワードログイン</value>
   </data>
   <data name="EnterYourPasswordLiteral" xml:space="preserve">
-    <value>输入你的密码</value>
+    <value>パスワードを入力してください</value>
   </data>
   <data name="PasswordLiteral" xml:space="preserve">
-    <value>密码</value>
+    <value>パスワード</value>
   </data>
   <data name="ConfirmLiteral" xml:space="preserve">
-    <value>确认</value>
+    <value>確認</value>
   </data>
   <data name="SetYourPasswordLiteral" xml:space="preserve">
-    <value>设置你的密码</value>
+    <value>パスワードを設定してください</value>
   </data>
   <data name="SaveYourPasswordCarefullyLiteral" xml:space="preserve">
-    <value>请妥善保存你的密码。</value>
+    <value>パスワードを大切に保管してください。</value>
   </data>
   <data name="ForgetPasswordMessage" xml:space="preserve">
-    <value>如果你忘记了密码，请在系统的凭据管理器中查看密码。</value>
+    <value>パスワードを忘れた場合は、システムの資格情報マネージャーで確認してください。</value>
   </data>
   <data name="ChangePlayStatusDialog_Title" xml:space="preserve">
-    <value>游玩状态</value>
+    <value>プレイ状況</value>
   </data>
   <data name="SettingsPage_Download_OverrideNameWithChinese.Description" xml:space="preserve">
-    <value>如果信息源存在游戏的中文名，优先使用中文名来覆盖</value>
+    <value>情報源にゲームの中国語名がある場合、中国語名を優先して上書きします。</value>
   </data>
   <data name="SettingsPage_Download_OverrideNameWithChinese.Title" xml:space="preserve">
-    <value>优先显示中文名称</value>
+    <value>中国語名を優先表示</value>
   </data>
   <data name="BgmPhraser_UploadAsync_UnAuthorized" xml:space="preserve">
-    <value>尚未登录，需要在设置中登录Bangumi账号</value>
+    <value>未ログインです。設定でBangumiアカウントにログインする必要があります。</value>
   </data>
   <data name="BgmPhraser_UploadAsync_NoId" xml:space="preserve">
-    <value>这个游戏目前没有Bangumi Id，请在编辑界面手动设置一个</value>
+    <value>このゲームには現在Bangumi IDがありません。編集画面で手動で設定してください。</value>
   </data>
   <data name="BgmPhraser_UploadAsync_Success" xml:space="preserve">
-    <value>已成功同步游玩状态到Bangumi</value>
+    <value>Bangumiにプレイ状況を同期しました。</value>
   </data>
   <data name="VndbPhraser_UnAuthorized" xml:space="preserve">
-    <value>尚未登录，需要在设置中登录Vndb账号</value>
+    <value>未ログインです。設定でVndbアカウントにログインする必要があります。</value>
   </data>
   <data name="VndbPhraser_NoId" xml:space="preserve">
-    <value>这个游戏目前没有Vndb Id，请在编辑界面手动设置一个</value>
+    <value>このゲームには現在Vndb IDがありません。編集画面で手動で設定してください。</value>
   </data>
   <data name="VndbPhraser_UploadAsync_Success" xml:space="preserve">
-    <value>已成功同步游玩状态到Vndb</value>
+    <value>Vndbにプレイ状況を同期しました。</value>
   </data>
   <data name="VndbPhraser_DownloadAsync_Success" xml:space="preserve">
-    <value>已成功从Vndb下载游玩状态</value>
+    <value>Vndbからプレイ状況をダウンロードしました。</value>
   </data>
   <data name="HomePage_UploadingToBgm" xml:space="preserve">
-    <value>将游玩信息同步到Bangumi中</value>
+    <value>プレイ情報をBangumiに同期中</value>
   </data>
   <data name="HomePage_UploadingToVndb" xml:space="preserve">
-    <value>将游玩信息同步到Vndb中</value>
+    <value>プレイ情報をVndbに同期中</value>
   </data>
   <data name="HomePage_FixHorizontalPicture.Label" xml:space="preserve">
-    <value>裁剪水平封面图</value>
+    <value>横向きカバー画像をトリミング</value>
   </data>
   <data name="HomePage_DisplayPlayType.Label" xml:space="preserve">
-    <value>游玩状态标记</value>
+    <value>プレイ状況表示</value>
   </data>
   <data name="SettingsPage_Download_SyncPlayStatusWhenPhrasing.Title" xml:space="preserve">
-    <value>下载游玩状态</value>
+    <value>プレイ状況を同期</value>
   </data>
   <data name="SettingsPage_Download_SyncPlayStatusWhenPhrasing.Description" xml:space="preserve">
-    <value>从信息源获取信息时同时下载游玩状态（需登录第三方账号）</value>
+    <value>情報源から情報を取得する際に、プレイ状況も同時にダウンロードします（サードパーティのアカウントへのログインが必要です）。</value>
   </data>
   <data name="NoName" xml:space="preserve">
-    <value>阿~卡~林~</value>
+    <value>あ〜か〜りん〜</value>
   </data>
   <data name="BgmOAuthService_NoLogin" xml:space="preserve">
-    <value>还没登录Bangumi账号呢~</value>
+    <value>Bangumiアカウントにログインしていません。</value>
   </data>
   <data name="BgmOAuthService_Id" xml:space="preserve">
-    <value>用户ID:</value>
+    <value>ユーザーID:</value>
   </data>
   <data name="BgmOAuthService_AuthLimit" xml:space="preserve">
-    <value>, 授权至:</value>
+    <value>、認証期限:</value>
   </data>
   <data name="BgmOAuthStatus_FetchingToken" xml:space="preserve">
-    <value>获取Bangumi Token中，请稍后</value>
+    <value>Bangumiトークンを取得中です、しばらくお待ちください</value>
   </data>
   <data name="BgmOAuthStatus_FetchingAccount" xml:space="preserve">
-    <value>获取账号信息中，请稍后</value>
+    <value>アカウント情報を取得中です、しばらくお待ちください</value>
   </data>
   <data name="GalgamePage_SyncStatus.Label" xml:space="preserve">
-    <value>同步状态</value>
+    <value>状態同期</value>
   </data>
   <data name="GalgamePage_SyncStatus_Bangumi.Text" xml:space="preserve">
-    <value>从Bangumi同步游玩状态</value>
+    <value>Bangumiからプレイ状況を同期</value>
   </data>
   <data name="BgmPhraser_DownloadAsync_Success" xml:space="preserve">
-    <value>已成功同步游玩状态</value>
+    <value>プレイ状況の同期に成功しました。</value>
   </data>
   <data name="HomePage_Downloading" xml:space="preserve">
-    <value>正在同步游玩状态</value>
+    <value>プレイ状況を同期中...</value>
   </data>
   <data name="SettingsPage_Download_SyncBgmPlayStatusNow.Title" xml:space="preserve">
-    <value>从Bangumi获取游玩状态</value>
+    <value>Bangumiからプレイ状況を取得</value>
   </data>
   <data name="SettingsPage_Download_SyncBgmPlayStatusNow.Description" xml:space="preserve">
-    <value>立刻从Bangumi获取游玩状态，需登录Bangumi账号</value>
+    <value>Bangumiからすぐにプレイ状況を取得します。Bangumiアカウントへのログインが必要です。</value>
   </data>
   <data name="SettingsPage_Download_SyncVndbPlayStatusNow.Title" xml:space="preserve">
-    <value>从Vndb获取游玩状态</value>
+    <value>Vndbからプレイ状況を取得</value>
   </data>
   <data name="SettingsPage_Download_SyncVndbPlayStatusNow.Description" xml:space="preserve">
-    <value>立刻从Vndb获取游玩状态，需登录Vndb账号</value>
+    <value>Vndbアカウントにログインして、Vndbからプレイ状況をすぐに取得します。</value>
   </data>
   <data name="BgmPhraser_DownloadPlayStatus_Success" xml:space="preserve">
-    <value>已成功下载{0}个游戏的游玩状态</value>
+    <value>ゲーム{0}件のプレイ状況をダウンロードしました。</value>
   </data>
   <data name="GalgamePage_ReleaseDate.Text" xml:space="preserve">
-    <value>发布日期</value>
+    <value>発売日</value>
   </data>
   <data name="CategorySettingPage_CategoryName.Text" xml:space="preserve">
-    <value>分类名</value>
+    <value>カテゴリ名</value>
   </data>
   <data name="SelectImage.Content" xml:space="preserve">
-    <value>选择图片</value>
+    <value>画像を選択</value>
   </data>
   <data name="CategorySettingPage_CategoryImage.Text" xml:space="preserve">
-    <value>分类图片</value>
+    <value>カテゴリ画像</value>
   </data>
   <data name="CategorySettingPage_CategoryGroups.Text" xml:space="preserve">
-    <value>归属分类组</value>
+    <value>所属カテゴリグループ</value>
   </data>
   <data name="CategorySettingPage_Games.Text" xml:space="preserve">
-    <value>包含游戏</value>
+    <value>含まれるゲーム</value>
   </data>
   <data name="CategorySettingPage_AtLeastOnCategoryGroup" xml:space="preserve">
-    <value>至少选择一个分类组，否则你就再也找不到它啦</value>
+    <value>少なくとも1つのカテゴリグループを選択してください。そうしないと、見つけられなくなります。</value>
   </data>
   <data name="CategorySettingPage_StatusGroupCannotSelect" xml:space="preserve">
-    <value>游玩状态组是动态生成的，这个设置将在重启软件后失效</value>
+    <value>プレイ状況グループは動的に生成されます。この設定はソフトウェアの再起動後に無効になります。</value>
   </data>
   <data name="CategorySettingPage_HavePutInQueue" xml:space="preserve">
-    <value>已添加入解析队列</value>
+    <value>解析キューに追加されました。</value>
   </data>
   <data name="CategorySettingPage_CommandBar_DownloadImg.Label" xml:space="preserve">
-    <value>下载制作公司图片</value>
+    <value>開発会社の画像をダウンロード</value>
   </data>
   <data name="GalgameSettingPage_GetInfoFromRss.Label" xml:space="preserve">
-    <value>使用游戏ID从数据源更新数据</value>
+    <value>ゲームIDを使用してデータソースからデータを更新</value>
   </data>
   <data name="GalgameSettingPage_GetInfoFromRssWithName.Label" xml:space="preserve">
-    <value>使用游戏名从数据源更新数据</value>
+    <value>ゲーム名を使用してデータソースからデータを更新</value>
   </data>
   <data name="GalgameSettingPage_GalgameName.Title" xml:space="preserve">
-    <value>游戏名</value>
+    <value>ゲーム名</value>
   </data>
   <data name="GalgameSettingPage_GalgameNameOriginal.Title" xml:space="preserve">
-    <value>游戏原名</value>
+    <value>ゲーム原題</value>
   </data>
   <data name="GalgameSettingPage_GalgameNameChinese.Title" xml:space="preserve">
-    <value>游戏中文名</value>
+    <value>ゲーム中国語名</value>
   </data>
   <data name="GalgameSettingPage_GalgameId.Text" xml:space="preserve">
-    <value>游戏ID</value>
+    <value>ゲームID</value>
   </data>
   <data name="GalgameSettingPage_GalgameRssType.Text" xml:space="preserve">
-    <value>数据源</value>
+    <value>データソース</value>
   </data>
   <data name="GalgameSettingPage_GameSetting_SavePosition.Title" xml:space="preserve">
-    <value>存档位置</value>
+    <value>セーブ場所</value>
   </data>
   <data name="GalgameSettingPage_GalgameRating.Title" xml:space="preserve">
-    <value>评分</value>
+    <value>評価</value>
   </data>
   <data name="GalgameSettingPage_GalgameDeveloper.Title" xml:space="preserve">
-    <value>制作公司</value>
+    <value>制作会社</value>
   </data>
   <data name="GalgameSettingPage_GalgameExpectedPlayTime.Title" xml:space="preserve">
-    <value>预计游戏时长</value>
+    <value>予想プレイ時間</value>
   </data>
   <data name="GalgameSettingPage_GalgameDescription.Title" xml:space="preserve">
-    <value>游戏简介</value>
+    <value>ゲーム概要</value>
   </data>
   <data name="GalgameSettingPage_GalgameImagePath.Title" xml:space="preserve">
-    <value>封面图</value>
+    <value>カバー画像</value>
   </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
-    <value>选择图片</value>
+    <value>画像を選択</value>
   </data>
   <data name="ChangePlayStatusDialog_Status.Text" xml:space="preserve">
-    <value>游玩状态</value>
+    <value>プレイ状況</value>
   </data>
   <data name="ChangePlayStatusDialog_Rating.Text" xml:space="preserve">
-    <value>评分</value>
+    <value>評価</value>
   </data>
   <data name="ChangePlayStatusDialog_SyncToBgm.Content" xml:space="preserve">
-    <value>同步至bangumi</value>
+    <value>Bangumiに同期</value>
   </data>
   <data name="ChangePlayStatusDialog_SyncToVNDB.Content" xml:space="preserve">
-    <value>同步至VNDB</value>
+    <value>VNDBに同期</value>
   </data>
   <data name="ChangePlayStatusDialog_Private.Content" xml:space="preserve">
-    <value>私密</value>
+    <value>非公開</value>
   </data>
   <data name="CategoryPage_AddCategoryDialog_Title" xml:space="preserve">
-    <value>新建分类标签</value>
+    <value>新規カテゴリタグ</value>
   </data>
   <data name="CategoryPage_AddCategory.Label" xml:space="preserve">
-    <value>新建分类标签</value>
+    <value>新規カテゴリタグ</value>
   </data>
   <data name="CategoryPage_AddCategoryGroup.Label" xml:space="preserve">
-    <value>新建分类组</value>
+    <value>新規カテゴリグループ</value>
   </data>
   <data name="CategoryPage_AddCategoryGroupDialog_Title" xml:space="preserve">
-    <value>新建分类组</value>
+    <value>新規カテゴリグループ</value>
   </data>
   <data name="CategoryPage_AddCategoryGroupDialog_Msg" xml:space="preserve">
-    <value>分类组名</value>
+    <value>カテゴリグループ名</value>
   </data>
   <data name="CategoryPage_DeleteCategoryGroup.Label" xml:space="preserve">
-    <value>删除当前分类组</value>
+    <value>現在のカテゴリグループを削除</value>
   </data>
   <data name="CategoryPage_DeleteCategoryGroupDialog_Title" xml:space="preserve">
-    <value>删除当前分类组</value>
+    <value>現在のカテゴリグループを削除</value>
   </data>
   <data name="CategoryPage_DeleteCategoryGroupDialog_Msg" xml:space="preserve">
-    <value>确定要删除这个分类组吗？</value>
+    <value>このカテゴリグループを削除してもよろしいですか？</value>
   </data>
   <data name="CategoryPage_AddCategoryDialog_Msg" xml:space="preserve">
-    <value>分类名</value>
+    <value>カテゴリ名</value>
   </data>
   <data name="HomePage_DragDrop.Text" xml:space="preserve">
-    <value>把游戏exe可执行文件或文件夹拖到这里来添加游戏</value>
+    <value>ゲームのexe実行ファイルまたはフォルダーをここにドラッグしてゲームを追加します</value>
   </data>
   <data name="HomePage_Drop_TooManyItems" xml:space="preserve">
-    <value>只能同时添加一个游戏</value>
+    <value>一度に1つのゲームのみ追加できます</value>
   </data>
   <data name="HomePage_Drop_InvalidItem" xml:space="preserve">
-    <value>仅支持拖拽exe可执行文件或文件夹</value>
+    <value>exe実行ファイルまたはフォルダーのドラッグ＆ドロップのみサポートしています</value>
   </data>
   <data name="Shell_UpdateContent.Content" xml:space="preserve">
-    <value>更新记录</value>
+    <value>更新履歴</value>
   </data>
   <data name="ActivationService_FontPopup_Msg" xml:space="preserve">
-    <value>本应用需要安装字体“Segoe Fluent Icons”才能正常显示图标，是否立即安装？</value>
+    <value>このアプリケーションはアイコンを正しく表示するためにフォント「Segoe Fluent Icons」のインストールが必要です。今すぐインストールしますか？</value>
   </data>
   <data name="ActivationService_FontPopup_Title" xml:space="preserve">
-    <value>字体未安装</value>
+    <value>フォントがインストールされていません</value>
   </data>
   <data name="ActivationService_FontPopup_NoLongerDisplay" xml:space="preserve">
-    <value>不再显示此弹窗</value>
+    <value>今後このポップアップを表示しない</value>
   </data>
   <data name="Galgame_SavePath_Local" xml:space="preserve">
-    <value>本地</value>
+    <value>ローカル</value>
   </data>
   <data name="Galgame_SavePath_Remote" xml:space="preserve">
-    <value>云端</value>
+    <value>クラウド</value>
   </data>
   <data name="YesButton.Content" xml:space="preserve">
-    <value>确定</value>
+    <value>はい</value>
   </data>
   <data name="SelectProcessDialog_Title" xml:space="preserve">
-    <value>选择游戏进程</value>
+    <value>ゲームプロセスを選択</value>
   </data>
   <data name="SelectProcessDialog_Msg.Text" xml:space="preserve">
-    <value>oops!好像自动检测游戏进程失败了
-如果游戏尚未关闭，请手动指定游戏进程以正确统计游玩时长
-如果这个游戏游玩时长能正常记录，取消这个选择框即可
+    <value>おっと！ゲームプロセスの自動検出に失敗したようです
+ゲームがまだ終了していない場合は、プレイ時間を正確に記録するために手動でゲームプロセスを指定してください
+このゲームのプレイ時間が正常に記録される場合は、このチェックボックスの選択を解除してください
 </value>
   </data>
   <data name="HomePage_ProcessNameSet" xml:space="preserve">
-    <value>已成功指定游戏进程，重启游戏后生效</value>
+    <value>ゲームプロセスが正常に指定されました。ゲームを再起動すると有効になります。</value>
   </data>
   <data name="AccountPage_Pvn_SyncGame.Title" xml:space="preserve">
-    <value>游戏同步</value>
+    <value>ゲーム同期</value>
   </data>
   <data name="AccountPage_Pvn_SyncGame.Description" xml:space="preserve">
-    <value>是否将游戏状态(添加/游玩/删除等)上传到云存档根目录，并跨电脑同步</value>
+    <value>ゲームの状態（追加/プレイ/削除など）をクラウドセーブのルートディレクトリにアップロードし、PC間で同期しますか？</value>
   </data>
   <data name="HomePage_Filter_DisplayVirtualGames.Label" xml:space="preserve">
-    <value>显示非本机游戏</value>
+    <value>仮想ゲームを表示</value>
   </data>
   <data name="HomePage_SpecialDisplayVirtualGame.Label" xml:space="preserve">
-    <value>特殊显示非本地游戏</value>
+    <value>特殊表示非ローカルゲーム</value>
   </data>
   <data name="GalgamePage_PathAlreadyExist" xml:space="preserve">
-    <value>这个路径的游戏已经被绑定到其他游戏上了</value>
+    <value>このパスのゲームは、すでに他のゲームにバインドされています。</value>
   </data>
   <data name="GalgamePage_PathSet" xml:space="preserve">
-    <value>成功设置本游戏本地路径</value>
+    <value>このゲームのローカルパスが正常に設定されました。</value>
   </data>
   <data name="GalgamePage_SetLocalPath.Label" xml:space="preserve">
-    <value>设置本地路径</value>
+    <value>ローカルパスを設定</value>
   </data>
   <data name="GalgamePage_UnzipGame.Label" xml:space="preserve">
-    <value>解压游戏</value>
+    <value>ゲームを解凍</value>
   </data>
   <data name="HomePage_Syncing" xml:space="preserve">
-    <value>同步游戏记录中  {0}/{1}</value>
+    <value>ゲーム記録を同期中 {0}/{1}</value>
   </data>
   <data name="HomePage_Synced" xml:space="preserve">
-    <value>已同步{0}条游戏记录更改</value>
+    <value>{0}件のゲーム記録の変更を同期しました</value>
   </data>
   <data name="GalgamePage_RemoveSelectedThread.Label" xml:space="preserve">
-    <value>移除进程指定</value>
+    <value>プロセス指定を削除</value>
   </data>
   <data name="GalgamePage_RemoveSelectedThread_Success" xml:space="preserve">
-    <value>已成功移除手动线程指定</value>
+    <value>手動スレッド指定を正常に削除しました</value>
   </data>
   <data name="SettingsPage_Other_Memory.Title" xml:space="preserve">
-    <value>优化内存占用</value>
+    <value>メモリ使用量を最適化</value>
   </data>
   <data name="SettingsPage_Other_Memory.Description" xml:space="preserve">
-    <value>减少切换界面后内存使用，但会轻微增加切换界面时cpu使用量</value>
+    <value>画面切り替え後のメモリ使用量を削減しますが、画面切り替え時のCPU使用量はわずかに増加します</value>
   </data>
   <data name="EditPlayTimeDialog_Title" xml:space="preserve">
-    <value>编辑游玩时长</value>
+    <value>プレイ時間を編集</value>
   </data>
   <data name="Edit.Label" xml:space="preserve">
-    <value>编辑</value>
+    <value>編集</value>
   </data>
   <data name="SettingsPage_Game.SettingTitle" xml:space="preserve">
-    <value>游戏</value>
+    <value>ゲーム</value>
   </data>
   <data name="SettingsPage_Game.SettingDescription" xml:space="preserve">
-    <value>与游玩游戏相关的设置</value>
+    <value>ゲーム関連設定</value>
   </data>
   <data name="SettingsPage_Game_RecordOnlyForeground.Title" xml:space="preserve">
-    <value>仅记录活动游玩时间</value>
+    <value>アクティブなプレイ時間のみを記録</value>
   </data>
   <data name="SettingsPage_Game_RecordOnlyForeground.Description" xml:space="preserve">
-    <value>游戏窗口未激活时（最小化或在操作其他窗口）的时间不计入游玩时间</value>
+    <value>ゲームウィンドウがアクティブでない場合（最小化されているか、他のウィンドウを操作している場合）、その時間はプレイ時間にカウントされません。</value>
   </data>
   <data name="Shell_SystemTray_Item1.Text" xml:space="preserve">
-    <value>恢复窗口</value>
+    <value>ウィンドウを復元</value>
   </data>
   <data name="Shell_SystemTray_Item2.Text" xml:space="preserve">
-    <value>退出</value>
+    <value>終了</value>
   </data>
   <data name="CloseConfirmDialog_Title" xml:space="preserve">
-    <value>关闭提示</value>
+    <value>終了確認</value>
   </data>
   <data name="CloseConfirmDialog_SystemTray" xml:space="preserve">
-    <value>最小化到系统托盘</value>
+    <value>システムトレイに最小化</value>
   </data>
   <data name="CloseConfirmDialog_Exit" xml:space="preserve">
-    <value>退出应用</value>
+    <value>アプリケーションを終了</value>
   </data>
   <data name="CloseConfirmDialog_Remember.Content" xml:space="preserve">
-    <value>记住我的选择</value>
+    <value>この選択を記憶する</value>
   </data>
   <data name="WindowMode_Normal" xml:space="preserve">
-    <value>无设置</value>
+    <value>通常</value>
   </data>
   <data name="WindowMode_Close" xml:space="preserve">
-    <value>关闭应用</value>
+    <value>アプリケーションを閉じる</value>
   </data>
   <data name="WindowMode_SystemTray" xml:space="preserve">
-    <value>最小化至系统托盘</value>
+    <value>システムトレイに最小化</value>
   </data>
   <data name="SettingsPage_Other_CloseMode.Title" xml:space="preserve">
-    <value>应用关闭行为</value>
+    <value>アプリケーション終了時の動作</value>
   </data>
   <data name="SettingsPage_Other_CloseMode.Description" xml:space="preserve">
-    <value>选择按下关闭按钮后应用的行为</value>
+    <value>閉じるボタン押下時のアプリの動作を選択</value>
   </data>
   <data name="WindowMode_Minimize" xml:space="preserve">
     <value>最小化</value>
   </data>
   <data name="SettingsPage_Game_PlayingWindowMode.Title" xml:space="preserve">
-    <value>游玩时窗口状态</value>
+    <value>プレイ中のウィンドウ状態</value>
   </data>
   <data name="SettingsPage_Game_PlayingWindowMode.Description" xml:space="preserve">
-    <value>游戏进行时的PotatoVN的窗口状态</value>
+    <value>ゲームプレイ中のPotatoVNのウィンドウ状態</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Progress" xml:space="preserve">
-    <value>正在扫描路径:{0}</value>
+    <value>パス:{0}をスキャンしています</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>扫描库{1}完成, 共添加了{0}个游戏</value>
+    <value>ライブラリ{1} のスキャンが完了し、合計個{0}のゲームが追加されました</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
-    <value>消息通知</value>
+    <value>通知</value>
   </data>
   <data name="SettingsPage_Notification.SettingDescription" xml:space="preserve">
-    <value>管理应用最小化到托盘时的通知设置</value>
+    <value>アプリのトレイ最小化時の通知設定を管理</value>
   </data>
   <data name="SettingsPage_Notification_GetGalgameFolder.Title" xml:space="preserve">
-    <value>完成游戏扫描通知</value>
+    <value>ゲームスキャン完了通知</value>
   </data>
   <data name="SettingsPage_Notification_GetGalgameFolder.Description" xml:space="preserve">
-    <value>是否开启游戏文件夹扫描完成的通知</value>
+    <value>ゲームフォルダのスキャン完了通知を有効にしますか？</value>
   </data>
   <data name="GalgameFolder_UnpackGame_Done" xml:space="preserve">
-    <value>解压完成，识别游戏中</value>
+    <value>解凍完了、ゲームを認識中</value>
   </data>
   <data name="GalgameFolder_UnpackGame_Start" xml:space="preserve">
-    <value>开始解压，请稍后</value>
+    <value>解凍を開始します、しばらくお待ちください</value>
   </data>
   <data name="GalgameFolder_UnpackGame_PasswordRequired" xml:space="preserve">
-    <value>请输入压缩包解压密码</value>
+    <value>アーカイブ解凍パスワードを入力してください</value>
   </data>
   <data name="UnpackDialog_Select.Content" xml:space="preserve">
-    <value>选择</value>
+    <value>選択</value>
   </data>
   <data name="UnpackDialog_GameName.Text" xml:space="preserve">
-    <value>游戏名</value>
+    <value>ゲーム名</value>
   </data>
   <data name="UnpackDialog_SourceSelect.Text" xml:space="preserve">
-    <value>本地源</value>
+    <value>ローカルソース</value>
   </data>
   <data name="UnpackDialog_GameDescription.Text" xml:space="preserve">
-    <value>为提高识别准确度，游戏名应尽可能准确(正式名)并去除不必要的内容(如版本、汉化组名等)</value>
+    <value>認識精度を向上させるため、ゲーム名はできる限り正確（正式名称）にし、バージョンや翻訳グループ名などの不要な内容は削除してください。</value>
   </data>
   <data name="UnpackDialog_Password.Text" xml:space="preserve">
-    <value>密码</value>
+    <value>パスワード</value>
   </data>
   <data name="UnpackDialog_Password_Placeholder.PlaceholderText" xml:space="preserve">
-    <value>若没有密码可不填</value>
+    <value>パスワードがない場合は入力不要</value>
   </data>
   <data name="UnpackDialog_Title" xml:space="preserve">
-    <value>一键添加游戏</value>
+    <value>ワンクリックでゲームを追加</value>
   </data>
   <data name="GalgameFolder_UnpackGame_Error" xml:space="preserve">
-    <value>压缩包损坏或密码不正确</value>
+    <value>圧縮ファイルが破損しているか、パスワードが正しくありません</value>
   </data>
   <data name="SettingsPage_Notification_Unpack.Title" xml:space="preserve">
-    <value>完成解压通知</value>
+    <value>解凍完了通知</value>
   </data>
   <data name="SettingsPage_Notification_Unpack.Description" xml:space="preserve">
-    <value>是否开启解压游戏完成的通知</value>
+    <value>ゲームの解凍完了通知を有効にしますか</value>
   </data>
   <data name="UnpackGameTask_Done_Title" xml:space="preserve">
-    <value>解压完成</value>
+    <value>解凍完了</value>
   </data>
   <data name="UnpackGameTask_Done_Msg" xml:space="preserve">
-    <value>{0}已解压到{1}并已添加到库中</value>
+    <value>{0}は{1}に解凍され、ライブラリに追加されました</value>
   </data>
   <data name="GalgameFolderPage_AddManually.Label" xml:space="preserve">
-    <value>手动添加游戏</value>
+    <value>手動でゲームを追加</value>
   </data>
   <data name="GalgameFolderPage_AddFromZip.Label" xml:space="preserve">
-    <value>添加游戏(压缩包)</value>
+    <value>ゲームを追加（圧縮ファイル）</value>
   </data>
   <data name="GalgameFolderPage_Refresh.Label" xml:space="preserve">
-    <value>扫描游戏</value>
+    <value>ゲームをスキャン</value>
   </data>
   <data name="LibraryPage_AddGalgameFolder.Label" xml:space="preserve">
-    <value>新增库</value>
+    <value>ライブラリを追加</value>
   </data>
   <data name="LibraryPage_ScanAll.Label" xml:space="preserve">
-    <value>扫描当前库</value>
+    <value>現在のライブラリをスキャン</value>
   </data>
   <data name="LibraryPage_ScanAll_Success" xml:space="preserve">
-    <value>已启动{0}个库的扫描任务</value>
+    <value>{0}個のライブラリのスキャンタスクを開始しました</value>
   </data>
   <data name="LibraryPage_Scan_Success" xml:space="preserve">
-    <value>开始扫描{0}库</value>
+    <value>{0}ライブラリのスキャンを開始</value>
   </data>
   <data name="GalgameFolderPage_Log.Label" xml:space="preserve">
-    <value>打开扫描记录</value>
+    <value>スキャン履歴を開く</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Saving" xml:space="preserve">
-    <value>扫描完成，保存记录中</value>
+    <value>スキャン完了、記録を保存中</value>
   </data>
   <data name="UpdateContentPage_Download_Success" xml:space="preserve">
-    <value>已成功下载最新更新记录文档</value>
+    <value>最新の更新記録ドキュメントを正常にダウンロードしました</value>
   </data>
   <data name="SettingsPage_About_UpdateAvailable.Content" xml:space="preserve">
-    <value>有新版本 ヾ(✿ﾟ▽ﾟ)ノ</value>
+    <value>新しいバージョンがあります ヾ(✿ﾟ▽ﾟ)ノ</value>
   </data>
   <data name="GalgamePage_SelectThread.Label" xml:space="preserve">
-    <value>手动指定游戏进程</value>
+    <value>ゲームプロセスを手動で指定</value>
   </data>
   <data name="GalgamePage_ResetPath.Label" xml:space="preserve">
-    <value>重置exe和文本路径</value>
+    <value>exeとテキストのパスをリセット</value>
   </data>
   <data name="VirtualGameFilter" xml:space="preserve">
-    <value>本地游戏</value>
+    <value>ローカルゲーム</value>
   </data>
   <data name="HomePage_FilterInputBox.PlaceholderText" xml:space="preserve">
-    <value>Tag/制作公司/游玩状态/分类</value>
+    <value>タグ/制作会社/プレイ状況/カテゴリ</value>
   </data>
   <data name="HomePage_Filter_Not_Found" xml:space="preserve">
-    <value>找不到匹配的过滤器</value>
+    <value>一致するフィルターが見つかりません</value>
   </data>
   <data name="HomePage_KeepFilters.Label" xml:space="preserve">
-    <value>保留过滤器</value>
+    <value>フィルターを保持</value>
   </data>
   <data name="HomePage_Sort_Title" xml:space="preserve">
-    <value>排序</value>
+    <value>ソート</value>
   </data>
   <data name="HomePage_Sort_DescendOrAscend" xml:space="preserve">
-    <value>降序/升序</value>
+    <value>降順/昇順</value>
   </data>
   <data name="HomePage_Sort_Descend" xml:space="preserve">
-    <value>降序</value>
+    <value>降順</value>
   </data>
   <data name="HomePage_Sort_Ascend" xml:space="preserve">
-    <value>升序</value>
+    <value>昇順</value>
   </data>
   <data name="GalgameCollectionService_PhraseFileFailed" xml:space="preserve">
-    <value>解析.PotatoVN备份文件失败，请手动删除游戏目录下.PotatoVN文件夹或修改meta.json为合法的json文件后重试。</value>
+    <value>.PotatoVNバックアップファイルの解析に失敗しました。ゲームディレクトリ内の.PotatoVNフォルダを手動で削除するか、meta.jsonを有効なJSONファイルに修正してから再試行してください。</value>
   </data>
   <data name="SelectFileDialog_NoFound" xml:space="preserve">
-    <value>在{0}中没有找到任何{1}文件</value>
+    <value>{0}に{1}ファイルが見つかりませんでした。</value>
   </data>
   <data name="GalgamePage_OpenText.Label" xml:space="preserve">
-    <value>打开文本</value>
+    <value>テキストを開く</value>
   </data>
   <data name="GalgamePage_SelectText_Title" xml:space="preserve">
-    <value>选择文本打开</value>
+    <value>開くテキストを選択</value>
   </data>
   <data name="GalgamePage_TextFlyout_ClearText.Text" xml:space="preserve">
-    <value>清除选择记录？</value>
+    <value>選択履歴をクリアしますか？</value>
   </data>
   <data name="SearchAutoSuggestBox_Search.PlaceholderText" xml:space="preserve">
-    <value>支持拼音/罗马化日语搜索</value>
+    <value>ピンイン/ローマ字日本語検索に対応</value>
   </data>
   <data name="Shell_Account.Content" xml:space="preserve">
-    <value>账户</value>
+    <value>アカウント</value>
   </data>
   <data name="Shell_AccountText.Text" xml:space="preserve">
-    <value>账户</value>
+    <value>アカウント</value>
   </data>
   <data name="PvnServerType_OfficialServer" xml:space="preserve">
-    <value>官方服务器</value>
+    <value>公式サーバー</value>
   </data>
   <data name="PvnServerType_CustomServer" xml:space="preserve">
-    <value>自定义服务器</value>
+    <value>カスタムサーバー</value>
   </data>
   <data name="SelectPvnServerDialog_Title" xml:space="preserve">
-    <value>自定义服务器</value>
+    <value>カスタムサーバー</value>
   </data>
   <data name="SelectPvnServerDialog_Placeholder" xml:space="preserve">
-    <value>服务器Url，如: https://114514.moe:1919</value>
+    <value>サーバーURL、例: https://114514.moe:1919</value>
   </data>
   <data name="SelectPvnServerDialog_Checking" xml:space="preserve">
-    <value>检测连接中</value>
+    <value>接続を確認中</value>
   </data>
   <data name="SelectPvnServerDialog_Check" xml:space="preserve">
-    <value>检查</value>
+    <value>確認</value>
   </data>
   <data name="AccountPage_Pvn_ServerType.Title" xml:space="preserve">
-    <value>服务器</value>
+    <value>サーバー</value>
   </data>
   <data name="AccountPage_Pvn_ServerType_Description" xml:space="preserve">
-    <value>选择要连接至哪一个服务器，当前连接至：{0}</value>
+    <value>接続するサーバーを選択してください。現在接続中：{0}</value>
   </data>
   <data name="AccountPage_AccountStatus.Title" xml:space="preserve">
-    <value>账号状态</value>
+    <value>アカウント状態</value>
   </data>
   <data name="AccountPage_Pvn_AccountStatus_Unlogin" xml:space="preserve">
-    <value>还没有登录PotatoVN账号呢~</value>
+    <value>PotatoVNアカウントにまだログインしていません。</value>
   </data>
   <data name="PvnLoginDialog.Title" xml:space="preserve">
-    <value>登录PotatoVN账号</value>
+    <value>PotatoVNアカウントにログイン</value>
   </data>
   <data name="PvnLoginDialog_Account.Text" xml:space="preserve">
-    <value>账号</value>
+    <value>アカウント</value>
   </data>
   <data name="PvnLoginDialog_Password.Text" xml:space="preserve">
-    <value>密码</value>
+    <value>パスワード</value>
   </data>
   <data name="Register" xml:space="preserve">
-    <value>注册</value>
+    <value>登録</value>
   </data>
   <data name="PvnLoginDialog_UseThirdParty.Text" xml:space="preserve">
-    <value>或使用第三方账号来注册或登录：</value>
+    <value>またはサードパーティアカウントを使用して登録またはログイン:</value>
   </data>
   <data name="PvnLoginDialog_GettingServerInfo.Text" xml:space="preserve">
-    <value>获取服务器信息中...</value>
+    <value>サーバー情報を取得中...</value>
   </data>
   <data name="PvnService_PasswordIncorrect" xml:space="preserve">
-    <value>账户不存在或密码不正确</value>
+    <value>アカウントが存在しないか、パスワードが正しくありません</value>
   </data>
   <data name="PvnService_ServerUnavailable" xml:space="preserve">
-    <value>服务器不允许此方式登录或注册</value>
+    <value>サーバーはこの方法でのログインまたは登録を許可していません</value>
   </data>
   <data name="AccountPage_Pvn_LoginSuccess" xml:space="preserve">
-    <value>登录成功 </value>
+    <value>ログイン成功</value>
   </data>
   <data name="AccountPage_Pvn_AccountStatus_Login" xml:space="preserve">
-    <value>用户ID:{0}, 登录方式:{1}</value>
+    <value>ユーザーID:{0}、ログイン方法:{1}</value>
   </data>
   <data name="LoginMethodEnum_Default" xml:space="preserve">
-    <value>账户密码</value>
+    <value>アカウントパスワード</value>
   </data>
   <data name="LoginMethodEnum_Bangumi" xml:space="preserve">
     <value>Bangumi</value>
   </data>
   <data name="PvnService_UserNameAlreadyTaken" xml:space="preserve">
-    <value>该用户名已被占用</value>
+    <value>このユーザー名は既に使用されています</value>
   </data>
   <data name="AccountPage_Pvn_RegisterSuccess" xml:space="preserve">
-    <value>注册并登录成功</value>
+    <value>登録とログインが成功しました</value>
   </data>
   <data name="PvnService_NoBgmAccount" xml:space="preserve">
-    <value>登录Bangumi账户失败</value>
+    <value>Bangumiアカウントへのログインに失敗しました</value>
   </data>
   <data name="PvnService_ServerCannotConnectBgm" xml:space="preserve">
-    <value>服务器无法访问Bangumi服务器，请稍后重试</value>
+    <value>サーバーがBangumiサーバーにアクセスできません。後でもう一度お試しください</value>
   </data>
   <data name="AccountPage_Pvn_Logging" xml:space="preserve">
-    <value>正在连接至服务器，请稍后</value>
+    <value>サーバーに接続中です。しばらくお待ちください</value>
   </data>
   <data name="AccountPage_Pvn_SetAccount.Title" xml:space="preserve">
-    <value>账号管理</value>
+    <value>アカウント管理</value>
   </data>
   <data name="AccountPage_Pvn_SetAccount.Description" xml:space="preserve">
-    <value>修改账号头像、昵称、密码等</value>
+    <value>アカウントのアバター、ニックネーム、パスワードなどを変更する</value>
   </data>
   <data name="AccountPage_Pvn_SetAccount_Button.Content" xml:space="preserve">
-    <value>编辑</value>
+    <value>編集</value>
   </data>
   <data name="PvnSetAccountDialog_UserDisplayName.Text" xml:space="preserve">
-    <value>昵称</value>
+    <value>ニックネーム</value>
   </data>
   <data name="PvnSetAccountDialog_Placeholder.PlaceholderText" xml:space="preserve">
-    <value>填入新值来更改，留空则不变</value>
+    <value>新しい値を入力して変更、空欄の場合は変更なし</value>
   </data>
   <data name="PvnSetAccountDialog_SetImgButton.Content" xml:space="preserve">
-    <value>选择</value>
+    <value>選択</value>
   </data>
   <data name="PvnSetAccountDialog_Avatar.Text" xml:space="preserve">
-    <value>头像</value>
+    <value>アバター</value>
   </data>
   <data name="PvnServiceStatus_UploadingAvatar" xml:space="preserve">
-    <value>上传头像中...</value>
+    <value>アバターをアップロード中...</value>
   </data>
   <data name="PvnServiceStatus_UploadingUserInfo" xml:space="preserve">
-    <value>更新用户信息中...</value>
+    <value>ユーザー情報を更新中...</value>
   </data>
   <data name="AccountPage_Pvn_Modified" xml:space="preserve">
-    <value>更新用户信息成功！</value>
+    <value>ユーザー情報の更新に成功しました！</value>
   </data>
   <data name="PvnServiceStatus_DownloadingAvatar" xml:space="preserve">
-    <value>下载PotatoVN用户头像中</value>
+    <value>PotatoVNユーザーアバターをダウンロード中</value>
   </data>
   <data name="Shell_Info.Content" xml:space="preserve">
-    <value>状态</value>
+    <value>ステータス</value>
   </data>
   <data name="Shell_InfoText.Text" xml:space="preserve">
-    <value>状态</value>
+    <value>ステータス</value>
   </data>
   <data name="InfoPage_BgTask.SettingTitle" xml:space="preserve">
-    <value>后台任务</value>
+    <value>バックグラウンドタスク</value>
   </data>
   <data name="InfoPage_BgTask.SettingDescription" xml:space="preserve">
-    <value>这些任务会在最小化到系统托盘后继续运行</value>
+    <value>これらのタスクはシステムトレイに最小化された後も実行を継続します</value>
   </data>
   <data name="InfoPage_Info.SettingTitle" xml:space="preserve">
-    <value>运行消息</value>
+    <value>実行メッセージ</value>
   </data>
   <data name="InfoPage_Info.SettingDescription" xml:space="preserve">
-    <value>在这里显示所有的程序运行消息，如报错、报告等</value>
+    <value>エラーやレポートなど、すべてのプログラム実行メッセージがここに表示されます</value>
   </data>
   <data name="InfoPage_NoBgTask.Text" xml:space="preserve">
-    <value>暂无后台任务</value>
+    <value>バックグラウンドタスクはまだありません</value>
   </data>
   <data name="InfoPage_NoInfo.Text" xml:space="preserve">
-    <value>暂无运行消息</value>
+    <value>実行中のメッセージはまだありません</value>
   </data>
   <data name="GetGalgameInFolderTask_Title" xml:space="preserve">
-    <value>扫描文件夹任务</value>
+    <value>フォルダーのスキャンタスク</value>
   </data>
   <data name="RecordPlayTimeTask_Title" xml:space="preserve">
-    <value>记录游戏时长任务</value>
+    <value>ゲームプレイ時間記録タスク</value>
   </data>
   <data name="UnpackGameTask_Title" xml:space="preserve">
-    <value>解压游戏任务</value>
+    <value>ゲームの解凍タスク</value>
   </data>
   <data name="RecordPlayTimeTask_ProgressMsg" xml:space="preserve">
-    <value>正在记录游玩时间：{0}</value>
+    <value>プレイ時間を記録中: {0}</value>
   </data>
   <data name="SettingsPage_Other_DevelopmentMode_Description.Text" xml:space="preserve">
-    <value>是否开启开发者模式</value>
+    <value>開発者モードを有効にしますか？</value>
   </data>
   <data name="SettingsPage_Other_DevelopmentMode.Content" xml:space="preserve">
-    <value>开发者模式</value>
+    <value>開発者モード</value>
   </data>
   <data name="SettingsPage_Other_DevelopmentMode.NavigateUri" xml:space="preserve">
     <value>https://github.com/GoldenPotato137/PotatoVN/wiki/%E5%BC%80%E5%8F%91%E8%80%85%E6%A8%A1%E5%BC%8F</value>
   </data>
   <data name="PvnSyncTask_Title" xml:space="preserve">
-    <value>PotatoVN同步任务</value>
+    <value>PotatoVN同期タスク</value>
   </data>
   <data name="PvnSyncTask_Error" xml:space="preserve">
-    <value>Pvn同步失败</value>
+    <value>Pvn同期失敗</value>
   </data>
   <data name="PvnSyncTask_GettingModifiedTimestamp" xml:space="preserve">
-    <value>正在查询Pvn服务器修改</value>
+    <value>Pvnサーバーの変更を照会中</value>
   </data>
   <data name="PvnSyncTask_GettingModifiedList" xml:space="preserve">
-    <value>获取更改列表中</value>
+    <value>変更リストを取得中</value>
   </data>
   <data name="PvnSyncTask_Downloading" xml:space="preserve">
-    <value>正在更新游戏{0}(ID:{1})的信息</value>
+    <value>ゲーム{0}(ID:{1})の情報を更新中</value>
   </data>
   <data name="PvnSyncTask_Uploading" xml:space="preserve">
-    <value>正在上传游戏:{0}</value>
+    <value>ゲームをアップロード中:{0}</value>
   </data>
   <data name="PvnSyncTask_Error_Upload" xml:space="preserve">
-    <value>Pvn同步(上传)失败</value>
+    <value>Pvn同期(アップロード)失敗</value>
   </data>
   <data name="PvnSyncTask_Completed" xml:space="preserve">
-    <value>PotaotVN同步完成</value>
+    <value>PotaotVN同期完了</value>
   </data>
   <data name="PvnSyncTask_Error_NotLogin" xml:space="preserve">
-    <value>未登录</value>
+    <value>未ログイン</value>
   </data>
   <data name="PvnSyncTask_Error_Network" xml:space="preserve">
-    <value>无法连接至服务器</value>
+    <value>サーバーに接続できません</value>
   </data>
   <data name="BgmOAuthService_RefreshFailed" xml:space="preserve">
-    <value>更新Bangumi Token失败</value>
+    <value>Bangumiトークンの更新に失敗しました</value>
   </data>
   <data name="PvnSyncTask_Error_Upload_SaveSyncTime" xml:space="preserve">
-    <value>Pvn同步保存修改时间失败</value>
+    <value>Pvn同期で変更時間の保存に失敗しました</value>
   </data>
   <data name="PvnSyncTask_Pull_Added" xml:space="preserve">
-    <value>从远端下载：{0} (id:{1})</value>
+    <value>リモートからダウンロード中：{0} (id:{1})</value>
   </data>
   <data name="PvnSyncTask_Pull_Updated" xml:space="preserve">
-    <value>从远端更新：{0} (id:{1})</value>
+    <value>リモートから更新中：{0} (id:{1})</value>
   </data>
   <data name="PvnSyncTask_Pull_Deleted" xml:space="preserve">
-    <value>随远端删除：{0} (id:{1})</value>
+    <value>リモートと共に削除：{0} (id:{1})</value>
   </data>
   <data name="PvnSyncTask_Commit" xml:space="preserve">
-    <value>上传游戏: {0} (id:{1}) / Type:{2}</value>
+    <value>ゲームをアップロード: {0} (id:{1}) / タイプ:{2}</value>
   </data>
   <data name="PvnSyncTask_NoChange" xml:space="preserve">
-    <value>已同步至最新状态，无更改</value>
+    <value>最新の状態に同期済み、変更なし</value>
   </data>
   <data name="ShellPage_Info_Event.Content" xml:space="preserve">
-    <value>详情</value>
+    <value>詳細</value>
   </data>
   <data name="SettingsPage_Notification_Pvn.Title" xml:space="preserve">
-    <value>Pvn同步事件通知</value>
+    <value>Pvn同期イベント通知</value>
   </data>
   <data name="SettingsPage_Notification_Pvn.Description" xml:space="preserve">
-    <value>是否启用Pvn同步事件(如同步完成/同步失败)通知</value>
+    <value>Pvn同期イベント(同期完了/同期失敗など)の通知を有効にしますか</value>
   </data>
   <data name="SettingsPage_Notification_Pvn_Empty.Title" xml:space="preserve">
-    <value>Pvn同步空事件通知</value>
+    <value>Pvn同期空イベント通知</value>
   </data>
   <data name="SettingsPage_Notification_Pvn_Empty.Description" xml:space="preserve">
-    <value>是否启用Pvn同步空事件（即已是最新状态，什么都没有做）的通知</value>
+    <value>Pvn同期空イベント（つまり、既に最新の状態であり、何も行われていない）の通知を有効にしますか</value>
   </data>
   <data name="FaqService_LoadError" xml:space="preserve">
-    <value>加载FAQ文件失败</value>
+    <value>FAQファイルのロードに失敗しました</value>
   </data>
   <data name="FaqService_DownloadError" xml:space="preserve">
-    <value>下载FAQ失败</value>
+    <value>FAQのダウンロードに失敗しました</value>
   </data>
   <data name="GalgamePage_Characters.Text" xml:space="preserve">
-    <value>角色</value>
+    <value>キャラクター</value>
   </data>
   <data name="PvnSyncTask_Error_Delete" xml:space="preserve">
-    <value>Pvn同步上传删除记录(id:{0})失败</value>
+    <value>Pvn同期削除記録(id:{0})のアップロードに失敗しました</value>
   </data>
   <data name="PvnSyncTask_Deleting" xml:space="preserve">
-    <value>正在上传删除记录(id:{0})</value>
+    <value>削除記録 (id:{0}) をアップロード中</value>
   </data>
   <data name="PvnSyncTask_Commit_Delete" xml:space="preserve">
-    <value>删除游戏 id:{0}</value>
+    <value>ゲーム id: {0}を削除</value>
   </data>
   <data name="GalgameCharacterPage_BirthDate.Text" xml:space="preserve">
-    <value>生日</value>
+    <value>誕生日</value>
   </data>
   <data name="GalgameCharacterPage_Relation.Text" xml:space="preserve">
-    <value>关系</value>
+    <value>関係</value>
   </data>
   <data name="GalgameCharacterPage_Gender.Text" xml:space="preserve">
-    <value>性别</value>
+    <value>性別</value>
   </data>
   <data name="GalgameCharacterPage_Height.Text" xml:space="preserve">
-    <value>身高</value>
+    <value>身長</value>
   </data>
   <data name="GalgameCharacterPage_Weight.Text" xml:space="preserve">
     <value>体重</value>
   </data>
   <data name="GalgameCharacterPage_BWH.Text" xml:space="preserve">
-    <value>三围</value>
+    <value>スリーサイズ</value>
   </data>
   <data name="GalgameCharacterPage_BloodType.Text" xml:space="preserve">
-    <value>血型</value>
+    <value>血液型</value>
   </data>
   <data name="Gender_Unknown" xml:space="preserve">
-    <value>未知</value>
+    <value>不明</value>
   </data>
   <data name="Gender_Male" xml:space="preserve">
     <value>男性</value>
@@ -1526,1124 +1526,1122 @@
     <value>女性</value>
   </data>
   <data name="GalgameFolder_GetGalgameInfo_Saving" xml:space="preserve">
-    <value>从RSS获取游戏信息完成，保存记录中</value>
+    <value>RSSからゲーム情報の取得が完了しました。記録を保存しています。</value>
   </data>
   <data name="GalgameFolder_GetGalgameInfo_Done" xml:space="preserve">
-    <value>保存完成</value>
+    <value>保存完了</value>
   </data>
   <data name="GetGalgameInfoTask_Title" xml:space="preserve">
-    <value>下载游戏数据任务</value>
+    <value>ゲームデータダウンロードタスク</value>
   </data>
   <data name="Galgame_GetCharacterInfo_Saving" xml:space="preserve">
-    <value>从RSS获取角色信息完成，保存记录中</value>
+    <value>RSSからキャラクター情報の取得が完了しました。記録を保存しています。</value>
   </data>
   <data name="Galgame_GetCharacterInfo_Done" xml:space="preserve">
-    <value>已成功下载{0}的角色信息</value>
+    <value>{0}のキャラクター情報を正常にダウンロードしました</value>
   </data>
   <data name="GetCharacterInfoTask_Title" xml:space="preserve">
-    <value>下载角色数据任务</value>
+    <value>キャラクターデータダウンロードタスク</value>
   </data>
   <data name="Galgame_GetCharacterInfo_GettingInfo" xml:space="preserve">
-    <value>正在获取 {0} 的信息</value>
+    <value>{0} の情報を取得しています</value>
   </data>
   <data name="GalgameFolder_GetGalgameInfo_Waiting" xml:space="preserve">
-    <value>等待角色信息下载完成</value>
+    <value>キャラクター情報のダウンロード完了を待機中</value>
   </data>
   <data name="PvnService_UploadImageFailed" xml:space="preserve">
-    <value>上传游戏{0}封面失败</value>
+    <value>ゲーム{0}のカバーのアップロードに失敗しました</value>
   </data>
   <data name="AccountPage_Pvn_CloudStorage.Title" xml:space="preserve">
-    <value>Pvn云存储空间</value>
+    <value>Pvnクラウドストレージ</value>
   </data>
   <data name="AccountPage_Pvn_CloudStorage.Description" xml:space="preserve">
-    <value>这些空间用来放同步到云端的游戏封面</value>
+    <value>これらのスペースは、クラウドに同期されたゲームのカバーを保存するために使用されます</value>
   </data>
   <data name="AccountPage_Pvn_SpaceUsedPercent" xml:space="preserve">
-    <value>已使用 {0}%</value>
+    <value>使用済み {0}%</value>
   </data>
   <data name="PvnService_DownloadAvatarFailed" xml:space="preserve">
-    <value>下载Pvn账户头像失败</value>
+    <value>Pvnアカウントアバターのダウンロードに失敗しました</value>
   </data>
   <data name="PvnService_UploadAvatarFailed" xml:space="preserve">
-    <value>上传账户头像失败</value>
+    <value>アカウントアバターのアップロードに失敗しました</value>
   </data>
   <data name="App_Error" xml:space="preserve">
-    <value>Oops, 上次运行崩溃了</value>
+    <value>おっと、前回の実行はクラッシュしました</value>
   </data>
   <data name="AccountPage_Bgm_NoLogin" xml:space="preserve">
-    <value>还没登录Bangumi账号呢~</value>
+    <value>まだBangumiアカウントにログインしていません~</value>
   </data>
   <data name="AccountPage_Bgm_LoginedDescription" xml:space="preserve">
-    <value>用户ID:{0}, 授权至:{1}, 下次刷新授权:{2}</value>
+    <value>ユーザーID:{0}、承認期限:{1}、次回の承認更新:{2}</value>
   </data>
   <data name="AccountPage_LogoutSuccess" xml:space="preserve">
-    <value>登出成功</value>
+    <value>ログアウトしました</value>
   </data>
   <data name="BgmOAuthService_FetchTokenInfoFailed" xml:space="preserve">
-    <value>获取Bangumi Token信息失败</value>
+    <value>Bangumiトークン情報の取得に失敗しました</value>
   </data>
   <data name="BgmOAuthService_FetchAvatarFailed" xml:space="preserve">
-    <value>下载Bangumi账户头像失败</value>
+    <value>Bangumiアカウントのアバターのダウンロードに失敗しました</value>
   </data>
   <data name="BgmOAuthService_FetchAccountFailed" xml:space="preserve">
-    <value>获取Bangumi账号信息失败</value>
+    <value>Bangumiアカウント情報の取得に失敗しました</value>
   </data>
   <data name="BgmOAuthStatus_Failed" xml:space="preserve">
-    <value>NOT USED</value>
+    <value>使用されていません</value>
   </data>
   <data name="BgmOAuthStatus_Done" xml:space="preserve">
-    <value>Bangumi账户登录成功</value>
+    <value>Bangumiアカウントのログインに成功しました</value>
   </data>
   <data name="BgmOAuthService_FetchTokenFailed" xml:space="preserve">
-    <value>获取Bangumi Token失败</value>
+    <value>Bangumiトークンの取得に失敗しました</value>
   </data>
   <data name="BgmOAuthStatus_FetchingTokenInfo" xml:space="preserve">
-    <value>获取Bangumi Token信息中</value>
+    <value>Bangumiトークン情報を取得中</value>
   </data>
   <data name="BgmOAuthStatus_FetchingAccountImage" xml:space="preserve">
-    <value>获取Bangumi头像中</value>
+    <value>Bangumiアバターを取得中</value>
   </data>
   <data name="AccountPage_Bgm_RefreshToken.Title" xml:space="preserve">
-    <value>刷新授权</value>
+    <value>認証を更新</value>
   </data>
   <data name="AccountPage_Bgm_RefreshToken.Description" xml:space="preserve">
-    <value>立刻刷新授权，并更新账户信息。</value>
+    <value>すぐに認証を更新し、アカウント情報を更新します。</value>
   </data>
   <data name="AccountPage_Bgm_Refreshing" xml:space="preserve">
-    <value>正在获取新的Token</value>
+    <value>新しいトークンを取得中</value>
   </data>
   <data name="AccountPage_Bgm_RefreshSuccess" xml:space="preserve">
-    <value>Bangumi账号授权与信息刷新成功</value>
+    <value>Bangumiアカウントの認証と情報の更新に成功しました</value>
   </data>
   <data name="AccountPage_Vndb_NoLogin" xml:space="preserve">
-    <value>还没登录Vndb账号呢~</value>
+    <value>まだVndbアカウントにログインしていません〜</value>
   </data>
   <data name="AccountPage_Vndb_LoginedDescription" xml:space="preserve">
-    <value>用户ID: {0}, Token权限: {1}</value>
+    <value>ユーザーID: {0}, トークン権限: {1}</value>
   </data>
   <data name="VndbAuthService_InvalidToken" xml:space="preserve">
-    <value>Vndb Token错误</value>
+    <value>Vndbトークンエラー</value>
   </data>
   <data name="VndbAuthService_Success" xml:space="preserve">
-    <value>Vndb登录成功</value>
+    <value>Vndbログイン成功</value>
   </data>
   <data name="VndbApiPermission_ListRead" xml:space="preserve">
-    <value>用户列表读取</value>
+    <value>ユーザーリスト読み取り</value>
   </data>
   <data name="VndbApiPermission_ListWrite" xml:space="preserve">
-    <value>用户列表增改</value>
+    <value>ユーザーリスト書き込み</value>
   </data>
   <data name="AccountPage_VndbTokenPermissions.Text" xml:space="preserve">
-    <value>Token权限</value>
+    <value>トークン権限</value>
   </data>
   <data name="AddSourceDialog.Title" xml:space="preserve">
-    <value>添加源</value>
+    <value>ソースを追加</value>
   </data>
   <data name="GalgameSourceType_LocalFolder" xml:space="preserve">
-    <value>本地文件夹</value>
+    <value>ローカルフォルダ</value>
   </data>
   <data name="GalgameSourceType_LocalZip" xml:space="preserve">
-    <value>本地压缩包</value>
+    <value>ローカル圧縮ファイル</value>
   </data>
   <data name="LocalSettingService_ResetConfig" xml:space="preserve">
-    <value>无法正确读取软件设置，可能软件数据损坏了。请参考链接：https://github.com/GoldenPotato137/PotatoVN/wiki/TroubleShooting 查看解决方案。软件数据已重置。</value>
+    <value>ソフトウェア設定を正しく読み取れませんでした。ソフトウェアデータが破損している可能性があります。解決策については、リンク：https://github.com/GoldenPotato137/PotatoVN/wiki/TroubleShooting を参照してください。ソフトウェアデータはリセットされました。</value>
   </data>
   <data name="UnexpectedEvent" xml:space="preserve">
-    <value>非预计错误</value>
+    <value>予期せぬエラー</value>
   </data>
   <data name="GalgameCollectionService_BackupMetaFailed" xml:space="preserve">
-    <value>备份{0}的Meta到源{1}失败</value>
+    <value>{0}のメタデータをソースへバックアップ{1}できませんでした</value>
   </data>
   <data name="GalgamePage_MoveToAnotherSource.Label" xml:space="preserve">
-    <value>移入另一个源</value>
+    <value>別のソースへ移動</value>
   </data>
   <data name="ChangeSourceDialog_TargetSource.Text" xml:space="preserve">
-    <value>移入</value>
+    <value>移動</value>
   </data>
   <data name="ChangeSourceDialog_FetchingSourceInfo.Text" xml:space="preserve">
-    <value>获取游戏源信息中</value>
+    <value>ゲームソース情報を取得中</value>
   </data>
   <data name="LocalFolderSourceService_SelectFolder" xml:space="preserve">
-    <value>目标文件夹</value>
+    <value>保存先フォルダー</value>
   </data>
   <data name="ChangeSourceDialog_Space" xml:space="preserve">
-    <value>{0} 可用，共 {1}</value>
+    <value>{0} 利用可能、合計 {1}</value>
   </data>
   <data name="ChangeSourceDialog_RemoveFromSource.Content" xml:space="preserve">
-    <value>并将游戏移出下选中源</value>
+    <value>選択したソースからゲームを移動</value>
   </data>
   <data name="LocalFolderSourceService_MoveInDescription" xml:space="preserve">
-    <value>复制游戏至：{0}</value>
+    <value>ゲームをコピー:  {0}</value>
   </data>
   <data name="LocalFolderSourceService_MoveOutDescription" xml:space="preserve">
-    <value>删除文件夹：{0}</value>
+    <value>フォルダーを削除: {0}</value>
   </data>
   <data name="ChangeSourceDialog_OperateDescription.Text" xml:space="preserve">
-    <value>点击确定后，PotatoVN将：</value>
+    <value>OKをクリックすると、PotatoVNは以下を実行します:</value>
   </data>
   <data name="SettingsPage_Theme_TimeAsHour.Title" xml:space="preserve">
-    <value>时间单位显示为"小时+分钟"</value>
+    <value>時間単位を「時間+分」で表示する</value>
   </data>
   <data name="SettingsPage_Theme_TimeAsHour.Description" xml:space="preserve">
-    <value>将时间显示从"分钟"转换为"小时+分钟"格式（例如：441分钟 → 7小时21分钟）</value>
+    <value>時間表示を「分」から「時間+分」形式に変換する（例：441分 → 7時間21分）</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_NewLayout.Text" xml:space="preserve">
-    <value>游戏详情页使用新界面</value>
+    <value>ゲーム詳細ページで新しいUIを使用</value>
   </data>
   <data name="SettingsPage_Theme_ManageGalgamePageLayout.Title" xml:space="preserve">
-    <value>管理新界面显示的布局</value>
+    <value>新しい画面の表示レイアウトを管理</value>
   </data>
   <data name="SettingsPage_Theme_ManageGalgamePageLayout.Description" xml:space="preserve">
-    <value>可以选择是否显示游戏详情页的各个部分</value>
+    <value>ゲーム詳細ページの各セクションの表示/非表示を選択できます</value>
   </data>
   <data name="BgTaskService_TaskFailed" xml:space="preserve">
-    <value>{0}失败</value>
+    <value>{0}が失敗しました</value>
   </data>
   <data name="BgTaskService_TaskSuccess" xml:space="preserve">
-    <value>{0}完成</value>
+    <value>{0}が完了しました</value>
   </data>
   <data name="RecordPlayTimeTask_Done" xml:space="preserve">
-    <value>本次游玩 {0} 时长：{1}</value>
+    <value>今回の{0}のプレイ時間：{1}</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Title" xml:space="preserve">
-    <value>复制游戏任务</value>
+    <value>ゲームコピー処理</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Progress" xml:space="preserve">
-    <value>正在复制 {0}</value>
+    <value>{0}をコピー中です</value>
   </data>
   <data name="SourceMoveInBase_Success" xml:space="preserve">
-    <value>成功将游戏复制至另一个源</value>
+    <value>ゲームを別のソースへ正常にコピーしました</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Success" xml:space="preserve">
-    <value>成功将游戏 {0} 复制到 {1}</value>
+    <value>ゲーム「{0}」を「{1}」に正常にコピーしました</value>
   </data>
   <data name="SourceMoveTask_Title" xml:space="preserve">
-    <value>移动游戏所在源任务</value>
+    <value>ゲームのソース移動処理</value>
   </data>
   <data name="SourceMoveTask_MovingIn" xml:space="preserve">
-    <value>正在执行游戏搬入另一个源的任务</value>
+    <value>ゲームを別のソースへ移動する処理を実行中です</value>
   </data>
   <data name="LocalFolderSourceService_MoveOutError" xml:space="preserve">
-    <value>一个游戏只能属于一个本地文件夹，要移入其他本地文件夹必须从当前本地文件夹中移出。</value>
+    <value>1つのゲームは1つのローカルフォルダにのみ属することができます。他のローカルフォルダに移動するには、現在のローカルフォルダから移動する必要があります。</value>
   </data>
   <data name="SourceMoveTask_MovingIn_Fail" xml:space="preserve">
-    <value>移入源任务失败</value>
+    <value>ソースの移動タスクが失敗しました</value>
   </data>
   <data name="SourceMoveTask_MovingOut" xml:space="preserve">
-    <value>正在执行游戏搬出指定源的任务</value>
+    <value>指定されたソースからゲームを移動するタスクを実行中です</value>
   </data>
   <data name="SourceMoveTask_MovingOut_Fail" xml:space="preserve">
-    <value>移除源任务失败</value>
+    <value>ソースの削除タスクが失敗しました</value>
   </data>
   <data name="SourceMoveTask_Success_MoveIn" xml:space="preserve">
-    <value>已成功将 {0} 移入 {1}</value>
+    <value>{0} を {1} に正常に移動しました</value>
   </data>
   <data name="SourceMoveTask_Success_MoveOut" xml:space="preserve">
-    <value>已成功将 {0} 移出 {1}</value>
+    <value>{0} を {1} から正常に移動しました</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveOut_Title" xml:space="preserve">
-    <value>从文件夹中删除游戏任务</value>
+    <value>フォルダーからゲームを削除するタスク</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveOut_Progress" xml:space="preserve">
-    <value>正在删除 {0}</value>
+    <value>{0} を削除しています</value>
   </data>
   <data name="LocalFolderSourceMoveTask_MoveOut_Success" xml:space="preserve">
-    <value>成功删除文件夹 {0}</value>
+    <value>フォルダー {0} を正常に削除しました</value>
   </data>
   <data name="MixedPhraserOrderDialog_Title" xml:space="preserve">
-    <value>设置信息源优先级</value>
+    <value>情報源の優先順位を設定</value>
   </data>
   <data name="MixedPhraserOrderDialog_Description.Text" xml:space="preserve">
-    <value>拖动设置优先级</value>
+    <value>ドラッグして優先順位を設定</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Name" xml:space="preserve">
-    <value>游戏名</value>
+    <value>ゲーム名</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Des" xml:space="preserve">
-    <value>简介</value>
+    <value>概要</value>
   </data>
   <data name="SettingsPage_Rss_Mixed_Order.Title" xml:space="preserve">
-    <value>信息混合方法</value>
+    <value>情報混合方法</value>
   </data>
   <data name="SettingsPage_Rss_Mixed_Order.Description" xml:space="preserve">
-    <value>设置混合搜刮器从不同数据源混合搜刮下来的数据时各个源的优先级</value>
+    <value>混合スクレイパーが異なるデータソースから取得したデータを混合する際の各ソースの優先順位を設定します。</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Exp" xml:space="preserve">
-    <value>预计游玩时长</value>
+    <value>推定プレイ時間</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Rating" xml:space="preserve">
-    <value>评分</value>
+    <value>評価</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Image" xml:space="preserve">
-    <value>封面图</value>
+    <value>カバー画像</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_ReleaseDate" xml:space="preserve">
-    <value>发布日期</value>
+    <value>発売日</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Character" xml:space="preserve">
-    <value>角色</value>
+    <value>キャラクター</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_CnName" xml:space="preserve">
-    <value>中文名</value>
+    <value>中国語名</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Dev" xml:space="preserve">
-    <value>制作公司</value>
+    <value>制作会社</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Tag" xml:space="preserve">
-    <value>Tag</value>
+    <value>タグ</value>
   </data>
   <data name="MixedPhraserOrderDialog_It_Staff" xml:space="preserve">
-    <value>制作人员</value>
+    <value>スタッフ</value>
   </data>
   <data name="BgmAuthDialog_Title" xml:space="preserve">
-    <value>选择登录方式</value>
+    <value>ログイン方法を選択</value>
   </data>
   <data name="VndbAuthDialog_Title" xml:space="preserve">
-    <value>Vndb登录</value>
+    <value>VNDBログイン</value>
   </data>
   <data name="VndbAuthDialog_TokenTextBox.Header" xml:space="preserve">
-    <value>输入AccessToken</value>
+    <value>アクセストークンを入力</value>
   </data>
   <data name="GalgameSettingPage_TagsTitle.Text" xml:space="preserve">
-    <value>Tags</value>
+    <value>タグ</value>
   </data>
   <data name="WindowMode_None" xml:space="preserve">
-    <value>什么都不做</value>
+    <value>何もしない</value>
   </data>
   <data name="GalgameSettingPage_LastFetchInfoTime" xml:space="preserve">
-    <value>上次拉取数据：{0}</value>
+    <value>最終データ取得：{0}</value>
   </data>
   <data name="HomePage_NoDeveloperCategory" xml:space="preserve">
-    <value>无任何制作公司分类包含本游戏</value>
+    <value>このゲームを含む制作会社カテゴリはありません</value>
   </data>
   <data name="LibraryPage_EditFolder.Text" xml:space="preserve">
-    <value>管理库</value>
+    <value>ライブラリを管理</value>
   </data>
   <data name="LibraryPage_Back.Label" xml:space="preserve">
-    <value>回到上个库</value>
+    <value>前のライブラリに戻る</value>
   </data>
   <data name="LibraryPage_DownloadAllData.Label" xml:space="preserve">
-    <value>下载当前库的游戏数据</value>
+    <value>現在のライブラリのゲームデータをダウンロード</value>
   </data>
   <data name="LibraryPage_EditCurrentFolder.Text" xml:space="preserve">
-    <value>管理当前库</value>
+    <value>現在のライブラリを管理</value>
   </data>
   <data name="LibraryPage_EditCurrentFolder_AppBarButton.Label" xml:space="preserve">
-    <value>管理当前库</value>
+    <value>現在のライブラリを管理</value>
   </data>
   <data name="LibraryPage_EditGameInfo.Text" xml:space="preserve">
-    <value>修改游戏信息</value>
+    <value>ゲーム情報を変更</value>
   </data>
   <data name="LibraryPage_DownloadGameInfo.Text" xml:space="preserve">
-    <value>下载游戏信息</value>
+    <value>ゲーム情報をダウンロード</value>
   </data>
   <data name="LibraryPage_RemoveGame.Text" xml:space="preserve">
-    <value>从库中移除游戏</value>
+    <value>ライブラリからゲームを削除</value>
   </data>
   <data name="LibraryPage_Statistics" xml:space="preserve">
-    <value>游戏库: {0} | 游戏: {1}</value>
+    <value>ゲームライブラリ: {0} | ゲーム: {1}</value>
   </data>
   <data name="GalgameCollectionService_LoadMetaFailed" xml:space="preserve">
-    <value>加载本地Meta失败</value>
+    <value>ローカルメタデータの読み込みに失敗しました</value>
   </data>
   <data name="GalgameCollectionService_LoadMetaFailed_Msg" xml:space="preserve">
-    <value>加载{0}的本地Meta失败了，已忽略其Meta文件</value>
+    <value>{0}のローカルMetaの読み込みに失敗しました。Metaファイルは無視されました。</value>
   </data>
   <data name="GalgameCollectionService_GetNameFromPathFailed" xml:space="preserve">
-    <value>无法从路径获取游戏名</value>
+    <value>パスからゲーム名を取得できません。</value>
   </data>
   <data name="GalgameSourceCollectionService_InitAsync_GalgameIsNull" xml:space="preserve">
-    <value>游戏库管理：{0}的Galgame为null，已将该游戏移出源：{1}</value>
+    <value>ゲームライブラリ管理：{0}のギャルゲーがnullです。このゲームはソース：{1}から移動されました。</value>
   </data>
   <data name="GalgameSourceCollectionService_CheckGamesInSourceFailed" xml:space="preserve">
-    <value>检测库 {0} 中游戏是否存在时遇到错误</value>
+    <value>ライブラリ {0} 内のゲームの存在を確認中にエラーが発生しました。</value>
   </data>
   <data name="GalgameSourceCollectionService_CheckGamesInSource_Title" xml:space="preserve">
-    <value>已将部分游戏移出库 {0}</value>
+    <value>一部のゲームがライブラリ {0} から移動されました。</value>
   </data>
   <data name="GalgameSourceCollectionService_CheckGamesInSource_Msg" xml:space="preserve">
-    <value>由于无法在该库中检测到下列游戏，已将下列游戏移出了该库：{0}</value>
+    <value>このライブラリで以下のゲームが検出できなかったため、このライブラリから移動されました：{0}</value>
   </data>
   <data name="GalgameSettingPage_GameSetting_Parameter.Text" xml:space="preserve">
-    <value>游戏启动参数</value>
+    <value>ゲーム起動パラメーター</value>
   </data>
   <data name="GalgameSettingPage_GameSetting_ExePath.Title" xml:space="preserve">
-    <value>游戏启动文件</value>
+    <value>ゲーム起動ファイル</value>
   </data>
   <data name="GalgameSettingPage_EditPath.Text" xml:space="preserve">
-    <value>修改游戏路径</value>
+    <value>ゲームパスの変更</value>
   </data>
   <data name="GalgameSettingPage_EditExePath.Text" xml:space="preserve">
-    <value>修改游戏启动文件</value>
+    <value>ゲーム起動ファイルの変更</value>
   </data>
   <data name="GalgameSettingPage_Search.Text" xml:space="preserve">
-    <value>在线搜索游戏</value>
+    <value>オンラインゲームを検索</value>
   </data>
   <data name="GalgameSettingPage_GameInfo_ReleaseDate.Text" xml:space="preserve">
-    <value>发行日期</value>
+    <value>発売日</value>
   </data>
   <data name="GalgameSettingPage_NotLocalGame" xml:space="preserve">
-    <value>本游戏不是本地游戏，请设置该游戏文件夹路径~</value>
+    <value>このゲームはローカルゲームではありません。ゲームフォルダのパスを設定してください。</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetSuccess" xml:space="preserve">
-    <value>成功设置游戏启动文件</value>
+    <value>ゲーム起動ファイルの設定に成功しました</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetCanceled" xml:space="preserve">
-    <value>用户取消了操作</value>
+    <value>ユーザーが操作をキャンセルしました</value>
   </data>
   <data name="GalgameSettingPage_ExePathSetFailed" xml:space="preserve">
-    <value>设置游戏启动文件失败</value>
+    <value>ゲーム起動ファイルの設定に失敗しました</value>
   </data>
   <data name="GalgameSettingPage_PathSetSuccess" xml:space="preserve">
-    <value>修改游戏路径成功</value>
+    <value>ゲームパスの変更に成功しました</value>
   </data>
   <data name="GalgameSettingPage_PathSetFailed" xml:space="preserve">
-    <value>修改游戏路径失败</value>
+    <value>ゲームパスの変更に失敗しました</value>
   </data>
   <data name="GalgameSourcePage_NotInSource" xml:space="preserve">
-    <value>该游戏不属于这个库（游戏必须在库文件夹里面）</value>
+    <value>このゲームはこのライブラリに属していません（ゲームはライブラリフォルダ内にある必要があります）。</value>
   </data>
   <data name="GalgameFolder_UnpackGame_PathNotExist" xml:space="preserve">
-    <value>路径 {0} 不存在</value>
+    <value>パス {0} は存在しません。</value>
   </data>
   <data name="GalgameFolder_UnpackGame_PathNotEmpty" xml:space="preserve">
-    <value>{0} 非空，请先删除该文件夹后再解压</value>
+    <value>{0} は空ではありません。解凍する前にこのフォルダーを削除してください。</value>
   </data>
   <data name="PackGameTask_Title" xml:space="preserve">
-    <value>压缩游戏任务</value>
+    <value>ゲーム圧縮タスク</value>
   </data>
   <data name="PackGameTask_ZipExist" xml:space="preserve">
-    <value>{0} 已存在，请删除该文件后再压缩</value>
+    <value>{0} は既に存在します。圧縮する前にこのファイルを削除してください。</value>
   </data>
   <data name="PackGameTask_GamePathNotExist" xml:space="preserve">
-    <value>文件夹 {0} 不存在</value>
+    <value>フォルダー  {0}は存在しません。</value>
   </data>
   <data name="ConfirmGalInfoDialog_GalgameName.Text" xml:space="preserve">
-    <value>游戏名称</value>
+    <value>ゲーム名</value>
   </data>
   <data name="ConfirmGalInfoDialog_GalgameRssType.Text" xml:space="preserve">
-    <value>信息源</value>
+    <value>情報源</value>
   </data>
   <data name="ConfirmGalInfoDialog_GalgameId.Text" xml:space="preserve">
-    <value>游戏ID</value>
+    <value>ゲームID</value>
   </data>
   <data name="ConfirmGalInfoDialog_Title_Correct" xml:space="preserve">
-    <value>搜刮到的信息正确吗？</value>
+    <value>取得した情報は正しいですか？</value>
   </data>
   <data name="ConfirmGalInfoDialog_Title_NotFound" xml:space="preserve">
-    <value>没有找到该游戏信息</value>
+    <value>このゲーム情報は見つかりませんでした。</value>
   </data>
   <data name="Canceled" xml:space="preserve">
-    <value>用户取消了操作</value>
+    <value>ユーザーが操作をキャンセルしました。</value>
   </data>
   <data name="ConfirmGalInfoDialog_NoID" xml:space="preserve">
-    <value>目前没有找到游戏数据，请尝试修改游戏ID或游戏名重新搜索。</value>
+    <value>現在ゲームデータが見つかりません。ゲームIDまたはゲーム名を変更して再検索してください。</value>
   </data>
   <data name="ConfirmGalInfoDialog_ID" xml:space="preserve">
-    <value>目前找到的游戏数据源有：{0}</value>
+    <value>現在見つかったゲームデータソース：{0}</value>
   </data>
   <data name="ConfirmGalInfoDialog_Hint" xml:space="preserve">
-    <value>若修改了游戏ID，优先使用游戏ID进行搜索，否则使用游戏名称与当前信息源进行搜索。</value>
+    <value>ゲームIDを変更した場合、ゲームIDを優先して検索します。それ以外の場合は、ゲーム名と現在の情報源を使用して検索します。</value>
   </data>
   <data name="SettingsPage_Game_LocaleEmulator.Title" xml:space="preserve">
-    <value>LocaleEmulator 可执行文件路径</value>
+    <value>LocaleEmulator 実行可能ファイルパス</value>
   </data>
   <data name="SettingsPage_Game_LocaleEmulator.Description" xml:space="preserve">
-    <value>设置LocaleEmulator的路径，用于转区运行游戏，请选择LEProc.exe文件</value>
+    <value>地域エミュレーターのパスを設定します。ゲームを異なる地域で実行するために使用します。LEProc.exeファイルを選択してください。</value>
   </data>
   <data name="SettingsPage_Game_LocaleEmulator_PathDescription.Text" xml:space="preserve">
-    <value>当前路径：</value>
+    <value>現在のパス：</value>
   </data>
   <data name="Select.Content" xml:space="preserve">
-    <value>更改</value>
+    <value>変更</value>
   </data>
   <data name="SettingsPage_Game_LocalEmulatorPathWarning" xml:space="preserve">
-    <value>默认情况下，LocaleEmulator的可执行文件名为LEProc.exe。
-您选择的文件名与其不一致，请检查是否选择了正确的可执行文件。</value>
+    <value>デフォルトでは、LocaleEmulatorの実行ファイル名はLEProc.exeです。
+選択したファイル名がこれと一致しません。正しい実行ファイルを選択したか確認してください。</value>
   </data>
   <data name="GalgamePage_RunInLocaleEmulator.Label" xml:space="preserve">
-    <value>转区运行游戏</value>
+    <value>ロケールエミュレーターでゲームを実行</value>
   </data>
   <data name="GalgamePage_HighDpi.Label" xml:space="preserve">
-    <value>高DPI替代缩放</value>
+    <value>高DPIスケーリングの上書き</value>
   </data>
   <data name="GalgamePage_InvalidLocaleEmulatorPath" xml:space="preserve">
-    <value>LocaleEmulator 路径未设置或路径不存在，请在 设置-&gt;游戏 处设置LocaleEmulator路径</value>
+    <value>LocaleEmulatorのパスが設定されていないか、存在しません。「設定」-&gt;「ゲーム」でLocaleEmulatorのパスを設定してください。</value>
   </data>
   <data name="GalgamePage_HighDpi_Success" xml:space="preserve">
-    <value>成功修改高DPI替代缩放</value>
+    <value>高DPIスケーリングの上書きの変更に成功しました</value>
   </data>
   <data name="GalgamePage_HighDpi_Fail" xml:space="preserve">
-    <value>修改高DPI替代缩放失败</value>
+    <value>高DPI代替スケーリングの変更に失敗しました</value>
   </data>
   <data name="GalgamePage_HighDpi_NeedAdmin" xml:space="preserve">
-    <value>需要管理员权限来修改DPI设置</value>
+    <value>DPI設定を変更するには管理者権限が必要です</value>
   </data>
   <data name="GalgamePage_HighDpi_ExePathIsEmpty" xml:space="preserve">
-    <value>未指定游戏exe路径，请先设置游戏路径</value>
+    <value>ゲームのexeパスが指定されていません。まずゲームパスを設定してください</value>
   </data>
   <data name="GalgamePage_Delete_Game_Error" xml:space="preserve">
-    <value>删除游戏时发生错误：{0}</value>
+    <value>ゲームの削除中にエラーが発生しました：{0}</value>
   </data>
   <data name="GalgamePage_Delete_Game_Success" xml:space="preserve">
-    <value>成功删除游戏</value>
+    <value>ゲームを正常に削除しました</value>
   </data>
   <data name="Shell_MultiStream.Content" xml:space="preserve">
-    <value>主页</value>
+    <value>ホーム</value>
   </data>
   <data name="Shell_MultiStreamText.Text" xml:space="preserve">
-    <value>主页</value>
+    <value>ホーム</value>
   </data>
   <data name="MultiStreamPage_AllSources" xml:space="preserve">
-    <value>游戏库</value>
+    <value>ゲームライブラリ</value>
   </data>
   <data name="GalgameSourcePage_GamesTable.SettingTitle" xml:space="preserve">
-    <value>游戏列表</value>
+    <value>ゲームリスト</value>
   </data>
   <data name="GalgameSourcePage_GamesTable.SettingDescription" xml:space="preserve">
-    <value>查看与编辑这个库里的所有游戏信息</value>
+    <value>このライブラリ内のすべてのゲーム情報を表示および編集する</value>
   </data>
   <data name="GalgameSourcePage_Setting.SettingTitle" xml:space="preserve">
-    <value>游戏库设置</value>
+    <value>ゲームライブラリ設定</value>
   </data>
   <data name="GalgameSourcePage_Setting.SettingDescription" xml:space="preserve">
-    <value>查看与设置这个库的信息与配置</value>
+    <value>このライブラリの情報と設定を表示および構成する</value>
   </data>
   <data name="GalgameSourcePage_Setting_Name.Title" xml:space="preserve">
-    <value>游戏库名</value>
+    <value>ゲームライブラリ名</value>
   </data>
   <data name="GalgameSourcePage_Setting_Name.Description" xml:space="preserve">
-    <value>修改该名不会反应到物理实体上（不会重命名该库对应的文件夹）</value>
+    <value>この名前を変更しても物理的な実体には反映されません（このライブラリに対応するフォルダーの名前は変更されません）</value>
   </data>
   <data name="GalgameSourcePage_Setting_AutoScan.Title" xml:space="preserve">
-    <value>启动时自动扫描</value>
+    <value>起動時に自動スキャン</value>
   </data>
   <data name="GalgameSourcePage_Setting_AutoScan.Description" xml:space="preserve">
-    <value>是否在PotatoVN启动时自动扫描该库内的游戏</value>
+    <value>PotatoVNの起動時にこのライブラリ内のゲームを自動スキャンしますか</value>
   </data>
   <data name="GalgameSourcePage_Setting_IncludeSubSources.Title" xml:space="preserve">
-    <value>显示子库的游戏</value>
+    <value>サブライブラリのゲームを表示する</value>
   </data>
   <data name="GalgameSourcePage_Setting_IncludeSubSources.Description" xml:space="preserve">
-    <value>是否在下面的游戏列表中显示子库的游戏</value>
+    <value>以下のゲームリストにサブライブラリのゲームを表示しますか？</value>
   </data>
   <data name="ResetToDefault.Content" xml:space="preserve">
-    <value>恢复到默认值</value>
+    <value>デフォルト値に戻す</value>
   </data>
   <data name="GalgameSourcePage_Setting_Image.Title" xml:space="preserve">
-    <value>封面图</value>
+    <value>カバー画像</value>
   </data>
   <data name="GalgameSourcePage_Setting_NoImage" xml:space="preserve">
-    <value>无封面图，将显示改游戏库对应的icon</value>
+    <value>カバー画像なし、ゲームライブラリのアイコンが表示されます</value>
   </data>
   <data name="MultiStreamPage_Cmd_Search.Label" xml:space="preserve">
-    <value>搜索</value>
+    <value>検索</value>
   </data>
   <data name="MultiStreamPage_SearchFailed" xml:space="preserve">
-    <value>没有找到与该关键字匹配的游戏/制作公司</value>
+    <value>このキーワードに一致するゲーム/制作会社は見つかりませんでした</value>
   </data>
   <data name="MultiStreamPage_Cmd_Setting.Label" xml:space="preserve">
-    <value>设置显示列表</value>
+    <value>表示リストの設定</value>
   </data>
   <data name="PageEnum_Home" xml:space="preserve">
-    <value>游戏</value>
+    <value>ゲーム</value>
   </data>
   <data name="PageEnum_Category" xml:space="preserve">
-    <value>分类</value>
+    <value>カテゴリ</value>
   </data>
   <data name="PageEnum_MultiStream" xml:space="preserve">
-    <value>主页</value>
+    <value>ホーム</value>
   </data>
   <data name="MultiStreamPageSortKeys_LastPlayed" xml:space="preserve">
-    <value>上次游玩时间</value>
+    <value>最終プレイ日時</value>
   </data>
   <data name="MultiStreamPageSortKeys_ReleaseDate" xml:space="preserve">
-    <value>发行时间</value>
+    <value>リリース日</value>
   </data>
   <data name="MultiStreamPageSettingDialog_ListTitle.Text" xml:space="preserve">
-    <value>列表标题</value>
+    <value>リストタイトル</value>
   </data>
   <data name="MultiStreamPageSettingDialog_Sort.Text" xml:space="preserve">
-    <value>排序方式</value>
+    <value>並べ替え方法</value>
   </data>
   <data name="MultiStreamPageSettingDialog_GameList_Category.Text" xml:space="preserve">
-    <value>分类</value>
+    <value>カテゴリ</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CategoryList_Group.Text" xml:space="preserve">
-    <value>分类组</value>
+    <value>カテゴリグループ</value>
   </data>
   <data name="MultiStreamPageSortKeys_LastClicked" xml:space="preserve">
-    <value>上次点击时间</value>
+    <value>最終クリック日時</value>
   </data>
   <data name="MultiStreamPageSettingDialog_SourceList_Base.Text" xml:space="preserve">
-    <value>根库</value>
+    <value>基本ライブラリ</value>
   </data>
   <data name="MultiStreamPageSettingDialog_GameList_Name.Text" xml:space="preserve">
-    <value>游戏列表</value>
+    <value>ゲームリスト</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CategoryList_Name.Text" xml:space="preserve">
-    <value>分类列表</value>
+    <value>カテゴリリスト</value>
   </data>
   <data name="MultiStreamPageSettingDialog_SourceList_Name.Text" xml:space="preserve">
-    <value>库列表</value>
+    <value>ライブラリリスト</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add.Label" xml:space="preserve">
-    <value>添加列表</value>
+    <value>リストの追加</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Reset.Label" xml:space="preserve">
-    <value>恢复默认设置</value>
+    <value>既定の設定に戻す</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListFull.Text" xml:space="preserve">
-    <value>游戏列表（全部游戏）</value>
+    <value>ゲームリスト（すべてのゲーム）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListCategory.Text" xml:space="preserve">
-    <value>游戏列表（某分类中）</value>
+    <value>ゲームリスト（特定のカテゴリ内）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_GameListSource.Text" xml:space="preserve">
-    <value>游戏列表（某库中）</value>
+    <value>ゲームリスト（特定のライブラリ内）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_CategoryList.Text" xml:space="preserve">
-    <value>分类列表（某分类组）</value>
+    <value>カテゴリリスト（特定のカテゴリグループ）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListFull.Text" xml:space="preserve">
-    <value>库列表（全部库）</value>
+    <value>ライブラリリスト（すべてのライブラリ）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_CommandBar_Add_SourceListSubSource.Text" xml:space="preserve">
-    <value>库列表（某库中）</value>
+    <value>ライブラリリスト（特定のライブラリ内）</value>
   </data>
   <data name="MultiStreamPageSettingDialog_NewGameList" xml:space="preserve">
-    <value>新建游戏列表</value>
+    <value>新規ゲームリスト</value>
   </data>
   <data name="MultiStreamPageSettingDialog_NewCategoryList" xml:space="preserve">
-    <value>新建分类列表</value>
+    <value>新規カテゴリリスト</value>
   </data>
   <data name="MultiStreamPageSettingDialog_NewSourceList" xml:space="preserve">
-    <value>新建库列表</value>
+    <value>新規ライブラリリスト</value>
   </data>
   <data name="MultiStreamPageSettingDialog_GameList_Source.Text" xml:space="preserve">
-    <value>游戏库</value>
+    <value>ゲームライブラリ</value>
   </data>
   <data name="MultiStreamPage_RecentPlayGames" xml:space="preserve">
-    <value>最近游玩的游戏</value>
+    <value>最近プレイしたゲーム</value>
   </data>
   <data name="MultiStreamPage_Cmd_AllowScroll.Label" xml:space="preserve">
-    <value>允许鼠标滚轮滚动列表</value>
+    <value>マウスホイールでのリストスクロールを許可</value>
   </data>
   <data name="SettingsPage_Other_Export.Title" xml:space="preserve">
-    <value>导出数据</value>
+    <value>データのエクスポート</value>
   </data>
   <data name="SettingsPage_Other_Export.Description" xml:space="preserve">
-    <value>导出所有的游戏、游戏库、分类等信息</value>
+    <value>すべてのゲーム、ゲームライブラリ、カテゴリなどの情報をエクスポート</value>
   </data>
   <data name="SettingsPage_Other_Export_Button.Content" xml:space="preserve">
-    <value>选择导出位置</value>
+    <value>エクスポート場所の選択</value>
   </data>
   <data name="SettingsPage_Other_Export_Fail" xml:space="preserve">
-    <value>导出数据失败</value>
+    <value>データのエクスポートに失敗しました</value>
   </data>
   <data name="ExportTask_PathNotWritable" xml:space="preserve">
-    <value>路径 {0} 没有写权限</value>
+    <value>パス {0} に書き込み権限がありません</value>
   </data>
   <data name="ExportTask_Title" xml:space="preserve">
-    <value>导出数据任务</value>
+    <value>データエクスポートタスク</value>
   </data>
   <data name="SettingsPage_Other_Export_Exporting" xml:space="preserve">
-    <value>已有一个导出任务正在运行，请等待上个任务完成后再新增导出。</value>
+    <value>既にエクスポートタスクが実行中です。前のタスクが完了するまでお待ちください。</value>
   </data>
   <data name="ExportTask_Success" xml:space="preserve">
-    <value>成功导出数据至： {0}</value>
+    <value>データのエクスポートに成功しました：{0}</value>
   </data>
   <data name="ExportTask_FileExist" xml:space="preserve">
-    <value>导出文件 {0} 已存在，请删除或移动该文件后再导出。</value>
+    <value>エクスポートファイル {0} は既に存在します。エクスポートする前に、このファイルを削除または移動してください。</value>
   </data>
   <data name="ExportTask_Compressing" xml:space="preserve">
-    <value>正在压缩导出文件</value>
+    <value>エクスポートファイルを圧縮中です</value>
   </data>
   <data name="GalgameSourceCollectionService_RemoveNonExist_Title" xml:space="preserve">
-    <value>已删除找不到的库</value>
+    <value>見つからないライブラリを削除しました</value>
   </data>
   <data name="GalgameSourceCollectionService_RemoveNonExist_Msg" xml:space="preserve">
-    <value>无法在文件系统中找到以下库，已在PotatoVN中将其删除。请仔细检查对应的位置是否有库（改名了？）并重新添加库。{0}</value>
+    <value>ファイルシステムで以下のライブラリが見つからなかったため、PotatoVNから削除しました。対応する場所にライブラリがあるか（名前が変更されたか？）をよく確認し、ライブラリを再度追加してください。{0}</value>
   </data>
   <data name="GalgameSourceCollectionService_Export_Progress" xml:space="preserve">
-    <value>正在导出游戏库：{0}</value>
+    <value>ゲームライブラリをエクスポート中です：{0}</value>
   </data>
   <data name="CategoryService_Export_Progress" xml:space="preserve">
-    <value>正在导出分类：{0}</value>
+    <value>カテゴリをエクスポート中: {0}</value>
   </data>
   <data name="GalgameCollectionService_Export_Progress" xml:space="preserve">
-    <value>正在导出游戏：{0}</value>
+    <value>ゲームをエクスポート中: {0}</value>
   </data>
   <data name="ActivationService_LoadDataError" xml:space="preserve">
-    <value>无法读取PotatoVN数据，数据损坏？
-旧数据已被备份到：{0}
-您可以尝试恢复之前导出的数据（如有），或从同步服务器中获取数据（如有），或在github上提出issue联系开发者以尝试恢复数据。
-软件已恢复到初始状态。
-    </value>
+    <value>PotatoVNデータを読み取れません。データが破損していますか？
+古いデータは以下にバックアップされました: {0}
+以前にエクスポートしたデータ（もしあれば）を復元するか、同期サーバーからデータ（もしあれば）を取得するか、またはGitHubでissueを提出して開発者に連絡し、データの復元を試みることができます。
+ソフトウェアは初期状態に復元されました。</value>
   </data>
   <data name="ImportWindow_Extracting" xml:space="preserve">
-    <value>正在解压备份文件： {0}</value>
+    <value>バックアップファイルを解凍中: {0}</value>
   </data>
   <data name="ImportWindow_BackingUp" xml:space="preserve">
-    <value>正在备份当前数据</value>
+    <value>現在のデータをバックアップ中</value>
   </data>
   <data name="ImportWindow_Fail" xml:space="preserve">
-    <value>导入数据失败</value>
+    <value>データのインポートに失敗しました</value>
   </data>
   <data name="ImportWindow_Restoring" xml:space="preserve">
-    <value>数据导入失败，恢复原有数据中。失败原因为：
-{0}
-    </value>
+    <value>データのインポートに失敗しました。元のデータを復元中です。失敗の原因: {0}
+</value>
   </data>
   <data name="ImportWindow_Importing" xml:space="preserve">
-    <value>各模块正在读取数据</value>
+    <value>各モジュールがデータを読み込み中</value>
   </data>
   <data name="SettingsPage_Other_Import.Title" xml:space="preserve">
-    <value>导入数据</value>
+    <value>データをインポート</value>
   </data>
   <data name="SettingsPage_Other_Import.Description" xml:space="preserve">
-    <value>导入所有的游戏、游戏库、分类等信息</value>
+    <value>すべてのゲーム、ゲームライブラリ、カテゴリなどの情報をインポートします</value>
   </data>
   <data name="SettingsPage_Other_Import_Button.Content" xml:space="preserve">
-    <value>选择数据包</value>
+    <value>データパックを選択</value>
   </data>
   <data name="SettingsPage_Other_Import_Fail" xml:space="preserve">
-    <value>导入数据失败</value>
+    <value>データインポートに失敗しました</value>
   </data>
   <data name="SettingsPage_Other_Import_Copying" xml:space="preserve">
-    <value>正在复制数据包到PotatoVN数据库</value>
+    <value>データパックをPotatoVNデータベースにコピー中です</value>
   </data>
   <data name="SettingsPage_Other_Import_Restart" xml:space="preserve">
-    <value>应用将在10秒后自动重启以完成剩余的导入过程。</value>
+    <value>アプリケーションは残りのインポートプロセスを完了するために10秒後に自動的に再起動します。</value>
   </data>
   <data name="SettingsPage_Other_Import_WrongFile" xml:space="preserve">
-    <value>请选择形如"xxx.pvnExport.zip"的PotatoVN导出文件</value>
+    <value>"xxx.pvnExport.zip"のようなPotatoVNエクスポートファイルを選択してください</value>
   </data>
   <data name="UpdateContentPage_WebView2IsNeeded.Text" xml:space="preserve">
-    <value>本页需要WebView2以正常显示</value>
+    <value>このページを正常に表示するにはWebView2が必要です</value>
   </data>
   <data name="UpdateContentPage_DownloadWebview2.Content" xml:space="preserve">
-    <value>点此跳转Webview2下载链接</value>
+    <value>こちらをクリックしてWebView2ダウンロードリンクへ</value>
   </data>
   <data name="UpdateContentPage_SeeWebsite.Label" xml:space="preserve">
-    <value>查看所有更新记录</value>
+    <value>全ての更新履歴を表示</value>
   </data>
   <data name="LocalFolderSourceService_OnFolderCreatedError" xml:space="preserve">
-    <value>自动添加游戏失败</value>
+    <value>ゲームの自動追加に失敗しました</value>
   </data>
   <data name="GalgameSourcePage_Setting_Auto.Title" xml:space="preserve">
-    <value>自动添加/取消托管游戏</value>
+    <value>ゲームの自動追加/ホスト解除</value>
   </data>
   <data name="GalgameSourcePage_Setting_Auto.Description" xml:space="preserve">
-    <value>PotatoVN运行时，在文件管理器手动修改游戏库的内容是否反馈到PotatoVN里。</value>
+    <value>PotatoVN実行中に、ファイルマネージャーでゲームライブラリの内容を手動で変更した場合、その変更はPotatoVNに反映されますか？</value>
   </data>
   <data name="GalgameSourcePage_Setting_Auto_Add.Title" xml:space="preserve">
-    <value>自动添加游戏</value>
+    <value>ゲームの自動追加</value>
   </data>
   <data name="GalgameSourcePage_Setting_Auto_Add.Description" xml:space="preserve">
-    <value>手动往游戏库添加游戏文件夹时，PotatoVN自动添加该游戏到库里。</value>
+    <value>ゲームライブラリにゲームフォルダを手動で追加すると、PotatoVNが自動的にそのゲームをライブラリに追加します。</value>
   </data>
   <data name="GalgameSourcePage_Setting_Auto_Remove.Title" xml:space="preserve">
-    <value>自动取消托管游戏</value>
+    <value>ゲームの自動管理解除</value>
   </data>
   <data name="GalgameSourcePage_Setting_Auto_Remove.Description" xml:space="preserve">
-    <value>手动在游戏库删除游戏文件夹时，PotatoVN自动从该库取消托管游戏。</value>
+    <value>ゲームライブラリからゲームフォルダを手動で削除すると、PotatoVNが自動的にそのゲームの管理を解除します。</value>
   </data>
   <data name="LocalFolderSourceService_OnFolderCreated" xml:space="preserve">
-    <value>自动添加游戏成功</value>
+    <value>ゲームの自動追加に成功しました</value>
   </data>
   <data name="LocalFolderSourceService_OnFolderDelete" xml:space="preserve">
-    <value>自动从库中移出游戏成功</value>
+    <value>ライブラリからのゲーム自動削除に成功しました</value>
   </data>
   <data name="LocalFolderSourceService_OnFolderDeleteError" xml:space="preserve">
-    <value>自动从库中移出游戏失败</value>
+    <value>ライブラリからのゲーム自動削除に失敗しました</value>
   </data>
   <data name="Shell_AnnualReport.Content" xml:space="preserve">
-    <value>年度报告</value>
+    <value>年次レポート</value>
   </data>
   <data name="Shell_AnnualReportText.Text" xml:space="preserve">
-    <value>年度报告</value>
+    <value>年次報告</value>
   </data>
   <data name="SettingsPage_Library_RemoveAllBackup.Title" xml:space="preserve">
-    <value>清理备份文件</value>
+    <value>バックアップファイルをクリーンアップ</value>
   </data>
   <data name="SettingsPage_Library_RemoveAllBackup.Description" xml:space="preserve">
-    <value>删除所有游戏目录下的.PotatoVN备份文件（仅移除备份副本，不影响当前使用中的数据）</value>
+    <value>すべてのゲームディレクトリにある.PotatoVNバックアップファイルを削除します（バックアップコピーのみが削除され、現在使用中のデータには影響しません）</value>
   </data>
   <data name="SettingsPage_Library_RemoveMetaBackupProgress" xml:space="preserve">
-    <value>正在删除 {0} 的.PotatoVN备份文件</value>
+    <value>{0} の.PotatoVNバックアップファイルを削除しています</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_RssType.Text" xml:space="preserve">
-    <value>搜刮源</value>
+    <value>情報源</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_Name.Text" xml:space="preserve">
-    <value>游戏名</value>
+    <value>ゲーム名</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_Path.Text" xml:space="preserve">
-    <value>路径</value>
+    <value>パス</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_Edit.Text" xml:space="preserve">
-    <value>编辑</value>
+    <value>編集</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_CopyName.Text" xml:space="preserve">
-    <value>复制游戏名</value>
+    <value>ゲーム名をコピー</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_CopyPath.Text" xml:space="preserve">
-    <value>复制路径</value>
+    <value>パスをコピー</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_OpenInExplorer.Text" xml:space="preserve">
-    <value>在文件管理器中打开</value>
+    <value>ファイルエクスプローラーで開く</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_Delete.Text" xml:space="preserve">
-    <value>从库中移除游戏</value>
+    <value>ライブラリからゲームを削除</value>
   </data>
   <data name="GalgameSourcePage_Remove_Title" xml:space="preserve">
-    <value>从库中移除游戏</value>
+    <value>ライブラリからゲームを削除</value>
   </data>
   <data name="GalgameSourcePage_Remove_SingleGame" xml:space="preserve">
-    <value>是否要从游戏库中移除游戏：{0}</value>
+    <value>ゲーム「{0}」をライブラリから削除しますか？</value>
   </data>
   <data name="AnnualReportPage_Calculating.Text" xml:space="preserve">
-    <value>正在计算年度数据，请稍后</value>
+    <value>年間データを計算中です。しばらくお待ちください</value>
   </data>
   <data name="Shell_GalgamePage.Content" xml:space="preserve">
-    <value>游戏详情</value>
+    <value>ゲーム詳細</value>
   </data>
   <data name="Galgame_GetCharacterInfo_Waiting" xml:space="preserve">
-    <value>目标搜刮源拥塞控制，排队等待中，{0} 秒后重试</value>
+    <value>ターゲットのスクレイピング元が混雑しています。キューで待機中です。 {0}秒後に再試行します</value>
   </data>
   <data name="SortKeys_Name" xml:space="preserve">
-    <value>游戏名</value>
+    <value>ゲーム名</value>
   </data>
   <data name="SortKeys_Developer" xml:space="preserve">
-    <value>制作公司</value>
+    <value>制作会社</value>
   </data>
   <data name="SortKeys_Rating" xml:space="preserve">
-    <value>评分</value>
+    <value>レーティング</value>
   </data>
   <data name="DisplayName_ChineseName" xml:space="preserve">
-    <value>游戏中文名</value>
+    <value>ゲーム中国語名</value>
   </data>
   <data name="DisplayName_OriginalName" xml:space="preserve">
-    <value>游戏原名</value>
+    <value>ゲーム原題</value>
   </data>
   <data name="DisplayName_Name" xml:space="preserve">
-    <value>默认游戏名</value>
+    <value>既定のゲーム名</value>
   </data>
   <data name="DisplayName_None" xml:space="preserve">
-    <value>隐藏</value>
+    <value>隠す</value>
   </data>
   <data name="SortKeys_LastPlay" xml:space="preserve">
-    <value>最后游玩时间</value>
+    <value>最終プレイ時間</value>
   </data>
   <data name="SortKeys_ReleaseDate" xml:space="preserve">
-    <value>发售日期</value>
+    <value>発売日</value>
   </data>
   <data name="SortKeys_LastFetchInfoTime" xml:space="preserve">
-    <value>最后更新信息时间</value>
+    <value>最終情報更新時間</value>
   </data>
   <data name="SortKeys_AddTime" xml:space="preserve">
-    <value>添加时间</value>
+    <value>追加時間</value>
   </data>
   <data name="GalgameSettingPage_GetInfoFromRssFailed" xml:space="preserve">
-    <value>从数据源获取数据失败</value>
+    <value>データソースからのデータ取得に失敗しました</value>
   </data>
   <data name="SettingsPage_Download_Character.Title" xml:space="preserve">
-    <value>下载游戏角色信息</value>
+    <value>ゲームキャラクター情報をダウンロード</value>
   </data>
   <data name="SettingsPage_Download_Character.Description" xml:space="preserve">
-    <value>注意：同时下载大量游戏角色信息可能会导致API堵塞，这会导致需要更长时间才能完成下载</value>
+    <value>注意：大量のゲームキャラクター情報を同時にダウンロードすると、APIが詰まり、ダウンロード完了に時間がかかる場合があります</value>
   </data>
   <data name="Galgame_GetCharacterInfo_RunningTasks" xml:space="preserve">
-    <value>还有{0}个游戏等待下载角色信息</value>
+    <value>あと{0}個のゲームがキャラクター情報のダウンロードを待っています</value>
   </data>
   <data name="LibraryPage_NavVisible.Label" xml:space="preserve">
-    <value>显示导航栏</value>
+    <value>ナビゲーションバーを表示</value>
   </data>
   <data name="LibraryPage_StatisticsVisible.Label" xml:space="preserve">
-    <value>显示统计数据</value>
+    <value>統計データを表示</value>
   </data>
   <data name="SettingsPage_Start_AutoStartOnLogin.Title" xml:space="preserve">
-    <value>开机自启</value>
+    <value>自動起動</value>
   </data>
   <data name="SettingsPage_Start_AutoStartOnLogin.Description" xml:space="preserve">
-    <value>在windows启动后（登录后）自动启动PotatoVN</value>
+    <value>Windows起動後（ログイン後）にPotatoVNを自動的に起動します</value>
   </data>
   <data name="SettingsPage_Start_MinToTray.Title" xml:space="preserve">
-    <value>最小化到系统托盘</value>
+    <value>システムトレイに最小化</value>
   </data>
   <data name="SettingsPage_Start_MinToTray.Description" xml:space="preserve">
-    <value>自动启动后是否最小化到系统托盘</value>
+    <value>自動起動時にシステムトレイに最小化する</value>
   </data>
   <data name="SettingsPage_Start_AutoStartDisabledByUser" xml:space="preserve">
-    <value>你在任务管理器中手动禁用过PotatoVN的自动启动啦，请在任务管理器中打开本软件的自动启动后再尝试~</value>
+    <value>タスクマネージャーでPotatoVNの自動起動を手動で無効にしました。タスクマネージャーでこのソフトウェアの自動起動を有効にしてから、もう一度お試しください。</value>
   </data>
   <data name="SettingsPage_Start_AutoStartDisabledByPolicy" xml:space="preserve">
-    <value>PotatoVN的自动启动被组策略禁用啦，详情请咨询电脑管理员~</value>
+    <value>PotatoVNの自動起動はグループポリシーによって無効化されています。詳細はコンピューター管理者にお問い合わせください。</value>
   </data>
   <data name="SettingsPage_Start_AutoStartFail" xml:space="preserve">
-    <value>修改自动启动设置失败</value>
+    <value>自動起動設定の変更に失敗しました</value>
   </data>
   <data name="AccountPage_Pvn_LoginedDescription" xml:space="preserve">
-    <value>用户ID:{0}, 登录有效至:{1}, 下次刷新登录:{2}</value>
+    <value>ユーザーID:{0}, ログイン有効期限:{1}, 次回ログイン更新:{2}</value>
   </data>
   <data name="AccountPage_Pvn_RefreshToken.Title" xml:space="preserve">
-    <value>刷新登录</value>
+    <value>ログインを更新</value>
   </data>
   <data name="AccountPage_Pvn_RefreshToken.Description" xml:space="preserve">
-    <value>立刻刷新登录，并更新账户信息。</value>
+    <value>すぐにログインを更新し、アカウント情報を更新します。</value>
   </data>
   <data name="AccountPage_Pvn_TokenExpired" xml:space="preserve">
-    <value>该账户登录已过期，无法直接刷新登录，请重新登录此账号（先登出再登录）</value>
+    <value>このアカウントのログインは期限切れです。直接ログインを更新することはできません。このアカウントに再度ログインしてください（一度ログアウトしてからログインしてください）</value>
   </data>
   <data name="PvnService_TokenRefreshed" xml:space="preserve">
-    <value>已成功刷新PotatoVN账户登录~</value>
+    <value>PotatoVNアカウントのログインを正常に更新しました。</value>
   </data>
   <data name="PvnService_TokenRefreshFailed" xml:space="preserve">
-    <value>刷新PotatoVN账户登录失败</value>
+    <value>PotatoVNアカウントのログイン更新に失敗しました</value>
   </data>
   <data name="AccountPage_Pvn_RefreshSuccess" xml:space="preserve">
-    <value>已成功刷新PotatoVN账户登录~</value>
+    <value>PotatoVNアカウントのログインを正常に更新しました。</value>
   </data>
   <data name="GalgameCollectionService_UpgradeToLiteDB_Failed" xml:space="preserve">
-    <value>数据升级失败 （游戏列表）</value>
+    <value>データ更新失敗（ゲームリスト）</value>
   </data>
   <data name="GalgameSourceCollectionService_NotSuchGameUUID_Title" xml:space="preserve">
-    <value>读取游戏库时发生意料外错误</value>
+    <value>ゲームライブラリの読み込み中に予期せぬエラーが発生しました</value>
   </data>
   <data name="GalgameSourceCollectionService_NotSuchGameUUID_Msg" xml:space="preserve">
-    <value>无法根据游戏UUID找到相应的游戏，游戏 {0} 已被移除出库 {1}</value>
+    <value>ゲームUUIDに基づいて対応するゲームが見つかりませんでした。ゲーム {0} はライブラリから削除されました {1}</value>
   </data>
   <data name="MultiStreamPage_LoadFailed" xml:space="preserve">
-    <value>读取列表时出现错误</value>
+    <value>リストの読み込み中にエラーが発生しました</value>
   </data>
   <data name="MultiStreamPage_LoadFailed_CanNotFindById" xml:space="preserve">
-    <value>没有找到列表 {0} 所对应的分类组，是不是已经删除了该分类组？</value>
+    <value>リスト {0} に対応するカテゴリグループが見つかりませんでした。このカテゴリグループはすでに削除されましたか？</value>
   </data>
   <data name="GetStaffFromRssTask_Title" xml:space="preserve">
-    <value>获取游戏制作人任务</value>
+    <value>スタッフ情報取得タスク</value>
   </data>
   <data name="GetStaffFromRssTask_Progress" xml:space="preserve">
-    <value>正在获取以下staff信息：</value>
+    <value>以下のスタッフ情報を取得中：</value>
   </data>
   <data name="GetStaffFromRssTask_Progress_Waiting" xml:space="preserve">
-    <value>还有{0}位staff信息获取任务排队中</value>
+    <value>あと{0}人のスタッフ情報取得タスクがキューに入っています</value>
   </data>
   <data name="GalgamePage_Staffs.Text" xml:space="preserve">
-    <value>制作人员</value>
+    <value>制作スタッフ</value>
   </data>
   <data name="Career_Relation_Unknown" xml:space="preserve">
     <value>制作</value>
   </data>
   <data name="Career_Relation_Writer" xml:space="preserve">
-    <value>剧本</value>
+    <value>シナリオ</value>
   </data>
   <data name="Career_Relation_Painter" xml:space="preserve">
     <value>原画</value>
   </data>
   <data name="Career_Relation_Musician" xml:space="preserve">
-    <value>音乐</value>
+    <value>音楽</value>
   </data>
   <data name="Career_Relation_Seiyu" xml:space="preserve">
-    <value>声优</value>
+    <value>声優</value>
   </data>
   <data name="Career_Relation_Producer" xml:space="preserve">
-    <value>开发</value>
+    <value>開発</value>
   </data>
   <data name="Career_Relation_Programmer" xml:space="preserve">
-    <value>程序</value>
+    <value>プログラマー</value>
   </data>
   <data name="Shell_Staff.Content" xml:space="preserve">
-    <value>制作人员</value>
+    <value>スタッフ</value>
   </data>
   <data name="Shell_GalgameCharacter.Content" xml:space="preserve">
-    <value>角色介绍</value>
+    <value>キャラクター紹介</value>
   </data>
   <data name="StaffPage_Gender.Text" xml:space="preserve">
-    <value>性别</value>
+    <value>性別</value>
   </data>
   <data name="Career_Writer" xml:space="preserve">
     <value>作家</value>
   </data>
   <data name="Career_Unknown" xml:space="preserve">
-    <value>未知</value>
+    <value>不明</value>
   </data>
   <data name="Career_Painter" xml:space="preserve">
-    <value>绘师</value>
+    <value>絵師</value>
   </data>
   <data name="Career_Musician" xml:space="preserve">
-    <value>音乐家</value>
+    <value>音楽家</value>
   </data>
   <data name="Career_Seiyu" xml:space="preserve">
-    <value>声优</value>
+    <value>声優</value>
   </data>
   <data name="Career_Producer" xml:space="preserve">
-    <value>制作人</value>
+    <value>プロデューサー</value>
   </data>
   <data name="Career_Programmer" xml:space="preserve">
-    <value>程序</value>
+    <value>プログラマー</value>
   </data>
   <data name="StaffPage_Career.Text" xml:space="preserve">
-    <value>职业</value>
+    <value>職業</value>
   </data>
   <data name="StaffPage_Birthday.Text" xml:space="preserve">
-    <value>生日</value>
+    <value>誕生日</value>
   </data>
   <data name="StaffPage_Description.Text" xml:space="preserve">
-    <value>人物简介</value>
+    <value>プロフィール</value>
   </data>
   <data name="StaffPage_Games.Content" xml:space="preserve">
-    <value>参与作品</value>
+    <value>参加作品</value>
   </data>
   <data name="StaffPage_DeleteGame.Text" xml:space="preserve">
-    <value>移除作品</value>
+    <value>作品を削除</value>
   </data>
   <data name="StaffPage_AddGame.Label" xml:space="preserve">
-    <value>增加作品</value>
+    <value>作品を追加</value>
   </data>
   <data name="GalgamePage_HeaderPanel_ExpectedPlayTime.Text" xml:space="preserve">
-    <value>预计时长</value>
+    <value>プレイ時間目安</value>
   </data>
   <data name="GalgamePage_GamePlayStatusPanel_MyRating.Text" xml:space="preserve">
-    <value>我的评分</value>
+    <value>私の評価</value>
   </data>
   <data name="GalgamePage_GamePlayStatusPanel_MyComment.Text" xml:space="preserve">
-    <value>我的评价</value>
+    <value>私のコメント</value>
   </data>
   <data name="SelectGameDialog_Title" xml:space="preserve">
-    <value>选择游戏</value>
+    <value>ゲームを選択</value>
   </data>
   <data name="SelectGameDialog_Search.PlaceholderText" xml:space="preserve">
-    <value>搜索游戏...</value>
+    <value>ゲームを検索...</value>
   </data>
   <data name="SelectGameDialog_Confirm" xml:space="preserve">
-    <value>确定</value>
+    <value>確定</value>
   </data>
   <data name="SelectGameDialog_Cancel" xml:space="preserve">
-    <value>取消</value>
+    <value>キャンセル</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_Title" xml:space="preserve">
-    <value>管理游戏页面布局</value>
+    <value>ゲームページレイアウトの管理</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_Description.Text" xml:space="preserve">
-    <value>管理游戏页面中的各个部分的元素</value>
+    <value>ゲームページ内の各セクションの要素を管理</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowPainter.Text" xml:space="preserve">
-    <value>显示原画</value>
+    <value>原画を表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowSeiyu.Text" xml:space="preserve">
-    <value>显示声优</value>
+    <value>声優を表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowWriter.Text" xml:space="preserve">
-    <value>显示剧本</value>
+    <value>シナリオを表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowMusician.Text" xml:space="preserve">
-    <value>显示音乐</value>
+    <value>音楽を表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowPlayTime.Text" xml:space="preserve">
-    <value>显示预计游玩时长</value>
+    <value>推定プレイ時間を表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowRating.Text" xml:space="preserve">
-    <value>显示评分</value>
+    <value>評価を表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowTags.Text" xml:space="preserve">
-    <value>显示标签</value>
+    <value>タグを表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowCharacters.Text" xml:space="preserve">
-    <value>显示游戏角色</value>
+    <value>ゲームキャラクターを表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
-    <value>显示背景图</value>
+    <value>背景画像を表示</value>
   </data>
   <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
-    <value>游戏信息</value>
+    <value>ゲーム情報</value>
   </data>
   <data name="GalgameSettingPage_GameInfo_SettingDescription" xml:space="preserve">
-    <value>修改游戏的信息，如游戏名/id/简介/封面图等</value>
+    <value>ゲーム名/ID/概要/カバー画像などのゲーム情報を変更します。</value>
   </data>
   <data name="GalgameSettingPage_GameSetting.SettingTitle" xml:space="preserve">
-    <value>游戏设置</value>
+    <value>ゲーム設定</value>
   </data>
   <data name="GalgameSettingPage_GameSetting.SettingDescription" xml:space="preserve">
-    <value>修改游戏的路径/可执行文件/运行参数等设置</value>
+    <value>ゲームのパス/実行ファイル/実行パラメーターなどの設定を変更します。</value>
   </data>
   <data name="GalgameSettingPage_GameSetting_Path.Title" xml:space="preserve">
-    <value>游戏路径</value>
+    <value>ゲームパス</value>
   </data>
   <data name="GalgameSettingPage_GameSetting_Parameter_Input.PlaceholderText" xml:space="preserve">
-    <value>无特殊需求建议置空</value>
+    <value>特別な要件がない場合は空欄にしてください</value>
   </data>
   <data name="GalgameSettingPage_GameInfo_GalgameId_Input.PlaceholderText" xml:space="preserve">
-    <value>填入ID前请先选择信息源</value>
+    <value>IDを入力する前に情報源を選択してください</value>
   </data>
   <data name="GalgameSettingPage_ToggleSwitch.OnContent" xml:space="preserve">
-    <value>已锁定</value>
+    <value>ロック済み</value>
   </data>
   <data name="GalgameSettingPage_ToggleSwitch.OffContent" xml:space="preserve">
-    <value>未锁定</value>
+    <value>ロック解除済み</value>
   </data>
   <data name="GalgameSettingPage_NoExe" xml:space="preserve">
-    <value>还没设置启动文件呢</value>
+    <value>まだ起動ファイルが設定されていません</value>
   </data>
   <data name="GalgameSettingPage_GameInfo_Tag_Description.Text" xml:space="preserve">
-    <value>为了防止较低配电脑打开本界面卡顿，Tag设置默认折起来了</value>
+    <value>低スペックのPCでこの画面を開いた際のフリーズを防ぐため、タグ設定はデフォルトで折りたたまれています</value>
   </data>
   <data name="VirtualSource" xml:space="preserve">
-    <value>非本地游戏</value>
+    <value>非ローカルゲーム</value>
   </data>
   <data name="GalgameSourceType_Virtual" xml:space="preserve">
-    <value>虚拟游戏库</value>
+    <value>仮想ゲームライブラリ</value>
   </data>
   <data name="LibraryPage_CannotDelete" xml:space="preserve">
-    <value>这个库不能被删除</value>
+    <value>このライブラリは削除できません</value>
   </data>
   <data name="StaffService_Export" xml:space="preserve">
-    <value>正在导出staff：{0}</value>
+    <value>スタッフをエクスポート中：{0}</value>
   </data>
   <data name="PvnService_AccountTokenExpire" xml:space="preserve">
-    <value>该账户登录已过期，请重新登录。</value>
+    <value>このアカウントのログインは期限切れです。再度ログインしてください。</value>
   </data>
   <data name="PvnService_UploadingAvatar" xml:space="preserve">
-    <value>上传头像中，请稍等</value>
+    <value>アバターをアップロード中、しばらくお待ちください</value>
   </data>
   <data name="AccountPage_Pvn_SyncCharacter.Title" xml:space="preserve">
-    <value>同步游戏角色</value>
+    <value>ゲームキャラクターを同期</value>
   </data>
   <data name="AccountPage_Pvn_SyncCharacter.Description" xml:space="preserve">
-    <value>是否在同步时上传/下载游戏的游戏角色</value>
+    <value>ゲームの同期時にゲームキャラクターをアップロード/ダウンロードしますか</value>
   </data>
   <data name="AccountPage_Pvn_SyncOption.Text" xml:space="preserve">
-    <value>同步选项</value>
+    <value>同期オプション</value>
   </data>
   <data name="PvnSyncTask_Pull_Staff" xml:space="preserve">
-    <value>从远端下载staff：{0}</value>
+    <value>リモートからスタッフをダウンロード中：{0}</value>
   </data>
   <data name="PvnSyncTask_Pull_Staff_Get" xml:space="preserve">
-    <value>正在获取staff修改列表</value>
+    <value>スタッフの変更リストを取得しています</value>
   </data>
   <data name="PvnSyncTask_Staff_Commit" xml:space="preserve">
-    <value>正在上传staff：{0}</value>
+    <value>スタッフをアップロードしています：{0}</value>
   </data>
   <data name="PvnSyncTask_Staff_Commit_Success" xml:space="preserve">
-    <value>上传staff: {0} (id: {1})</value>
+    <value>スタッフ{0}をアップロードしました:  (ID: {1})</value>
   </data>
   <data name="PvnSyncTask_Pull_Staff_Success" xml:space="preserve">
-    <value>更新staff：{0}  (id：{1})</value>
+    <value>スタッフを更新しました：{0} (ID：{1})</value>
   </data>
   <data name="AccountPage_Pvn_SyncStaff.Title" xml:space="preserve">
-    <value>同步staff</value>
+    <value>スタッフを同期</value>
   </data>
   <data name="AccountPage_Pvn_SyncStaff.Description" xml:space="preserve">
-    <value>是否在同步时上传/下载staff信息</value>
+    <value>同期時にスタッフ情報をアップロード/ダウンロードしますか？</value>
   </data>
   <data name="PvnSyncTask_GettingServerInfo" xml:space="preserve">
-    <value>正在获取服务器信息</value>
+    <value>サーバー情報を取得しています</value>
   </data>
   <data name="SettingsPage_Theme_Language.Text" xml:space="preserve">
-    <value>软件语言</value>
+    <value>ソフトウェアの言語</value>
   </data>
   <data name="SettingsPage_Theme_Language_Description.Text" xml:space="preserve">
-    <value>选择软件使用的语言</value>
+    <value>ソフトウェアで使用する言語を選択します</value>
   </data>
   <data name="LanguageEnum_English" xml:space="preserve">
     <value>English</value>
@@ -2652,369 +2650,353 @@
     <value>简体中文</value>
   </data>
   <data name="LanguageEnum_Auto" xml:space="preserve">
-    <value>跟随系统</value>
+    <value>システムに従う</value>
   </data>
   <data name="SettingsPage_Language_RestartRequired" xml:space="preserve">
-    <value>请重启应用以应用新语言</value>
+    <value>新しい言語を適用するには、アプリケーションを再起動してください</value>
   </data>
   <data name="ElementTheme_Default" xml:space="preserve">
-    <value>跟随系统</value>
+    <value>システムに従う</value>
   </data>
   <data name="ElementTheme_Light" xml:space="preserve">
-    <value>浅色</value>
+    <value>ライト</value>
   </data>
   <data name="ElementTheme_Dark" xml:space="preserve">
-    <value>深色</value>
+    <value>ダーク</value>
   </data>
   <data name="LibraryPage_Sort.Label" xml:space="preserve">
-    <value>排序</value>
+    <value>並べ替え</value>
   </data>
   <data name="LibraryPage_SortByName.Text" xml:space="preserve">
-    <value>按名称</value>
+    <value>名前順</value>
   </data>
   <data name="LibraryPage_SortByLastPlay.Text" xml:space="preserve">
-    <value>按最近游玩时间</value>
+    <value>最終プレイ日時順</value>
   </data>
   <data name="LibraryPage_SortByDeveloper.Text" xml:space="preserve">
-    <value>按制作公司</value>
+    <value>制作会社別</value>
   </data>
   <data name="LibraryPage_SortByRating.Text" xml:space="preserve">
-    <value>按评分</value>
+    <value>評価順</value>
   </data>
   <data name="LibraryPage_SortByReleaseDate.Text" xml:space="preserve">
-    <value>按发行日期</value>
+    <value>リリース日順</value>
   </data>
   <data name="LibraryPage_SortByAddTime.Text" xml:space="preserve">
-    <value>按添加时间</value>
+    <value>追加日時順</value>
   </data>
   <data name="LibraryPage_SortByPath.Text" xml:space="preserve">
-    <value>按游戏路径</value>
+    <value>ゲームパス別</value>
   </data>
   <data name="LibraryPage_SortDescending.Text" xml:space="preserve">
-    <value>降序排序</value>
+    <value>降順ソート</value>
   </data>
   <data name="BackgroundMaterialEnum_Mica" xml:space="preserve">
-    <value>云母（默认）</value>
+    <value>Mica (デフォルト)</value>
   </data>
   <data name="BackgroundMaterialEnum_MicaAlt" xml:space="preserve">
-    <value>云母Alt</value>
+    <value>Mica Alt</value>
   </data>
   <data name="BackgroundMaterialEnum_DesktopAcrylic" xml:space="preserve">
-    <value>亚克力</value>
+    <value>アクリル</value>
   </data>
   <data name="SettingsPage_Theme_WindowBackgroundMaterial.Text" xml:space="preserve">
-    <value>窗口背景材质</value>
+    <value>ウィンドウ背景マテリアル</value>
   </data>
   <data name="SettingsPage_Theme_WindowBackgroundMaterial_Description.Text" xml:space="preserve">
-    <value>设置软件窗口的背景样式，在部分系统中可能没有效果</value>
+    <value>ソフトウェアウィンドウの背景スタイルを設定します。一部のシステムでは効果がない場合があります</value>
   </data>
   <data name="GalgamePage_ManageLayout.Label" xml:space="preserve">
-    <value>自定义页面布局</value>
+    <value>ページレイアウトをカスタマイズ</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OffContent" xml:space="preserve">
-    <value>不显示</value>
+    <value>表示しない</value>
   </data>
   <data name="GalgameSourcePage_IncludeSubSources.OnContent" xml:space="preserve">
-    <value>显示</value>
+    <value>表示</value>
   </data>
   <data name="LibraryPage_Root" xml:space="preserve">
-    <value>根目录</value>
+    <value>ルート</value>
   </data>
   <data name="GalgameSettingPage_HeaderImagePath.Title" xml:space="preserve">
-    <value>横幅图</value>
+    <value>ヘッダー画像</value>
   </data>
   <data name="GalgamePage_PlayStatusPanel.Text" xml:space="preserve">
-    <value>游玩状态</value>
+    <value>プレイ状況</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowCover.Text" xml:space="preserve">
-    <value>显示封面图</value>
+    <value>カバー画像を表示</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_ShowCoverWhenNoBackground.Content" xml:space="preserve">
-    <value>仅在未显示背景图片的时候显示封面图</value>
+    <value>背景画像が表示されていない場合のみカバー画像を表示</value>
   </data>
   <data name="GetHeaderFromRssTask_Title" xml:space="preserve">
-    <value>下载游戏横幅图任务</value>
+    <value>ゲームヘッダー画像ダウンロードタスク</value>
   </data>
   <data name="GetHeaderFromRssTask_Progress_Title" xml:space="preserve">
-    <value>正在获取以下游戏header图：</value>
+    <value>以下のゲームヘッダー画像を取得中：</value>
   </data>
   <data name="GetHeaderFromRssTask_Progress_Waiting" xml:space="preserve">
-    <value>还有{0}个游戏排队中</value>
+    <value>残り{0}個のゲームが待機中です</value>
   </data>
   <data name="QueueTaskBase_Empty" xml:space="preserve">
-    <value>已完成所有任务，等待新任务中</value>
+    <value>すべてのタスクが完了しました。新しいタスクを待機中です</value>
   </data>
   <data name="LibraryPage_GetInfoFromRss_Title" xml:space="preserve">
-    <value>获取所有游戏信息</value>
+    <value>すべてのゲーム情報を取得</value>
   </data>
   <data name="LibraryPage_GetInfoFromRss_Content" xml:space="preserve">
-    <value>下载当前库的所有游戏数据，这需要很长时间来下载所有信息</value>
+    <value>現在のライブラリのすべてのゲームデータをダウンロードします。すべての情報をダウンロードするには非常に時間がかかります。</value>
   </data>
   <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders" xml:space="preserve">
-    <value>包括所有子文件夹</value>
+    <value>すべてのサブフォルダーを含める</value>
   </data>
   <data name="LibraryPage_ScanAll_Title" xml:space="preserve">
-    <value>扫描游戏库</value>
+    <value>ゲームライブラリをスキャン</value>
   </data>
   <data name="LibraryPage_ScanAll_Content" xml:space="preserve">
-    <value>重新扫描当前库，这可能需要一段时间来下载所有信息</value>
+    <value>現在のライブラリを再スキャンします。すべての情報をダウンロードするにはしばらく時間がかかる場合があります。</value>
   </data>
   <data name="LibraryPage_ScanAll_IncludeSubfolders" xml:space="preserve">
-    <value>包括所有子文件夹</value>
+    <value>すべてのサブフォルダーを含める</value>
   </data>
   <data name="GalgameFolderPage_Delete.Label" xml:space="preserve">
-    <value>从库中移除游戏</value>
+    <value>ライブラリからゲームを削除</value>
   </data>
   <data name="GalgameSourcePage_Remove_Message" xml:space="preserve">
-    <value>确定要从库中移除所选游戏吗？一共选中了{0}个</value>
+    <value>選択したゲームをライブラリから削除しますか？{0}個選択されています。</value>
   </data>
   <data name="LibraryPage_SortGameSubMenu.Text" xml:space="preserve">
-    <value>游戏排序</value>
+    <value>ゲームの並べ替え</value>
   </data>
   <data name="LibraryPage_SortFolderSubMenu.Text" xml:space="preserve">
-    <value>库排序</value>
+    <value>ライブラリの並べ替え</value>
   </data>
   <data name="LibraryPage_GameSortDescending.Text" xml:space="preserve">
-    <value>降序</value>
+    <value>降順</value>
   </data>
   <data name="LibraryPage_FolderSortDescending.Text" xml:space="preserve">
-    <value>降序</value>
+    <value>降順</value>
   </data>
   <data name="LibraryPage_FolderSortByName.Text" xml:space="preserve">
-    <value>按名字</value>
+    <value>名前順</value>
   </data>
   <data name="LibraryPage_FolderSortByLastPlayed.Text" xml:space="preserve">
-    <value>按最近游玩时间</value>
+    <value>最終プレイ日時順</value>
   </data>
   <data name="LibraryPage_FolderSortByPath.Text" xml:space="preserve">
-    <value>按路径</value>
+    <value>パス順</value>
   </data>
   <data name="LibraryPage_FolderSortBySourceType.Text" xml:space="preserve">
-    <value>按库类型</value>
+    <value>ライブラリタイプ順</value>
   </data>
   <data name="LibraryPage_FolderSortByGalgameCount.Text" xml:space="preserve">
-    <value>按游戏数量</value>
+    <value>ゲーム数順</value>
   </data>
   <data name="HomePage_Sort_FirstKey.Text" xml:space="preserve">
-    <value>主要排序方式</value>
+    <value>プライマリソートキー</value>
   </data>
   <data name="HomePage_Sort_SecondKey.Text" xml:space="preserve">
-    <value>次要排序方式</value>
+    <value>セカンダリソートキー</value>
   </data>
   <data name="HomePage_Sort_Name.Text" xml:space="preserve">
-    <value>按游戏名</value>
+    <value>ゲーム名順</value>
   </data>
   <data name="HomePage_Sort_Developer.Text" xml:space="preserve">
-    <value>按制作公司</value>
+    <value>制作会社別</value>
   </data>
   <data name="HomePage_Sort_Rating.Text" xml:space="preserve">
-    <value>按评分</value>
+    <value>評価順</value>
   </data>
   <data name="HomePage_Sort_LastPlay.Text" xml:space="preserve">
-    <value>按最后游玩时间</value>
+    <value>最終プレイ日時順</value>
   </data>
   <data name="HomePage_Sort_ReleaseDate.Text" xml:space="preserve">
-    <value>按发售日期</value>
+    <value>発売日順</value>
   </data>
   <data name="HomePage_Sort_LastFetchInfoTime.Text" xml:space="preserve">
-    <value>按最后更新时间</value>
+    <value>最終更新日時順</value>
   </data>
   <data name="HomePage_Sort_AddTime.Text" xml:space="preserve">
-    <value>按添加时间</value>
+    <value>追加時間順</value>
   </data>
   <data name="HomePage_Sort_PrimaryAscending.Text" xml:space="preserve">
-    <value>升序</value>
+    <value>昇順</value>
   </data>
   <data name="HomePage_Sort_SecondaryAscending.Text" xml:space="preserve">
-    <value>升序</value>
+    <value>昇順</value>
   </data>
   <data name="SettingsPage_Theme_TransparentNavigationView.Title" xml:space="preserve">
-    <value>显示导航栏分界线</value>
+    <value>ナビゲーションバーの区切り線を表示</value>
   </data>
   <data name="SettingsPage_Theme_TransparentNavigationView.Description" xml:space="preserve">
-    <value>打开后将显示导航栏和标题栏的分界线，使得软件布局更清晰</value>
+    <value>有効にすると、ナビゲーションバーとタイトルバーの区切り線が表示され、ソフトウェアのレイアウトがより明確になります。</value>
   </data>
   <data name="SettingsPage_Theme_RestartRequired" xml:space="preserve">
-    <value>请重启应用以应用新的背景</value>
+    <value>新しい背景を適用するには、アプリケーションを再起動してください。</value>
   </data>
   <data name="SettingsPage_Start_DesktopShortcut.Title" xml:space="preserve">
-    <value>创建桌面快捷方式</value>
+    <value>デスクトップショートカットを作成</value>
   </data>
   <data name="SettingsPage_Start_DesktopShortcut.Description" xml:space="preserve">
-    <value>将在桌面创建一个打开PotatoVN的快捷方式</value>
+    <value>デスクトップにPotatoVNを開くショートカットを作成します。</value>
   </data>
   <data name="SettingsPage_Start_DesktopShortcut_Success" xml:space="preserve">
-    <value>已成功创建PotatoVN的桌面快捷方式</value>
+    <value>PotatoVNのデスクトップショートカットが正常に作成されました。</value>
   </data>
   <data name="SettingsPage_Start_DesktopShortcut_Fail" xml:space="preserve">
-    <value>创建PotatoVN的桌面快捷方式失败</value>
+    <value>PotatoVNのデスクトップショートカット作成に失敗しました。</value>
   </data>
   <data name="SettingsPage_Start_DesktopShortcut_IconFail" xml:space="preserve">
-    <value>创建PotatoVN的桌面快捷方式成功,替换默认图标失败</value>
+    <value>PotatoVNのデスクトップショートカットは正常に作成されましたが、デフォルトアイコンの置き換えに失敗しました。</value>
   </data>
   <data name="SettingsPage_Start_DesktopShortcut_AlreadyExists" xml:space="preserve">
-    <value>桌面快捷方式已存在</value>
+    <value>デスクトップショートカットは既に存在します。</value>
   </data>
   <data name="MixedPhraserOrderDialog_ResetButton.Content" xml:space="preserve">
-    <value>重置</value>
+    <value>リセット</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_PrimaryTitle.Text" xml:space="preserve">
-    <value>主标题</value>
+    <value>メインタイトル</value>
   </data>
   <data name="ManageGalgamePageLayoutDialog_SecondaryTitle.Text" xml:space="preserve">
-    <value>副标题</value>
+    <value>サブタイトル</value>
   </data>
   <data name="SettingsPage_Theme_DefaultGameName.Title" xml:space="preserve">
-    <value>显示来自信息源的游戏名称</value>
+    <value>情報源のゲーム名を表示</value>
   </data>
   <data name="SettingsPage_Theme_DefaultGameName.Description" xml:space="preserve">
-    <value>使用来自信息源的游戏名覆盖默认游戏名，修改后将对目前所有游戏名进行替换
-替换的优先级优先级：中文名 &gt; 原名 &gt; 默认名</value>
+    <value>情報源のゲーム名でデフォルトのゲーム名を上書きします。変更後、現在のすべてのゲーム名が置き換えられます。
+置き換えの優先順位：中国語名 &gt; 原名 &gt; デフォルト名</value>
   </data>
   <data name="LibraryPage_PlayStatusSubMenu.Text" xml:space="preserve">
-    <value>游玩状态</value>
+    <value>プレイ状況</value>
   </data>
   <data name="LibraryPage_PlayStatusPlaying.Text" xml:space="preserve">
-    <value>在玩</value>
+    <value>プレイ中</value>
   </data>
   <data name="LibraryPage_PlayStatusPlayed.Text" xml:space="preserve">
-    <value>玩过</value>
+    <value>プレイ済み</value>
   </data>
   <data name="LibraryPage_PlayStatusOnHold.Text" xml:space="preserve">
-    <value>搁置</value>
+    <value>保留</value>
   </data>
   <data name="LibraryPage_PlayStatusAbandoned.Text" xml:space="preserve">
-    <value>抛弃</value>
+    <value>中断</value>
   </data>
   <data name="LibraryPage_PlayStatusWantToPlay.Text" xml:space="preserve">
-    <value>想玩</value>
+    <value>プレイしたい</value>
   </data>
   <data name="LibraryPage_PlayStatusMoreSettings.Text" xml:space="preserve">
-    <value>更多设置...</value>
+    <value>その他の設定...</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmTitle" xml:space="preserve">
-    <value>分类所有游戏</value>
+    <value>すべてのゲームを分類</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmMsg" xml:space="preserve">
-    <value>按照游戏的制作公司和PotatoVN内的实际游玩情况进行分类
-这将部分覆盖目前已分类的制作公司和游玩状态</value>
+    <value>ゲームの制作会社とPotatoVN内での実際のプレイ状況に基づいて分類します。
+これにより、現在分類されている制作会社とプレイ状況が部分的に上書きされます。</value>
   </data>
   <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
-    <value>重命名分类组</value>
+    <value>カテゴリグループの名前を変更</value>
   </data>
   <data name="SettingsPage_Game_MinPlayTimeRecordThreshold.Title" xml:space="preserve">
-    <value>单次游戏次数计入时长阈值</value>
+    <value>ゲームプレイ時間の記録しきい値</value>
   </data>
   <data name="SettingsPage_Game_MinPlayTimeRecordThreshold.Description" xml:space="preserve">
-    <value>单次游玩游戏时，只有游玩时长大于这个数（分钟），才会被计入为一次游玩</value>
+    <value>1回のゲームプレイで、プレイ時間がこの時間（分）より長い場合のみ、1回のプレイとしてカウントされます。</value>
   </data>
   <data name="EditPlayTimeDialog_PlayCountLabel.Text" xml:space="preserve">
-    <value>游玩次数:</value>
+    <value>プレイ回数:</value>
   </data>
   <data name="SettingsPage_Game_CustomTextFileExtensions_Title.Text" xml:space="preserve">
-    <value>自定义打开文本文件类型</value>
+    <value>テキストファイルを開く種類のカスタマイズ</value>
   </data>
   <data name="SettingsPage_Game_CustomTextFileExtensions_Description.Text" xml:space="preserve">
-    <value>设置在游戏中“打开文本”时，文件选择器中显示的文件扩展名。使用英文逗号 (,) 分隔，例如：.txt, .log, .md</value>
+    <value>ゲーム内で「テキストを開く」ときにファイル選択ダイアログに表示されるファイル拡張子を設定します。英語のコンマ (,) で区切ってください。例：.txt, .log, .md</value>
   </data>
   <data name="SettingsPage_Game_CustomTextFileExtensions_EditBox.PlaceholderText" xml:space="preserve">
     <value>.txt, .docx, .pdf</value>
   </data>
   <data name="SettingsPage_Game_Magpie.Title" xml:space="preserve">
-    <value>Magpie 可执行文件路径</value>
+    <value>Magpie 実行ファイルのパス</value>
   </data>
   <data name="SettingsPage_Game_Magpie_PathDescription.Text" xml:space="preserve">
-    <value>当前路径：</value>
+    <value>現在のパス：</value>
   </data>
   <data name="SettingsPage_Game_MagpiePathWarning" xml:space="preserve">
-    <value>选择的文件似乎不是 Magpie.exe，请确认选择是否正确。</value>
+    <value>選択されたファイルはMagpie.exeではないようです。選択が正しいかご確認ください。</value>
   </data>
   <data name="SettingsPage_Game_Magpie.Description" xml:space="preserve">
-    <value>设置Magpie的路径，用于超分辨率运行游戏，请选择Magpie.exe</value>
+    <value>Magpieのパスを設定します。ゲームを超解像度で実行するために使用されます。Magpie.exeを選択してください。</value>
   </data>
   <data name="WindowHelper_FocusProcessWindow_Failed" xml:space="preserve">
-    <value>将窗口置于前台失败，错误代码: {0}</value>
+    <value>ウィンドウを前面に表示できませんでした。エラーコード: {0}</value>
   </data>
   <data name="GalgamePage_EnableMagpie.Label" xml:space="preserve">
-    <value>启用 Magpie</value>
+    <value>Magpie を有効にする</value>
   </data>
   <data name="SettingsPage_Game_MagpieHotkeys_Title.Text" xml:space="preserve">
-    <value>Magpie 快捷键</value>
+    <value>Magpie ショートカットキー</value>
   </data>
   <data name="SettingsPage_Game_MagpieHotkeys_Description.Text" xml:space="preserve">
-    <value>请修改为 Magpie 里设置的快捷键（不正确的快捷键会导致自动magpie调用失效），使用 + 分隔，例如：Win + Shift + A</value>
+    <value>Magpieで設定されているショートカットキーに変更してください（間違ったショートカットキーはMagpieの自動呼び出しを無効にする可能性があります）。+ で区切ってください。例：Win + Shift + A</value>
   </data>
   <data name="SettingsPage_Game_MagpieHotkeys_EditBox.PlaceholderText" xml:space="preserve">
     <value>Win + Shift + A</value>
   </data>
   <data name="SettingsPage_Game_MagpieHotkeysError" xml:space="preserve">
-    <value>无法识别按键：{0}</value>
+    <value>キーを認識できません：{0}</value>
   </data>
   <data name="SettingSuccess" xml:space="preserve">
-    <value>设置成功</value>
+    <value>設定に成功しました</value>
   </data>
   <data name="SettingsPage_Game_MagpiePath_Success" xml:space="preserve">
-    <value>设置成功。如果你修改过Magepie的快捷键，请修改下面的快捷键设置~</value>
+    <value>設定に成功しました。Magpieのショートカットキーを変更した場合は、以下のショートカットキー設定を変更してください。</value>
   </data>
   <data name="CallMagpieTask_Title" xml:space="preserve">
-    <value>调用Magpie任务</value>
+    <value>Magpieタスクの呼び出し</value>
   </data>
   <data name="CallMagpieTask_ReachedMaxRetry" xml:space="preserve">
-    <value>已达到最大重试次数后仍无法找到游戏窗口</value>
+    <value>最大リトライ回数に達してもゲームウィンドウが見つかりません</value>
   </data>
   <data name="CallMagpieTask_ProgressMsg" xml:space="preserve">
-    <value>已成功调用Magpie超分辨率游戏 {0}</value>
+    <value>Magpie超解像ゲーム {0} の呼び出しに成功しました</value>
   </data>
   <data name="CallMagpieTask_LaunchingMagpie" xml:space="preserve">
-    <value>正在启动Magpie</value>
+    <value>Magpieを起動しています</value>
   </data>
   <data name="CallMagpieTask_NoMagpiePath" xml:space="preserve">
-    <value>Magpie路径未设置，请在设置-&gt;游戏中设置它的文件路径</value>
+    <value>Magpieパスが設定されていません。設定-&gt;ゲームでそのファイルパスを設定してください。</value>
   </data>
   <data name="CallMagpieTask_Trying" xml:space="preserve">
-    <value>正在尝试调用Magpie中，第{0}次尝试</value>
+    <value>Magpieを呼び出し中、{0}回目の試行</value>
   </data>
   <data name="SettingsPage_Game_Magpie_TotalSwitch.Title" xml:space="preserve">
-    <value>Magpie联动</value>
+    <value>Magpie連携</value>
   </data>
   <data name="SettingsPage_Game_Magpie_TotalSwitch.Description" xml:space="preserve">
-    <value>是否启用和Magpie（一个超分辨率软件）的联动功能</value>
+    <value>Magpie（超解像ソフトウェア）との連携機能を有効にしますか</value>
   </data>
   <data name="SettingsPage_AlwaysEnableMagpie.Title" xml:space="preserve">
-    <value>始终启用 Magpie (无视各游戏设置)</value>
+    <value>常にMagpieを有効にする (各ゲーム設定を無視)</value>
   </data>
   <data name="SettingsPage_AlwaysEnableMagpie.Description" xml:space="preserve">
-    <value>开启后，将无视每个游戏各自的Magpie启用设置，强制全局启用Magpie</value>
+    <value>オンにすると、各ゲームのMagpie有効化設定を無視し、強制的にグローバルでMagpieを有効にします。</value>
   </data>
   <data name="LanguageEnum_Japanese" xml:space="preserve">
     <value>日本語</value>
   </data>
   <data name="Settings_Game_MuteInBackground.Text" xml:space="preserve">
-    <value>后台时静音游戏</value>
+    <value>バックグラウンド時にゲームをミュート</value>
   </data>
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
-    <value>后台静音</value>
+    <value>バックグラウンドでミュート</value>
   </data>
   <data name="Settings_Game_AlwaysMuteInBackground.Title" xml:space="preserve">
-    <value>总是后台时静音游戏</value>
+    <value>常にバックグラウンド時にゲームをミュート</value>
   </data>
   <data name="Settings_Game_AlwaysMuteInBackground.Description" xml:space="preserve">
-    <value>覆盖单独的游戏设置。如果启用，所有游戏都将在后台时静音。</value>
-  </data>
-  <data name="GameMuteTask_Muted" xml:space="preserve">
-    <value>已静音游戏：{0}</value>
-  </data>
-  <data name="GameMuteTask_Unmuted" xml:space="preserve">
-    <value>已将游戏 {0} 取消静音</value>
-  </data>
-  <data name="GameMuteTask_MonitorError" xml:space="preserve">
-    <value>无法调整游戏声音，原因为：
-{0}</value>
-  </data>
-  <data name="GameMuteTask_Title" xml:space="preserve">
-    <value>游戏后台静音任务</value>
-  </data>
-  <data name="GameMuteTask_Starting" xml:space="preserve">
-    <value>正在检查游戏 {0} 状态，随时准备静音/恢复该游戏声音</value>
+    <value>個別のゲーム設定を上書きします。有効にすると、すべてのゲームがバックグラウンド時にミュートされます。</value>
   </data>
 </root>

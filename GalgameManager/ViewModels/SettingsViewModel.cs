@@ -21,7 +21,9 @@ using GalgameManager.Models.Sources;
 using GalgameManager.Views.Dialog;
 using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
 using Windows.Globalization;
+using Windows.System;
 using Windows.ApplicationModel.Store.Preview;
+using static System.String;
 
 namespace GalgameManager.ViewModels;
 
@@ -114,7 +116,14 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
         _playingWindowMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode).Result;
+        _minPlayTimeRecordThreshold = _localSettingsService.ReadSettingAsync<int>(KeyValues.MinPlayTimeRecordThreshold).Result;
         LocalEmulatorPath = _localSettingsService.ReadSettingAsync<string>(KeyValues.LocaleEmulatorPath).Result;
+        _magpieTotalSwitch = _localSettingsService.ReadSettingAsync<bool>(KeyValues.MagpieTotalSwitch).Result;
+        MagpiePath = _localSettingsService.ReadSettingAsync<string>(KeyValues.MagpiePath).Result; // Initialize MagpiePath
+        _alwaysEnableMagpie = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie).Result;
+        _alwaysMuteInBackground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground).Result;
+        _magpieHotkeys = _localSettingsService.ReadSettingAsync<List<int>>(KeyValues.MagpieHotkeys).Result ?? [];
+        UpdateMagpieHotkeysString();
         PlayingWindowModes = new[] {WindowMode.Minimize, WindowMode.SystemTray, WindowMode.None };
         //RSS
         RssType = _localSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType).Result;
@@ -154,6 +163,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         WindowModes = new[] { WindowMode.Normal, WindowMode.Close, WindowMode.SystemTray };
         CloseMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.CloseMode).Result;
         DevelopmentMode = _localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result;
+        List<string> extensionsList = _localSettingsService.ReadSettingAsync<List<string>>(KeyValues.CustomTextFileExtensions).Result ?? [];
+        _customTextFileExtensionsString = Join(", ", extensionsList);
         
         //Check the availability of Windows Hello
         UserConsentVerifierAvailability verifierAvailability = UserConsentVerifier.CheckAvailabilityAsync().AsTask().Result;
@@ -164,7 +175,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     #region INFOBAR_CONTROL
 
-    [ObservableProperty] private string _infoBarMsg = string.Empty;
+    [ObservableProperty] private string _infoBarMsg = Empty;
     [ObservableProperty] private InfoBarSeverity _infoBarSeverity = InfoBarSeverity.Informational;
     [ObservableProperty] private bool _isInfoBarOpen;
     private int _displayIndex;
@@ -223,7 +234,11 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public readonly ElementTheme[] Themes = { ElementTheme.Default, ElementTheme.Light, ElementTheme.Dark };
     [ObservableProperty ]private ElementTheme _elementTheme;
     [ObservableProperty] private bool _transparentNavigationView;
-    public readonly LanguageEnum[] Languages = { LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English };
+
+    public readonly LanguageEnum[] Languages =
+    [
+        LanguageEnum.Auto, LanguageEnum.ChineseSimplified, LanguageEnum.English, LanguageEnum.Japanese,
+    ];
     [ObservableProperty] private LanguageEnum _language;
 
     public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic };
@@ -278,6 +293,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         {
             LanguageEnum.ChineseSimplified => "zh-CN",
             LanguageEnum.English => "en-US",
+            LanguageEnum.Japanese => "ja-JP",
             LanguageEnum.Auto => "", // 空字符串表示使用系统默认语言
             _ => ""
         };
@@ -308,10 +324,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 switch (value)
                 {
                     case DisplayName.ChineseName:
-                        if (!string.IsNullOrWhiteSpace(g.ChineseName.Value)) return g.ChineseName.Value;
+                        if (!IsNullOrWhiteSpace(g.ChineseName.Value)) return g.ChineseName.Value;
                         goto case DisplayName.OriginalName;
                     case DisplayName.OriginalName:
-                        if (!string.IsNullOrWhiteSpace(g.OriginalName.Value)) return g.OriginalName.Value;
+                        if (!IsNullOrWhiteSpace(g.OriginalName.Value)) return g.OriginalName.Value;
                         goto case DisplayName.Name;
                     case DisplayName.Name:
                         return g.LocalPath is null
@@ -325,7 +341,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             IEnumerable<Task> saveTasks = _galgameCollectionService.Galgames.Select(async g =>
             {
                 var newName = await SelectNameAsync(g);
-                if (!string.IsNullOrEmpty(newName) && g.Name.Value != newName)
+                if (!IsNullOrEmpty(newName) && g.Name.Value != newName)
                 {
                     g.Name.Value = newName;
                     await _galgameCollectionService.SaveGalgameAsync(g);
@@ -346,14 +362,105 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private bool _recordOnlyForeground;
     [ObservableProperty] private WindowMode _playingWindowMode;
+    [ObservableProperty] private int _minPlayTimeRecordThreshold;
     [ObservableProperty] private string? _localEmulatorPath;
+    [ObservableProperty] private bool _magpieTotalSwitch;
+    [ObservableProperty] private string? _magpiePath; // Magpie executable path
+    [ObservableProperty] private bool _alwaysEnableMagpie;
+    [ObservableProperty] private bool _alwaysMuteInBackground;
+    [ObservableProperty] private string _magpieHotkeysString = Empty;
+    private List<int> _magpieHotkeys;
     public WindowMode[] PlayingWindowModes;
     
     partial void OnRecordOnlyForegroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.RecordOnlyWhenForeground, value);
     
     partial void OnPlayingWindowModeChanged(WindowMode value) => _localSettingsService.SaveSettingAsync(KeyValues.PlayingWindowMode, value);
+
+    partial void OnMinPlayTimeRecordThresholdChanged(int value) => _localSettingsService.SaveSettingAsync(KeyValues.MinPlayTimeRecordThreshold, value);
     
     partial void OnLocalEmulatorPathChanged(string? value) => _localSettingsService.SaveSettingAsync(KeyValues.LocaleEmulatorPath, value);
+
+    partial void OnMagpieTotalSwitchChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.MagpieTotalSwitch, value);
+
+    partial void OnMagpiePathChanged(string? value) => _localSettingsService.SaveSettingAsync(KeyValues.MagpiePath, value); // Save MagpiePath
+
+    partial void OnAlwaysEnableMagpieChanged(bool value)
+    {
+        if (value && IsNullOrEmpty(MagpiePath))
+        {
+            _infoService.Info(InfoBarSeverity.Error, msg: "CallMagpieTask_NoMagpiePath".GetLocalized());
+            AlwaysEnableMagpie = false;
+            return;
+        }
+        _localSettingsService.SaveSettingAsync(KeyValues.AlwaysEnableMagpie, value);
+    }
+
+    partial void OnAlwaysMuteInBackgroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AlwaysMuteInBackground, value);
+
+    async partial void OnMagpieHotkeysStringChanged(string value)
+    {
+        try
+        {
+            if (IsNullOrWhiteSpace(value))
+            {
+                _magpieHotkeys = [(int)VirtualKey.LeftWindows, (int)VirtualKey.Shift, (int)VirtualKey.A];
+                UpdateMagpieHotkeysString(); // Reset to default string
+            }
+            else
+            {
+                IEnumerable<string> keyStrings = value.Split('+').Select(s => s.Trim().ToLowerInvariant());
+                List<int> newHotkeys = [];
+                foreach (var keyString in keyStrings)
+                {
+                    if (IsNullOrEmpty(keyString)) continue;
+                    if (Enum.TryParse(typeof(VirtualKey), keyString, true, out var virtualKey))
+                    {
+                        newHotkeys.Add((int)virtualKey);
+                    }
+                    else
+                    {
+                        // Try to parse modifier keys like "Win", "Shift", "Ctrl", "Alt"
+                        switch (keyString)
+                        {
+                            case "win":
+                            case "windows":
+                            case "leftwindows":
+                                newHotkeys.Add((int)VirtualKey.LeftWindows);
+                                break;
+                            case "shift":
+                                newHotkeys.Add((int)VirtualKey.Shift);
+                                break;
+                            case "ctrl":
+                            case "control":
+                                newHotkeys.Add((int)VirtualKey.Control);
+                                break;
+                            case "alt":
+                                newHotkeys.Add((int)VirtualKey.Menu); // Menu often represents alt
+                                break;
+                            default:
+                                _infoService.Info(InfoBarSeverity.Error,
+                                    msg: "SettingsPage_Game_MagpieHotkeysError".GetLocalized(keyString),
+                                    displayTimeMs: 5000);
+                                return;
+                        }
+                    }
+                }
+                _magpieHotkeys = newHotkeys;
+            }
+            await _localSettingsService.SaveSettingAsync(KeyValues.MagpieHotkeys, _magpieHotkeys);
+            _infoService.Info(InfoBarSeverity.Success, msg:"SettingSuccess".GetLocalized(), displayTimeMs: 2000);
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e:e);
+            UpdateMagpieHotkeysString(); // Revert to current valid string on error
+        }
+    }
+
+    private void UpdateMagpieHotkeysString()
+    {
+        MagpieHotkeysString = Join(" + ", _magpieHotkeys.Select(vk => ((VirtualKey)vk).ToString()));
+    }
     
     [RelayCommand]
     private async Task SelectLocalEmulatorPath()
@@ -372,6 +479,49 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             if (file.Name != "LEProc.exe")
                 _infoService.Info(InfoBarSeverity.Warning,
                     msg: "SettingsPage_Game_LocalEmulatorPathWarning".GetLocalized(), displayTimeMs: 5000);
+        }
+    }
+
+    [RelayCommand]
+    private async Task SelectMagpiePath()
+    {
+        FileOpenPicker openPicker = new()
+        {
+            SuggestedStartLocation = PickerLocationId.Desktop,
+            FileTypeFilter = { ".exe" }
+        };
+        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
+        StorageFile? file = await openPicker.PickSingleFileAsync();
+        if (file?.Path != null)
+        {
+            MagpiePath = file.Path;
+            _infoService.Info(InfoBarSeverity.Informational); // Clear previous messages
+            if (file.Name != "Magpie.exe")
+                _infoService.Info(InfoBarSeverity.Warning,
+                    msg: "SettingsPage_Game_MagpiePathWarning".GetLocalized(), displayTimeMs: 5000);
+            _infoService.Info(InfoBarSeverity.Success, msg:"SettingsPage_Game_MagpiePath_Success".GetLocalized());
+        }
+    }
+    
+    [ObservableProperty]
+    private string _customTextFileExtensionsString;
+
+    async partial void OnCustomTextFileExtensionsStringChanged(string value)
+    {
+        try
+        {
+            List<string> extensionsList = value.Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Select(ext => ext.Trim())
+                .Where(ext => !IsNullOrWhiteSpace(ext))
+                .ToList();
+            for(var i=0; i < extensionsList.Count; i++)
+                if(!extensionsList[i].StartsWith("."))
+                    extensionsList[i] = "." + extensionsList[i];
+            await _localSettingsService.SaveSettingAsync(KeyValues.CustomTextFileExtensions, extensionsList);
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
         }
     }
 
@@ -448,7 +598,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private bool _metaBackup;
     [ObservableProperty] private string _metaBackupProgress = "";
-    [ObservableProperty] private string _removeMetaBackupProgress = string.Empty;
+    [ObservableProperty] private string _removeMetaBackupProgress = Empty;
     [ObservableProperty] private bool _searchSubFolder;
     [ObservableProperty] private bool _ignoreFetchResult;
     [ObservableProperty] private string _regex;
@@ -568,7 +718,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         await passwordDialog.ShowAsync();
 
         var password = passwordDialog.Password;
-        if (string.IsNullOrEmpty(password) is not true)
+        if (IsNullOrEmpty(password) is not true)
         {
             PasswordCredential credential = new(KeyValues.CustomPasswordSaverName, KeyValues.CustomPasswordDisplayName, password);
             new PasswordVault().Add(credential);
@@ -615,7 +765,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private async Task CreateDesktopShortcut()
     {
         bool isPinnedSuccessfully = false;
-        string shortcutPath = string.Empty;
+        string shortcutPath = Empty;
 
         shortcutPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
@@ -708,7 +858,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         try
         {
-            if (_bgTaskService.GetBgTask<ExportTask>(string.Empty) is not null)
+            if (_bgTaskService.GetBgTask<ExportTask>(Empty) is not null)
             {
                 _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Other_Export_Exporting".GetLocalized());
                 return;
@@ -737,7 +887,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         try
         {
-            if (_bgTaskService.GetBgTask<ExportTask>(string.Empty) is not null)
+            if (_bgTaskService.GetBgTask<ExportTask>(Empty) is not null)
             {
                 _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Other_Export_Exporting".GetLocalized());
                 return;

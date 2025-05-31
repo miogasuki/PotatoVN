@@ -1,5 +1,6 @@
 using System.Configuration;
 using Windows.Storage;
+using Windows.System;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Contracts.Services;
 using GalgameManager.Enums;
@@ -237,6 +238,8 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.OverrideLocalNameWithChinese:
             case KeyValues.MemoryImprove:
                 return (T?)(object)true;
+            case KeyValues.MagpieHotkeys:
+                return (T?)(object)new List<int>([(int)VirtualKey.LeftWindows, (int)VirtualKey.Shift, (int)VirtualKey.A]);
             case KeyValues.PlayingWindowMode:
                 return (T?)(object)WindowMode.Minimize;
             case KeyValues.NotifyWhenGetGalgameInFolder:
@@ -276,6 +279,10 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)DisplayName.ChineseName;
             case KeyValues.GalgamePageSecondaryTitleType:
                 return (T?)(object)DisplayName.OriginalName;
+            case KeyValues.MinPlayTimeRecordThreshold:
+                return (T?)(object)5; // 默认5分钟
+            case KeyValues.CustomTextFileExtensions:
+                return (T?)(object)new List<string> { ".doc", ".docx", ".pdf", ".txt", ".md" };
             default:
                 return default;
         }

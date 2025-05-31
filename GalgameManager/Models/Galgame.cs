@@ -52,6 +52,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private DateTime _addTime = DateTime.MinValue; //游戏添加时间
     [ObservableProperty] private ObservableCollection<GalgameCharacter> _characters = new();
     [JsonIgnore][BsonIgnore][ObservableProperty] private string _savePosition = string.Empty;
+    [ObservableProperty] private int _playCount; //游玩次数
     [ObservableProperty] private string? _exePath;
     [ObservableProperty] private string? _exeArguments;
     [ObservableProperty] private LockableProperty<ObservableCollection<string>> _tags;
@@ -59,6 +60,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private bool _runAsAdmin; //是否以管理员权限运行
     [ObservableProperty] private bool _runInLocaleEmulator; //是否转区运行
     [ObservableProperty] private bool _highDpi; //是否高DPI替代缩放
+    [ObservableProperty] private bool _enableMagpie; //是否启用Magpie
+    [ObservableProperty] private bool _muteInBackground; //是否在后台时静音游戏
     private RssType _rssType = RssType.None;
     [ObservableProperty] private PlayType _playType;
     // ReSharper disable once MemberCanBePrivate.Global

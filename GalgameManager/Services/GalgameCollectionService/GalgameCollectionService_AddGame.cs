@@ -143,6 +143,15 @@ public partial class GalgameCollectionService
         throw new PvnException(string.Empty);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type">这次新增的库的类型</param>
+    /// <param name="path">该游戏在该库的位置（绝对位置）</param>
+    /// <param name="existGame"></param>
+    /// <param name="meta">如果已有该游戏的信息（.PotatoVN文件夹），填入它来合并游戏信息</param>
+    /// <returns></returns>
+    /// <exception cref="PvnException"></exception>
     private async Task<Galgame> DealWithExistGameAsync(GalgameSourceType type, string path, Galgame existGame,
         Galgame? meta)
     {

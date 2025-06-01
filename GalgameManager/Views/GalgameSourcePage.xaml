@@ -24,16 +24,32 @@
         <MenuFlyout Placement="Right" x:Key="GameItemFlyout">
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Edit"
                            Command="{x:Bind ViewModel.EditGameCommand}"
-                           CommandParameter="{Binding}" />
+                           CommandParameter="{Binding}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE70F;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_OpenInExplorer"
                             Command="{x:Bind ViewModel.OpenGameInExplorerCommand}"
-                            CommandParameter="{Binding}"/>
+                            CommandParameter="{Binding}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8B7;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_CopyName"
                            Command="{x:Bind ViewModel.CopyGameNameCommand}"
-                           CommandParameter="{Binding}" />
+                           CommandParameter="{Binding}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_CopyPath"
                            Command="{x:Bind ViewModel.CopyGamePathCommand}"
-                           CommandParameter="{Binding}" />
+                           CommandParameter="{Binding}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8C8;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Delete"
                            Command="{x:Bind ViewModel.DeleteSingleGameCommand}"
@@ -89,7 +105,7 @@
                     </AppBarButton>
                     <!-- 删除游戏 -->
                     <AppBarButton x:Uid="GalgameFolderPage_Delete"
-                                  Visibility="{x:Bind ViewModel.IsDownloadFromNameVisible, Mode=OneWay}"
+                                  IsEnabled="{x:Bind ViewModel.IsDownloadFromNameVisible, Mode=OneWay}"
                                   Command="{x:Bind ViewModel.DeleteGameCommand}"
                                   AllowFocusOnInteraction="True">
                         <AppBarButton.Icon>
@@ -103,7 +119,7 @@
                                   AllowFocusOnInteraction="True" />
                     <!-- 从游戏名下载游戏数据 -->
                     <AppBarButton Icon="Download" x:Uid="GalgameFolderPage_DownloadSelectedInfoFromName"
-                                Visibility="{x:Bind ViewModel.IsDownloadFromNameVisible, Mode=OneWay}"
+                                  IsEnabled="{x:Bind ViewModel.IsDownloadFromNameVisible, Mode=OneWay}"
                                   Command="{x:Bind ViewModel.GetInfoFromRssCommand}" 
                                   CommandParameter="True"
                                   AllowFocusOnInteraction="True"/>
@@ -156,7 +172,7 @@
                                       Command="{x:Bind ViewModel.ViewLogCommand}"
                                       AllowFocusOnInteraction="True">
                             <AppBarButton.Icon>
-                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE81C;" />
                             </AppBarButton.Icon>
                         </AppBarButton>
                     </CommandBar.SecondaryCommands>
@@ -189,7 +205,7 @@
                 <StackPanel Margin="0 0 20 0">
                     <!-- 游戏库设置 -->
                     <control:SettingExpander x:Uid="GalgameSourcePage_Setting"
-                                             SettingIcon="&#xE713;" IsExpanded="True">
+                                             SettingIcon="&#xE713;" IsExpanded="False">
                         <control:SettingExpander.SettingContent>
                             <StackPanel Spacing="13">
                                 <!-- 库名 -->
@@ -245,7 +261,7 @@
                     </control:SettingExpander>
                     <!-- 游戏列表 -->
                     <control:SettingExpander x:Uid="GalgameSourcePage_GamesTable"
-                                             SettingIcon="&#xE71D;" 
+                                             SettingIcon="&#xE8FD;" 
                                              IsExpanded="{x:Bind ViewModel.GameListExpend, Mode=TwoWay}">
                         <control:SettingExpander.SettingContent>
                             <Grid>
@@ -260,7 +276,7 @@
                                     IsOn="{x:Bind ViewModel.IncludeSubSources, Mode=TwoWay}" />
                                     
                                 <ListView Grid.Row="1" ItemsSource="{x:Bind ViewModel.Galgames}" 
-                                      SelectionMode="Extended" MaxHeight="500">
+                                      SelectionMode="Extended">
                                     <ListView.Header>
                                         <Grid Padding="16,12"
                                               Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
@@ -285,7 +301,8 @@
                                                 <Rectangle Fill="Transparent" /> 
                                                 <Grid ColumnDefinitions="Auto, *" Margin="0, 7">
                                                     <Button Grid.Column="0" Margin="0 0 10 0"
-                                                            Style="{StaticResource TransparentButtonWithHover}">
+                                                            Style="{StaticResource TransparentButtonWithHover}"
+                                                            IsHitTestVisible="False">
                                                         <Grid CornerRadius="10">
                                                             <Rectangle Height="70" Width="50">
                                                                 <Rectangle.Fill>

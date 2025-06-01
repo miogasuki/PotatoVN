@@ -562,8 +562,8 @@ public partial class LibraryViewModel(
         }
         UpdateStatistics();
 
-        // 重新应用排序
-        ApplySorting();
+        // 重新应用排序，启用后会导致刷新整个页面，覆盖原有的动画效果
+        // ApplySorting();
     }
     
     private void HandleGetGalInfoProgressChanged(Progress progress)

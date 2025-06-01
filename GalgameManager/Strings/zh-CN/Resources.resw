@@ -485,7 +485,7 @@
     <value>删除游戏库</value>
   </data>
   <data name="GalgameFolderPage_DownloadInfo" xml:space="preserve">
-    <value>下载游戏数据</value>
+    <value>下载所有游戏数据</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfo" xml:space="preserve">
     <value>使用游戏ID下载数据</value>
@@ -1106,7 +1106,7 @@
     <value>正在扫描路径:{0}</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>扫描库{1}完成, 共添加了{0}个游戏</value>
+    <value>扫描库“{1}”完成, 共添加了{0}个游戏</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
     <value>消息通知</value>
@@ -1998,7 +1998,7 @@
     <value>游戏库</value>
   </data>
   <data name="GalgameSourcePage_GamesTable.SettingTitle" xml:space="preserve">
-    <value>游戏列表</value>
+    <value>管理游戏</value>
   </data>
   <data name="GalgameSourcePage_GamesTable.SettingDescription" xml:space="preserve">
     <value>查看与编辑这个库里的所有游戏信息</value>
@@ -2283,7 +2283,7 @@
     <value>路径</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_Edit.Text" xml:space="preserve">
-    <value>编辑</value>
+    <value>编辑游戏信息</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_CopyName.Text" xml:space="preserve">
     <value>复制游戏名</value>

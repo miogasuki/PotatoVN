@@ -54,6 +54,10 @@ public class Program
         {
             options.Conventions.Add(new RouteConvention());
         });
+        // .AddJsonOptions(options =>
+        // {
+        //     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        // });
         builder.Services.AddAutoMapper(typeof(Program).Assembly);
         
         // Enable logging

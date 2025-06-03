@@ -325,8 +325,8 @@
                                         <TextBlock x:Uid="SettingsPage_Game_MagpieHotkeys_Title"/>
                                         <TextBlock x:Uid="SettingsPage_Game_MagpieHotkeys_Description"
                                                    Style="{ThemeResource DescriptionTextStyle}"/>
-                                        <control:HotkeyInputBox HotkeyKeys="{x:Bind ViewModel.MagpieHotkeyKeys, Mode=TwoWay}"
-                                                               PlaceholderText="点击设置Magpie快捷键"
+                                        <control:HotkeyInputBox x:Uid="SettingsPage_Game_MagpieHotkeys_HotkeyInputBox"
+                                            HotkeyKeys="{x:Bind ViewModel.MagpieHotkeyKeys, Mode=TwoWay}"
                                                                Margin="0,4,0,0" />
                                     </StackPanel>
                                     <Rectangle Height="1" Margin="0 2 0 5"

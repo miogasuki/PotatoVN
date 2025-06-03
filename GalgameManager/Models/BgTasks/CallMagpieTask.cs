@@ -160,7 +160,7 @@ public static class MagpieHelper
             Process[] currentProcesses = Process.GetProcesses();
             if (currentProcesses.Any(process => process.ProcessName.Equals("Magpie", StringComparison.OrdinalIgnoreCase)))
             {
-                await Task.Delay(200); // 等待200毫秒以确保焦点切换到游戏上
+                await Task.Delay(500); // 等待500毫秒以确保焦点切换到游戏上
                 return; // Magpie 已启动，立即返回
             }
         }

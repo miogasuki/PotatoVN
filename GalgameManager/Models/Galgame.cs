@@ -26,6 +26,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         CnName = CnName,
         BangumiId = Ids[(int)RssType.Bangumi],
         VndbId = Ids[(int)RssType.Vndb],
+        YmgalId = Ids[(int)RssType.Ymgal],
         PvnId = Ids[(int)RssType.PotatoVn],
     };
     /// 唯一标识， 若要判断两个游戏是否为同一个游戏，应使用<see cref="GalgameUid"/>

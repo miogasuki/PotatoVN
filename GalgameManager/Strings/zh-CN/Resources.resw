@@ -3032,4 +3032,7 @@
   <data name="HotkeyInputBox_ClickToSet" xml:space="preserve">
     <value>点击设置快捷键</value>
   </data>
+  <data name="SettingsPage_Game_MagpieHotkeys_HotkeyInputBox.PlaceholderText" xml:space="preserve">
+    <value>点击设置Magpie快捷键</value>
+  </data>
 </root>

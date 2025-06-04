@@ -114,7 +114,8 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 下载游戏数据 -->
-                    <AppBarButton Icon="Download" Label="{x:Bind ViewModel.UiDownloadInfo, Mode=OneWay}" 
+                    <AppBarButton x:Uid="GalgameFolderPage_DownloadSelectedInfoFromId"
+                        Icon="Download" Label="{x:Bind ViewModel.UiDownloadInfo, Mode=OneWay}" 
                                   Command="{x:Bind ViewModel.GetInfoFromRssCommand}" 
                                   AllowFocusOnInteraction="True" />
                     <!-- 从游戏名下载游戏数据 -->

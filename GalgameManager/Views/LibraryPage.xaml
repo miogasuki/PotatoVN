@@ -235,10 +235,6 @@
                 <AppBarButton Icon="Download"
                               x:Uid="LibraryPage_DownloadAllData"
                               Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control"
-                                             Key="D"/>
-                    </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
             </CommandBar.SecondaryCommands>
         </CommandBar>

@@ -96,6 +96,12 @@
                                         Command="{x:Bind ViewModel.ChangeRunInLocaleEmulatorCommand}"
                                         IsChecked="{x:Bind ViewModel.Item.RunInLocaleEmulator, Mode=TwoWay, FallbackValue=False}"
                                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
+                    <!-- 以管理员权限运行游戏 -->
+                    <AppBarToggleButton Icon="Admin"
+                                        x:Uid="GalgamePage_RunAsAdmin"
+                                        Command="{x:Bind ViewModel.SaveCommand}"
+                                        IsChecked="{x:Bind ViewModel.Item.RunAsAdmin, Mode=TwoWay, FallbackValue=False}"
+                                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
                     <!-- 高DPI替代缩放 -->
                     <AppBarToggleButton x:Uid="GalgamePage_HighDpi"
                                         Command="{x:Bind ViewModel.ChangeHighDpiCommand}"
@@ -106,12 +112,6 @@
                                     FluentGlyph="&#xE7F4;"/>
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
-                    <!-- 以管理员权限运行游戏 -->
-                    <AppBarToggleButton Icon="Admin"
-                                        x:Uid="GalgamePage_RunAsAdmin"
-                                        Command="{x:Bind ViewModel.SaveCommand}"
-                                        IsChecked="{x:Bind ViewModel.Item.RunAsAdmin, Mode=TwoWay, FallbackValue=False}"
-                                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
                     <!-- Magpie -->
                     <AppBarToggleButton Icon="FullScreen"
                                         x:Uid="GalgamePage_EnableMagpie"
@@ -214,7 +214,7 @@
                             Command="{x:Bind ViewModel.ManageLayoutCommand}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons"
-                                    Glyph="&#xE8B8;"/>
+                                    Glyph="&#xE713;"/>
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarSeparator/>
@@ -231,7 +231,8 @@
                     <!-- 移入另一个源 -->
                     <AppBarButton x:Uid="GalgamePage_MoveToAnotherSource"
                                   Command="{x:Bind ViewModel.MoveToSourceCommand}"
-                                  IsEnabled="False">
+                                  IsEnabled="False"
+                                  Visibility="Collapsed">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8DE;" />
                         </AppBarButton.Icon>

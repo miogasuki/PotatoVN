@@ -55,9 +55,9 @@
                 <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusMoreSettings"
                         Command="{x:Bind ViewModel.ShowChangePlayStatusDialogCommand}" CommandParameter="{Binding}" />
             </MenuFlyoutSubItem>
-            <MenuFlyoutItem Icon="Edit" Text="{x:Bind ViewModel.UiEdit}" Command="{x:Bind ViewModel.GalFlyOutEditCommand}" CommandParameter="{Binding}"/>
-            <MenuFlyoutItem Icon="Download" Text="{x:Bind ViewModel.UiDownLoad}" Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}" CommandParameter="{Binding}"/>
-            <MenuFlyoutItem Icon="Delete" Text="{x:Bind ViewModel.UiRemove}" Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}" CommandParameter="{Binding}"/>
+            <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_Edit" Command="{x:Bind ViewModel.GalFlyOutEditCommand}" CommandParameter="{Binding}"/>
+            <MenuFlyoutItem Icon="Download" x:Uid="LibraryPage_Download" Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}" CommandParameter="{Binding}"/>
+            <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_Remove" Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}" CommandParameter="{Binding}"/>
         </MenuFlyout>
     </Page.Resources>
 
@@ -271,7 +271,7 @@
                     <!-- 保留过滤器 -->
                     <AppBarToggleButton x:Uid="HomePage_KeepFilters"
                                         IsChecked="{x:Bind ViewModel.KeepFilters, Mode=TwoWay}"
-                                        Icon="{cmtk:FontIcon Glyph=&#xE74E;}">
+                                        Icon="{cmtk:FontIcon Glyph=&#xE840;}">
                     </AppBarToggleButton>
                     <!-- 显示非本地游戏 -->
                     <AppBarToggleButton x:Uid="HomePage_Filter_DisplayVirtualGames"

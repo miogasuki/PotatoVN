@@ -41,9 +41,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     #region UI
     public readonly string PlayStatus = "HomePage_PlayStatus".GetLocalized();
-    public readonly string UiEdit = "HomePage_Edit".GetLocalized();
-    public readonly string UiDownLoad = "HomePage_Download".GetLocalized();
-    public readonly string UiRemove = "HomePage_Remove".GetLocalized();
     private readonly string _uiSearch = "Search".GetLocalized();
     #endregion
 

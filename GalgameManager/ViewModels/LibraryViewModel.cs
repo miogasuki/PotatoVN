@@ -670,6 +670,13 @@ public partial class LibraryViewModel(
             {
                 if (x is GalgameSourceBase sx && y is GalgameSourceBase sy)
                 {
+                    // VirtualSource 类型的源始终排在第一位
+                    if (sx.SourceType == GalgameSourceType.Virtual && sy.SourceType != GalgameSourceType.Virtual)
+                        return -1;
+                    if (sx.SourceType != GalgameSourceType.Virtual && sy.SourceType == GalgameSourceType.Virtual)
+                        return 1;
+                    
+                    // 如果都是或都不是 VirtualSource，则按照原有排序逻辑
                     var result = CurrentFolderSortKey switch
                     {
                         GalgameSourceSortKeys.Name => string.Compare(sx.Name, sy.Name, StringComparison.CurrentCultureIgnoreCase),

@@ -214,6 +214,17 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object?)result;
             case KeyValues.SortKeys:
                 return (T?)(object?)new [] { SortKeys.LastPlay , SortKeys.Developer};
+            case KeyValues.PrimarySortKey:
+                return (T?)(object?)SortKeys.LastPlay;
+            case KeyValues.SecondarySortKey:
+                return (T?)(object?)SortKeys.Name;
+            case KeyValues.LibrarySortKey:
+                return (T?)(object?)SortKeys.LastPlay;
+            case KeyValues.LibraryFolderSortKey:
+                return (T?)(object?)SortKeys.Name;
+            case KeyValues.PrimarySortDescending:
+            case KeyValues.LibraryGameSortDescending:
+                return (T?)(object?)true;
             case KeyValues.SortKeysAscending:
                 return (T?)(object?)new [] { false , false};
             case KeyValues.SearchChildFolder:

@@ -11,8 +11,8 @@ public partial class GalgameCharacter: ObservableObject
     public string?[] Ids = new string?[Galgame.PhraserNumber];
     [ObservableProperty] private string _name = "";
     [ObservableProperty] private string _relation = "";
-    [ObservableProperty] private string _previewImagePath = Galgame.DefaultImagePath;
-    [ObservableProperty] private string _imagePath = Galgame.DefaultImagePath;
+    [ObservableProperty] private string _previewImagePath = Galgame.DefaultCharacterImagePath;
+    [ObservableProperty] private string _imagePath = Galgame.DefaultCharacterImagePath;
     [ObservableProperty] private string _summary = "";
     [ObservableProperty] private Gender _gender = Gender.Unknown;
     [ObservableProperty] private int? _birthYear;

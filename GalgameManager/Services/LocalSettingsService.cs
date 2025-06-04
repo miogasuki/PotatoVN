@@ -406,7 +406,7 @@ public class LocalSettingsService : ILocalSettingsService
         await Task.CompletedTask; // 预留异步坑位
         if (string.IsNullOrEmpty(imagePath)) return null;
         if (Path.IsPathRooted(imagePath)) return imagePath;
-        if (imagePath == Galgame.DefaultImagePath) return imagePath;
+        if (imagePath == Galgame.DefaultImagePath || imagePath == Galgame.DefaultCharacterImagePath) return imagePath;
         try
         {
             var path = Path.GetFullPath(Path.Combine(LocalFolder.FullName, imagePath));

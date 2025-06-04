@@ -277,11 +277,11 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             {
                 if (Utils.IsImageValid(character.ImagePath))
                     character.ImagePath = await LocalSettingsService.AddImageToExportAsync(character.ImagePath) ??
-                                          Galgame.DefaultImagePath;
+                                          Galgame.DefaultCharacterImagePath;
                 if (Utils.IsImageValid(character.PreviewImagePath))
                     character.PreviewImagePath =
                         await LocalSettingsService.AddImageToExportAsync(character.PreviewImagePath) ??
-                        Galgame.DefaultImagePath;
+                        Galgame.DefaultCharacterImagePath;
             }
         }
         await LocalSettingsService.AddToExportAsync(KeyValues.Galgames, tmp);
@@ -311,10 +311,10 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         galgameCharacter.BWH = tmp.BWH;
         
         galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.ImageUrl, 
-            fileNameWithoutExtension:$"{galgameCharacter.Name}_Large") ?? Galgame.DefaultImagePath;
+            fileNameWithoutExtension:$"{galgameCharacter.Name}_Large") ?? Galgame.DefaultCharacterImagePath;
         galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.PreviewImageUrl, 
                                                 fileNameWithoutExtension:$"{galgameCharacter.Name}_Preview") ??
-                                            Galgame.DefaultImagePath;
+                                            Galgame.DefaultCharacterImagePath;
         return galgameCharacter;
     }
 

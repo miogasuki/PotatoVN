@@ -9,7 +9,7 @@ namespace GalgameManager.Models.BgTasks;
 
 public class GetGalgameInSourceTask : BgTaskBase
 {
-    public string GalgameSourceUrl = string.Empty;
+    private readonly string _galgameSourceUrl = string.Empty;
     private GalgameSourceBase? _galgameFolderSource;
 
     public GetGalgameInSourceTask() { }
@@ -17,12 +17,12 @@ public class GetGalgameInSourceTask : BgTaskBase
     public GetGalgameInSourceTask(GalgameSourceBase source)
     {
         _galgameFolderSource = source;
-        GalgameSourceUrl = source.Url;
+        _galgameSourceUrl = source.Url;
     }
     
     protected override Task RecoverFromJsonInternal()
     {
-        _galgameFolderSource = App.GetService<IGalgameSourceCollectionService>()?.GetGalgameSourceFromUrl(GalgameSourceUrl);
+        _galgameFolderSource = App.GetService<IGalgameSourceCollectionService>()?.GetGalgameSourceFromUrl(_galgameSourceUrl);
         return Task.CompletedTask;
     }
 
@@ -37,7 +37,7 @@ public class GetGalgameInSourceTask : BgTaskBase
         
         return Task.Run((async Task () =>
         {
-            log += $"{DateTime.Now}\n{GalgameSourceUrl}\n\n";
+            log += $"{DateTime.Now}\n{_galgameSourceUrl}\n\n";
             var ignoreFetchResult = await localSettings.ReadSettingAsync<bool>(KeyValues.IgnoreFetchResult);
 
             _galgameFolderSource.IsRunning = true;
@@ -59,10 +59,13 @@ public class GetGalgameInSourceTask : BgTaskBase
                 var msg = $"{path}: ";
                 try
                 {
-                    await galgameService.AddGameAsync(_galgameFolderSource.SourceType, path, ignoreFetchResult,
-                        false);
-                    cnt++;
-                    msg += "AddGalgameResult_Success".GetLocalized();
+                    await UiThreadInvokeHelper.InvokeAsync(async () =>
+                    {
+                        await galgameService.AddGameAsync(_galgameFolderSource.SourceType, path, ignoreFetchResult,
+                            false);
+                        cnt++;
+                        msg += "AddGalgameResult_Success".GetLocalized();
+                    });
                 }
                 catch (Exception e)
                 {
@@ -83,7 +86,7 @@ public class GetGalgameInSourceTask : BgTaskBase
         })!);
     }
 
-    public override bool OnSearch(string key) => GalgameSourceUrl.Contains(key);
+    public override bool OnSearch(string key) => _galgameSourceUrl.Contains(key);
     
     public override string Title { get; } = "GetGalgameInFolderTask_Title".GetLocalized();
     

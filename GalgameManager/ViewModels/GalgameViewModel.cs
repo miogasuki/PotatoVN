@@ -316,9 +316,20 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             
             await process.WaitForExitAsync();
         }
-        catch
+
+        catch (Win32Exception e)
         {
-            //ignore : 用户取消了UAC
+            // 可能是用户取消了UAC提示
+            if (e.NativeErrorCode == 1223) 
+            {
+                _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_Play_CancelledByUser".GetLocalized());
+                return;
+            }
+            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Error, "GalgamePage_Play_Error".GetLocalized() + e.Message);
+        }
+        catch (Exception e)
+        {
+            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Error, "GalgamePage_Play_Error".GetLocalized() + e.Message);
         }
     }
 
@@ -429,7 +440,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task SaveAsync()
     {
         if (Item is null) return;
-        if (string.IsNullOrEmpty(await _localSettingsService.ReadSettingAsync<string>(KeyValues.MagpiePath)))
+        // ReSharper disable once RedundantBoolCompare
+        if (Item.EnableMagpie == true && string.IsNullOrEmpty(await _localSettingsService.ReadSettingAsync<string>(KeyValues.MagpiePath)))
         {
             Item.EnableMagpie = false;
             _infoService.Info(InfoBarSeverity.Warning, "CallMagpieTask_NoMagpiePath".GetLocalized());
@@ -663,7 +675,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         var path = await _localSettingsService.ReadSettingAsync<string>(KeyValues.LocaleEmulatorPath);
         if (path is not null && File.Exists(path)) return true;
-        _infoService.Info(InfoBarSeverity.Error, msg: "GalgamePage_InvalidLocaleEmulatorPath".GetLocalized(),
+        _infoService.Info(InfoBarSeverity.Warning, msg: "GalgamePage_InvalidLocaleEmulatorPath".GetLocalized(),
             displayTimeMs: 5000);
         return false;
     }

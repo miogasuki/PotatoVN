@@ -12,6 +12,8 @@ namespace GalgameManager.Models;
 public partial class Galgame : ObservableObject, IDisplayableGameObject
 {
     public const string DefaultImagePath = "ms-appx:///Assets/WindowIcon.ico";
+    public const string DefaultCharacterImagePath = "ms-appx:///Assets/default_character.jpg";
+    
     public const string DefaultString = "——";
     public const string MetaPath = ".PotatoVN";
     public static readonly int PhraserNumber = 7;
@@ -26,6 +28,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         CnName = CnName,
         BangumiId = Ids[(int)RssType.Bangumi],
         VndbId = Ids[(int)RssType.Vndb],
+        YmgalId = Ids[(int)RssType.Ymgal],
         PvnId = Ids[(int)RssType.PotatoVn],
     };
     /// 唯一标识， 若要判断两个游戏是否为同一个游戏，应使用<see cref="GalgameUid"/>

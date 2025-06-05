@@ -562,8 +562,8 @@ public partial class LibraryViewModel(
         }
         UpdateStatistics();
 
-        // 重新应用排序
-        ApplySorting();
+        // 重新应用排序，启用后会导致刷新整个页面，覆盖原有的动画效果
+        // ApplySorting();
     }
     
     private void HandleGetGalInfoProgressChanged(Progress progress)
@@ -670,6 +670,13 @@ public partial class LibraryViewModel(
             {
                 if (x is GalgameSourceBase sx && y is GalgameSourceBase sy)
                 {
+                    // VirtualSource 类型的源始终排在第一位
+                    if (sx.SourceType == GalgameSourceType.Virtual && sy.SourceType != GalgameSourceType.Virtual)
+                        return -1;
+                    if (sx.SourceType != GalgameSourceType.Virtual && sy.SourceType == GalgameSourceType.Virtual)
+                        return 1;
+                    
+                    // 如果都是或都不是 VirtualSource，则按照原有排序逻辑
                     var result = CurrentFolderSortKey switch
                     {
                         GalgameSourceSortKeys.Name => string.Compare(sx.Name, sy.Name, StringComparison.CurrentCultureIgnoreCase),

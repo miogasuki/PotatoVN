@@ -2826,6 +2826,12 @@
   <data name="HomePage_Sort_SecondaryAscending.Text" xml:space="preserve">
     <value>昇順</value>
   </data>
+  <data name="HomePage_Sort_PrimaryDescending.Text" xml:space="preserve">
+    <value>降順</value>
+  </data>
+  <data name="HomePage_Sort_SecondaryDescending.Text" xml:space="preserve">
+    <value>降順</value>
+  </data>
   <data name="SettingsPage_Theme_TransparentNavigationView.Title" xml:space="preserve">
     <value>ナビゲーションバーの区切り線を表示</value>
   </data>

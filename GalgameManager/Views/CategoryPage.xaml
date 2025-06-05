@@ -29,10 +29,10 @@
         
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                     Margin="{StaticResource CommandBarMargin}">
-            <AppBarButton Icon="Add" x:Uid="CategoryPage_AddCategory" 
+            <AppBarButton Icon="Tag" x:Uid="CategoryPage_AddCategory" 
                           Command="{x:Bind ViewModel.AddCategoryCommand}"
                           IsEnabled="{x:Bind ViewModel.CanAddCategory, Mode=OneWay}"/>
-            <AppBarButton Icon="Flag"
+            <AppBarButton Icon="Add"
                     x:Uid="CategoryPage_AddCategoryGroup"
                           Command="{x:Bind ViewModel.AddCategoryGroupCommand}"/>
             <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}">
@@ -51,11 +51,6 @@
                 <!-- 分类所有游戏 -->
                 <AppBarButton Command="{x:Bind ViewModel.CategoryNowCommand}"
                         x:Uid="CategoryPage_CategoryNow">
-                    <AppBarButton.Flyout>
-                        <Flyout Placement="Bottom">
-                            <TextBlock Text="Done!"/>
-                        </Flyout>
-                    </AppBarButton.Flyout>
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe Fluent Icons"
                                 Glyph="&#xE777;"/>

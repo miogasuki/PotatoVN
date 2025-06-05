@@ -12,6 +12,7 @@ public class GalgameUid
 {
     public string? BangumiId { get; init; }
     public string? VndbId { get; init; }
+    public string? YmgalId { get; init; }
     public string? PvnId { get; init; }
     public string Name { get; init; } = string.Empty;
     public string? CnName { get; init; }
@@ -28,6 +29,7 @@ public class GalgameUid
         result += !PvnId.IsNullOrEmpty() && PvnId == rhs.PvnId ? 1 : 0;
         result += !BangumiId.IsNullOrEmpty() && BangumiId == rhs.BangumiId ? 1 : 0;
         result += !VndbId.IsNullOrEmpty() && VndbId == rhs.VndbId ? 1 : 0;
+        result += !YmgalId.IsNullOrEmpty() && YmgalId == rhs.YmgalId ? 1 : 0;
         result += !CnName.IsNullOrEmpty() && CnName == rhs.CnName ? 1 : 0;
         result += Name == rhs.Name ? 1 : 0;
         return result;
@@ -54,6 +56,11 @@ public class GalgameUid
             containValue = true;
             if (VndbId != rhs.VndbId) return false;
         }
+        if (!YmgalId.IsNullOrEmpty() && !rhs.YmgalId.IsNullOrEmpty())
+        {
+            containValue = true;
+            if (YmgalId != rhs.YmgalId) return false;
+        }
         if (!PvnId.IsNullOrEmpty() && !rhs.PvnId.IsNullOrEmpty())
         {
             containValue = true;
@@ -70,6 +77,7 @@ public class GalgameUid
         if (!string.IsNullOrWhiteSpace(CnName)) parts.Add($"CnName: {CnName}");
         if (!string.IsNullOrWhiteSpace(BangumiId)) parts.Add($"BangumiId: {BangumiId}");
         if (!string.IsNullOrWhiteSpace(VndbId)) parts.Add($"VndbId: {VndbId}");
+        if (!string.IsNullOrWhiteSpace(YmgalId)) parts.Add($"YmgalId: {YmgalId}");
         if (!string.IsNullOrWhiteSpace(PvnId)) parts.Add($"PvnId: {PvnId}");
 
         return $"GalgameUid [{string.Join(", ", parts)}]";

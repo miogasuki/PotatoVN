@@ -127,10 +127,12 @@ public static class MagpieHelper
         List<int> shortcuts = App.GetService<ILocalSettingsService>()
             .ReadSettingAsync<List<int>>(KeyValues.MagpieHotkeys).Result ?? [];
         InputSimulator keyboard = new();
+        // Press down all keys in the shortcut
         foreach (var shortcut in shortcuts)
             keyboard.Keyboard.KeyDown((VirtualKeyCode)shortcut);
-        foreach (var shortcut in shortcuts)
-            keyboard.Keyboard.KeyUp((VirtualKeyCode)shortcut);
+        // Release all keys in the shortcut (in reverse order is a common practice, though not strictly necessary for all cases)
+        for (var i = shortcuts.Count - 1; i >= 0; i--)
+            keyboard.Keyboard.KeyUp((VirtualKeyCode)shortcuts[i]);
     }
 
     public static async Task LaunchMagpieAsync(string magpiePath)
@@ -143,7 +145,25 @@ public static class MagpieHelper
             // WindowStyle = ProcessWindowStyle.Normal
         };
         Process.Start(startInfo);
-        await Task.Delay(5000); // 等待 Magpie 启动
+        
+        // 每隔200毫秒检测一次，最多等待5秒
+        const int checkIntervalMs = 200;
+        const int maxWaitTimeMs = 5000;
+        var totalWaitTime = 0;
+        
+        while (totalWaitTime < maxWaitTimeMs)
+        {
+            await Task.Delay(checkIntervalMs);
+            totalWaitTime += checkIntervalMs;
+            
+            // 检查 Magpie 进程是否已启动
+            Process[] currentProcesses = Process.GetProcesses();
+            if (currentProcesses.Any(process => process.ProcessName.Equals("Magpie", StringComparison.OrdinalIgnoreCase)))
+            {
+                await Task.Delay(500); // 等待500毫秒以确保焦点切换到游戏上
+                return; // Magpie 已启动，立即返回
+            }
+        }
     }
 
     public class MagpieNoMainWinException(string msg) : PvnException(msg);

@@ -192,6 +192,9 @@
   <data name="GalgamePage_Delete.Label" xml:space="preserve">
     <value>彻底删除游戏</value>
   </data>
+  <data name="GalgamePage_Delete.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从本地硬盘彻底删除游戏</value>
+  </data>
   <data name="HomePage_AddNewGame.Label" xml:space="preserve">
     <value>添加游戏</value>
   </data>
@@ -315,16 +318,25 @@
     <value>选择其他文件夹</value>
   </data>
   <data name="GalgamePage_Play.Label" xml:space="preserve">
-    <value>开始游戏</value>
+    <value>启动游戏</value>
+  </data>
+  <data name="GalgamePage_Play.ToolTipService.ToolTip" xml:space="preserve">
+    <value>启动游戏</value>
   </data>
   <data name="GalgamePage_Edit.Label" xml:space="preserve">
     <value>编辑</value>
+  </data>
+  <data name="GalgamePage_Edit.ToolTipService.ToolTip" xml:space="preserve">
+    <value>编辑当前游戏信息</value>
   </data>
   <data name="GalgamePage_Save.Label" xml:space="preserve">
     <value>保存</value>
   </data>
   <data name="GalgamePage_ChangeSavePosition.Label" xml:space="preserve">
-    <value>转换存档位置</value>
+    <value>转换游戏存档位置</value>
+  </data>
+  <data name="GalgamePage_ChangeSavePosition.ToolTipService.ToolTip" xml:space="preserve">
+    <value>将游戏存档位置转换为云端存档</value>
   </data>
   <data name="GalgamePage_Developers.Text" xml:space="preserve">
     <value>制作公司</value>
@@ -484,14 +496,23 @@
   <data name="LibraryPage_DeleteFolder.Text" xml:space="preserve">
     <value>删除游戏库</value>
   </data>
+  <data name="LibraryPage_DeleteFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>删除游戏库</value>
+  </data>
   <data name="GalgameFolderPage_DownloadInfo" xml:space="preserve">
-    <value>下载游戏数据</value>
+    <value>下载所有游戏数据</value>
+  </data>
+  <data name="GalgameFolderPage_DownloadSelectedInfoFromId.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从网络上更新选中的游戏数据</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfo" xml:space="preserve">
     <value>使用游戏ID下载数据</value>
   </data>
   <data name="GalgameFolderPage_DownloadSelectedInfoFromName.Label" xml:space="preserve">
     <value>使用游戏名下载数据</value>
+  </data>
+  <data name="GalgameFolderPage_DownloadSelectedInfoFromName.ToolTipService.ToolTip" xml:space="preserve">
+    <value>使用游戏名在网络上搜索</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>搜索</value>
@@ -514,25 +535,46 @@
     <value>正在保存：</value>
   </data>
   <data name="GalgamePage_OpenInExplorer.Label" xml:space="preserve">
-    <value>在文件管理器中打开</value>
+    <value>打开游戏文件夹</value>
+  </data>
+  <data name="GalgamePage_OpenInExplorer.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在文件管理器中打开游戏文件夹</value>
   </data>
   <data name="GalgamePage_OpenInBgm.Label" xml:space="preserve">
     <value>在Bangumi中打开</value>
   </data>
+  <data name="GalgamePage_OpenInBgm.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在Bangumi中打开当前游戏</value>
+  </data>
   <data name="GalgamePage_OpenInVndb.Label" xml:space="preserve">
     <value>在Vndb中打开</value>
+  </data>
+  <data name="GalgamePage_OpenInVndb.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在Vndb中打开当前游戏</value>
   </data>
   <data name="GalgamePage_OpenInYmgal.Label" xml:space="preserve">
     <value>在月幕Galgame中打开</value>
   </data>
+  <data name="GalgamePage_OpenInYmgal.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在月幕Galgame中打开当前游戏</value>
+  </data>
   <data name="GalgamePage_OpenInCngal.Label" xml:space="preserve">
     <value>在CNGal中打开</value>
+  </data>
+  <data name="GalgamePage_OpenInCngal.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在CNGal中打开当前游戏</value>
   </data>
   <data name="GalgamePage_SyncFromVndb.Label" xml:space="preserve">
     <value>下载Vndb游玩状态</value>
   </data>
+  <data name="GalgamePage_SyncFromVndb.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从Vndb下载当前游戏的游玩状态</value>
+  </data>
   <data name="GalgamePage_SyncFromBgm.Label" xml:space="preserve">
     <value>下载Bangumi游玩状态</value>
+  </data>
+  <data name="GalgamePage_SyncFromBgm.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从Bangumi下载当前游戏的游玩状态</value>
   </data>
   <data name="SettingsPage_Library_IgnoreFetchResult.Title" xml:space="preserve">
     <value>将所有扫描到的游戏加入游戏库</value>
@@ -566,6 +608,9 @@
   </data>
   <data name="GalgamePage_RunAsAdmin.Label" xml:space="preserve">
     <value>以管理员身份运行游戏</value>
+  </data>
+  <data name="GalgamePage_RunAsAdmin.ToolTipService.ToolTip" xml:space="preserve">
+    <value>以管理员身份运行游戏，需要管理员权限</value>
   </data>
   <data name="SettingsPage_Rss_Bangumi.Content" xml:space="preserve">
     <value>Bangumi 番组计划</value>
@@ -709,11 +754,17 @@
   <data name="GalgamePage_PlayStatus.Label" xml:space="preserve">
     <value>游玩状态</value>
   </data>
+  <data name="GalgamePage_PlayStatus.ToolTipService.ToolTip" xml:space="preserve">
+    <value>设置当前游戏的游玩状态</value>
+  </data>
   <data name="CategoryPage_CategoryGroup.Label" xml:space="preserve">
     <value>分类组</value>
   </data>
   <data name="CategoryPage_CategoryNow.Label" xml:space="preserve">
     <value>分类所有游戏</value>
+  </data>
+  <data name="CategoryPage_CategoryNow.ToolTipService.ToolTip" xml:space="preserve">
+    <value>根据游玩状态和制作公司对所有游戏进行分类</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
     <value>身份验证</value>
@@ -788,10 +839,16 @@
     <value>将游玩信息同步到Vndb中</value>
   </data>
   <data name="HomePage_FixHorizontalPicture.Label" xml:space="preserve">
-    <value>裁剪水平封面图</value>
+    <value>裁剪封面图</value>
+  </data>
+  <data name="HomePage_FixHorizontalPicture.ToolTipService.ToolTip" xml:space="preserve">
+    <value>使用原始图片作为游戏封面</value>
   </data>
   <data name="HomePage_DisplayPlayType.Label" xml:space="preserve">
-    <value>游玩状态标记</value>
+    <value>显示游玩状态</value>
+  </data>
+  <data name="HomePage_DisplayPlayType.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在游戏封面图的右上角显示游玩状态</value>
   </data>
   <data name="SettingsPage_Download_SyncPlayStatusWhenPhrasing.Title" xml:space="preserve">
     <value>下载游玩状态</value>
@@ -937,8 +994,14 @@
   <data name="CategoryPage_AddCategory.Label" xml:space="preserve">
     <value>新建分类标签</value>
   </data>
+  <data name="CategoryPage_AddCategory.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在当前分类组中新建标签</value>
+  </data>
   <data name="CategoryPage_AddCategoryGroup.Label" xml:space="preserve">
     <value>新建分类组</value>
+  </data>
+  <data name="CategoryPage_AddCategoryGroup.ToolTipService.ToolTip" xml:space="preserve">
+    <value>新建一个分类组</value>
   </data>
   <data name="CategoryPage_AddCategoryGroupDialog_Title" xml:space="preserve">
     <value>新建分类组</value>
@@ -948,6 +1011,9 @@
   </data>
   <data name="CategoryPage_DeleteCategoryGroup.Label" xml:space="preserve">
     <value>删除当前分类组</value>
+  </data>
+  <data name="CategoryPage_DeleteCategoryGroup.ToolTipService.ToolTip" xml:space="preserve">
+    <value>删除当前分类组，包括所有标签</value>
   </data>
   <data name="CategoryPage_DeleteCategoryGroupDialog_Title" xml:space="preserve">
     <value>删除当前分类组</value>
@@ -1007,10 +1073,16 @@
     <value>是否将游戏状态(添加/游玩/删除等)上传到云存档根目录，并跨电脑同步</value>
   </data>
   <data name="HomePage_Filter_DisplayVirtualGames.Label" xml:space="preserve">
-    <value>显示非本机游戏</value>
+    <value>显示非本地游戏</value>
+  </data>
+  <data name="HomePage_Filter_DisplayVirtualGames.ToolTipService.ToolTip" xml:space="preserve">
+    <value>显示所有游戏，包括不在本地的游戏</value>
   </data>
   <data name="HomePage_SpecialDisplayVirtualGame.Label" xml:space="preserve">
     <value>特殊显示非本地游戏</value>
+  </data>
+  <data name="HomePage_SpecialDisplayVirtualGame.ToolTipService.ToolTip" xml:space="preserve">
+    <value>使得不在本地的游戏的封面图更暗</value>
   </data>
   <data name="GalgamePage_PathAlreadyExist" xml:space="preserve">
     <value>这个路径的游戏已经被绑定到其他游戏上了</value>
@@ -1020,6 +1092,9 @@
   </data>
   <data name="GalgamePage_SetLocalPath.Label" xml:space="preserve">
     <value>设置本地路径</value>
+  </data>
+  <data name="GalgamePage_SetLocalPath.ToolTipService.ToolTip" xml:space="preserve">
+    <value>设置游戏的本地路径</value>
   </data>
   <data name="GalgamePage_UnzipGame.Label" xml:space="preserve">
     <value>解压游戏</value>
@@ -1106,7 +1181,7 @@
     <value>正在扫描路径:{0}</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>扫描库{1}完成, 共添加了{0}个游戏</value>
+    <value>扫描库“{1}”完成, 共添加了{0}个游戏</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
     <value>消息通知</value>
@@ -1171,14 +1246,26 @@
   <data name="GalgameFolderPage_AddFromZip.Label" xml:space="preserve">
     <value>添加游戏(压缩包)</value>
   </data>
+  <data name="GalgameFolderPage_AddFromZip.ToolTipService.ToolTip" xml:space="preserve">
+    <value>添加压缩包中的游戏</value>
+  </data>
   <data name="GalgameFolderPage_Refresh.Label" xml:space="preserve">
     <value>扫描游戏</value>
   </data>
+  <data name="GalgameFolderPage_Refresh.ToolTipService.ToolTip" xml:space="preserve">
+    <value>扫描当前游戏库中的所有游戏</value>
+  </data>
   <data name="LibraryPage_AddGalgameFolder.Label" xml:space="preserve">
-    <value>新增库</value>
+    <value>添加游戏库</value>
+  </data>
+  <data name="LibraryPage_AddGalgameFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>添加一个游戏库，游戏库可以包含多个游戏</value>
   </data>
   <data name="LibraryPage_ScanAll.Label" xml:space="preserve">
     <value>扫描当前库</value>
+  </data>
+  <data name="LibraryPage_ScanAll.ToolTipService.ToolTip" xml:space="preserve">
+    <value>扫描当前库中的所有游戏</value>
   </data>
   <data name="LibraryPage_ScanAll_Success" xml:space="preserve">
     <value>已启动{0}个库的扫描任务</value>
@@ -1201,8 +1288,14 @@
   <data name="GalgamePage_SelectThread.Label" xml:space="preserve">
     <value>手动指定游戏进程</value>
   </data>
+  <data name="GalgamePage_SelectThread.ToolTipService.ToolTip" xml:space="preserve">
+    <value>PotatoVN无法自动检测到游戏进程时，可以手动指定游戏进程</value>
+  </data>
   <data name="GalgamePage_ResetPath.Label" xml:space="preserve">
     <value>重置exe和文本路径</value>
+  </data>
+  <data name="GalgamePage_ResetPath.ToolTipService.ToolTip" xml:space="preserve">
+    <value>重置选择的游戏启动文件和文本路径</value>
   </data>
   <data name="VirtualGameFilter" xml:space="preserve">
     <value>本地游戏</value>
@@ -1215,6 +1308,9 @@
   </data>
   <data name="HomePage_KeepFilters.Label" xml:space="preserve">
     <value>保留过滤器</value>
+  </data>
+  <data name="HomePage_KeepFilters.ToolTipService.ToolTip" xml:space="preserve">
+    <value>切换页面时保留当前过滤器</value>
   </data>
   <data name="HomePage_Sort_Title" xml:space="preserve">
     <value>排序</value>
@@ -1235,7 +1331,10 @@
     <value>在{0}中没有找到任何{1}文件</value>
   </data>
   <data name="GalgamePage_OpenText.Label" xml:space="preserve">
-    <value>打开文本</value>
+    <value>打开游戏说明文本</value>
+  </data>
+  <data name="GalgamePage_OpenText.ToolTipService.ToolTip" xml:space="preserve">
+    <value>打开游戏文件夹下的文本文件，比如游戏攻略</value>
   </data>
   <data name="GalgamePage_SelectText_Title" xml:space="preserve">
     <value>选择文本打开</value>
@@ -1657,6 +1756,9 @@
   <data name="GalgamePage_MoveToAnotherSource.Label" xml:space="preserve">
     <value>移入另一个源</value>
   </data>
+  <data name="GalgamePage_MoveToAnotherSource.ToolTipService.ToolTip" xml:space="preserve">
+    <value>将游戏文件移入另一个游戏库</value>
+  </data>
   <data name="ChangeSourceDialog_TargetSource.Text" xml:space="preserve">
     <value>移入</value>
   </data>
@@ -1817,7 +1919,10 @@
     <value>无任何制作公司分类包含本游戏</value>
   </data>
   <data name="LibraryPage_EditFolder.Text" xml:space="preserve">
-    <value>管理库</value>
+    <value>管理游戏库</value>
+  </data>
+  <data name="LibraryPage_EditFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>管理游戏库，可以批量修改游戏信息</value>
   </data>
   <data name="LibraryPage_Back.Label" xml:space="preserve">
     <value>回到上个库</value>
@@ -1825,19 +1930,37 @@
   <data name="LibraryPage_DownloadAllData.Label" xml:space="preserve">
     <value>下载当前库的游戏数据</value>
   </data>
+  <data name="LibraryPage_DownloadAllData.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从网络上更新当前库的所有游戏数据</value>
+  </data>
   <data name="LibraryPage_EditCurrentFolder.Text" xml:space="preserve">
     <value>管理当前库</value>
+  </data>
+  <data name="LibraryPage_EditCurrentFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>修改当前库的设置，可以批量修改游戏信息</value>
   </data>
   <data name="LibraryPage_EditCurrentFolder_AppBarButton.Label" xml:space="preserve">
     <value>管理当前库</value>
   </data>
+  <data name="LibraryPage_EditCurrentFolder_AppBarButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>修改当前库的设置，可以批量修改游戏信息</value>
+  </data>
   <data name="LibraryPage_EditGameInfo.Text" xml:space="preserve">
+    <value>修改游戏信息</value>
+  </data>
+  <data name="LibraryPage_EditGameInfo.ToolTipService.ToolTip" xml:space="preserve">
     <value>修改游戏信息</value>
   </data>
   <data name="LibraryPage_DownloadGameInfo.Text" xml:space="preserve">
     <value>下载游戏信息</value>
   </data>
+  <data name="LibraryPage_DownloadGameInfo.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从网络数据源下载游戏信息</value>
+  </data>
   <data name="LibraryPage_RemoveGame.Text" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="LibraryPage_RemoveGame.ToolTipService.ToolTip" xml:space="preserve">
     <value>从库中移除游戏</value>
   </data>
   <data name="LibraryPage_Statistics" xml:space="preserve">
@@ -1964,8 +2087,14 @@
   <data name="GalgamePage_RunInLocaleEmulator.Label" xml:space="preserve">
     <value>转区运行游戏</value>
   </data>
+  <data name="GalgamePage_RunInLocaleEmulator.ToolTipService.ToolTip" xml:space="preserve">
+    <value>使用LocaleEmulator转区运行游戏</value>
+  </data>
   <data name="GalgamePage_HighDpi.Label" xml:space="preserve">
     <value>高DPI替代缩放</value>
+  </data>
+  <data name="GalgamePage_HighDpi.ToolTipService.ToolTip" xml:space="preserve">
+    <value>禁用系统缩放，配合Magpie使用</value>
   </data>
   <data name="GalgamePage_InvalidLocaleEmulatorPath" xml:space="preserve">
     <value>LocaleEmulator 路径未设置或路径不存在，请在 设置-&gt;游戏 处设置LocaleEmulator路径</value>
@@ -1998,7 +2127,7 @@
     <value>游戏库</value>
   </data>
   <data name="GalgameSourcePage_GamesTable.SettingTitle" xml:space="preserve">
-    <value>游戏列表</value>
+    <value>管理游戏</value>
   </data>
   <data name="GalgameSourcePage_GamesTable.SettingDescription" xml:space="preserve">
     <value>查看与编辑这个库里的所有游戏信息</value>
@@ -2043,7 +2172,10 @@
     <value>没有找到与该关键字匹配的游戏/制作公司</value>
   </data>
   <data name="MultiStreamPage_Cmd_Setting.Label" xml:space="preserve">
-    <value>设置显示列表</value>
+    <value>修改页面布局</value>
+  </data>
+  <data name="MultiStreamPage_Cmd_Setting.ToolTipService.ToolTip" xml:space="preserve">
+    <value>个性化修改页面布局设置</value>
   </data>
   <data name="PageEnum_Home" xml:space="preserve">
     <value>游戏</value>
@@ -2127,7 +2259,10 @@
     <value>最近游玩的游戏</value>
   </data>
   <data name="MultiStreamPage_Cmd_AllowScroll.Label" xml:space="preserve">
-    <value>允许鼠标滚轮滚动列表</value>
+    <value>允许横向滑动页面</value>
+  </data>
+  <data name="MultiStreamPage_Cmd_AllowScroll.ToolTipService.ToolTip" xml:space="preserve">
+    <value>允许鼠标滚轮横向滑动列表，可能会导致滑动不流畅</value>
   </data>
   <data name="SettingsPage_Other_Export.Title" xml:space="preserve">
     <value>导出数据</value>
@@ -2283,7 +2418,7 @@
     <value>路径</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_Edit.Text" xml:space="preserve">
-    <value>编辑</value>
+    <value>编辑游戏信息</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_CopyName.Text" xml:space="preserve">
     <value>复制游戏名</value>
@@ -2360,8 +2495,14 @@
   <data name="LibraryPage_NavVisible.Label" xml:space="preserve">
     <value>显示导航栏</value>
   </data>
+  <data name="LibraryPage_NavVisible.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在页面顶部显示当前目录导航栏</value>
+  </data>
   <data name="LibraryPage_StatisticsVisible.Label" xml:space="preserve">
     <value>显示统计数据</value>
+  </data>
+  <data name="LibraryPage_StatisticsVisible.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在页面底部显示当前库的统计数据</value>
   </data>
   <data name="SettingsPage_Start_AutoStartOnLogin.Title" xml:space="preserve">
     <value>开机自启</value>
@@ -2711,6 +2852,9 @@
   <data name="GalgamePage_ManageLayout.Label" xml:space="preserve">
     <value>自定义页面布局</value>
   </data>
+  <data name="GalgamePage_ManageLayout.ToolTipService.ToolTip" xml:space="preserve">
+    <value>自定义页面布局，可以隐藏页面中各个元素</value>
+  </data>
   <data name="GalgameSourcePage_IncludeSubSources.OffContent" xml:space="preserve">
     <value>不显示</value>
   </data>
@@ -2764,6 +2908,9 @@
   </data>
   <data name="GalgameFolderPage_Delete.Label" xml:space="preserve">
     <value>从库中移除游戏</value>
+  </data>
+  <data name="GalgameFolderPage_Delete.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从库中移除选中的游戏</value>
   </data>
   <data name="GalgameSourcePage_Remove_Message" xml:space="preserve">
     <value>确定要从库中移除所选游戏吗？一共选中了{0}个</value>
@@ -2828,6 +2975,12 @@
   <data name="HomePage_Sort_SecondaryAscending.Text" xml:space="preserve">
     <value>升序</value>
   </data>
+  <data name="HomePage_Sort_PrimaryDescending.Text" xml:space="preserve">
+    <value>降序</value>
+  </data>
+  <data name="HomePage_Sort_SecondaryDescending.Text" xml:space="preserve">
+    <value>降序</value>
+  </data>
   <data name="SettingsPage_Theme_TransparentNavigationView.Title" xml:space="preserve">
     <value>显示导航栏分界线</value>
   </data>
@@ -2874,6 +3027,9 @@
   <data name="LibraryPage_PlayStatusSubMenu.Text" xml:space="preserve">
     <value>游玩状态</value>
   </data>
+  <data name="LibraryPage_PlayStatusSubMenu.ToolTipService.ToolTip" xml:space="preserve">
+    <value>设置游戏的游玩状态</value>
+  </data>
   <data name="LibraryPage_PlayStatusPlaying.Text" xml:space="preserve">
     <value>在玩</value>
   </data>
@@ -2891,6 +3047,27 @@
   </data>
   <data name="LibraryPage_PlayStatusMoreSettings.Text" xml:space="preserve">
     <value>更多设置...</value>
+  </data>
+  <data name="LibraryPage_PlayStatusMoreSettings.ToolTipService.ToolTip" xml:space="preserve">
+    <value>打开详细的游玩状态设置对话框</value>
+  </data>
+  <data name="LibraryPage_Edit.Text" xml:space="preserve">
+    <value>修改游戏信息</value>
+  </data>
+  <data name="LibraryPage_Edit.ToolTipService.ToolTip" xml:space="preserve">
+    <value>修改游戏信息</value>
+  </data>
+  <data name="LibraryPage_Download.Text" xml:space="preserve">
+    <value>下载游戏信息</value>
+  </data>
+  <data name="LibraryPage_Download.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从网络数据源下载游戏信息</value>
+  </data>
+  <data name="LibraryPage_Remove.Text" xml:space="preserve">
+    <value>从库中移除游戏</value>
+  </data>
+  <data name="LibraryPage_Remove.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从库中移除游戏</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmTitle" xml:space="preserve">
     <value>分类所有游戏</value>
@@ -2938,11 +3115,14 @@
   <data name="GalgamePage_EnableMagpie.Label" xml:space="preserve">
     <value>启用 Magpie</value>
   </data>
+  <data name="GalgamePage_EnableMagpie.ToolTipService.ToolTip" xml:space="preserve">
+    <value>启用Magpie超分辨率运行游戏</value>
+  </data>
   <data name="SettingsPage_Game_MagpieHotkeys_Title.Text" xml:space="preserve">
     <value>Magpie 快捷键</value>
   </data>
   <data name="SettingsPage_Game_MagpieHotkeys_Description.Text" xml:space="preserve">
-    <value>请修改为 Magpie 里设置的快捷键（不正确的快捷键会导致自动magpie调用失效），使用 + 分隔，例如：Win + Shift + A</value>
+    <value>请修改为 Magpie 里设置的缩放快捷键，请退出Magpie后修改，防止放大本窗口</value>
   </data>
   <data name="SettingsPage_Game_MagpieHotkeys_EditBox.PlaceholderText" xml:space="preserve">
     <value>Win + Shift + A</value>
@@ -2995,6 +3175,9 @@
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>后台静音</value>
   </data>
+  <data name="GamePage_MuteInBackground.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在游戏处于后台运行时时静音游戏</value>
+  </data>
   <data name="Settings_Game_AlwaysMuteInBackground.Title" xml:space="preserve">
     <value>总是后台时静音游戏</value>
   </data>
@@ -3016,5 +3199,23 @@
   </data>
   <data name="GameMuteTask_Starting" xml:space="preserve">
     <value>正在检查游戏 {0} 状态，随时准备静音/恢复该游戏声音</value>
+  </data>
+  <data name="GalgamePage_Play_Error" xml:space="preserve">
+    <value>启动游戏失败，请尝试使用管理员权限启动游戏：</value>
+  </data>
+  <data name="GalgamePage_Play_CancelledByUser" xml:space="preserve">
+    <value>需要管理员权限才能启动游戏</value>
+  </data>
+  <data name="HotkeyInputBox_PlaceholderText" xml:space="preserve">
+    <value>点击设置快捷键</value>
+  </data>
+  <data name="HotkeyInputBox_StartCapturing" xml:space="preserve">  
+    <value>请按下快捷键组合...</value>
+  </data>
+  <data name="HotkeyInputBox_ClickToSet" xml:space="preserve">
+    <value>点击设置快捷键</value>
+  </data>
+  <data name="SettingsPage_Game_MagpieHotkeys_HotkeyInputBox.PlaceholderText" xml:space="preserve">
+    <value>点击设置Magpie快捷键</value>
   </data>
 </root>

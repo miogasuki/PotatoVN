@@ -41,9 +41,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     #region UI
     public readonly string PlayStatus = "HomePage_PlayStatus".GetLocalized();
-    public readonly string UiEdit = "HomePage_Edit".GetLocalized();
-    public readonly string UiDownLoad = "HomePage_Download".GetLocalized();
-    public readonly string UiRemove = "HomePage_Remove".GetLocalized();
     private readonly string _uiSearch = "Search".GetLocalized();
     #endregion
 
@@ -81,10 +78,10 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             GameToOpacityConverter.SpecialDisplayVirtualGame = SpecialDisplayVirtualGame;
         
             PrimaryKey = (SortKeys)_localSettingsService.ReadSettingAsync<int>(KeyValues.PrimarySortKey).Result;
-            IsPrimaryAscending = _localSettingsService.ReadSettingAsync<bool>(KeyValues.PrimarySortAscending).Result;
+            IsPrimaryDescending = _localSettingsService.ReadSettingAsync<bool>(KeyValues.PrimarySortDescending).Result;
 
             SecondaryKey = (SortKeys)_localSettingsService.ReadSettingAsync<int>(KeyValues.SecondarySortKey).Result;
-            IsSecondaryAscending = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SecondarySortAscending).Result;
+            IsSecondaryDescending = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SecondarySortDescending).Result;
         
             ApplySort();
         
@@ -306,9 +303,9 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     // 为XAML绑定添加静态排序键属性
     [ObservableProperty] private SortKeys _primaryKey = SortKeys.LastPlay;
-    [ObservableProperty] private bool _isPrimaryAscending;
+    [ObservableProperty] private bool _isPrimaryDescending;
     [ObservableProperty] private SortKeys _secondaryKey = SortKeys.Developer;
-    [ObservableProperty] private bool _isSecondaryAscending;
+    [ObservableProperty] private bool _isSecondaryDescending;
 
     // 检查当前排序键方法
     public bool IsPrimaryKey(string key) => PrimaryKey.ToString() == key;
@@ -341,7 +338,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         Source.SortDescriptions.Clear();
 
         // 应用主排序键
-        SortDirection primaryDirection = IsPrimaryAscending ? SortDirection.Ascending : SortDirection.Descending;
+        SortDirection primaryDirection = IsPrimaryDescending ? SortDirection.Descending : SortDirection.Ascending;
         switch (PrimaryKey)
         {
             case SortKeys.Name:
@@ -375,7 +372,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         }
 
         // 应用次要排序键
-        SortDirection secondaryDirection = IsSecondaryAscending ? SortDirection.Ascending : SortDirection.Descending;
+        SortDirection secondaryDirection = IsSecondaryDescending ? SortDirection.Descending : SortDirection.Ascending;
         switch (SecondaryKey)
         {
             case SortKeys.Name:
@@ -416,9 +413,9 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private void SaveSortSettings()
     {
          _localSettingsService.SaveSettingAsync(KeyValues.PrimarySortKey, (int)PrimaryKey);
-         _localSettingsService.SaveSettingAsync(KeyValues.PrimarySortAscending, IsPrimaryAscending);
+         _localSettingsService.SaveSettingAsync(KeyValues.PrimarySortDescending, IsPrimaryDescending);
          _localSettingsService.SaveSettingAsync(KeyValues.SecondarySortKey, (int)SecondaryKey);
-         _localSettingsService.SaveSettingAsync(KeyValues.SecondarySortAscending, IsSecondaryAscending);
+         _localSettingsService.SaveSettingAsync(KeyValues.SecondarySortDescending, IsSecondaryDescending);
     }
 
     #endregion

@@ -21,6 +21,7 @@ public static class KeyValues
     public const string LastUpdateCheckDate = "lastUpdateCheckDate"; // DateTime,上次检查更新的时间
     public const string LastUpdateCheckResult = "lastUpdateCheckResult"; // bool,上次检查更新的结果
     public const string LastNoticeUpdateVersion = "lastNoticeUpdateVersion"; // string,上次通知更新的版本
+    public const string IgnoredUpdateVersions = "IgnoredUpdateVersions";
     public const string AutoCategory = "autoCategory"; // bool,是否自动分类
     public const string AuthenticationType = "authenticationType"; // AuthenticationType,身份验证类型
     public const string FontInstalled = "fontInstalled"; //bool, 是否安装了Segoe Fluent Icons字体
@@ -86,7 +87,7 @@ public static class KeyValues
     public const string DisplayVirtualGame = "displayVirtualGame"; //bool, 游戏页是否显示虚拟游戏
     public const string SpecialDisplayVirtualGame = "specialDisplayVirtualGame"; //bool, 游戏页是否特殊显示虚拟游戏（降低透明度）
     public const string MultiStreamPageAllowScroll = "multiStreamPageAllowScroll"; //bool, 主页列表是否允许横向滚动
-    public const string TimeAsHour = "timeAsHour"; //bool，时间是否显示为“__h__m"，若为false则显示为“__分钟”
+    public const string TimeAsHour = "timeAsHour"; //bool，时间是否显示为"__h__m"，若为false则显示为"__分钟"
     public const string TransparentNavigationView = "transparentNavigationView"; //bool, 是否使用透明导航视图背景
     public const string GalgamePagePrimaryTitleType = "GalgamePagePrimaryTitleType"; //string, 游戏页主标题类型
     public const string GalgamePageSecondaryTitleType = "GalgamePageSecondaryTitleType"; //string, 游戏页副标题类型
@@ -133,8 +134,8 @@ public static class KeyValues
     public const string LastError = "lastError"; //string, 上次错误信息
     public const string Language = "language"; //string, 语言设置，en-US/zh-CN/zh-TW
     public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic
-    public const string UpdateType = "updateType"; //string, 更新类型，stable/beta
-    public const string UpdateUrl = "updateUrl"; //string, 更新地址，stable/beta
+    public const string UpdateType = "UpdateType";
+    public const string UpdateUrl = "UpdateUrl";
 
 
     //是否执行过某种升级, bool
@@ -155,4 +156,5 @@ public static class KeyValues
     public const string GalgameFolders = "galgameFolders"; //旧游戏文件夹，仅用于升级
     public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
     public const string SearchChildFolderDepth = "searchChildFolderDepth"; //int, 搜索子文件夹的深度，默认是0（不搜索），新版本改成智能搜索，不需要这个了
+    public const string UpdateBatchPath = "UpdateBatchPath";
 }

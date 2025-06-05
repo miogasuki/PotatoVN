@@ -1037,7 +1037,7 @@
     <value>更新记录</value>
   </data>
   <data name="ActivationService_FontPopup_Msg" xml:space="preserve">
-    <value>本应用需要安装字体“Segoe Fluent Icons”才能正常显示图标，是否立即安装？</value>
+    <value>本应用需要安装字体"Segoe Fluent Icons"才能正常显示图标，是否立即安装？</value>
   </data>
   <data name="ActivationService_FontPopup_Title" xml:space="preserve">
     <value>字体未安装</value>
@@ -1181,7 +1181,7 @@
     <value>正在扫描路径:{0}</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>扫描库“{1}”完成, 共添加了{0}个游戏</value>
+    <value>扫描库"{1}"完成, 共添加了{0}个游戏</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
     <value>消息通知</value>
@@ -3092,7 +3092,7 @@
     <value>自定义打开文本文件类型</value>
   </data>
   <data name="SettingsPage_Game_CustomTextFileExtensions_Description.Text" xml:space="preserve">
-    <value>设置在游戏中“打开文本”时，文件选择器中显示的文件扩展名。使用英文逗号 (,) 分隔，例如：.txt, .log, .md</value>
+    <value>设置在游戏中"打开文本"时，文件选择器中显示的文件扩展名。使用英文逗号 (,) 分隔，例如：.txt, .log, .md</value>
   </data>
   <data name="SettingsPage_Game_CustomTextFileExtensions_EditBox.PlaceholderText" xml:space="preserve">
     <value>.txt, .docx, .pdf</value>
@@ -3217,5 +3217,101 @@
   </data>
   <data name="SettingsPage_Game_MagpieHotkeys_HotkeyInputBox.PlaceholderText" xml:space="preserve">
     <value>点击设置Magpie快捷键</value>
+  </data>
+  <data name="UpdateService_UpdateAvailable_Title" xml:space="preserve">
+    <value>发现新版本</value>
+  </data>
+  <data name="UpdateService_StoreUpdate_Content" xml:space="preserve">
+    <value>有新版本可用，是否前往Microsoft Store进行更新？</value>
+  </data>
+  <data name="UpdateService_SideloadUpdate_Content" xml:space="preserve">
+    <value>有新版本可用，是否下载并安装更新？</value>
+  </data>
+  <data name="UpdateService_Update_Confirm" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="UpdateService_Update_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="UpdateService_Dialog_Error" xml:space="preserve">
+    <value>显示更新对话框失败</value>
+  </data>
+  <data name="UpdateService_Update_Error" xml:space="preserve">
+    <value>执行更新失败</value>
+  </data>
+  <data name="UpdateService_Store_Opened" xml:space="preserve">
+    <value>已打开Microsoft Store，请前往更新</value>
+  </data>
+  <data name="UpdateService_Store_Error" xml:space="preserve">
+    <value>无法打开Microsoft Store</value>
+  </data>
+  <data name="UpdateService_Download_Started" xml:space="preserve">
+    <value>开始下载更新...</value>
+  </data>
+  <data name="UpdateService_Download_Completed" xml:space="preserve">
+    <value>下载完成，开始安装...</value>
+  </data>
+  <data name="UpdateService_Download_Error" xml:space="preserve">
+    <value>下载更新失败</value>
+  </data>
+  <data name="UpdateService_Install_Success" xml:space="preserve">
+    <value>安装成功</value>
+  </data>
+  <data name="UpdateService_Install_Error" xml:space="preserve">
+    <value>安装失败</value>
+  </data>
+  <data name="UpdateService_Install_Exception" xml:space="preserve">
+    <value>安装过程中出现异常</value>
+  </data>
+  <data name="UpdateService_Restart_Title" xml:space="preserve">
+    <value>更新完成</value>
+  </data>
+  <data name="UpdateService_Restart_Content" xml:space="preserve">
+    <value>更新已完成，是否立即重启应用以应用更新？</value>
+  </data>
+  <data name="UpdateService_Restart_Confirm" xml:space="preserve">
+    <value>立即重启</value>
+  </data>
+  <data name="UpdateService_Restart_Later" xml:space="preserve">
+    <value>稍后重启</value>
+  </data>
+  <data name="UpdateService_Restart_Error" xml:space="preserve">
+    <value>显示重启对话框失败</value>
+  </data>
+  <data name="UpdateService_NoUpdate_Title" xml:space="preserve">
+    <value>没有可用更新</value>
+  </data>
+  <data name="UpdateService_NoUpdate_Content" xml:space="preserve">
+    <value>当前版本已经是最新版本</value>
+  </data>
+  <data name="UpdateService_Update_Ignore" xml:space="preserve">
+    <value>忽略这个版本</value>
+  </data>
+  <data name="UpdateService_Version_Ignored" xml:space="preserve">
+    <value>已忽略此版本的更新</value>
+  </data>
+  <data name="UpdateService_IgnoreVersion_Error" xml:space="preserve">
+    <value>忽略版本失败</value>
+  </data>
+  <data name="UpdateService_Download_Error" xml:space="preserve">
+    <value>下载更新失败</value>
+  </data>
+  <data name="UpdateService_Install_Content" xml:space="preserve">
+    <value>更新包已下载完成。由于技术限制，应用需要退出后才能安装更新。点击"立即安装"将退出应用并自动安装更新。</value>
+  </data>
+  <data name="UpdateService_Install_Confirm" xml:space="preserve">
+    <value>立即安装</value>
+  </data>
+  <data name="UpdateService_Install_Dialog_Error" xml:space="preserve">
+    <value>显示安装对话框失败</value>
+  </data>
+  <data name="UpdateService_Install_Execute_Error" xml:space="preserve">
+    <value>执行安装失败</value>
+  </data>
+  <data name="UpdateService_Install_Later" xml:space="preserve">
+    <value>稍后安装</value>
+  </data>
+  <data name="UpdateService_Install_Title" xml:space="preserve">
+    <value>安装更新</value>
   </data>
 </root>

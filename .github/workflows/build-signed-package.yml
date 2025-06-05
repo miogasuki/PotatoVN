@@ -127,3 +127,45 @@ jobs:
         with:
           name: PotatoVN-${{ matrix.platform }}-${{ env.BRANCH_NAME }}-signed
           path: signed_package
+
+  update-version:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.ref_name == 'flight-released' || github.ref_name == 'relased' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Update version file
+        run: |
+          # 从Package.appxmanifest获取版本号
+          VERSION=$(grep -o 'Version="[^"]*"' GalgameManager/Package.appxmanifest | cut -d'"' -f2)
+          echo "Current version: $VERSION"
+          
+          # 检查版本文件是否存在，如果不存在则创建
+          if [ ! -f "PotatoVN.Doc/raw/version.md" ]; then
+            mkdir -p PotatoVN.Doc/raw
+            echo "1.0.0.0, 1.0.0.0" > PotatoVN.Doc/raw/version.md
+          fi
+          
+          # 更新PotatoVN.Doc/raw/version.md文件
+          if [ "${{ github.ref_name }}" == "flight-released" ]; then
+            # flight-released分支更新测试版版本号(第二个版本号)
+            sed -i "s/\([^,]*\), \([^,]*\)/\1, $VERSION/" PotatoVN.Doc/raw/version.md
+          elif [ "${{ github.ref_name }}" == "relased" ]; then
+            # relased分支更新正式版版本号(第一个版本号)
+            sed -i "s/\([^,]*\), \([^,]*\)/$VERSION, \2/" PotatoVN.Doc/raw/version.md
+          fi
+          
+          # 显示更新后的内容
+          echo "Updated version file:"
+          cat PotatoVN.Doc/raw/version.md
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add PotatoVN.Doc/raw/version.md
+          git commit -m "Auto update version to $(grep -o 'Version="[^"]*"' GalgameManager/Package.appxmanifest | cut -d'"' -f2)" || exit 0
+          git push

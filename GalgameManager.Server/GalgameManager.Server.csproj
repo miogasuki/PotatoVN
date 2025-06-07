@@ -8,7 +8,10 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <UserSecretsId>a1cd8932-6257-4d27-9bf1-b6212e185636</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    
+    <!-- Versioning -->
+    <_BaseVersion>1</_BaseVersion>
+    <_BuildNumberSuffix Condition=" '$(CI_BUILD_SUFFIX)' != '' ">.$(CI_BUILD_SUFFIX)</_BuildNumberSuffix>
+    <InformationalVersion>$(_BaseVersion)$(_BuildNumberSuffix)</InformationalVersion>
     <!--xml文档生成-->
     <NoWarn>CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

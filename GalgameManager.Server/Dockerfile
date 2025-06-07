@@ -8,16 +8,18 @@ EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
+ARG CI_BUILD_SUFFIX
 WORKDIR /src
 COPY ["GalgameManager.Server/GalgameManager.Server.csproj", "GalgameManager.Server/"]
 RUN dotnet restore "./GalgameManager.Server/./GalgameManager.Server.csproj"
 COPY . .
 WORKDIR "/src/GalgameManager.Server"
-RUN dotnet build "./GalgameManager.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./GalgameManager.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build -p:CI_BUILD_SUFFIX=${CI_BUILD_SUFFIX}
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./GalgameManager.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+ARG CI_BUILD_SUFFIX
+RUN dotnet publish "./GalgameManager.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false -p:CI_BUILD_SUFFIX=${CI_BUILD_SUFFIX}
 
 FROM base AS final
 WORKDIR /app

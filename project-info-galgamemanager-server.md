@@ -63,7 +63,7 @@ This document provides a detailed overview of the `GalgameManager.Server` applic
     *   **`Character.cs`**: Entity for game character information.
     *   **`Staff.cs`**: Entity for staff information.
     *   **`Dtos/`**: Contains Data Transfer Objects.
-        *   **`ServerInfoDto.cs`**: DTO for server information. Includes properties like `BangumiOAuth2Enable`, `DefaultLoginEnable`, `BangumiLoginEnable`, `GalgameStaffAvailable`, `StaffEnable`, and `ServerVersion`. The `ServerVersion` is constructed as `1.4.GITHUB_RUN_NUMBER` (base version "1.4"), where `GITHUB_RUN_NUMBER` is an environment variable typically injected during CI/CD.
+        *   **`ServerInfoDto.cs`**: DTO for server information. Includes properties like `BangumiOAuth2Enable`, `DefaultLoginEnable`, `BangumiLoginEnable`, `GalgameStaffAvailable`, `StaffEnable`, and `ServerVersion`. The `ServerVersion` is read from the assembly's `InformationalVersion`.
         *   **`GalgameDto.cs`**:
             *   `GalgameDto`: Used for sending game data *to* the client.
             *   `GalgameUpdateDto`: Used for receiving game update data *from* the client. This DTO includes properties like `Id`, `Name`, `PlayType`, `TotalPlayTime`, `PlayCount`, and `PlayTime` (as `List<PlayLogDto>`). It's important that this DTO matches the structure expected by the client's generated API code.
@@ -95,10 +95,24 @@ This document provides a detailed overview of the `GalgameManager.Server` applic
 6.  **Database:** The `Galgames` table (with the `PlayCount` column) and `PlayLogs` table are updated.
 
 ## 5. Server Versioning
-The server version is exposed via the `/info` endpoint in the `ServerInfoDto`'s `ServerVersion` property. The Swagger/OpenAPI documentation version in `Program.cs` is also set using the same scheme.
-The version string is formatted as `MAJOR.MINOR.BUILD`.
-- `MAJOR.MINOR` (currently "1.4") is hardcoded in `ServerController.cs` and `Program.cs`.
-- `BUILD` is taken from the `GITHUB_RUN_NUMBER` environment variable. If this variable is not set (e.g., during local development), the version will only be `MAJOR.MINOR`.
+
+The server version is determined at build time and embedded into the assembly's `InformationalVersion` attribute. At runtime, both the `/info` endpoint (via `ServerController.cs`) and the Swagger/OpenAPI documentation (in `Program.cs`) read this `InformationalVersion`.
+
+The versioning is configured in `GalgameManager.Server.csproj`:
+```xml
+<PropertyGroup>
+  <_BaseVersion>1.4</_BaseVersion>
+  <_BuildNumberSuffix Condition=" '$(CI_BUILD_SUFFIX)' != '' ">.$(CI_BUILD_SUFFIX)</_BuildNumberSuffix>
+  <InformationalVersion>$(_BaseVersion)$(_BuildNumberSuffix)</InformationalVersion>
+</PropertyGroup>
+```
+- `_BaseVersion` (currently "1.4") defines the major and minor parts of the version.
+- `CI_BUILD_SUFFIX` is an MSBuild property that should be set by the CI/CD environment (e.g., GitHub Actions). It's expected to be the GitHub run number.
+  - Example for GitHub Actions: `dotnet build /p:CI_BUILD_SUFFIX=$GITHUB_RUN_NUMBER`
+- The resulting `InformationalVersion` will be in the format `MAJOR.MINOR` (e.g., "1.4") if `CI_BUILD_SUFFIX` is not provided (local build), or `MAJOR.MINOR.BUILD` (e.g., "1.4.123") if `CI_BUILD_SUFFIX` is provided (CI build).
+
+This `InformationalVersion` is then retrieved in C# using:
+`Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion`
 
 ## 6. Key Considerations for AI Agents
 

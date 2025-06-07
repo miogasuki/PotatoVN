@@ -1,4 +1,5 @@
-﻿using GalgameManager.Server.Contracts;
+﻿using System.Reflection;
+using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +14,7 @@ public class ServerController (IUserService userService, IBangumiService bgmServ
     public async Task<ActionResult<ServerInfoDto>> GetServerInfo()
     {
         await Task.CompletedTask; //之后添加别的逻辑会涉及到异步操作
-        var baseVersion = "1.4"; // Manually set base version, consistent with Program.cs
-        var runNumber = Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
-        var serverVersion = string.IsNullOrEmpty(runNumber) ? baseVersion : $"{baseVersion}.{runNumber}";
+        var serverVersion = Program.Version;
         
         return Ok(new ServerInfoDto
         {
@@ -24,7 +23,7 @@ public class ServerController (IUserService userService, IBangumiService bgmServ
             BangumiLoginEnable = bgmService.IsLoginEnable,
             GalgameStaffAvailable = true,
             StaffEnable = true,
-            ServerVersion = serverVersion
+            ServerVersion = serverVersion,
         });
     }
 }

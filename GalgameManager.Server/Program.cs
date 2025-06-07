@@ -17,6 +17,10 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        var baseDocVersion = "1.4";
+        var githubRunNumber = Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
+        var swaggerDocVersion = string.IsNullOrEmpty(githubRunNumber) ? baseDocVersion : $"{baseDocVersion}.{githubRunNumber}";
+        
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         if (CheckEnv(builder) == false)
@@ -78,7 +82,7 @@ public class Program
 
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "PotatoVN.Server", Version = "v1.4", 
+                Title = "PotatoVN.Server", Version = $"v{swaggerDocVersion}", 
                 Description = "PotatoVN 同步服务器\n最新更新：galgame新增playcount字段",
             });
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PotatoVN.Server.xml"));

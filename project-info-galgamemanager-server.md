@@ -63,6 +63,7 @@ This document provides a detailed overview of the `GalgameManager.Server` applic
     *   **`Character.cs`**: Entity for game character information.
     *   **`Staff.cs`**: Entity for staff information.
     *   **`Dtos/`**: Contains Data Transfer Objects.
+        *   **`ServerInfoDto.cs`**: DTO for server information. Includes properties like `BangumiOAuth2Enable`, `DefaultLoginEnable`, `BangumiLoginEnable`, `GalgameStaffAvailable`, `StaffEnable`, and `ServerVersion`. The `ServerVersion` is constructed as `1.4.GITHUB_RUN_NUMBER` (base version "1.4"), where `GITHUB_RUN_NUMBER` is an environment variable typically injected during CI/CD.
         *   **`GalgameDto.cs`**:
             *   `GalgameDto`: Used for sending game data *to* the client.
             *   `GalgameUpdateDto`: Used for receiving game update data *from* the client. This DTO includes properties like `Id`, `Name`, `PlayType`, `TotalPlayTime`, `PlayCount`, and `PlayTime` (as `List<PlayLogDto>`). It's important that this DTO matches the structure expected by the client's generated API code.
@@ -93,7 +94,13 @@ This document provides a detailed overview of the `GalgameManager.Server` applic
     *   Saves changes to the database using `IGalgameRepository` and `IPlayLogRepository`.
 6.  **Database:** The `Galgames` table (with the `PlayCount` column) and `PlayLogs` table are updated.
 
-## 5. Key Considerations for AI Agents
+## 5. Server Versioning
+The server version is exposed via the `/info` endpoint in the `ServerInfoDto`'s `ServerVersion` property. The Swagger/OpenAPI documentation version in `Program.cs` is also set using the same scheme.
+The version string is formatted as `MAJOR.MINOR.BUILD`.
+- `MAJOR.MINOR` (currently "1.4") is hardcoded in `ServerController.cs` and `Program.cs`.
+- `BUILD` is taken from the `GITHUB_RUN_NUMBER` environment variable. If this variable is not set (e.g., during local development), the version will only be `MAJOR.MINOR`.
+
+## 6. Key Considerations for AI Agents
 
 *   **API Client Generation:** Changes to server-side DTOs (like adding `PlayCount` to `GalgameUpdateDto`) require the client-side API library (`PotatoVN.Client`) to be regenerated so that client code can correctly serialize and deserialize data.
 *   **Database Migrations:** Changes to server-side entities (like adding `PlayCount` to `Galgame.cs`) require new EF Core migrations to be created and applied to the database.

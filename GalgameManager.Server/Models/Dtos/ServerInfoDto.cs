@@ -13,4 +13,8 @@ public class ServerInfoDto
     /// 是否支持同步Staff
     /// </summary>
     public required bool StaffEnable { get; set; }
+    /// <summary>
+    /// 服务器版本号
+    /// </summary>
+    public string ServerVersion { get; set; } = string.Empty;
 }

@@ -13,6 +13,13 @@ namespace GalgameManager.Services;
 
 public class UpdateService : IUpdateService
 {
+    // 更新相关常量
+    private const string VERSION_CHECK_URL = "https://potatovn.net/raw/version.html";
+    private const string STORE_VERSION_PACKAGE_NAME = "37126GoldenPotato137.PotatoVN";
+    private const string STORE_UPDATE_URL = "https://apps.microsoft.com/detail/9p9cbkd5hr3w";
+    private const string SIDELOAD_STABLE_DOWNLOAD_URL = "https://potatovn.net/download/stable";
+    private const string SIDELOAD_BETA_DOWNLOAD_URL = "https://potatovn.net/download/beta";
+    
     private readonly bool _firstUpdate;
     private readonly ILocalSettingsService _localSettingsService;
     private readonly IInfoService _infoService;
@@ -39,8 +46,7 @@ public class UpdateService : IUpdateService
         try
         {
             HttpClient client = Utils.GetDefaultHttpClient();
-            HttpResponseMessage response = await client.GetAsync(
-                "https://potatovn.net/raw/version.html");
+            HttpResponseMessage response = await client.GetAsync(VERSION_CHECK_URL);
             var versionString = (await response.Content.ReadAsStringAsync())
                             .Replace("\n", "").Replace("\r","");
             
@@ -56,23 +62,53 @@ public class UpdateService : IUpdateService
             // 判断当前版本是否需要更新
             bool needsUpdate;
                 
-            // 检测包名以确定版本类型
+            // 检测包名以确定是否为商店版
             var isStoreVersion = IsStoreVersion();
+            // 检测版本号以确定是否为测试版
+            var isBetaVersion = IsBetaVersion();
             
-            // 根据版本类型和当前版本确定更新信息
+            // 根据版本类型确定更新信息
             if (isStoreVersion)
             {
-                // 商店版：检查是否有新的稳定版
+                // 商店版：只检查稳定版更新
                 needsUpdate = currentVersion < stableVersion;
-                await _localSettingsService.SaveSettingAsync(KeyValues.UpdateType, "stable");
-                await _localSettingsService.SaveSettingAsync(KeyValues.UpdateUrl, "https://apps.microsoft.com/detail/9p9cbkd5hr3w");
+                string updateType = "stable";
+                await _localSettingsService.SaveSettingAsync(KeyValues.UpdateType, updateType);
+                await _localSettingsService.SaveSettingAsync(KeyValues.UpdateUrl, GetDownloadUrl(updateType, isStoreVersion));
             }
             else
             {
-                // 侧载版：检查是否有新的测试版
-                needsUpdate = currentVersion < betaVersion;
-                await _localSettingsService.SaveSettingAsync(KeyValues.UpdateType, "beta");
-                await _localSettingsService.SaveSettingAsync(KeyValues.UpdateUrl, "http://localhost:5000/download");
+                // 侧载版：根据当前版本类型决定更新策略
+                if (isBetaVersion)
+                {
+                    // 测试版：检查是否有新的测试版，如果没有则检查稳定版
+                    if (currentVersion < betaVersion)
+                    {
+                        needsUpdate = true;
+                        string updateType = "beta";
+                        await _localSettingsService.SaveSettingAsync(KeyValues.UpdateType, updateType);
+                        await _localSettingsService.SaveSettingAsync(KeyValues.UpdateUrl, GetDownloadUrl(updateType, isStoreVersion));
+                    }
+                    else if (currentVersion < stableVersion)
+                    {
+                        needsUpdate = true;
+                        string updateType = "stable";
+                        await _localSettingsService.SaveSettingAsync(KeyValues.UpdateType, updateType);
+                        await _localSettingsService.SaveSettingAsync(KeyValues.UpdateUrl, GetDownloadUrl(updateType, isStoreVersion));
+                    }
+                    else
+                    {
+                        needsUpdate = false;
+                    }
+                }
+                else
+                {
+                    // 侧载正式版：只检查稳定版更新
+                    needsUpdate = currentVersion < stableVersion;
+                    string updateType = "stable";
+                    await _localSettingsService.SaveSettingAsync(KeyValues.UpdateType, updateType);
+                    await _localSettingsService.SaveSettingAsync(KeyValues.UpdateUrl, GetDownloadUrl(updateType, isStoreVersion));
+                }
             }
 
             // 保存更新检查结果
@@ -98,12 +134,51 @@ public class UpdateService : IUpdateService
             
             var packageName = Package.Current.Id.Name;
             // 商店版的包名是固定的，其他都是侧载版
-            return packageName == "37126GoldenPotato137.PotatoVN";
+            return packageName == STORE_VERSION_PACKAGE_NAME;
         }
         catch
         {
             return false;
         }
+    }
+
+    /// <summary>
+    /// 检测当前版本是否为测试版
+    /// </summary>
+    /// <returns>true表示测试版，false表示正式版</returns>
+    private static bool IsBetaVersion()
+    {
+        try
+        {
+            var currentVersion = Version.Parse(RuntimeHelper.GetVersion());
+            // 测试版通常版本号更高，或者包含特殊标识
+            // 这里可以根据实际的版本号规则进行判断
+            // 例：如果测试版的修订号（第4位）大于0，则认为是测试版
+            // 或者可以通过其他规则，比如包名包含特定字符串等
+            
+            // 示例：如果版本号的第4位（Revision）大于0，认为是测试版
+            return currentVersion.Revision > 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 根据更新类型获取相应的下载URL
+    /// </summary>
+    /// <param name="updateType">更新类型：stable 或 beta</param>
+    /// <param name="isStoreVersion">是否为商店版</param>
+    /// <returns>下载URL</returns>
+    private static string GetDownloadUrl(string updateType, bool isStoreVersion)
+    {
+        if (isStoreVersion)
+        {
+            return STORE_UPDATE_URL;
+        }
+        
+        return updateType == "beta" ? SIDELOAD_BETA_DOWNLOAD_URL : SIDELOAD_STABLE_DOWNLOAD_URL;
     }
 
     /// <summary>
@@ -121,9 +196,8 @@ public class UpdateService : IUpdateService
             var hasUpdate = await CheckUpdateAsync();
             if (!hasUpdate) return null;
 
-            // 获取远程版本号
+            // 获取更新类型和目标版本
             var updateType = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateType) ?? "stable";
-            var isStoreVersion = updateType == "stable";
             
             // 获取忽略的版本列表
             List<string> ignoredVersions = await _localSettingsService.ReadSettingAsync<List<string>>(KeyValues.IgnoredUpdateVersions) ?? new List<string>();
@@ -131,7 +205,7 @@ public class UpdateService : IUpdateService
             // For test only (从之前用户的修改中获取)
             var versions = new[] { "1.9.5.0", "1.9.5.1" };
             
-            var targetVersion = isStoreVersion ? versions[0] : versions[1];
+            var targetVersion = updateType == "beta" ? versions[1] : versions[0];
             
             // 检查目标版本是否被忽略
             if (ignoredVersions.Contains(targetVersion))
@@ -156,7 +230,7 @@ public class UpdateService : IUpdateService
         try
         {
             var updateType = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateType) ?? "stable";
-            var isStoreVersion = updateType == "stable";
+            var isStoreVersion = IsStoreVersion();
             
             var title = "UpdateService_UpdateAvailable_Title".GetLocalized();
             var content = isStoreVersion 
@@ -219,7 +293,7 @@ public class UpdateService : IUpdateService
         try
         {
             var updateType = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateType) ?? "stable";
-            var isStoreVersion = updateType == "stable";
+            var isStoreVersion = IsStoreVersion();
             
             if (isStoreVersion)
             {
@@ -241,8 +315,7 @@ public class UpdateService : IUpdateService
             _infoService.Info(InfoBarSeverity.Error, "UpdateService_Update_Error".GetLocalized(), ex.Message);
             
             // 对于侧载版，如果自动更新失败，提供手动安装选项
-            var updateType = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateType) ?? "stable";
-            if (updateType != "stable")
+            if (!IsStoreVersion())
             {
                 await ShowManualInstallOptionsAsync();
             }
@@ -278,8 +351,13 @@ public class UpdateService : IUpdateService
         {
             _infoService.Info(InfoBarSeverity.Informational, "UpdateService_Download_Started".GetLocalized());
             
-            var downloadUrl = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateUrl) ?? 
-                              "http://localhost:5000/download";
+            var downloadUrl = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateUrl);
+            if (string.IsNullOrEmpty(downloadUrl))
+            {
+                // 如果没有保存的下载URL，根据当前环境生成默认URL
+                var updateType = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateType) ?? "stable";
+                downloadUrl = GetDownloadUrl(updateType, IsStoreVersion());
+            }
             
             // 创建临时下载目录
             StorageFolder? tempFolder = await ApplicationData.Current.TemporaryFolder.CreateFolderAsync(

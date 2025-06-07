@@ -3314,4 +3314,142 @@
   <data name="UpdateService_Install_Title" xml:space="preserve">
     <value>安装更新</value>
   </data>
+  <data name="UpdateService_Install_Script_NotFound" xml:space="preserve">
+    <value>安装脚本文件不存在</value>
+  </data>
+  <data name="UpdateService_PowerShell_NotAvailable" xml:space="preserve">
+    <value>PowerShell 不可用，无法执行更新安装</value>
+  </data>
+  <data name="UpdateService_PowerShell_Start_Failed" xml:space="preserve">
+    <value>无法启动 PowerShell 进程</value>
+  </data>
+  <data name="UpdateService_Create_Script_Failed" xml:space="preserve">
+    <value>创建安装脚本失败</value>
+  </data>
+  <data name="UpdateService_Install_Started" xml:space="preserve">
+    <value>更新安装已开始，请查看PowerShell窗口</value>
+  </data>
+  <data name="UpdateService_Install_UAC_Cancelled" xml:space="preserve">
+    <value>用户取消了管理员权限确认，更新安装已取消</value>
+  </data>
+  <data name="UpdateService_Manual_Install_Title" xml:space="preserve">
+    <value>手动安装更新</value>
+  </data>
+  <data name="UpdateService_Manual_Install_Content" xml:space="preserve">
+    <value>自动更新失败，您可以选择手动安装更新包。</value>
+  </data>
+  <data name="UpdateService_Manual_Install_RunScript" xml:space="preserve">
+    <value>运行安装脚本</value>
+  </data>
+  <data name="UpdateService_Manual_Install_OpenFolder" xml:space="preserve">
+    <value>打开文件夹</value>
+  </data>
+  <data name="UpdateService_Manual_Install_Error" xml:space="preserve">
+    <value>显示手动安装对话框失败</value>
+  </data>
+  <data name="UpdateService_Manual_Install_Script_NotFound" xml:space="preserve">
+    <value>手动安装脚本文件不存在</value>
+  </data>
+  <data name="UpdateService_Manual_Script_Started" xml:space="preserve">
+    <value>安装脚本已启动，请查看PowerShell窗口</value>
+  </data>
+  <data name="UpdateService_Manual_Script_Error" xml:space="preserve">
+    <value>启动安装脚本失败</value>
+  </data>
+  <data name="UpdateService_Update_Folder_Opened" xml:space="preserve">
+    <value>已打开更新文件夹</value>
+  </data>
+  <data name="UpdateService_Update_Folder_Error" xml:space="preserve">
+    <value>打开更新文件夹失败</value>
+  </data>
+  <data name="UpdateService_Script_Preparing" xml:space="preserve">
+    <value>正在准备安装更新...</value>
+  </data>
+  <data name="UpdateService_Script_DoNotClose" xml:space="preserve">
+    <value>请不要关闭此窗口，安装过程将自动进行</value>
+  </data>
+  <data name="UpdateService_Script_WaitingClose" xml:space="preserve">
+    <value>等待应用完全关闭...</value>
+  </data>
+  <data name="UpdateService_Script_Installing" xml:space="preserve">
+    <value>正在安装更新包...</value>
+  </data>
+  <data name="UpdateService_Script_FilePath" xml:space="preserve">
+    <value>MSIX 文件路径</value>
+  </data>
+  <data name="UpdateService_Script_InstallSuccess" xml:space="preserve">
+    <value>更新安装成功!</value>
+  </data>
+  <data name="UpdateService_Script_WaitingComplete" xml:space="preserve">
+    <value>等待安装完成...</value>
+  </data>
+  <data name="UpdateService_Script_Restarting" xml:space="preserve">
+    <value>正在重新启动应用...</value>
+  </data>
+  <data name="UpdateService_Script_Restarted" xml:space="preserve">
+    <value>应用已重新启动!</value>
+  </data>
+  <data name="UpdateService_Script_InstallFailed" xml:space="preserve">
+    <value>更新安装失败</value>
+  </data>
+  <data name="UpdateService_Script_ManualInstall" xml:space="preserve">
+    <value>请手动安装更新包</value>
+  </data>
+  <data name="UpdateService_Script_PressKey" xml:space="preserve">
+    <value>按任意键退出...</value>
+  </data>
+  <data name="UpdateService_Script_CleaningFiles" xml:space="preserve">
+    <value>正在清理临时文件...</value>
+  </data>
+  <data name="UpdateService_Script_FilesCleaned" xml:space="preserve">
+    <value>临时文件已清理</value>
+  </data>
+  <data name="UpdateService_Script_CleanError" xml:space="preserve">
+    <value>清理临时文件时出现错误</value>
+  </data>
+  <data name="UpdateService_Script_InstallComplete" xml:space="preserve">
+    <value>更新安装完成!</value>
+  </data>
+  <data name="UpdateService_Script_AutoClose" xml:space="preserve">
+    <value>窗口将在 3 秒后自动关闭...</value>
+  </data>
+  <data name="UpdateService_Last_Install_Incomplete" xml:space="preserve">
+    <value>上次更新安装可能未完成</value>
+  </data>
+  <data name="UpdateService_Last_Install_Cancelled" xml:space="preserve">
+    <value>上次更新安装被用户取消</value>
+  </data>
+  <data name="UpdateService_Last_Install_Error" xml:space="preserve">
+    <value>上次更新安装遇到错误</value>
+  </data>
+  <data name="UpdateService_Install_Log_Title" xml:space="preserve">
+    <value>更新安装日志</value>
+  </data>
+  <data name="UpdateService_No_Install_Log" xml:space="preserve">
+    <value>没有找到更新安装日志</value>
+  </data>
+  <data name="UpdateService_Show_Log_Error" xml:space="preserve">
+    <value>显示更新日志失败</value>
+  </data>
+  <data name="UpdateService_Manual_Install_HasLog" xml:space="preserve">
+    <value>检测到上次安装日志，您可以查看日志了解失败原因。</value>
+  </data>
+  <data name="UpdateService_Manual_Install_ViewLog" xml:space="preserve">
+    <value>查看日志</value>
+  </data>
+  <data name="UpdateService_Manual_Install_File_NotFound" xml:space="preserve">
+    <value>未找到更新安装包文件</value>
+  </data>
+  <data name="UpdateService_Manual_Install_MSIX_Content" xml:space="preserve">
+    <value>自动更新失败，您可以选择直接打开MSIX安装包进行手动安装。</value>
+  </data>
+  <data name="UpdateService_Manual_Install_Open_MSIX" xml:space="preserve">
+    <value>打开安装包</value>
+  </data>
+  <data name="UpdateService_MSIX_File_Opened" xml:space="preserve">
+    <value>已打开MSIX安装包，请按照提示完成安装</value>
+  </data>
+  <data name="UpdateService_MSIX_File_Open_Error" xml:space="preserve">
+    <value>打开MSIX安装包失败</value>
+  </data>
 </root>

@@ -25,6 +25,7 @@ public static class DownloadHelper
         {
             if (imageUrl == null) return null;
             HttpClient httpClient = new();
+            httpClient.Timeout = TimeSpan.FromSeconds(10); // 10s内收不到响应则超时
             HttpResponseMessage response = await httpClient.GetAsync(imageUrl);
             response.EnsureSuccessStatusCode();
 
@@ -62,23 +63,17 @@ public static class DownloadHelper
             // 返回本地文件的路径
             return storageFile.Path;
         }
-        catch (HttpRequestException e)
+        catch (Exception e)
         {
-            if (e.StatusCode == HttpStatusCode.NotFound)
+            if (e is (TaskCanceledException or TimeoutException or HttpRequestException) 
+                and not HttpRequestException { StatusCode: HttpStatusCode.NotFound })
             {
-                onException?.Invoke(e);
-                return null;
+                if (retry < 3)
+                {
+                    await Task.Delay(1000);
+                    return await DownloadAndSaveImageAsync(imageUrl, retry + 1, fileNameWithoutExtension, onException);
+                }
             }
-            if (retry < 3 && e.StatusCode != HttpStatusCode.NotFound)
-            {
-                await Task.Delay(5000);
-                return await DownloadAndSaveImageAsync(imageUrl, retry + 1);
-            }
-            onException?.Invoke(e);
-            return null;
-        }
-        catch(Exception e)
-        {
             onException?.Invoke(e);
             return null;
         }

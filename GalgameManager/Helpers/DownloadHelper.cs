@@ -36,6 +36,7 @@ public static class DownloadHelper
                 : imageUrl[(imageUrl.LastIndexOf('/') + 1)..];
             if (fileName == string.Empty) fileName = imageUrl;
             if (fileName.Contains('?')) fileName = fileName[..fileName.IndexOf('?')];
+            if (fileName.Contains('%')) fileName = Uri.UnescapeDataString(fileName);
             fileName = fileName.RemoveInvalidChars();
             StorageFile? storageFile;
             try
@@ -63,6 +64,11 @@ public static class DownloadHelper
         }
         catch (HttpRequestException e)
         {
+            if (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                onException?.Invoke(e);
+                return null;
+            }
             if (retry < 3 && e.StatusCode != HttpStatusCode.NotFound)
             {
                 await Task.Delay(5000);

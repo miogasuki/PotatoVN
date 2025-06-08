@@ -199,6 +199,8 @@ public static class FolderOperations
         bool overwrite = true,
         bool allowDecrypted = false)
     {
+        src = AsExtendedPath(src);
+        dst = AsExtendedPath(dst);
         CopyFileFlags flags = CopyFileFlags.NONE;
         if (!overwrite) flags |= CopyFileFlags.COPY_FILE_FAIL_IF_EXISTS;
         if (allowDecrypted) flags |= CopyFileFlags.COPY_FILE_ALLOW_DECRYPTED_DESTINATION;
@@ -207,6 +209,14 @@ public static class FolderOperations
             throw new Win32Exception(Marshal.GetLastWin32Error());
     }
 
+    private static string AsExtendedPath(string path)
+    {
+        if (path.StartsWith(@"\\?\")) return path;          // 已经是扩展路径  
+        if (path.StartsWith(@"\\"))
+            return @"\\?\UNC\" + path.Substring(2);         // UNC → \\?\UNC\Server\Share\...
+        return @"\\?\" + path;                              // 本地盘符 → \\?\C:\...
+    }
+    
     #endregion
     
 }

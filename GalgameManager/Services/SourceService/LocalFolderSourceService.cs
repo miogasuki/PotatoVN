@@ -1,4 +1,5 @@
-﻿using GalgameManager.Contracts.Services;
+﻿using System.Web;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -187,7 +188,9 @@ public class LocalFolderSourceService : IGalgameSourceService
     private static void CopyImg(string? src, string metaPath)
     {
         if (!Utils.IsImageValid(src) || src is null) return;
-        var target = Path.Combine(metaPath, Path.GetFileName(src));
+        var targetName = Path.GetFileName(src);
+        targetName = targetName.Contains('%') ? HttpUtility.UrlDecode(targetName) : targetName;
+        var target = Path.Combine(metaPath, targetName.RemoveInvalidChars());
         if (File.Exists(target) && new FileInfo(target).Length == new FileInfo(src).Length) return; //文件已存在且大小相同就不复制
         FolderOperations.CopyEx(src, target, overwrite: true, allowDecrypted: true);
     }

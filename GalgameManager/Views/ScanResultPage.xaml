@@ -1,0 +1,76 @@
+<Page
+    x:Class="GalgameManager.Views.ScanResultPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:GalgameManager.Models"
+    xmlns:behaviors="using:GalgameManager.Behaviors"
+    xmlns:viewmodels="using:GalgameManager.ViewModels"
+    mc:Ignorable="d">
+    <Page.Resources>
+        <Style x:Key="SuccessRowStyle" TargetType="ListViewItem">
+            <Setter Property="Background" Value="{ThemeResource SystemFillColorSuccessBrush}"/>
+        </Style>
+        <Style x:Key="WarningRowStyle" TargetType="ListViewItem">
+            <Setter Property="Background" Value="{ThemeResource SystemFillColorCautionBrush}"/>
+        </Style>
+        <Style x:Key="ErrorRowStyle" TargetType="ListViewItem">
+            <Setter Property="Background" Value="{ThemeResource SystemFillColorCriticalBrush}"/>
+        </Style>
+        <Style x:Key="InfoRowStyle" TargetType="ListViewItem">
+            <Setter Property="Background" Value="{ThemeResource SystemFillColorNeutralBrush}"/>
+        </Style>
+
+        <DataTemplate x:Key="ScanResultItemTemplate" x:DataType="models:PathScanResultItem">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{x:Bind Path}" VerticalAlignment="Center" Margin="0,0,12,0" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="1" Text="{x:Bind ResultType}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Grid.Column="2" Text="{x:Bind Message}" VerticalAlignment="Center" TextWrapping="WrapWholeWords"/>
+            </Grid>
+        </DataTemplate>
+        
+        <!-- TODO: Create a proper ItemContainerStyleSelector if more complex logic is needed -->
+    </Page.Resources>
+
+    <Grid x:Name="ContentArea">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Style="{ThemeResource TitleTextBlockStyle}" Margin="12,0,0,12"
+                   Text="{x:Bind ViewModel.SourceName, Mode=OneWay}" />
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="12,0,0,12">
+            <TextBlock Text="Scan Time:" FontWeight="SemiBold" Margin="0,0,5,0"/>
+            <TextBlock Text="{x:Bind ViewModel.ScanTime, Mode=OneWay}" />
+            <TextBlock Text="Source Path:" FontWeight="SemiBold" Margin="20,0,5,0"/>
+            <TextBlock Text="{x:Bind ViewModel.SourcePath, Mode=OneWay}" />
+        </StackPanel>
+
+        <AutoSuggestBox Grid.Row="2" Margin="12,0,12,12"
+                        QueryIcon="Find"
+                        PlaceholderText="Search results by path or message..."
+                        Text="{x:Bind ViewModel.FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        
+        <ListView Grid.Row="3" Margin="12,0,12,12"
+                  ItemsSource="{x:Bind ViewModel.DisplayResults, Mode=OneWay}"
+                  ItemTemplate="{StaticResource ScanResultItemTemplate}">
+            <ListView.ItemContainerStyleSelector>
+                <!-- Basic selector for now, can be expanded -->
+                <behaviors:ScanResultRowStyleSelector SuccessStyle="{StaticResource SuccessRowStyle}"
+                                                      WarningStyle="{StaticResource WarningRowStyle}"
+                                                      ErrorStyle="{StaticResource ErrorRowStyle}"
+                                                      InfoStyle="{StaticResource InfoRowStyle}"/>
+            </ListView.ItemContainerStyleSelector>
+        </ListView>
+    </Grid>
+</Page>

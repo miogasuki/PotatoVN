@@ -32,6 +32,7 @@ public class PageService : IPageService
         Configure<MultiStreamViewModel, Views.MultiStreamPage>();
         Configure<AnnualReportViewModel, AnnualReportPage>();
         Configure<StaffViewModel, StaffPage>();
+        Configure<ScanResultViewModel, ScanResultPage>();
     }
     
     private readonly Dictionary<string, Type> _pages = new();

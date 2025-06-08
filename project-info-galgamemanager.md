@@ -83,6 +83,10 @@ This section highlights important files and directories specific to the client a
     *   `ShellPage.xaml`: The main shell of the application. Its `ItemsRepeater` for displaying event notifications now includes a `HyperlinkButton` that is visible when `CallbackButtonText` is provided in the `ShellEventViewModel`. This button is bound to the `ExecuteCallbackCommand` and uses `VisibilityHelper.Convert` for its visibility.
     *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
 *   **`Models/`**: Contains data model classes representing the entities and data structures used within the client.
+    *   **`ScanResult.cs`**: Defines models for storing and displaying the results of a game source scan.
+        *   `GalgameScanResult`: Represents the overall result of a scan operation for a specific source, including `SourceId`, `SourceName`, `ScanTime`, and a list of individual path results. Stored in LiteDB.
+        *   `PathScanResultItem`: Represents the outcome of scanning a single path, including the `Path`, `ResultType` (e.g., Success, AlreadyExists, Failed), and a `Message`.
+        *   `ScanResultType`: Enum defining the possible outcomes for a path scan (Information, Success, AlreadyExists, Failed).
     *   **`Galgame.cs`**: A key model representing a game. It includes various properties like `Name`, `ImagePath`, as well as fields for tracking play history such as:
         *   `PlayedTime` (Dictionary<string, int>): Stores individual play sessions, mapping a date string to play duration in minutes.
         *   `PlayCount` (int): Stores the total number of times the game has been played.
@@ -96,11 +100,13 @@ This section highlights important files and directories specific to the client a
     *   File operations.
     *   Navigation within the application.
     *   Interaction with external APIs.
-    *   `LocalSettingsService.cs`: Manages the storage and retrieval of local application settings.
+    *   `ScanResultService.cs`: Manages saving and retrieving `GalgameScanResult` objects to/from LiteDB. Implements `IScanResultService.cs`. The LiteDB collection name is "scan_results".
+    *   `LocalSettingsService.cs`: Manages the storage and retrieval of local application settings, including the LiteDB database instance.
     *   `InfoService.cs`: Handles in-app notifications and event logging. Its `OnEvent` delegate and `Event` method now support an optional callback action and button text, allowing event notifications to include a custom action button. This is handled in `ShellViewModel.cs` and displayed in `ShellPage.xaml`.
 *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
     *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
 *   **`Contracts/`**: Defines interfaces and data contracts. Interfaces are crucial for decoupling components and enabling testability. Data contracts might define the structure of data exchanged with services or stored locally.
+    *   `Contracts/Services/IScanResultService.cs`: Interface for `ScanResultService`.
     *   `Contracts/Services/`: Interfaces for service classes.
     *   `Contracts/ViewModels/`: Interfaces for ViewModel classes.
 *   **`Assets/`**: Stores static resources used by the application:
@@ -113,6 +119,7 @@ This section highlights important files and directories specific to the client a
     *   Specific handlers like `DefaultActivationHandler.cs`, `BgmOAuthActivationHandler.cs`.
 *   **`Models/BgTasks/PvnSyncTask.cs`**: Responsible for the background synchronization logic with `GalgameManager.Server`. The `UploadGame` method within this class constructs the `GalgameUpdateDto` (from the generated `PotatoVN.Client.Model` namespace) to send updates to the server. When `PvnUploadProperties.PlayTime` is flagged, it includes `PlayCount`, `TotalPlayTime`, and the `PlayedTime` dictionary (converted to a list of `PlayLogDto`).
 *   **`Behaviors/`**: Contains custom UI behaviors that can be attached to XAML elements to add specific functionalities or modify their behavior without extensive code-behind.
+    *   `ScanResultRowStyleSelector.cs`: A `StyleSelector` used in `ScanResultPage.xaml` to apply different row background colors in the `ListView` based on the `ScanResultType` of each `PathScanResultItem`.
 *   **`Enums/`**: Defines enumeration types used throughout the client application for representing sets of named constants (e.g., game status, filter types, page identifiers).
     *   `KeyValues.cs`: Contains constant strings for settings keys. Keys like `MagpieTotalSwitch`, `MagpiePath`, `MagpieHotkeys`, `AlwaysEnableMagpie`, and the new `AlwaysMuteInBackground` (for globally overriding per-game background mute settings) are defined here. The `CustomTextFileExtensions` key has also been added.
     *   `Enums/PotatoVN/PvnUploadProperties.cs`: Defines the `PvnUploadProperties` flags enum used to control which parts of a `Galgame` object are synchronized with the server.

@@ -41,7 +41,6 @@ public class GalgameFolderSource : GalgameSourceBase
         
         Queue<(string Path, int Depth)> pathToCheck = new();
         pathToCheck.Enqueue((Path, 0));
-        HashSet<string> addedPaths = new(GetGamesIncludingSub().Select(g => g.Path));
         while (pathToCheck.Count > 0)
         {
             var (currentPath, currentDepth) = pathToCheck.Dequeue();
@@ -52,30 +51,18 @@ public class GalgameFolderSource : GalgameSourceBase
             }
             if (IsGameFolder(currentPath, fileMustContain, fileShouldContain))
             {
-                if (!addedPaths.Contains(currentPath))
-                    yield return (currentPath, "");
+                yield return (currentPath, "");
                 continue;
             }
             if (!searchSubFolder) continue;
             foreach (var subPath in Directory.GetDirectories(currentPath))
-                pathToCheck.Enqueue((subPath, currentDepth + 1));
-        }
-        yield break;
-
-        List<GalgameAndPath> GetGamesIncludingSub()
-        {
-            List<GalgameAndPath> result = [];
-            result.AddRange(Galgames);
-            Queue<GalgameSourceBase> queue = new(SubSources);
-            while (queue.Count > 0)
             {
-                GalgameFolderSource? source = queue.Dequeue() as GalgameFolderSource;
-                if (source == null) continue;
-                result.AddRange(source.Galgames);
-                foreach (GalgameSourceBase subSource in source.SubSources)
-                    queue.Enqueue(subSource);
+                // 对于属于子源的路径，不应该由当前源来处理（因为如果是批量扫描的，子源会有自己的扫描任务，会处理属于它的路径）
+                if (SubSources.Any(s => s is GalgameFolderSource source 
+                                        && Utils.ArePathsEqual(source.Path, subPath)))
+                    continue;
+                pathToCheck.Enqueue((subPath, currentDepth + 1));
             }
-            return result;
         }
     }
 

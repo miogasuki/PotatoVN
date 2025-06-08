@@ -150,6 +150,8 @@ public class GalgameSourceCollectionService(
         
     }
 
+    public GalgameSourceBase? GetGalgameSourceFromId(Guid id) => _galgameSources.FirstOrDefault(s => s.Id == id);
+
     public GalgameSourceBase? GetGalgameSource(GalgameSourceType type, string path)
     {
         IEnumerable<GalgameSourceBase> tmp = _galgameSources.Where(s => s.SourceType == type);
@@ -591,4 +593,3 @@ public class GalgameSourceCollectionService(
     
     #endregion
 }
-

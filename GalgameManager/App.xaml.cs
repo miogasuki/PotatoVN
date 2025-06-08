@@ -105,6 +105,7 @@ public partial class App : Application
             services.AddSingleton<IBgTaskService, BgTaskService>();
             services.AddSingleton<IPvnService, PvnService>();
             services.AddSingleton<IVndbAuthService, VndbAuthService>();
+            services.AddSingleton<ISourceScanResultService, SourceScanResultService>(); // Added ScanResultService
 
             // Core Services
             services.AddSingleton<IFileService, FileService>();
@@ -152,6 +153,8 @@ public partial class App : Application
             services.AddTransient<GalgameCharacterViewModel>();
             services.AddTransient<StaffViewModel>();
             services.AddTransient<StaffPage>();
+            services.AddTransient<ScanResultViewModel>(); // Added ScanResultViewModel
+            services.AddTransient<ScanResultPage>(); // Added ScanResultPage
 
             // Configuration
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));

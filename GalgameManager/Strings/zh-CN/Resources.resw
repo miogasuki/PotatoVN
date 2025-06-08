@@ -3218,4 +3218,7 @@
   <data name="SettingsPage_Game_MagpieHotkeys_HotkeyInputBox.PlaceholderText" xml:space="preserve">
     <value>点击设置Magpie快捷键</value>
   </data>
+  <data name="GetGalgameInFolderTask_CheckResult" xml:space="preserve">
+    <value>查看扫描结果</value>
+  </data>
 </root>

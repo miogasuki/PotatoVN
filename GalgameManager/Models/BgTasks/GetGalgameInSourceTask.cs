@@ -4,6 +4,7 @@ using GalgameManager.Helpers;
 using GalgameManager.Models.Sources;
 using GalgameManager.Services;
 using H.NotifyIcon.Core;
+using GalgameManager.ViewModels;
 
 namespace GalgameManager.Models.BgTasks;
 
@@ -22,41 +23,51 @@ public class GetGalgameInSourceTask : BgTaskBase
     
     protected override Task RecoverFromJsonInternal()
     {
-        _galgameFolderSource = App.GetService<IGalgameSourceCollectionService>()?.GetGalgameSourceFromUrl(_galgameSourceUrl);
+        _galgameFolderSource = App.GetService<IGalgameSourceCollectionService>().GetGalgameSourceFromUrl(_galgameSourceUrl);
         return Task.CompletedTask;
     }
 
     protected override Task RunInternal()
     {
-        //TODO
         if (_galgameFolderSource is null || _galgameFolderSource.IsRunning)
             return Task.CompletedTask;
         ILocalSettingsService localSettings = App.GetService<ILocalSettingsService>();
         GalgameCollectionService galgameService = (App.GetService<IGalgameCollectionService>() as GalgameCollectionService)!;
-        var log = string.Empty;
+        ISourceScanResultService sourceScanResultService = App.GetService<ISourceScanResultService>(); // Placeholder for now
+        INavigationService navigationService = App.GetService<INavigationService>(); // For navigation
+        
+        GalgameScanResult scanResult = new()
+        {
+            SourceId = _galgameFolderSource!.Id,
+            SourceName = _galgameFolderSource.Name,
+            ScanTime = DateTime.Now,
+        };
         
         return Task.Run((async Task () =>
         {
-            log += $"{DateTime.Now}\n{_galgameSourceUrl}\n\n";
             var ignoreFetchResult = await localSettings.ReadSettingAsync<bool>(KeyValues.IgnoreFetchResult);
 
             _galgameFolderSource.IsRunning = true;
             var cnt = 0;
             await foreach (var (path, l) in _galgameFolderSource.ScanAllGalgames())
             {
+                PathScanResultItem itemResult = new() { Path = path ?? "N/A" };
                 if (path == null)
                 {
-                    log += $"{path}: {l}\n";
+                    itemResult.ResultType = ScanResultType.Information;
+                    itemResult.Message = l;
+                    scanResult.Results.Add(itemResult);
                     continue;
                 }
                 if (_galgameFolderSource.Galgames.FirstOrDefault(g => Utils.ArePathsEqual(g.Path, path)) is { } game) 
                 {
-                    log += $"{path}: AlreadyExists ({game.Galgame.Name.Value})\n";
+                    itemResult.ResultType = ScanResultType.AlreadyExists;
+                    itemResult.Message = game.Galgame.Name.Value ?? "Unnamed Game";
+                    scanResult.Results.Add(itemResult);
                     continue;
                 }
                 
                 ChangeProgress(0, 1, "GalgameFolder_GetGalInFolder_Progress".GetLocalized(path));
-                var msg = $"{path}: ";
                 try
                 {
                     await UiThreadInvokeHelper.InvokeAsync(async () =>
@@ -64,19 +75,22 @@ public class GetGalgameInSourceTask : BgTaskBase
                         await galgameService.AddGameAsync(_galgameFolderSource.SourceType, path, ignoreFetchResult,
                             false);
                         cnt++;
-                        msg += "AddGalgameResult_Success".GetLocalized();
+                        itemResult.ResultType = ScanResultType.Success;
+                        itemResult.Message = "AddGalgameResult_Success".GetLocalized();
                     });
                 }
                 catch (Exception e)
                 {
-                    msg += e.Message;
+                    itemResult.ResultType = ScanResultType.Failed;
+                    itemResult.Message = e.Message;
                 }
-                msg += "\n";
-                log += msg;
+                scanResult.Results.Add(itemResult);
             }
             ChangeProgress(0, 1, "GalgameFolder_GetGalInFolder_Saving".GetLocalized(cnt));
-            FileHelper.SaveNow(_galgameFolderSource.GetLogName(), log, "Logs", false);
+            await sourceScanResultService.SaveScanResultAsync(scanResult);
             ChangeProgress(1, 1, "GalgameFolder_GetGalInFolder_Done".GetLocalized(cnt, _galgameFolderSource.Name));
+            EventAction = () => navigationService.NavigateTo(typeof(ScanResultViewModel).FullName!, scanResult.SourceId);
+            EventActionText = "GetGalgameInFolderTask_CheckResult".GetLocalized();
             _galgameFolderSource.IsRunning = false;
             if (App.MainWindow is null && await localSettings.ReadSettingAsync<bool>(KeyValues.NotifyWhenGetGalgameInFolder))
             {

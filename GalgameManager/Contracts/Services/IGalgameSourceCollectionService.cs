@@ -37,6 +37,13 @@ public interface IGalgameSourceCollectionService
     /// <inheritdoc cref="GetGalgameSource"/>
     public GalgameSourceBase? GetGalgameSourceFromUrl(string url);
 
+    /// <summary>
+    /// 尝试获取某个库，通过其ID，若不存在则返回null
+    /// </summary>
+    /// <param name="id">库的ID</param>
+    /// <returns></returns>
+    public GalgameSourceBase? GetGalgameSourceFromId(Guid id);
+
     /// 尝试获取某个库，若不存在则返回null
     /// <p>
     /// 对于不同的库的类型，匹配规则如下：<br/>

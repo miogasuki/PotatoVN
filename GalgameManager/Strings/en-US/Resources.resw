@@ -1462,7 +1462,7 @@ If play time can record correctly, just cancel this popup.
   <data name="PvnSyncTask_NoChange" xml:space="preserve">
     <value>Synchronized to latest state, no changes</value>
   </data>
-  <data name="ShellPage_Info_Event.Content" xml:space="preserve">
+  <data name="ShellPage_Info_Event" xml:space="preserve">
     <value>Details</value>
   </data>
   <data name="SettingsPage_Notification_Pvn.Title" xml:space="preserve">

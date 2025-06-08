@@ -90,7 +90,8 @@ public class BgTaskService : IBgTaskService
                 }
                 else if (bgTask.CurrentProgress.NotifyWhenSuccess && bgTask.CurrentProgress.Current > 0) 
                     _infoService.Event(EventType.BgTaskSuccessEvent, InfoBarSeverity.Success,
-                        "BgTaskService_TaskSuccess".GetLocalized(bgTask.Title), msg: bgTask.CurrentProgress.Message);
+                        "BgTaskService_TaskSuccess".GetLocalized(bgTask.Title), msg: bgTask.CurrentProgress.Message,
+                        callbackAction:bgTask.EventAction, callbackButtonText:bgTask.EventActionText);
                 if (!_bgTasks.Contains(bgTask)) return Task.CompletedTask;
                 _bgTasks.Remove(bgTask);
                 UiThreadInvokeHelper.Invoke(() => BgTaskRemoved?.Invoke(bgTask));

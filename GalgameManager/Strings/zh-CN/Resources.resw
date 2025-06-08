@@ -1561,7 +1561,7 @@
   <data name="PvnSyncTask_NoChange" xml:space="preserve">
     <value>已同步至最新状态，无更改</value>
   </data>
-  <data name="ShellPage_Info_Event.Content" xml:space="preserve">
+  <data name="ShellPage_Info_Event" xml:space="preserve">
     <value>详情</value>
   </data>
   <data name="SettingsPage_Notification_Pvn.Title" xml:space="preserve">

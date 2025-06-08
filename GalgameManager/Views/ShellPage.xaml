@@ -305,8 +305,8 @@
                                             IsOpen="True"
                                             IsClosable="False">
                                         <InfoBar.ActionButton>
-                                            <HyperlinkButton x:Uid="ShellPage_Info_Event"
-                                                             Command="{x:Bind Command}"
+                                            <HyperlinkButton Content="{x:Bind CallbackButtonText}"
+                                                             Command="{x:Bind ExecuteCallbackCommand}"
                                                              Margin="0"/>
                                         </InfoBar.ActionButton>
                                     </InfoBar>

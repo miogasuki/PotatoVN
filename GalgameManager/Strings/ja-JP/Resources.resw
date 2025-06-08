@@ -1462,7 +1462,7 @@
   <data name="PvnSyncTask_NoChange" xml:space="preserve">
     <value>最新の状態に同期済み、変更なし</value>
   </data>
-  <data name="ShellPage_Info_Event.Content" xml:space="preserve">
+  <data name="ShellPage_Info_Event" xml:space="preserve">
     <value>詳細</value>
   </data>
   <data name="SettingsPage_Notification_Pvn.Title" xml:space="preserve">

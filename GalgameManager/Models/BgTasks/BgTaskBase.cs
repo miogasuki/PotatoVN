@@ -12,7 +12,10 @@ public abstract class BgTaskBase
     /// (当前进度，总进度，信息)， 当前进度>=总进度时可以理解为任务完成
     /// </summary>
     public event Action<Progress>? OnProgress;
-
+    /// 当任务成功时弹出通知（ChangeProcess里设置notifyWhenSuccess为true）时，自定义通知上按钮的行为
+    public Action? EventAction { get; protected set; }
+    /// 当任务成功时弹出通知（ChangeProcess里设置notifyWhenSuccess为true）时，自定义通知上按钮的文本
+    public string? EventActionText { get; protected set; }
     public Progress CurrentProgress { get; private set; } = new();
     
     [JsonIgnore] public Task Task { get; private set; } = Task.CompletedTask;

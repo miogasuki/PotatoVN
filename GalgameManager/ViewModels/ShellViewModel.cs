@@ -89,7 +89,8 @@ public partial class ShellViewModel : ObservableObject
         localSettingsService.OnSettingChanged += HandleLocalSettingChanged;
         infoService.OnInfo += (severity, title, msg, displayTime) =>
             _ = DisplayInfoMsgAsync(severity, title, msg, displayTime);
-        infoService.OnEvent += (severity, title, msg) => _ = DisplayEventMsgAsync(severity, title, msg);
+        infoService.OnEvent += (severity, title, msg, callbackAction, callbackButtonText) => 
+            _ = DisplayEventMsgAsync(severity, title, msg, callbackAction: callbackAction, callbackButtonText: callbackButtonText);
         
         UpdateInfoPageBadge();
     }
@@ -148,7 +149,7 @@ public partial class ShellViewModel : ObservableObject
     }
 
     private async Task DisplayEventMsgAsync(InfoBarSeverity infoBarSeverity, string? title, string? msg,
-        int delayMs = 3000)
+        int delayMs = 3000, Action? callbackAction = null, string? callbackButtonText = null)
     {
         if (msg?.Length >= 200)
         {
@@ -167,7 +168,8 @@ public partial class ShellViewModel : ObservableObject
             Title = title,
             Message = msg,
             Severity = infoBarSeverity,
-            Command = new RelayCommand(NavigateToInfoPage)
+            CallbackAction = callbackAction ?? NavigateToInfoPage,
+            CallbackButtonText = callbackButtonText ?? "ShellPage_Info_Event".GetLocalized(),
         };
         ShellEvents.Add(shellEvent);
         await Task.Delay(delayMs);
@@ -183,11 +185,14 @@ public partial class ShellViewModel : ObservableObject
     #endregion
 }
 
-public class ShellEventViewModel
+public partial class ShellEventViewModel
 {
     public string? Title;
     public string? Message;
     public InfoBarSeverity Severity;
-    // 每个元素都带个Command：ListView的bug，见https://github.com/microsoft/microsoft-ui-xaml/issues/560
-    public required IRelayCommand Command;
+    public Action? CallbackAction { get; init; }
+    public string? CallbackButtonText { get; init; }
+    
+    [RelayCommand]
+    private void ExecuteCallback() => CallbackAction?.Invoke();
 }

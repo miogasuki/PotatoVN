@@ -13,6 +13,7 @@ public sealed partial class ScanResultPage : Page
     public ScanResultPage()
     {
         ViewModel = App.GetService<ScanResultViewModel>();
+        DataContext = ViewModel;
         InitializeComponent();
     }
 }

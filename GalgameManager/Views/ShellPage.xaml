@@ -138,6 +138,8 @@
                                     Visibility="Collapsed"/>
                 <NavigationViewItem x:Uid="Shell_GalgameCharacter" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.GalgameCharacterViewModel"
                                     Visibility="Collapsed"/>
+                <NavigationViewItem x:Uid="Shell_SourceScanResult" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.ScanResultViewModel"
+                                    Visibility="Collapsed"/>
             </NavigationView.MenuItems>
             
             <!-- 暂时隐藏年度报告 -->

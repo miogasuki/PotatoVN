@@ -4,8 +4,11 @@ namespace GalgameManager.Contracts.Services;
 
 public interface ISourceScanResultService
 {
-    Task SaveScanResultAsync(GalgameScanResult scanResult);
-    Task<GalgameScanResult?> GetScanResultAsync(Guid id);
-    Task<List<GalgameScanResult>> GetAllScanResultsAsync();
-    Task DeleteScanResultAsync(Guid id);
+    void SaveScanResult(GalgameScanResult scanResult);
+ 
+    GalgameScanResult? GetScanResult(Guid id);
+    
+    List<GalgameScanResult> GetAllScanResults();
+    
+    void DeleteScanResult(Guid id);
 }

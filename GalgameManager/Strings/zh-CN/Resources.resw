@@ -3224,4 +3224,37 @@
   <data name="PvnSyncTask_DownloadingGameImage" xml:space="preserve">
     <value>正在下载游戏 {0} 的图片</value>
   </data>
+  <data name="Shell_SourceScanResult.Content" xml:space="preserve">
+    <value>扫描记录</value>
+  </data>
+  <data name="Shell_SourceScanResultText.Text" xml:space="preserve">
+    <value>扫描记录</value>
+  </data>
+  <data name="ScanResultPage_Search.PlaceholderText" xml:space="preserve">
+    <value>搜索路径或游戏名</value>
+  </data>
+  <data name="ScanResultPage_ScanTime.Text" xml:space="preserve">
+    <value>扫描时间</value>
+  </data>
+  <data name="ScanResultPage_SourcePath.Text" xml:space="preserve">
+    <value>扫描路径</value>
+  </data>
+  <data name="ScanResultPage_SourceName.Text" xml:space="preserve">
+    <value>游戏库名</value>
+  </data>
+  <data name="ScanResultType_AlreadyExists" xml:space="preserve">
+    <value>重复的游戏（同一个游戏已存在）</value>
+  </data>
+  <data name="ScanResultType_Success" xml:space="preserve">
+    <value>添加成功</value>
+  </data>
+  <data name="ScanResultType_Information" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ScanResultType_Failed" xml:space="preserve">
+    <value>添加过程中发生错误</value>
+  </data>
+  <data name="ScanResultPage_SeeRelatedGame.Content" xml:space="preserve">
+    <value>查看相关游戏</value>
+  </data>
 </root>

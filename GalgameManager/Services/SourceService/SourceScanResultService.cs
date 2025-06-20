@@ -10,40 +10,34 @@ public class SourceScanResultService(ILocalSettingsService localSettings) : ISou
 
     private const string CollectionName = "scan_results";
 
-    private async Task EnsureDbSetInitialized()
+    private void EnsureDbSetInitialized()
     {
         if (_scanResultDbSet is not null) return;
-        await Task.Run(() => // Ensure LiteDB operations are on a background thread if needed
-        {
-            _scanResultDbSet = localSettings.Database.GetCollection<GalgameScanResult>(CollectionName);
-        });
+        _scanResultDbSet = localSettings.Database.GetCollection<GalgameScanResult>(CollectionName);
     }
 
-    public async Task SaveScanResultAsync(GalgameScanResult scanResult)
+    public void SaveScanResult(GalgameScanResult scanResult)
     {
-        await EnsureDbSetInitialized();
-        await Task.Run(() =>
-        {
-            _scanResultDbSet!.Delete(scanResult.SourceId); //覆盖旧记录
-            _scanResultDbSet!.Upsert(scanResult);
-        });
+        EnsureDbSetInitialized();
+        _scanResultDbSet!.Delete(scanResult.SourceId); //覆盖旧记录
+        _scanResultDbSet!.Upsert(scanResult);
     }
 
-    public async Task<GalgameScanResult?> GetScanResultAsync(Guid id)
+    public GalgameScanResult? GetScanResult(Guid id)
     {
-        await EnsureDbSetInitialized();
-        return await Task.Run(() => _scanResultDbSet!.FindById(id));
+        EnsureDbSetInitialized();
+        return _scanResultDbSet!.FindById(id);
     }
 
-    public async Task<List<GalgameScanResult>> GetAllScanResultsAsync()
+    public List<GalgameScanResult> GetAllScanResults()
     {
-        await EnsureDbSetInitialized();
-        return await Task.Run(() => _scanResultDbSet!.FindAll().ToList());
+        EnsureDbSetInitialized();
+        return _scanResultDbSet!.FindAll().ToList();
     }
 
-    public async Task DeleteScanResultAsync(Guid id)
+    public void DeleteScanResult(Guid id)
     {
-        await EnsureDbSetInitialized();
-        await Task.Run(() => _scanResultDbSet!.Delete(id));
+        EnsureDbSetInitialized();
+        _scanResultDbSet!.Delete(id);
     }
 }

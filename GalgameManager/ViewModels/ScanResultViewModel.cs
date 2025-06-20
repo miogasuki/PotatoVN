@@ -1,42 +1,44 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
+using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.Models.Sources;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.ViewModels;
 
 public partial class ScanResultViewModel(
     ISourceScanResultService sourceScanResultService,
     IGalgameSourceCollectionService galgameSourceCollectionService,
+    IGalgameCollectionService gameService,
+    INavigationService navigationService,
     IInfoService infoService)
     : ObservableRecipient, INavigationAware
 {
     private GalgameScanResult? _scanResult;
     private string _filterText = string.Empty;
 
-    [ObservableProperty]
-    private string _sourceName = string.Empty;
-    [ObservableProperty]
-    private string _sourcePath = string.Empty; // Might be tricky to get accurately if source was deleted
-    [ObservableProperty]
-    private DateTime _scanTime;
-    [ObservableProperty]
-    private ObservableCollection<PathScanResultItem> _displayResults = new();
+    [ObservableProperty] private string _sourceName = string.Empty;
+    [ObservableProperty] private string _sourcePath = string.Empty;
+    [ObservableProperty] private DateTime _scanTime;
+    [ObservableProperty] private ObservableCollection<PathScanResultItem> _displayResults = new();
 
-    public async void OnNavigatedTo(object parameter)
+    public void OnNavigatedTo(object parameter)
     {
         try
         {
             if (parameter is Guid scanResultId)
             {
-                _scanResult = await sourceScanResultService.GetScanResultAsync(scanResultId);
+                _scanResult = sourceScanResultService.GetScanResult(scanResultId);
                 if (_scanResult != null)
                 {
                     SourceName = _scanResult.SourceName;
                     ScanTime = _scanResult.ScanTime;
-                    GalgameSourceBase? source = galgameSourceCollectionService.GetGalgameSourceFromId(_scanResult.SourceId);
+                    GalgameSourceBase? source =
+                        galgameSourceCollectionService.GetGalgameSourceFromId(_scanResult.SourceId);
                     SourcePath = source?.Path ?? "N/A (Source may have been removed or changed)";
                     ApplyFilter();
                 }
@@ -79,9 +81,22 @@ public partial class ScanResultViewModel(
         else
         {
             var filter = FilterText.ToLowerInvariant();
-            filtered = _scanResult.Results.Where(r => r.Path.ToLowerInvariant().Contains(filter) || 
+            filtered = _scanResult.Results.Where(r => r.Path.ToLowerInvariant().Contains(filter) ||
                                                       (r.Message.ToLowerInvariant().Contains(filter)));
         }
+
         DisplayResults = new ObservableCollection<PathScanResultItem>(filtered);
+    }
+
+    [RelayCommand]
+    private void CheckGame(PathScanResultItem item)
+    {
+        Galgame? game = gameService.GetGalgameFromUuid(item.RelatedGameId);
+        if (game is null)
+        {
+            infoService.Info(InfoBarSeverity.Error, "Game not found"); //不应该发生
+            return;
+        }
+        NavigationHelper.NavigateToGalgamePage(navigationService, new GalgamePageParameter{Galgame = game});
     }
 }

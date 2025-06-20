@@ -270,7 +270,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         return false;
     }
 
-    public async void OnNavigatedTo(object parameter)
+    public void OnNavigatedTo(object parameter)
     {
         try
         {
@@ -293,7 +293,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             foreach (GetGalgameInfoFromRssTask task in RssTasks.Where(t => t.IsRunning))
                 task.OnProgress += HandleGetGalInfoProgressChanged;
             Update();
-            LogExists = Item is not null && await _sourceScanService.GetScanResultAsync(Item.Id) is not null;
+            LogExists = Item is not null && _sourceScanService.GetScanResult(Item.Id) is not null;
         }
         catch (Exception e)
         {

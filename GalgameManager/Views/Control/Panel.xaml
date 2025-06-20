@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Border CornerRadius="5" Background="{ThemeResource LayerFillColorDefaultBrush}" 
+    <Border CornerRadius="5" Background="{x:Bind BackgroundBrush, Mode=OneWay}" 
            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
            Padding="15 10 50 10">
         <ContentPresenter x:Name="ContentArea"/>

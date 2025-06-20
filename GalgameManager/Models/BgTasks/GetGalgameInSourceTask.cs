@@ -62,7 +62,7 @@ public class GetGalgameInSourceTask : BgTaskBase
                 if (_galgameFolderSource.Galgames.FirstOrDefault(g => Utils.ArePathsEqual(g.Path, path)) is { } game) 
                 {
                     itemResult.ResultType = ScanResultType.AlreadyExists;
-                    itemResult.Message = game.Galgame.Name.Value ?? "Unnamed Game";
+                    itemResult.RelatedGameId = game.Galgame.Uuid;
                     scanResult.Results.Add(itemResult);
                     continue;
                 }
@@ -76,7 +76,6 @@ public class GetGalgameInSourceTask : BgTaskBase
                             false);
                         cnt++;
                         itemResult.ResultType = ScanResultType.Success;
-                        itemResult.Message = "AddGalgameResult_Success".GetLocalized();
                     });
                 }
                 catch (Exception e)
@@ -87,7 +86,7 @@ public class GetGalgameInSourceTask : BgTaskBase
                 scanResult.Results.Add(itemResult);
             }
             ChangeProgress(0, 1, "GalgameFolder_GetGalInFolder_Saving".GetLocalized(cnt));
-            await sourceScanResultService.SaveScanResultAsync(scanResult);
+            sourceScanResultService.SaveScanResult(scanResult);
             ChangeProgress(1, 1, "GalgameFolder_GetGalInFolder_Done".GetLocalized(cnt, _galgameFolderSource.Name));
             EventAction = () => navigationService.NavigateTo(typeof(ScanResultViewModel).FullName!, scanResult.SourceId);
             EventActionText = "GetGalgameInFolderTask_CheckResult".GetLocalized();

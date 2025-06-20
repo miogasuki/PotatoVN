@@ -236,6 +236,15 @@
                               x:Uid="LibraryPage_DownloadAllData"
                               Command="{x:Bind ViewModel.GetInfoFromRssCommand}">
                 </AppBarButton>
+                <!-- 打开Log文件 -->
+                <AppBarButton x:Uid="GalgameFolderPage_Log" 
+                              IsEnabled="{x:Bind ViewModel.LogExists, Mode=OneWay}"
+                              Command="{x:Bind ViewModel.ViewLogCommand}"
+                              AllowFocusOnInteraction="True">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE81C;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
             </CommandBar.SecondaryCommands>
         </CommandBar>
         

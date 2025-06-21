@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Input;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -29,6 +28,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private readonly IInfoService _infoService;
     private readonly INavigationService _navigationService;
     private readonly ILocalSettingsService _settingsService;
+    private readonly ISourceScanResultService _sourceScanService;
     private static readonly List<GetGalgameInfoFromRssTask> RssTasks = [];
 
     private GalgameSourceBase? _item;
@@ -167,12 +167,14 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                 value.GalgamesChanged += ReloadGalgameList;
                 value.PropertyChanged += Save;
             }
+            OnPropertyChanged(nameof(LogExists));
         }
     }
 
     public GalgameSourceViewModel(IGalgameSourceCollectionService dataCollectionService, 
         IGalgameCollectionService galgameService, IBgTaskService bgTaskService, IInfoService infoService, 
-        INavigationService navigationService, ILocalSettingsService settingsService)
+        INavigationService navigationService, ILocalSettingsService settingsService, 
+        ISourceScanResultService sourceScanService)
     {
         _sourceService = dataCollectionService;
         _galgameService = (GalgameCollectionService)galgameService;
@@ -180,6 +182,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         _infoService = infoService;
         _navigationService = navigationService;
         _settingsService = settingsService;
+        _sourceScanService = sourceScanService;
     }
 
     private void LoadGames()
@@ -269,26 +272,33 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
 
     public void OnNavigatedTo(object parameter)
     {
-        IncludeSubSources = _settingsService.ReadSettingAsync<bool>(KeyValues.GalgameSourcePageShowSubSourceGames).Result;
-        
-        // 加载排序设置
-        CurrentSortKey = (SortKeys)_settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
-        SortDescending = _settingsService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending).Result;
-        
-        if (parameter is not string url) return;
-        //TODO
-        Item = _sourceService.GetGalgameSourceFromUrl(url);
-        if (Item == null) return;
-        
-        _unpackGameTask = _bgTaskService.GetBgTask<UnpackGameTask>(Item.Url);
-        if (_unpackGameTask != null)
+        try
         {
-            _unpackGameTask.OnProgress += UpdateNotifyUnpack;
-            UpdateNotifyUnpack(_unpackGameTask.CurrentProgress);
+            IncludeSubSources = _settingsService.ReadSettingAsync<bool>(KeyValues.GalgameSourcePageShowSubSourceGames).Result;
+        
+            // 加载排序设置
+            CurrentSortKey = (SortKeys)_settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
+            SortDescending = _settingsService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending).Result;
+        
+            if (parameter is not string url) return;
+            Item = _sourceService.GetGalgameSourceFromUrl(url);
+            if (Item == null) return;
+        
+            _unpackGameTask = _bgTaskService.GetBgTask<UnpackGameTask>(Item.Url);
+            if (_unpackGameTask != null)
+            {
+                _unpackGameTask.OnProgress += UpdateNotifyUnpack;
+                UpdateNotifyUnpack(_unpackGameTask.CurrentProgress);
+            }
+            foreach (GetGalgameInfoFromRssTask task in RssTasks.Where(t => t.IsRunning))
+                task.OnProgress += HandleGetGalInfoProgressChanged;
+            Update();
+            LogExists = Item is not null && _sourceScanService.GetScanResult(Item.Id) is not null;
         }
-        foreach (GetGalgameInfoFromRssTask task in RssTasks.Where(t => t.IsRunning))
-            task.OnProgress += HandleGetGalInfoProgressChanged;
-        Update();
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
     }
 
     public void OnNavigatedFrom()
@@ -312,7 +322,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         if(Item is null) return;
         CanExecute = !Item.IsRunning;
         IsUnpacking = _bgTaskService.GetBgTask<UnpackGameTask>(Item.Path)?.IsRunning ?? false;
-        LogExists = FileHelper.Exists(Item.GetLogPath());
+        // LogExists = _sourceScanService.GetScanResultAsync(Item.Id).Result is not null;
     }
 
     private void UpdateNotifyUnpack(Progress progress)
@@ -593,12 +603,10 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     }
     
     [RelayCommand]
-    private async Task ViewLog()
+    private void ViewLog()
     {
-        if(Item is null) return;
-        var path = Item.GetLogPath();
-        if(FileHelper.Exists(path) == false) return; 
-        await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(FileHelper.GetFullPath(path)));
+        if(Item is null || !LogExists) return;
+        _navigationService.NavigateTo(typeof(ScanResultViewModel).FullName!, Item.Id);
     }
 
     [RelayCommand]

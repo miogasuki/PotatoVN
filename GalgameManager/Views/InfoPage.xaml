@@ -35,7 +35,8 @@
                                             <TextBlock Text="{x:Bind Title, Mode=OneWay}"
                                                        Style="{ThemeResource BodyTextBlockStyle}" />
                                             <TextBlock Text="{x:Bind Message, Mode=OneWay}"
-                                                       Style="{ThemeResource DescriptionTextStyle}" />
+                                                       Style="{ThemeResource DescriptionTextStyle}"
+                                                       TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </control:Panel>
                                 </DataTemplate>

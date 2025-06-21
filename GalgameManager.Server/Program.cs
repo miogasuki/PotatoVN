@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Data;
@@ -15,6 +16,9 @@ namespace GalgameManager.Server;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class Program
 {
+    public static string Version { get; } = Assembly.GetExecutingAssembly()
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0";
+
     public static void Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -54,6 +58,10 @@ public class Program
         {
             options.Conventions.Add(new RouteConvention());
         });
+        // .AddJsonOptions(options =>
+        // {
+        //     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        // });
         builder.Services.AddAutoMapper(typeof(Program).Assembly);
         
         // Enable logging
@@ -74,7 +82,7 @@ public class Program
 
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "PotatoVN.Server", Version = "v1.4", 
+                Title = "PotatoVN.Server", Version = $"v{Version}", 
                 Description = "PotatoVN 同步服务器\n最新更新：galgame新增playcount字段",
             });
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PotatoVN.Server.xml"));

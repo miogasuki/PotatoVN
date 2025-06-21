@@ -39,6 +39,7 @@ public class GalgameRepository (DataContext context): IGalgameRepository
             .Where(g => g.UserId == userId && g.LastChangedTimeStamp > timestamp);
         var count = await query.CountAsync();
         List<Galgame> data = await query
+            .AsSplitQuery()
             .Include(g => g.PlayTime)
             .Include(g => g.Characters)
             .Include(g => g.StaffGames)

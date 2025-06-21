@@ -7,4 +7,5 @@ public enum PlayType
     Played,
     Shelved,
     Abandoned,
+    Wishlisted,
 }

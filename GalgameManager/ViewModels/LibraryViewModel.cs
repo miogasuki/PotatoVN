@@ -21,7 +21,8 @@ public partial class LibraryViewModel(
     IInfoService infoService,
     IBgTaskService bgTaskService,
     IGalgameCollectionService galgameService, // 注入 IGalgameCollectionService
-    ILocalSettingsService settingsService
+    ILocalSettingsService settingsService,
+    ISourceScanResultService scanResultService
     )
     : ObservableObject, INavigationAware
 {
@@ -30,7 +31,7 @@ public partial class LibraryViewModel(
     private GalgameSourceBase? _lastBackSource;
     private static GalgameSourceBase? _beforeNavigateFromSource; //用于从该页跳转到Galgame详情界面后返回时直接回到某个库的界面
     private static readonly List<GetGalgameInfoFromRssTask> RssTasks = [];
-
+    
     [ObservableProperty]
     private AdvancedCollectionView _source = null!;
     public AdvancedCollectionView Galgames = new(new ObservableCollection<Galgame>());
@@ -47,6 +48,7 @@ public partial class LibraryViewModel(
     [ObservableProperty] private bool _isNavBarVisible;
     [ObservableProperty] private bool _isStatisticsVisible;
     [ObservableProperty] private bool _displayPlayTypePolygon = true; // 是否显示游玩状态的小三角形
+    [ObservableProperty] private bool _logExists; // 是否存在日志文件
 
     partial void OnIsNavBarVisibleChanged(bool value)
     {
@@ -213,6 +215,7 @@ public partial class LibraryViewModel(
                 PathNodes.Add(node);
             }
         }
+        LogExists = CurrentSource is not null && scanResultService.GetScanResult(CurrentSource.Id) is not null;
     }
     
 
@@ -418,6 +421,13 @@ public partial class LibraryViewModel(
         }
     }
 
+    [RelayCommand]
+    private void ViewLog()
+    {
+        if(CurrentSource is null || !LogExists) return;
+        navigationService.NavigateTo(typeof(ScanResultViewModel).FullName!, CurrentSource.Id);
+    }
+    
     [RelayCommand]
     private void EditCurrentFolder()
     {

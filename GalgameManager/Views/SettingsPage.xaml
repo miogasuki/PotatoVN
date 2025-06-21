@@ -318,10 +318,10 @@
                                         </StackPanel>
                                     </StackPanel>
                                     <Rectangle Height="1"  Margin="0 2 0 5"
-                                               Visibility="{x:Bind ViewModel.MagpieTotalSwitch, Mode=OneWay}"
+                                               Visibility="{x:Bind ViewModel.MagpieSettingVisible, Mode=OneWay}"
                                                Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"/>
                                     <!-- Magpie快捷键 -->
-                                    <StackPanel Visibility="{x:Bind ViewModel.MagpieTotalSwitch, Mode=OneWay}">
+                                    <StackPanel Visibility="{x:Bind ViewModel.MagpieSettingVisible, Mode=OneWay}">
                                         <TextBlock x:Uid="SettingsPage_Game_MagpieHotkeys_Title"/>
                                         <TextBlock x:Uid="SettingsPage_Game_MagpieHotkeys_Description"
                                                    Style="{ThemeResource DescriptionTextStyle}"/>
@@ -331,12 +331,12 @@
                                     </StackPanel>
                                     <Rectangle Height="1" Margin="0 2 0 5"
                                                Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
-                                               Visibility="{x:Bind ViewModel.MagpieTotalSwitch, Mode=OneWay}"/>
+                                               Visibility="{x:Bind ViewModel.MagpieSettingVisible, Mode=OneWay}"/>
                                     <!-- 始终启用 Magpie -->
                                     <local:SettingToggleSwitch 
                                         x:Uid="SettingsPage_AlwaysEnableMagpie"
                                         IsOn="{x:Bind ViewModel.AlwaysEnableMagpie, Mode=TwoWay}"
-                                        Visibility="{x:Bind ViewModel.MagpieTotalSwitch, Mode=OneWay}"/>
+                                        Visibility="{x:Bind ViewModel.MagpieSettingVisible, Mode=OneWay}"/>
                                 </StackPanel>
                             </control:Panel>
                             <!-- 始终后台时静音游戏 -->

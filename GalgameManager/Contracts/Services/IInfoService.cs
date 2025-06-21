@@ -9,7 +9,7 @@ public interface IInfoService
 {
     public event Action<InfoBarSeverity,string?,string?,int> OnInfo; 
     
-    public event Action<InfoBarSeverity,string?,string?> OnEvent;
+    public event Action<InfoBarSeverity,string?,string?, Action?, string?> OnEvent;
     
     public ObservableCollection<Info> Infos { get; }
 
@@ -30,7 +30,9 @@ public interface IInfoService
     /// <param name="title">事件名</param>
     /// <param name="exception">与之相关的异常，若不是异常则不填</param>
     /// <param name="msg">事件信息</param>
-    public void Event(EventType type, InfoBarSeverity infoBarSeverity, string title, Exception? exception = null, string? msg = null);
+    /// <param name="callbackAction">点击按钮后执行的回调</param>
+    /// <param name="callbackButtonText">按钮上显示的文字</param>
+    public void Event(EventType type, InfoBarSeverity infoBarSeverity, string title, Exception? exception = null, string? msg = null, Action? callbackAction = null, string? callbackButtonText = null);
 
     /// <summary>
     /// 不严重的非预期错误，仅在开发模式下通知

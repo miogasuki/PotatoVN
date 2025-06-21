@@ -380,8 +380,9 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private WindowMode _playingWindowMode;
     [ObservableProperty] private int _minPlayTimeRecordThreshold;
     [ObservableProperty] private string? _localEmulatorPath;
-    [ObservableProperty] private bool _magpieTotalSwitch;
-    [ObservableProperty] private string? _magpiePath; // Magpie executable path
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(MagpieSettingVisible))] private bool _magpieTotalSwitch;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(MagpieSettingVisible))] private string? _magpiePath; // Magpie executable path
+    public bool MagpieSettingVisible => MagpieTotalSwitch && !IsNullOrEmpty(MagpiePath);
     [ObservableProperty] private bool _alwaysEnableMagpie;
     [ObservableProperty] private bool _alwaysMuteInBackground;
     [ObservableProperty] private string _magpieHotkeysString = Empty;

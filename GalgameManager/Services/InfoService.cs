@@ -14,7 +14,7 @@ namespace GalgameManager.Services;
 public class InfoService : IInfoService
 {
     public event Action<InfoBarSeverity, string?, string?, int>? OnInfo;
-    public event Action<InfoBarSeverity, string?, string?>? OnEvent;
+    public event Action<InfoBarSeverity, string?, string?, Action?, string?>? OnEvent;
     public ObservableCollection<Info> Infos { get; } = new();
     private readonly IAppCenterService _appCenterService;
     private readonly ILocalSettingsService _localSettingsService;
@@ -39,13 +39,13 @@ public class InfoService : IInfoService
         UiThreadInvokeHelper.Invoke(() => { OnInfo?.Invoke(infoBarSeverity, title, msg, displayTimeMs ?? 3000);});
     }
 
-    public void Event(EventType type, InfoBarSeverity infoBarSeverity, string title, Exception? exception = null, string? msg = null)
+    public void Event(EventType type, InfoBarSeverity infoBarSeverity, string title, Exception? exception = null, string? msg = null, Action? callbackAction = null, string? callbackButtonText = null)
     {
         UiThreadInvokeHelper.Invoke(async () =>
         {
             Log(infoBarSeverity, $"{title}: {exception?.ToString() ?? msg}");
             if (await ShouldNotifyEvent(type))
-                OnEvent?.Invoke(infoBarSeverity, title, exception?.ToString() ?? msg);
+                OnEvent?.Invoke(infoBarSeverity, title, exception?.ToString() ?? msg, callbackAction, callbackButtonText);
             // 下面这句话有时会抛出System.Runtime.InteropServices.COMException (0x80004005)，但容器却能正常插入
             Infos.Insert(0, new Info(infoBarSeverity, title, exception?.ToString() ?? msg ?? string.Empty));
         });

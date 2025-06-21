@@ -81,8 +81,17 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     
     public async void OnNavigatedTo(object parameter)
     {
-        await _updateService.UpdateSettingsBadgeAsync();
-        UpdateAvailable = await _updateService.CheckUpdateAsync();
+        try
+        {
+            await _updateService.UpdateSettingsBadgeAsync();
+            // 每次都检查是否有可用更新（未被忽略的）
+            var availableVersion = await _updateService.GetAvailableUpdateVersionAsync();
+            UpdateAvailable = availableVersion != null;
+        }
+        catch (Exception ex)
+        {
+            _infoService.Info(InfoBarSeverity.Informational, ex.Message);
+        }
     }
 
     public void OnNavigatedFrom()
@@ -206,20 +215,26 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     
     private async Task ShowUpdateNotification()
     {
-        ContentDialog updateDialog = new()
+        // 获取可用的更新版本
+        var availableVersion = await _updateService.GetAvailableUpdateVersionAsync();
+        if (availableVersion == null) return;
+
+        // 显示更新确认对话框
+        var userChoice = await _updateService.ShowUpdateConfirmationAsync();
+        switch (userChoice)
         {
-            XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
-            Title = "SettingsPage_UpdateNotification_Title".GetLocalized(),
-            Content = "SettingsPage_UpdateNotification_Msg".GetLocalized(),
-            PrimaryButtonText = "SettingsPage_SeeWhatsNew".GetLocalized(),
-            CloseButtonText = "OK",
-            DefaultButton = ContentDialogButton.Primary
-        };
-        updateDialog.PrimaryButtonClick += (_, _) =>
-            _navigationService.NavigateTo(typeof(UpdateContentViewModel).FullName!);
-        await _localSettingsService.SaveSettingAsync(KeyValues.LastNoticeUpdateVersion, RuntimeHelper.GetVersion());
-        await updateDialog.ShowAsync();
+            case 1: // 立即更新
+                await _updateService.PerformUpdateAsync();
+                break;
+            case 2: // 忽略这个版本
+                await _updateService.IgnoreVersionAsync(availableVersion);
+                _infoService.Info(InfoBarSeverity.Informational, "UpdateService_Version_Ignored".GetLocalized());
+                break;
+            default:
+                // 设置本次启动已取消更新标记，避免重复弹窗
+                _updateService.SetUpdateCancelledThisSession();
+                break;
+        }
     }
     
     private async void HandelSettingBadgeEvent(bool result)
@@ -978,17 +993,45 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     #endregion
 
-    #region ABOUT
+        #region ABOUT
+    [RelayCommand]
+    private async Task CheckForUpdates()
+    {
+        var availableVersion = await _updateService.GetAvailableUpdateVersionAsync();
+        if (availableVersion != null)
+        {
+            var userChoice = await _updateService.ShowUpdateConfirmationAsync();
+            switch (userChoice)
+            {
+                case 1: // 立即更新
+                    await _updateService.PerformUpdateAsync();
+                    break;
+                case 2: // 忽略这个版本
+                    await _updateService.IgnoreVersionAsync(availableVersion);
+                    _infoService.Info(InfoBarSeverity.Informational, "UpdateService_Version_Ignored".GetLocalized());
+                    break;
+                default:
+                    // 设置本次启动已取消更新标记，避免重复弹窗
+                    _updateService.SetUpdateCancelledThisSession();
+                    break;
+            }
+        }
+        else
+        {
+            _infoService.Info(InfoBarSeverity.Informational, "UpdateService_NoUpdate_Title".GetLocalized(), "UpdateService_NoUpdate_Content".GetLocalized());
+        }
+    }
+
     [RelayCommand]
     private async Task OpenUpdateWeb()
     {
 
         // 从设置中获取更新链接
-        string storeUrl = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateUrl) ?? "https://apps.microsoft.com/detail/9p9cbkd5hr3w";
+        var storeUrl = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateUrl) ?? "https://apps.microsoft.com/detail/9p9cbkd5hr3w";
 
         // 打开链接
-        await Windows.System.Launcher.LaunchUriAsync(new Uri(storeUrl));
-    
+        await Launcher.LaunchUriAsync(new Uri(storeUrl));
+
         
     }
 

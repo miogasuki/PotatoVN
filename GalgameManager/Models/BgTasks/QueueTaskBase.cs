@@ -6,7 +6,7 @@ namespace GalgameManager.Models.BgTasks;
 public abstract class QueueTaskBase<TQueueItem> : BgTaskBase where TQueueItem : notnull
 {
     public ConcurrentQueue<TQueueItem> Queue = new();
-    protected int MaxRunning = 3;
+    protected virtual int MaxRunning() => 3;
     private readonly ConcurrentBag<TQueueItem> _fetchingItems = [];
     protected readonly object ChangeMsgLock = new();
 
@@ -20,7 +20,7 @@ public abstract class QueueTaskBase<TQueueItem> : BgTaskBase where TQueueItem : 
             while (true)
             {
                 if (Queue.IsEmpty && _fetchingItems.IsEmpty) break;
-                while (_fetchingItems.Count < MaxRunning && Queue.TryDequeue(out TQueueItem? s))
+                while (_fetchingItems.Count < MaxRunning() && Queue.TryDequeue(out TQueueItem? s))
                 {
                     _fetchingItems.Add(s);
                     _ = Task.Run(async ()=>

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-using AutoMapper;
+﻿using AutoMapper;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
@@ -10,8 +8,6 @@ using Microsoft.UI.Xaml.Controls;
 using PotatoVN.Client.Api;
 using PotatoVN.Client.Client;
 using PotatoVN.Client.Model;
-using Career = GalgameManager.Enums.Career;
-using PlayType = GalgameManager.Enums.PlayType;
 
 namespace GalgameManager.Models.BgTasks;
 
@@ -23,6 +19,7 @@ public class PvnSyncTask : BgTaskBase
     private readonly IGalgameCollectionService _gameService = App.GetService<IGalgameCollectionService>();
     private readonly IStaffService _staffService = App.GetService<IStaffService>();
     private readonly IInfoService _infoService = App.GetService<IInfoService>();
+    private readonly IBgTaskService _bgTaskService = App.GetService<IBgTaskService>();
     private readonly IMapper _mapper = App.GetService<IMapper>();
     private PvnServerInfo _serverInfo = null!;
     
@@ -84,9 +81,7 @@ public class PvnSyncTask : BgTaskBase
     public override string Title { get; } = "PvnSyncTask_Title".GetLocalized();
 
     public override bool OnSearch(string key) => true;
-
-    [SuppressMessage("ReSharper", "NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract")]
-    [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract")]
+    
     private async Task PullUpdates(IPvnService pvnService, GalgameCollectionService gameService,
         ILocalSettingsService settingsService, long latest)
     {
@@ -94,99 +89,12 @@ public class PvnSyncTask : BgTaskBase
         ChangeProgress(0, 1, "PvnSyncTask_GettingModifiedList".GetLocalized());
         List<GalgameDto> changedGalgames = await pvnService.GetChangedGalgamesAsync();
         List<int> deletedGalgames = await pvnService.GetDeletedGalgamesAsync();
-        for (var index = 0; index < changedGalgames.Count; index++)
+        if (changedGalgames.Count > 0)
         {
-            GalgameDto dto = changedGalgames[index];
-            Galgame? game = gameService.GetGalgameFromId(dto.Id.ToString(), RssType.PotatoVn);
-            await UiThreadInvokeHelper.InvokeAsync(async Task () =>
-            {
-                try
-                {
-                    game ??= gameService.GetGalgameFromUid(new GalgameUid
-                    {
-                        BangumiId = dto.BgmId,
-                        VndbId = dto.VndbId,
-                        Name = dto.Name ?? string.Empty,
-                        CnName = dto.CnName,
-                    });
-
-                    if (game is null) //同步进来的游戏
-                    {
-                        game = new Galgame();
-                        gameService.AddVirtualGalgame(game);
-                        Result += "PvnSyncTask_Pull_Added".GetLocalized(dto.Name ?? string.Empty, dto.Id) + "\n";
-                    }
-                    else
-                        Result += "PvnSyncTask_Pull_Updated".GetLocalized(dto.Name ?? string.Empty, dto.Id) + "\n";
-
-                    ChangeProgress(index, changedGalgames.Count,
-                        "PvnSyncTask_Downloading".GetLocalized(dto.Name ?? string.Empty, dto.Id));
-
-                    game.Ids[(int)RssType.PotatoVn] = dto.Id.ToString();
-                    game.Ids[(int)RssType.Bangumi] = dto.BgmId ?? game.Ids[(int)RssType.Bangumi];
-                    game.Ids[(int)RssType.Vndb] = dto.VndbId ?? game.Ids[(int)RssType.Vndb];
-                    game.UpdateMixedId();
-                    game.Name = dto.Name ?? game.Name.Value ?? string.Empty;
-                    game.CnName = dto.CnName ?? game.CnName;
-                    game.Description = dto.Description ?? game.Description.Value ?? string.Empty;
-                    game.Developer = dto.Developer ?? game.Developer.Value ?? string.Empty;
-                    game.ExpectedPlayTime = dto.ExpectedPlayTime ?? game.ExpectedPlayTime.Value ?? string.Empty;
-                    game.Rating = dto.Rating;
-                    game.ReleaseDate = dto.ReleasedDateTimeStamp.ToDateTime().ToLocalTime();
-                    if (dto.ImageUrl is not null)
-                        game.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dto.ImageUrl, 0,
-                            $"pvn_{dto.Id}") ?? game.ImagePath.Value ?? Galgame.DefaultImagePath;
-                    if (dto.Tags is not null)
-                    {
-                        game.Tags.Value?.Clear();
-                        dto.Tags.ForEach(tag => game.Tags.Value?.Add(tag));
-                    }
-
-                    if (dto.Characters is not null 
-                        && dto.CharacterLastChangedTimeStamp > game.PvnLastCharacterFetchTime
-                        && await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGameCharacters))
-                    {
-                        UiThreadInvokeHelper.IgnoreComException(game.Characters.Clear);
-                        List<Task<string?>> fetchImageTask = [], fetchPreviewImageTask = [];
-                        foreach (CharacterDto c in dto.Characters)
-                        {
-                            fetchImageTask.Add(DownloadHelper.DownloadAndSaveImageWithDiffThread(c.ImageUrl));
-                            fetchPreviewImageTask.Add(
-                                DownloadHelper.DownloadAndSaveImageWithDiffThread(c.PreviewImageUrl));
-                        }
-
-                        for (var i = 0; i < dto.Characters.Count; i++)
-                        {
-                            GalgameCharacter newC = mapper.Map<GalgameCharacter>(dto.Characters[i]);
-                            newC.ImagePath = await fetchImageTask[i] ?? Galgame.DefaultImagePath;
-                            newC.PreviewImagePath = await fetchPreviewImageTask[i] ?? Galgame.DefaultImagePath;
-                            UiThreadInvokeHelper.IgnoreComException(game.Characters.Add, newC);
-                        }
-
-                        game.PvnLastCharacterFetchTime = DateTime.Now.ToUnixTime();
-                    }
-
-                    if (dto.PlayTime is not null)
-                    {
-                        Dictionary<string, int> playTime = new();
-                        foreach (PlayLogDto time in dto.PlayTime)
-                            playTime[time.DateTimeStamp.ToDateTime().ToLocalTime().ToStringDefault()] = time.Minute;
-                        game.MergeTime(new Galgame { PlayedTime = playTime });
-                    }
-
-                    game.PlayType = (PlayType)(int)(dto.PlayType ?? 0);
-                    game.Comment = dto.Comment ?? game.Comment;
-                    game.MyRate = dto.MyRate;
-                    game.PrivateComment = dto.PrivateComment;
-                    game.PvnUpdate = false;
-
-                    await gameService.SaveGalgameAsync(game);
-                }
-                catch (COMException)
-                {
-                    _infoService.DeveloperEvent(msg:"ComException on Sync Games");
-                }
-            });
+            ChangeProgress(0, 1, "PvnSyncTask_PullingGames".GetLocalized());
+            PvnSyncTaskPullGame pullTask = new(gameService, _settingsService, _infoService, mapper);
+            pullTask.Init(changedGalgames);
+            await _bgTaskService.AddBgTask(pullTask);
         }
 
         foreach (long id in deletedGalgames)
@@ -271,7 +179,6 @@ public class PvnSyncTask : BgTaskBase
         }
     }
 
-    [SuppressMessage("ReSharper", "NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract")]
     private async Task PullStaffUpdates()
     {
         StaffApi api = new(await _pvnService.GetConfigAsync());
@@ -281,62 +188,16 @@ public class PvnSyncTask : BgTaskBase
         for (var currentPage = 0;; currentPage++)
         {
             StaffDtoPagedResult tmp = await api.StaffGetAsync(lastStaffChangeTime, currentPage, 25, true);
+            ChangeProgress(currentPage, tmp.PageCnt, "PvnSyncTask_Pull_Staff_Get".GetLocalized());
             changedList.AddRange(tmp.Items);
             if (currentPage >= tmp.PageCnt - 1) break;
         }
-
-        foreach (StaffDto dto in changedList)
+        if (changedList.Count > 0)
         {
-            ChangeProgress(changedList.IndexOf(dto), changedList.Count,
-                "PvnSyncTask_Pull_Staff".GetLocalized(dto.JapaneseName ??
-                                                      dto.ChineseName ?? dto.EnglishName ?? string.Empty));
-            Staff staff = _staffService.GetStaff(new StaffIdentifier
-                {
-                    ChineseName = dto.ChineseName, EnglishName = dto.EnglishName, JapaneseName = dto.JapaneseName,
-                }
-                .SetId(RssType.Bangumi, dto.BgmId).SetId(RssType.Vndb, dto.VndbId).SetId(RssType.Ymgal, dto.YmgalId)
-                .SetId(RssType.PotatoVn, dto.Id.ToString())) ?? new Staff();
-            if (dto.IsDeleted)
-            {
-                _staffService.Delete(staff);
-                continue;
-            }
-            staff.Ids[(int)RssType.PotatoVn] = dto.Id.ToString();
-            staff.Ids[(int)RssType.Bangumi] = dto.BgmId;
-            staff.Ids[(int)RssType.Vndb] = dto.VndbId;
-            staff.Ids[(int)RssType.Ymgal] = dto.YmgalId;
-            staff.JapaneseName = dto.JapaneseName ?? staff.JapaneseName;
-            staff.EnglishName = dto.EnglishName ?? staff.EnglishName;
-            staff.ChineseName = dto.ChineseName ?? staff.ChineseName;
-            if (dto.Gender is not null) staff.Gender = (Gender)dto.Gender;
-            staff.Description = dto.Description ?? staff.Description;
-            if (dto.BirthDateTimestamp > 0)
-            {
-                staff.BirthDate = DateTimeOffset.FromUnixTimeSeconds(dto.BirthDateTimestamp).LocalDateTime;
-                if (staff.BirthDate.Value.Year < 1900 || staff.BirthDate.Value > DateTime.Now)
-                    staff.BirthDate = new DateTime(1, staff.BirthDate.Value.Month, staff.BirthDate.Value.Day);
-            }
-
-            staff.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dto.ImageUrl) ??
-                              await DownloadHelper.DownloadAndSaveImageWithDiffThread(dto.ExternalImageLink) ?? 
-                              staff.ImagePath;
-            UiThreadInvokeHelper.IgnoreComException(() =>
-            {
-                HashSet<Galgame> newList = [];
-                foreach (StaffGameDto tmp in dto.StaffGames)
-                {
-                    Galgame? game = _gameService.GetGalgameFromId(tmp.GameId.ToString(), RssType.PotatoVn);
-                    if (game is null) continue;
-                    staff.AddGame(game, tmp.Relation.Select(r => (Career)r).ToList());
-                    newList.Add(game);
-                }
-                List<StaffGame> toRemove = staff.Games.Where(sg => !newList.Contains(sg.Game)).ToList();
-                foreach (StaffGame sg in toRemove)
-                    staff.RemoveGame(sg.Game);
-            });
-            _staffService.Save(staff, false);
-            Result += "PvnSyncTask_Pull_Staff_Success".GetLocalized(staff.Name ?? string.Empty,
-                staff.Ids[(int)RssType.PotatoVn] ?? string.Empty) + "\n";
+            ChangeProgress(0, 1, "PvnSyncTask_PullingStaffs".GetLocalized());
+            PvnSyncTaskPullStaff pullTask = new(_staffService, _gameService, _infoService);
+            pullTask.AddRange(changedList);
+            await _bgTaskService.AddBgTask(pullTask);
         }
         
         await _settingsService.SaveSettingAsync(KeyValues.PvnSyncStaffTimestamp, DateTime.Now.ToUnixTime());

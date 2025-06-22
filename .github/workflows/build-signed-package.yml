@@ -184,7 +184,9 @@ jobs:
           REMOTE_FILENAME="${{ steps.get_version.outputs.version }}_${{ matrix.platform }}.msix"
           S3_PATH="s3://potatovn-release/$S3_FOLDER/$REMOTE_FILENAME"
           echo "Uploading local file '$SIGNED_FILE' to R2 destination '$S3_PATH'"
-          # aws cli 会自动从此步骤的 env 中读取凭据
-          aws s3 cp "$SIGNED_FILE" "$S3_PATH" \
+          aws s3api put-object \
             --endpoint-url https://248c03263a47d926c6c479d9cc47ef6c.r2.cloudflarestorage.com \
-            --no-additional-checksums
+            --bucket potatovn-release \
+            --key "$S3_FOLDER/$REMOTE_FILENAME" \
+            --body "$SIGNED_FILE" \
+            --cli-read-timeout 0

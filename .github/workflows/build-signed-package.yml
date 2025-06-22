@@ -159,17 +159,14 @@ jobs:
         with:
           name: PotatoVN-${{ matrix.platform }}-${{ github.ref_name }}-signed
           path: signed-package
-      - name: Configure AWS Credentials for Cloudflare R2
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          aws-region: auto
-      # 步骤 5: 将文件上传到 R2
+
       - name: Upload to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_REGION: "auto"
         shell: bash
         run: |
-          # 根据分支名确定上传的目标文件夹
           if [[ "${{ github.ref_name }}" == "released" ]]; then
             S3_FOLDER="release"
           elif [[ "${{ github.ref_name }}" == "flight-released" ]]; then
@@ -178,7 +175,6 @@ jobs:
             echo "Branch is not configured for deployment."
             exit 1
           fi
-          # 在下载并解压后的目录中查找 .msix 文件
           SIGNED_FILE=$(find signed-package -type f -name "*.msix")
           if [ -z "$SIGNED_FILE" ]; then
               echo "Error: Signed MSIX file not found in downloaded artifact."
@@ -188,5 +184,5 @@ jobs:
           REMOTE_FILENAME="${{ steps.get_version.outputs.version }}_${{ matrix.platform }}.msix"
           S3_PATH="s3://potatovn-release/$S3_FOLDER/$REMOTE_FILENAME"
           echo "Uploading local file '$SIGNED_FILE' to R2 destination '$S3_PATH'"
-          # 执行上传命令
+          # aws cli 会自动从此步骤的 env 中读取凭据
           aws s3 cp "$SIGNED_FILE" "$S3_PATH" --endpoint-url https://248c03263a47d926c6c479d9cc47ef6c.r2.cloudflarestorage.com

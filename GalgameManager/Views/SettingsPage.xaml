@@ -658,6 +658,11 @@
                                                   RelativePanel.AlignRightWithPanel="True" />
                                 </RelativePanel>
                             </control:Panel>
+                            <!-- 更新通道 -->
+                            <control:Panel Visibility="{x:Bind ViewModel.IsSideloadVersion, Mode=OneWay}">
+                                <local:SettingToggleSwitch x:Uid="SettingsPage_Other_BetaChannel"
+                                                           IsOn="{x:Bind ViewModel.IsBetaChannel, Mode=TwoWay}"/>
+                            </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
                 </control:SettingExpander>

@@ -18,7 +18,6 @@ public static class KeyValues
     public const string DisplayedUpdateVersion = "displayedUpdateVersion";
     public const string CustomPasswordSaverName = "PotatoVN";
     public const string CustomPasswordDisplayName = "CustomPassword";
-    public const string LastUpdateCheckDate = "lastUpdateCheckDate"; // DateTime,上次检查更新的时间
     public const string LastUpdateCheckResult = "lastUpdateCheckResult"; // bool,上次检查更新的结果
     public const string LastNoticeUpdateVersion = "lastNoticeUpdateVersion"; // string,上次通知更新的版本
     public const string IgnoredUpdateVersions = "IgnoredUpdateVersions";
@@ -136,6 +135,7 @@ public static class KeyValues
     public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic
     public const string UpdateType = "UpdateType";
     public const string UpdateUrl = "UpdateUrl";
+    public const string IsBetaChannel = "isBetaChannel";
 
 
     //是否执行过某种升级, bool

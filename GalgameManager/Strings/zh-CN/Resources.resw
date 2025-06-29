@@ -3470,4 +3470,7 @@
   <data name="SettingsPage_Other_BetaChannel_Success" xml:space="preserve">
     <value>设置成功，重启软件后生效</value>
   </data>
+  <data name="GalgameCollectionService_SavePathIsSymbolicLink" xml:space="preserve">
+    <value>这个存档看起来已经在云端了，已修改本游戏云存档位置记录值~</value>
+  </data>
 </root>

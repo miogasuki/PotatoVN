@@ -141,6 +141,7 @@ public static class FolderOperations
             foreach(var dir in Directory.GetDirectories(p))
                 queue.Enqueue(dir);
         }
+        Directory.Delete(path);
     }
     
     /// <summary>

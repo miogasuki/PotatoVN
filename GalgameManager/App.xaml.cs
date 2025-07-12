@@ -1,4 +1,5 @@
-﻿using GalgameManager.Activation;
+﻿using Windows.ApplicationModel;
+using GalgameManager.Activation;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Contracts.Services;
 using GalgameManager.Core.Services;
@@ -21,6 +22,7 @@ using WindowExtensions = H.NotifyIcon.WindowExtensions;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using SkiaSharp;
+using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
 
 namespace GalgameManager;
 
@@ -246,5 +248,18 @@ public partial class App : Application
             case WindowMode.None:
                 break;
         }
+    }
+
+    /// <summary>
+    /// 当前版本是否为微软应用商店版
+    /// </summary>
+    /// <returns></returns>
+    public static bool IsStoreVersion()
+    {
+        const string storeVersionPackageName = "37126GoldenPotato137.PotatoVN";
+        if (!RuntimeHelper.IsMSIX) return false;
+        var packageName = Package.Current.Id.Name;
+        // 商店版的包名是固定的，其他都是侧载版
+        return packageName == storeVersionPackageName;
     }
 }

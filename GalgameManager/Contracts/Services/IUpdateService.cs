@@ -8,10 +8,18 @@ public interface IUpdateService
     public bool ShouldDisplayUpdateContent();
     
     /// <summary>
-    /// 检查更新
+    /// 获取最新版本号 <br/>
+    /// <b>每次启动只检查一次</b>，若已获取过最新版本号则直接返回缓存值<br/>
+    /// 如果已经是最新版本，则返回null
     /// </summary>
-    /// <returns>是否有更新</returns>
-    public Task<bool> CheckUpdateAsync();
+    /// <returns>如果找不到返回null</returns>
+    public Task<Version?> GetLatestVersionAsync();
+    
+    /// <summary>
+    /// 检查是否有可用更新
+    /// </summary>
+    /// <returns></returns>
+    public Task<bool> IsUpdateAvailableAsync();
     
     /// <summary>
     /// 更新更行提醒的小蓝点

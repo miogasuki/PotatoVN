@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - flight-released
-      - relased
+      - released
   workflow_dispatch:
 
 jobs:
@@ -127,45 +127,66 @@ jobs:
         with:
           name: PotatoVN-${{ matrix.platform }}-${{ env.BRANCH_NAME }}-signed
           path: signed_package
-
-  update-version:
+          
+  upload_to_r2:
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ github.ref_name == 'flight-released' || github.ref_name == 'relased' }}
+    strategy:
+      matrix:
+        platform: ${{ (github.ref_name == 'flight-released' || github.ref_name == 'main') && fromJSON('["x64"]') || fromJSON('["x86", "x64", "ARM64"]') }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code to read version
+        uses: actions/checkout@v4
+      - name: Get package version
+        id: get_version
+        run: |
+          sudo apt-get update && sudo apt-get install -y xmlstarlet
+          # 使用带有命名空间处理的 xmlstarlet 命令来健壮地提取版本号
+          VERSION=$(xmlstarlet sel \
+            -N x="http://schemas.microsoft.com/appx/manifest/foundation/windows10" \
+            -t -v "/x:Package/x:Identity/@Version" \
+            GalgameManager/Package.appxmanifest)
+          
+          echo "Extracted version: $VERSION"
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not extract version number."
+            exit 1
+          fi
+          # 将版本号设置为该步骤的输出，供后续步骤使用
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Download signed artifact
+        uses: actions/download-artifact@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Update version file
+          name: PotatoVN-${{ matrix.platform }}-${{ github.ref_name }}-signed
+          path: signed-package
+
+      - name: Upload to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_REGION: "auto"
+        shell: bash
         run: |
-          # 从Package.appxmanifest获取版本号
-          VERSION=$(grep -o 'Version="[^"]*"' GalgameManager/Package.appxmanifest | cut -d'"' -f2)
-          echo "Current version: $VERSION"
-          
-          # 检查版本文件是否存在，如果不存在则创建
-          if [ ! -f "PotatoVN.Doc/raw/version.md" ]; then
-            mkdir -p PotatoVN.Doc/raw
-            echo "1.0.0.0, 1.0.0.0" > PotatoVN.Doc/raw/version.md
+          if [[ "${{ github.ref_name }}" == "released" ]]; then
+            S3_FOLDER="release"
+          elif [[ "${{ github.ref_name }}" == "flight-released" ]]; then
+            S3_FOLDER="flight-released"
+          else
+            echo "Branch is not configured for deployment."
+            exit 1
+          fi
+          SIGNED_FILE=$(find signed-package -type f -name "*.msix")
+          if [ -z "$SIGNED_FILE" ]; then
+              echo "Error: Signed MSIX file not found in downloaded artifact."
+              exit 1
           fi
           
-          # 更新PotatoVN.Doc/raw/version.md文件
-          if [ "${{ github.ref_name }}" == "flight-released" ]; then
-            # flight-released分支更新测试版版本号(第二个版本号)
-            sed -i "s/\([^,]*\), \([^,]*\)/\1, $VERSION/" PotatoVN.Doc/raw/version.md
-          elif [ "${{ github.ref_name }}" == "relased" ]; then
-            # relased分支更新正式版版本号(第一个版本号)
-            sed -i "s/\([^,]*\), \([^,]*\)/$VERSION, \2/" PotatoVN.Doc/raw/version.md
-          fi
-          
-          # 显示更新后的内容
-          echo "Updated version file:"
-          cat PotatoVN.Doc/raw/version.md
-          
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add PotatoVN.Doc/raw/version.md
-          git commit -m "Auto update version to $(grep -o 'Version="[^"]*"' GalgameManager/Package.appxmanifest | cut -d'"' -f2)" || exit 0
-          git push
+          REMOTE_FILENAME="${{ steps.get_version.outputs.version }}_${{ matrix.platform }}.msix"
+          S3_PATH="s3://potatovn-release/$S3_FOLDER/$REMOTE_FILENAME"
+          echo "Uploading local file '$SIGNED_FILE' to R2 destination '$S3_PATH'"
+          aws s3api put-object \
+            --endpoint-url https://248c03263a47d926c6c479d9cc47ef6c.r2.cloudflarestorage.com \
+            --bucket potatovn-release \
+            --key "$S3_FOLDER/$REMOTE_FILENAME" \
+            --body "$SIGNED_FILE" \
+            --cli-read-timeout 0

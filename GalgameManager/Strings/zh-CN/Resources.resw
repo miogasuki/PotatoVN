@@ -3151,7 +3151,7 @@
   <data name="HotkeyInputBox_PlaceholderText" xml:space="preserve">
     <value>点击设置快捷键</value>
   </data>
-  <data name="HotkeyInputBox_StartCapturing" xml:space="preserve">  
+  <data name="HotkeyInputBox_StartCapturing" xml:space="preserve">
     <value>请按下快捷键组合...</value>
   </data>
   <data name="HotkeyInputBox_ClickToSet" xml:space="preserve">
@@ -3234,9 +3234,6 @@
   </data>
   <data name="UpdateService_IgnoreVersion_Error" xml:space="preserve">
     <value>忽略版本失败</value>
-  </data>
-  <data name="UpdateService_Download_Error" xml:space="preserve">
-    <value>下载更新失败</value>
   </data>
   <data name="UpdateService_Install_Content" xml:space="preserve">
     <value>更新包已下载完成。由于技术限制，应用需要退出后才能安装更新。点击"立即安装"将退出应用并自动安装更新。</value>
@@ -3393,6 +3390,7 @@
   </data>
   <data name="UpdateService_MSIX_File_Open_Error" xml:space="preserve">
     <value>打开MSIX安装包失败</value>
+  </data>
   <data name="GetGalgameInFolderTask_CheckResult" xml:space="preserve">
     <value>查看扫描结果</value>
   </data>
@@ -3441,11 +3439,38 @@
   <data name="PvnSyncTask_PullGame_Progress" xml:space="preserve">
     <value>正在下载以下游戏信息：</value>
   </data>
-<data name="PvnSyncTask_PullStaff_Title" xml:space="preserve"><value>PotatoVN同步任务：下载Staff</value></data><data name="PvnSyncTask_PullStaff_Progress" xml:space="preserve"><value>正在下载以下Staff信息：</value></data><data name="PvnSyncTask_PullStaff_Waiting" xml:space="preserve"><value>还有 {0} 个Staff排队中</value></data><data name="PvnSyncTask_PullStaff_Success" xml:space="preserve"><value>Staff {0} (ID: {1}) 同步成功</value></data><data name="PvnSyncTask_PullStaff_Deleted" xml:space="preserve"><value>Staff {0} (ID: {1}) 已删除</value></data><data name="PvnSyncTask_PullStaff_Error" xml:space="preserve"><value>Staff {0} 同步失败</value></data>
+  <data name="PvnSyncTask_PullStaff_Title" xml:space="preserve">
+    <value>PotatoVN同步任务：下载Staff</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Progress" xml:space="preserve">
+    <value>正在下载以下Staff信息：</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Waiting" xml:space="preserve">
+    <value>还有 {0} 个Staff排队中</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Success" xml:space="preserve">
+    <value>Staff {0} (ID: {1}) 同步成功</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Deleted" xml:space="preserve">
+    <value>Staff {0} (ID: {1}) 已删除</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Error" xml:space="preserve">
+    <value>Staff {0} 同步失败</value>
+  </data>
   <data name="PvnSyncTask_PullingGames" xml:space="preserve">
     <value>正在下载游戏信息中</value>
   </data>
   <data name="PvnSyncTask_PullingStaffs" xml:space="preserve">
     <value>正在下载staff信息中</value>
+  </data>
+  <data name="UpdateService_FailedToGetVersion" xml:space="preserve">
+    <value>无法获取当前最新版本</value>
+  </data>
+<data name="SettingsPage_Other_BetaChannel.Title" xml:space="preserve"><value>使用测试通道获取更新</value></data><data name="SettingsPage_Other_BetaChannel.Description" xml:space="preserve"><value>你将会更早地获取到新功能与bug修复，但这可能是不稳定的。</value></data>
+  <data name="SettingsPage_Other_BetaChannel_Success" xml:space="preserve">
+    <value>设置成功，重启软件后生效</value>
+  </data>
+  <data name="GalgameCollectionService_SavePathIsSymbolicLink" xml:space="preserve">
+    <value>这个存档看起来已经在云端了，已修改本游戏云存档位置记录值~</value>
   </data>
 </root>

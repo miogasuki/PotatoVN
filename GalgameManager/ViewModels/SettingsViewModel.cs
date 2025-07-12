@@ -83,10 +83,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         try
         {
-            await _updateService.UpdateSettingsBadgeAsync();
-            // 每次都检查是否有可用更新（未被忽略的）
-            var availableVersion = await _updateService.GetAvailableUpdateVersionAsync();
-            UpdateAvailable = availableVersion != null;
+            await _updateService.UpdateSettingsBadgeAsync(); //通过这句话来触发更新弹窗提醒（如果这个版本没触发过的话）
+            UpdateAvailable = await _updateService.IsUpdateAvailableAsync();
         }
         catch (Exception ex)
         {
@@ -173,6 +171,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         WindowModes = new[] { WindowMode.Normal, WindowMode.Close, WindowMode.SystemTray };
         CloseMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.CloseMode).Result;
         DevelopmentMode = _localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result;
+        _isBetaChannel = _localSettingsService.ReadSettingAsync<bool>(KeyValues.IsBetaChannel).Result;
         List<string> extensionsList = _localSettingsService.ReadSettingAsync<List<string>>(KeyValues.CustomTextFileExtensions).Result ?? [];
         _customTextFileExtensionsString = Join(", ", extensionsList);
         
@@ -892,6 +891,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _memoryImprove;
     [ObservableProperty] private WindowMode _closeMode;
     [ObservableProperty] private bool _developmentMode;
+    [ObservableProperty] private bool _isBetaChannel;
+    public bool IsSideloadVersion => !App.IsStoreVersion();
     public readonly WindowMode[] WindowModes;
     
     partial void OnUploadToAppCenterChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.UploadData, value);
@@ -901,6 +902,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     partial void OnCloseModeChanged(WindowMode value) => _localSettingsService.SaveSettingAsync(KeyValues.CloseMode, value);
     
     partial void OnDevelopmentModeChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.DevelopmentMode, value);
+    
+    partial void OnIsBetaChannelChanged(bool value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.IsBetaChannel, value);
+        _infoService.Info(InfoBarSeverity.Success, msg: "SettingsPage_Other_BetaChannel_Success".GetLocalized());
+    }
 
     [RelayCommand]
     private async Task ExportData()
@@ -993,7 +1000,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     #endregion
 
-        #region ABOUT
+    #region ABOUT
     [RelayCommand]
     private async Task CheckForUpdates()
     {
@@ -1025,16 +1032,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task OpenUpdateWeb()
     {
-
-        // 从设置中获取更新链接
-        var storeUrl = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateUrl) ?? "https://apps.microsoft.com/detail/9p9cbkd5hr3w";
-
-        // 打开链接
+        var storeUrl = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateUrl) ??
+                       "https://apps.microsoft.com/detail/9p9cbkd5hr3w";
         await Launcher.LaunchUriAsync(new Uri(storeUrl));
-
-        
     }
-
 
     [RelayCommand]
     private async Task Rate()

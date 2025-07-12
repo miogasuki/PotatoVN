@@ -632,7 +632,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         if (galgame.SavePath is not null && new DirectoryInfo(galgame.SavePath).Exists == false)
             galgame.SavePath = null;
             
-        if (galgame.SavePath is not null) //目前在云端
+        if (galgame.SavePath is not null && FolderOperations.IsSymbolicLink(galgame.SavePath)) //目前在云端
         {
             await Task.Run(() =>
             {
@@ -645,23 +645,22 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             var remoteRoot = await LocalSettingsService.ReadSettingAsync<string>(KeyValues.RemoteFolder);
             if (string.IsNullOrEmpty(remoteRoot))
             {
-                ContentDialog dialog = new()
-                {
-                    XamlRoot = App.MainWindow!.Content.XamlRoot,
-                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
-                    Title = "Error".GetLocalized(),
-                    Content = "GalgameCollectionService_CloudRootNotSet".GetLocalized(),
-                    PrimaryButtonText = "Yes".GetLocalized()
-                };
-                await dialog.ShowAsync();
+                _infoService.Info(InfoBarSeverity.Error, msg:"GalgameCollectionService_CloudRootNotSet".GetLocalized());
                 return;
             }
             var localSavePath = await GetGalgameSaveAsync(galgame);
             if (localSavePath == null) return;
+            if (FolderOperations.IsSymbolicLink(localSavePath))
+            {
+                _infoService.Info(InfoBarSeverity.Warning, msg:"GalgameCollectionService_SavePathIsSymbolicLink".GetLocalized());
+                galgame.SavePath = localSavePath;
+                await SaveGalgameAsync(galgame);
+                return;
+            }
+            
             var tmp = localSavePath[..localSavePath.LastIndexOf('\\')];
             var target = tmp[tmp.LastIndexOf('\\')..] + localSavePath[localSavePath.LastIndexOf('\\')..];
             remoteRoot += target;
-
             try
             {
                 if (new DirectoryInfo(remoteRoot).Exists) //云端已存在同名文件夹
@@ -687,7 +686,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     }
                     else if (choose == 2)
                     {
-                        new DirectoryInfo(localSavePath).Delete(true); //删除本地文件夹
+                        FolderOperations.Delete(localSavePath); //删除本地文件夹
                         FolderOperations.CreateSymbolicLink(localSavePath, remoteRoot);
                     }
                 }
@@ -697,8 +696,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             }
             catch (Exception e) //创建符号链接失败，把存档复制回去
             {
-                if(Directory.Exists(localSavePath))
-                    Directory.Delete(localSavePath, true);
+                if(Directory.Exists(localSavePath)) FolderOperations.Delete(localSavePath);
                 FolderOperations.Copy(remoteRoot, localSavePath);
                 //弹出提示框
                 StackPanel stackPanel = new();

@@ -81,7 +81,7 @@ public class GetGalgameInSourceTask : BgTaskBase
                 catch (Exception e)
                 {
                     itemResult.ResultType = ScanResultType.Failed;
-                    itemResult.Message = e.Message;
+                    itemResult.Message = e.ToString();
                 }
                 scanResult.Results.Add(itemResult);
             }

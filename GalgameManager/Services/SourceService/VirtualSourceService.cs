@@ -3,7 +3,7 @@ using GalgameManager.Models;
 
 namespace GalgameManager.Services;
 
-public class VirtualSource : ISourceScanResultService
+public class VirtualSourceService : ISourceScanResultService
 {
     public void SaveScanResult(GalgameScanResult scanResult)
     {

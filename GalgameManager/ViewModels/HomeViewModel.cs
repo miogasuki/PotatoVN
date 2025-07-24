@@ -441,11 +441,11 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         catch (Exception e)
         {
             infoBarSeverity = InfoBarSeverity.Error;
-            msg = e.Message;
+            msg = e.ToString();
         }
 
         IsPhrasing = false;
-        _infoService.Info(infoBarSeverity, msg);
+        _infoService.Info(infoBarSeverity, msg: msg);
     }
 
     private void OnGalgameServicePhrased() => IsPhrasing = false;
@@ -484,7 +484,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         }
         catch (Exception e)
         {
-            _infoService.Info(InfoBarSeverity.Error, msg: e.Message);
+            _infoService.Info(InfoBarSeverity.Error, msg: e.ToString());
         }
     }
 

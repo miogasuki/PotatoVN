@@ -89,6 +89,7 @@ public class LocalFolderSourceService : IGalgameSourceService
         if (!Directory.Exists(metaFolderPath)) return null; // 不存在备份文件夹
         Galgame meta = _fileService.Read<Galgame>(metaFolderPath, "meta.json")!;
         if (meta is null) throw new PvnException("meta.json not exist");
+        _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
         meta.ImagePath.ForceSet(LoadImg(meta.ImagePath.Value, metaFolderPath));
         foreach (GalgameCharacter character in meta.Characters)
         {

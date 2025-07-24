@@ -16,6 +16,7 @@ public static class SourceServiceFactory
             GalgameSourceType.LocalFolder => App.GetService<LocalFolderSourceService>(),
             GalgameSourceType.UnKnown => throw new ArgumentException("UnKnow source"),
             GalgameSourceType.LocalZip => throw new NotImplementedException(),
+            GalgameSourceType.Virtual => App.GetService<VirtualSourceService>(),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         SourceServices[type] = value;

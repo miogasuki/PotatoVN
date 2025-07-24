@@ -94,6 +94,7 @@ This section highlights important files and directories specific to the client a
         *   `MuteInBackground` (bool): A per-game setting to determine if the game audio should be muted when the application is not in the foreground.
         *   `PvnUpdate` (bool): A flag indicating if the game's data needs to be synced with the server.
         *   `PvnUploadProperties` (enum `PvnUploadProperties`): A flags enum specifying which particular properties of the game need to be uploaded to the server. The `PlayTime` flag is used to indicate that `PlayedTime`, `TotalPlayTime`, and `PlayCount` should be synced.
+        *   `Ids` (string?[]): An array storing IDs from different data sources (Bangumi, VNDB, etc.). The array size is defined by `PhraserNumber` constant. All methods accessing this array include bounds checking to prevent `IndexOutOfRangeException` for legacy data with smaller arrays.
 *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.

@@ -691,7 +691,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         foreach(Galgame game in _galgameCollectionService.Galgames)
         foreach (GalgameSourceBase source in game.Sources)
         {
-            RemoveMetaBackupProgress = "SettingsPage_Library_RemoveMetaBackupProgress".GetLocalized(game.Name);
+            RemoveMetaBackupProgress = "SettingsPage_Library_RemoveMetaBackupProgress".GetLocalized(game.Name.Value ?? Empty);
             await SourceServiceFactory.GetSourceService(source.SourceType).RemoveMetaAsync(game);
         }
         RemoveMetaBackupProgress = "Done!";

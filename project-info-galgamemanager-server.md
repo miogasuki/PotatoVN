@@ -57,7 +57,7 @@ This document provides a detailed overview of the `GalgameManager.Server` applic
 *   **`Data/`**:
     *   **`DataContext.cs`**: The Entity Framework Core `DbContext` class. Defines the database schema and provides access to tables (`DbSet` properties like `Galgames`, `Users`, `PlayLogs`).
 *   **`Models/`**: Contains data model classes (entities) that map to database tables and DTOs (Data Transfer Objects) used for API communication.
-    *   **`Galgame.cs`**: The EF Core entity representing a game in the database. Contains properties like `Name`, `Developer`, `PlayType`, `TotalPlayTime`, `PlayCount`, and a collection of `PlayLog` entities.
+    *   **`Galgame.cs`**: The EF Core entity representing a game in the database. Contains properties like `Name`, `Developer`, `PlayType`, `TotalPlayTime`, `PlayCount`, `HeaderImageUrl`, `HeaderImageOssPosition` and a collection of `PlayLog` entities.
     *   **`User.cs`**: Entity for user information.
     *   **`PlayLog.cs`**: Entity representing a single play session record (date and duration in minutes). Linked to a `Galgame`.
     *   **`Character.cs`**: Entity for game character information.
@@ -65,8 +65,8 @@ This document provides a detailed overview of the `GalgameManager.Server` applic
     *   **`Dtos/`**: Contains Data Transfer Objects.
         *   **`ServerInfoDto.cs`**: DTO for server information. Includes properties like `BangumiOAuth2Enable`, `DefaultLoginEnable`, `BangumiLoginEnable`, `GalgameStaffAvailable`, `StaffEnable`, and `ServerVersion`. The `ServerVersion` is read from the assembly's `InformationalVersion`.
         *   **`GalgameDto.cs`**:
-            *   `GalgameDto`: Used for sending game data *to* the client.
-            *   `GalgameUpdateDto`: Used for receiving game update data *from* the client. This DTO includes properties like `Id`, `Name`, `PlayType`, `TotalPlayTime`, `PlayCount`, and `PlayTime` (as `List<PlayLogDto>`). It's important that this DTO matches the structure expected by the client's generated API code.
+            *   `GalgameDto`: Used for sending game data *to* the client. It contains `HeaderImageUrl` which is determined by `Galgame.HeaderImageUrl` and `Galgame.HeaderImageOssPosition`.
+            *   `GalgameUpdateDto`: Used for receiving game update data *from* the client. This DTO includes properties like `Id`, `Name`, `PlayType`, `TotalPlayTime`, `PlayCount`, `HeaderImageUrl`, `HeaderImageOssPosition` and `PlayTime` (as `List<PlayLogDto>`). It's important that this DTO matches the structure expected by the client's generated API code.
         *   `PlayLogDto.cs`: DTO for play log entries.
         *   `CharacterDto.cs`, `CharacterUpdateDto.cs`: DTOs for character information.
 *   **`Migrations/`**: Contains Entity Framework Core database migration files, tracking changes to the database schema. Adding `PlayCount` to `Galgame.cs` required a new migration.

@@ -23,6 +23,7 @@ public class GalgameDto(Galgame galgame)
     public float Rating { get; set; } = galgame.Rating;
     public long ReleasedDateTimeStamp { get; set; } = galgame.ReleaseDateTimeStamp;
     public string? ImageUrl { get; set; }
+    public string? HeaderImageUrl { get; set; }
     public List<string>? Tags { get; set; } = galgame.Tags;
     public List<CharacterDto> Characters { get; set; } = [];
     public List<StaffGameDto> Staffs { get; set; } = [];
@@ -43,6 +44,11 @@ public class GalgameDto(Galgame galgame)
     public async Task<GalgameDto> Init(IOssService ossService, int userId, IMapper mapper)
     {
         ImageUrl = await ossService.GetReadPresignedUrlAsync(userId, galgame.ImageLoc ?? string.Empty);
+        if (!string.IsNullOrEmpty(galgame.HeaderImageUrl))
+            HeaderImageUrl = galgame.HeaderImageUrl;
+        else if (!string.IsNullOrEmpty(galgame.HeaderImageOssPosition))
+            HeaderImageUrl = await ossService.GetReadPresignedUrlAsync(userId, galgame.HeaderImageOssPosition);
+        
         foreach (Character c in galgame.Characters)
         {
             CharacterDto characterDto = mapper.Map<CharacterDto>(c);
@@ -67,6 +73,8 @@ public class GalgameUpdateDto
     public float? Rating { get; set; }
     public long? ReleaseDateTimeStamp { get; set; }
     public string? ImageLoc { get; set; }
+    public string? HeaderImageExternalUrl { get; set; }
+    public string? HeaderImageOssLoc { get; set; }
     public List<string>? Tags { get; set; }
     public int? TotalPlayTime { get; set; }
     public PlayType? PlayType { get; set; }

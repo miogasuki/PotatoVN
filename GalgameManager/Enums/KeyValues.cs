@@ -70,6 +70,7 @@ public static class KeyValues
     public const string ToDeleteGames = "toDeleteGames"; //List<int>, 待删除的游戏id
     public const string SyncGameCharacters = "syncGameCharacters"; //bool, 是否同步游戏角色
     public const string SyncStaff = "syncStaff"; //bool, 是否同步staff
+    public const string SyncHeaderImage = "syncHeaderImage"; //bool, 是否同步header图
     public const string ToDeleteStaff = "toDeleteStaff"; //List<int>, 待删除的staff pvn id
     
     //搜刮设置

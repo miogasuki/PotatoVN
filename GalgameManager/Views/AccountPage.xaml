@@ -61,6 +61,9 @@
                                 <views:SettingToggleSwitch
                                     x:Uid="AccountPage_Pvn_SyncStaff"
                                     IsOn="{x:Bind ViewModel.PvnSyncStaffs, Mode=TwoWay}" />
+                                <views:SettingToggleSwitch
+                                    x:Uid="AccountPage_Pvn_SyncHeaderImage"
+                                    IsOn="{x:Bind ViewModel.PvnSyncHeaderImages, Mode=TwoWay}" />
                             </StackPanel>
                         </control:Panel>
                         <!-- 云存储空间 -->

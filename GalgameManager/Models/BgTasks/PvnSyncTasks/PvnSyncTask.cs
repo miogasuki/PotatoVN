@@ -331,6 +331,26 @@ public class PvnSyncTask : BgTaskBase
             if (ossPath is not null) payload.ImageLoc = ossPath;
         }
 
+        if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.HeaderImageLoc) &&
+            !string.IsNullOrEmpty(galgame.HeaderImagePath.Value) &&
+            await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
+        {
+            if (string.IsNullOrEmpty(galgame.HeaderImageUrl)) //由用户手动指定的header Image
+            {
+                var ossPath = await _pvnService.UploadFileAsync(galgame.HeaderImagePath.Value, $"{galgame.Name.Value}/header", e =>
+                {
+                    _infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning,
+                        "PvnService_UploadImageFailed".GetLocalized(galgame.Name.Value ?? string.Empty), e);
+                });
+                if (ossPath is not null) payload.HeaderImageOssLoc = ossPath;
+            }
+            else
+            {
+                // Use external URL
+                payload.HeaderImageExternalUrl = galgame.HeaderImageUrl;
+            }
+        }
+
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Review))
         {
             payload.PlayType = (PotatoVN.Client.Model.PlayType)(int)galgame.PlayType;

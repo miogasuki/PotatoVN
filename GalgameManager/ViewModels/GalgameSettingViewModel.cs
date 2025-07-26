@@ -27,6 +27,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     private readonly INavigationService _navigationService;
     private readonly IPvnService _pvnService;
     private readonly IInfoService _infoService;
+    private readonly ILocalSettingsService _settingsService;
     private readonly string[] _searchUrlList = new string[Galgame.PhraserNumber];
     [ObservableProperty] private string _searchUri = "";
     [ObservableProperty] private bool _isPhrasing;
@@ -39,7 +40,8 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     public bool IsLocalGame => Gal.IsLocalGame;
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
-        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService)
+        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService, 
+        ILocalSettingsService settingsService)
     {
         Gal = new Galgame();
         _galService = (GalgameCollectionService)galCollectionService;
@@ -47,6 +49,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         _navigationService = navigationService;
         _pvnService = pvnService;
         _infoService = infoService;
+        _settingsService = settingsService;
         _searchUrlList[(int)RssType.Bangumi] = "https://bgm.tv/subject_search/";
         _searchUrlList[(int)RssType.Vndb] = "https://vndb.org/v/all?sq=";
         _searchUrlList[(int)RssType.Mixed] = "https://bgm.tv/subject_search/";
@@ -164,6 +167,9 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         });
         Gal.HeaderImagePath.Value = targetPath;
         Gal.HeaderImageUrl = null; //置空，让同步服务上传手动指定的图片
+        if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&
+            await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
+            Gal.PvnUploadProperties |= PvnUploadProperties.HeaderImageLoc;
     }
 
     [RelayCommand]

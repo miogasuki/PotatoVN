@@ -46,7 +46,7 @@ public class GalgameDto(Galgame galgame)
         ImageUrl = await ossService.GetReadPresignedUrlAsync(userId, galgame.ImageLoc ?? string.Empty);
         if (!string.IsNullOrEmpty(galgame.HeaderImageUrl))
             HeaderImageUrl = galgame.HeaderImageUrl;
-        else if (!string.IsNullOrEmpty(galgame.HeaderImageOssPosition))
+        if (!string.IsNullOrEmpty(galgame.HeaderImageOssPosition))
             HeaderImageUrl = await ossService.GetReadPresignedUrlAsync(userId, galgame.HeaderImageOssPosition);
         
         foreach (Character c in galgame.Characters)

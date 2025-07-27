@@ -3542,4 +3542,46 @@
   <data name="AccountPage_Pvn_SyncHeaderImage.Description" xml:space="preserve">
     <value>是否在同步时上传/下载游戏Header图</value>
   </data>
+  <data name="AccountPage_Pvn_BatchUpload.Title" xml:space="preserve">
+    <value>批量上传</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload.Description" xml:space="preserve">
+    <value>将所有游戏数据以选定的属性上传到服务器</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload_Button.Content" xml:space="preserve">
+    <value>上传</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Title" xml:space="preserve">
+    <value>批量上传至PotatoVN</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Description.Text" xml:space="preserve">
+    <value>选择要为所有游戏上传的游戏属性：</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Upload" xml:space="preserve">
+    <value>上传</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Infos.Content" xml:space="preserve">
+    <value>游戏信息</value>
+  </data>
+  <data name="PvnBatchUploadDialog_ImageLoc.Content" xml:space="preserve">
+    <value>游戏图片</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Review.Content" xml:space="preserve">
+    <value>评价与评论</value>
+  </data>
+  <data name="PvnBatchUploadDialog_PlayTime.Content" xml:space="preserve">
+    <value>游玩时间与次数</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Character.Content" xml:space="preserve">
+    <value>游戏角色</value>
+  </data>
+  <data name="PvnBatchUploadDialog_HeaderImageLoc.Content" xml:space="preserve">
+    <value>头图</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploading" xml:space="preserve">
+    <value>正在开始批量上传...</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploadStarted" xml:space="preserve">
+    <value>已开始批量上传{1}个游戏中的{0}个</value>
+  </data>
 </root>

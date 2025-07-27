@@ -3028,4 +3028,46 @@ If play time can record correctly, just cancel this popup.
   <data name="AccountPage_Pvn_SyncHeaderImage.Description" xml:space="preserve">
     <value>Upload/download game header images when syncing?</value>
   </data>
+  <data name="AccountPage_Pvn_BatchUpload.Title" xml:space="preserve">
+    <value>Batch Upload</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload.Description" xml:space="preserve">
+    <value>Upload all games data to server with selected properties</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload_Button.Content" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Title" xml:space="preserve">
+    <value>Batch Upload to PotatoVN</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Description.Text" xml:space="preserve">
+    <value>Select which game properties to upload for all games:</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Upload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Infos.Content" xml:space="preserve">
+    <value>Game Information</value>
+  </data>
+  <data name="PvnBatchUploadDialog_ImageLoc.Content" xml:space="preserve">
+    <value>Game Images</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Review.Content" xml:space="preserve">
+    <value>Reviews &amp; Comments</value>
+  </data>
+  <data name="PvnBatchUploadDialog_PlayTime.Content" xml:space="preserve">
+    <value>Play Time &amp; Count</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Character.Content" xml:space="preserve">
+    <value>Game Characters</value>
+  </data>
+  <data name="PvnBatchUploadDialog_HeaderImageLoc.Content" xml:space="preserve">
+    <value>Header Images</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploading" xml:space="preserve">
+    <value>Starting batch upload...</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploadStarted" xml:space="preserve">
+    <value>Batch upload started for {0} of {1} games</value>
+  </data>
 </root>

@@ -3029,4 +3029,46 @@
   <data name="AccountPage_Pvn_SyncHeaderImage.Description" xml:space="preserve">
     <value>同期時にゲームのヘッダー画像をアップロード/ダウンロードしますか？</value>
   </data>
+  <data name="AccountPage_Pvn_BatchUpload.Title" xml:space="preserve">
+    <value>一括アップロード</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload.Description" xml:space="preserve">
+    <value>選択したプロパティですべてのゲームデータをサーバーにアップロード</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload_Button.Content" xml:space="preserve">
+    <value>アップロード</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Title" xml:space="preserve">
+    <value>PotatoVNへ一括アップロード</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Description.Text" xml:space="preserve">
+    <value>すべてのゲームでアップロードするゲームプロパティを選択してください：</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Upload" xml:space="preserve">
+    <value>アップロード</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Infos.Content" xml:space="preserve">
+    <value>ゲーム情報</value>
+  </data>
+  <data name="PvnBatchUploadDialog_ImageLoc.Content" xml:space="preserve">
+    <value>ゲーム画像</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Review.Content" xml:space="preserve">
+    <value>レビューコメント</value>
+  </data>
+  <data name="PvnBatchUploadDialog_PlayTime.Content" xml:space="preserve">
+    <value>プレイ時間・回数</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Character.Content" xml:space="preserve">
+    <value>ゲームキャラクター</value>
+  </data>
+  <data name="PvnBatchUploadDialog_HeaderImageLoc.Content" xml:space="preserve">
+    <value>ヘッダー画像</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploading" xml:space="preserve">
+    <value>一括アップロードを開始中...</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploadStarted" xml:space="preserve">
+    <value>{1}ゲーム中{0}ゲームの一括アップロードを開始しました</value>
+  </data>
 </root>

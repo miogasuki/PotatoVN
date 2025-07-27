@@ -76,23 +76,26 @@ public class PvnSyncTaskPullGame(
                         $"pvn_{item.Id}_header_tmp");
                     if (rawImagePath is not null)
                     {
-                        var finalHeaderPath = Path.Combine((await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
+                        var finalHeaderPath = Path.Combine(
+                            (await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
                             $"{item.Name ?? "unknown"}_Header.png".RemoveInvalidChars());
-                        if (DownloadHelper.IsImageProcessed(rawImagePath))
-                            File.Move(rawImagePath, finalHeaderPath, true);
-                        else
+                        await Task.Run(() =>
                         {
-                            // Image needs processing, apply the same logic as GetHeaderFromRssTask
-                            DownloadHelper.ProcessImage(rawImagePath, finalHeaderPath, true);
-                            if (File.Exists(rawImagePath)) File.Delete(rawImagePath);
-                        }
-                        
-                        await UiThreadInvokeHelper.InvokeAsync(() =>
+                            if (DownloadHelper.IsImageProcessed(rawImagePath))
+                                File.Move(rawImagePath, finalHeaderPath, true);
+                            else
+                            {
+                                // Image needs processing, apply the same logic as GetHeaderFromRssTask
+                                DownloadHelper.ProcessImage(rawImagePath, finalHeaderPath, true);
+                                if (File.Exists(rawImagePath)) File.Delete(rawImagePath);
+                            }
+                        });
+                        if (Utils.IsImageValid(finalHeaderPath))
                         {
                             game.HeaderImagePath.Value = finalHeaderPath;
-                            game.HeaderImageUrl = item.HeaderImageUrl;
                             game.RaisePropertyChanged(nameof(game.HeaderImagePath));
-                        });
+                        }
+                        game.HeaderImageUrl = item.HeaderImageUrl;
                     }
                 }
                 

@@ -7,7 +7,7 @@ using StdPath = System.IO.Path;
 
 namespace GalgameManager.Models.Sources;
 
-public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObject
+public abstract partial class GalgameSourceBase : ObservableObject, IDisplayableGameObject
 {
     /// 当游戏列表发生变化时触发，第二个bool为true时为删除，否则为添加
     public event Action<Galgame, bool>? GalgamesChanged;
@@ -35,6 +35,12 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
     [ObservableProperty] private bool _detect;
     [ObservableProperty] private bool _detectFolderAdd;
     [ObservableProperty] private bool _detectFolderRemove = true;
+    /// 是否可以手动往这个库里添加游戏
+    [JsonIgnore][BsonIgnore] public abstract bool IsGameAddable { get; }
+    /// 是否可以扫描这个库
+    [JsonIgnore][BsonIgnore] public abstract bool IsSourceScanable { get; }
+    /// 是否可以删除这个库
+    [JsonIgnore][BsonIgnore] public abstract bool IsDelectable { get; }
     
     # region LITEDB_MAPPING
     [JsonIgnore] public List<GalgameAndPathDbDto> GalgamesDto
@@ -154,15 +160,6 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
 
     public override string ToString() => Name;
 
-    /// 是否可以手动往这个库里添加游戏
-    public virtual bool IsGameAddable => false;
-    
-    /// 是否可以扫描这个库
-    public virtual bool IsSourceScanable => false;
-    
-    /// 是否可以删除这个库
-    public virtual bool IsDelectable => true;
-
     public void SetNameFromPath()
     {
         try
@@ -188,6 +185,10 @@ public partial class GalgameSourceBase : ObservableObject, IDisplayableGameObjec
     partial void OnDetectFolderRemoveChanged(bool value) => DetectChanged?.Invoke(this);
 }
 
+// 新增Source Type时，请务必实现：
+// 1. GalgameSourceConverter里的ReadJson
+// 2. 其对应的SourceService类（如：LocalFolderSourceService），并把它注册到App里（依赖注入）
+// 3. SourceServiceFactory里获取service相关语句
 public enum GalgameSourceType
 {
     UnKnown,

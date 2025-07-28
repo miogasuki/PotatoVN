@@ -26,7 +26,7 @@ public class GalgameSourceCollectionService(
     private readonly List<JsonConverter> _converters =
     [
         new GalgameAndUidConverter(),
-        new GalgameSourceCustomConverter(),
+        new GalgameSourceConverter(),
     ];
     private ILiteCollection<GalgameSourceBase> _dbSet = null!;
 

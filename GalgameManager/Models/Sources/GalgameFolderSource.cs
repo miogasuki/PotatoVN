@@ -68,6 +68,7 @@ public class GalgameFolderSource : GalgameSourceBase
 
     public override bool IsGameAddable => true;
     public override bool IsSourceScanable => true;
+    public override bool IsDelectable => true;
 
     /// <summary>
     /// 检查是否具有读取文件夹的权限

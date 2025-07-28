@@ -1,10 +1,14 @@
 ﻿using GalgameManager.Enums;
+using LiteDB;
+using Newtonsoft.Json;
+
 namespace GalgameManager.Models.Sources;
 
 public class GalgameAndPath(Galgame game, string path)
 {
     public Galgame Galgame { get; set; } = game;
     public string Path { get; set; } = path;
+    [JsonIgnore][BsonIgnore] 
     public RssType[] RssTypes { get; } = [RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None];
 }
 

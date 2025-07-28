@@ -263,6 +263,12 @@
                                             Visibility="{x:Bind ViewModel.Item.Detect, Mode=OneWay, FallbackValue=0}"/>
                                     </StackPanel>    
                                 </control:Panel>
+                                <!-- 保存元数据备份 -->
+                                <control:Panel>
+                                    <views:SettingToggleSwitch
+                                        x:Uid="GalgameSourcePage_Setting_SaveMetaBackup"
+                                        IsOn="{x:Bind ViewModel.SaveMetadata, Mode=TwoWay, FallbackValue=False}" />
+                                </control:Panel>
                             </StackPanel>
                         </control:SettingExpander.SettingContent>
                     </control:SettingExpander>

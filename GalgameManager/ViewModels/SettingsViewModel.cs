@@ -145,7 +145,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _galgameCollectionService = ((GalgameCollectionService?)galgameService)!;
         _galgameCollectionService.MetaSavedEvent += SetSaveMetaPopUp;
         _searchSubFolder = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SearchChildFolder).Result;
-        _metaBackup = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SaveBackupMetadata).Result;
+        _metaBackup = false;
         _ignoreFetchResult = _localSettingsService.ReadSettingAsync<bool>(KeyValues.IgnoreFetchResult).Result;
         _regex = _localSettingsService.ReadSettingAsync<string>(KeyValues.RegexPattern).Result ?? ".+";
         _regexIndex = _localSettingsService.ReadSettingAsync<int>(KeyValues.RegexIndex).Result;
@@ -656,7 +656,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private string _gameFolderShouldContain;
     [ObservableProperty] private string _regexTryItOut = "";
 
-    partial void OnMetaBackupChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SaveBackupMetadata, value);
+    partial void OnMetaBackupChanged(bool value)
+    {
+        IGalgameSourceCollectionService sourceCollectionService = App.GetService<IGalgameSourceCollectionService>();
+        foreach (GalgameSourceBase source in sourceCollectionService.GetGalgameSources())
+        {
+            source.SaveMetaBackup = value;
+            sourceCollectionService.Save(source);
+        }
+    }
     partial void OnSearchSubFolderChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SearchChildFolder, value);
     partial void OnIgnoreFetchResultChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.IgnoreFetchResult, value);
     

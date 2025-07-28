@@ -66,6 +66,7 @@ public class GalgameSourceCollectionService(
                     $"\n{string.Join('\n', toRemove.Select(s => s.Path))}"));
         }
         await ImportAsync(settingStatus);
+        await MetaBackupSettingsUpgrade(settingStatus);
         // 给Galgame注入Source列表
         foreach (GalgameSourceBase s in _galgameSources)
             foreach (Galgame g in s.GetGalgameList().Where(g => !g.Sources.Contains(s)))
@@ -588,6 +589,29 @@ public class GalgameSourceCollectionService(
         _galgameSources.Add(source);
         Save(source);
         status.GalgameSourceAddVirtualSource = true;
+        await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+    }
+
+    /// <summary>
+    /// 将全局SaveBackupMetadata设置迁移到各个库的SaveMetaBackup属性
+    /// </summary>
+    private async Task MetaBackupSettingsUpgrade(LocalSettingStatus status)
+    {
+        if (status.MetaBackupPerSourceUpgrade) return;
+        try
+        {
+            var globalSetting = await localSettingsService.ReadSettingAsync<bool>(KeyValues.SaveBackupMetadata);
+            foreach (GalgameSourceBase source in _galgameSources)
+            {
+                source.SaveMetaBackup = globalSetting;
+                Save(source);
+            }
+        }
+        catch (Exception e)
+        {
+            infoService.DeveloperEvent(e: e);
+        }
+        status.MetaBackupPerSourceUpgrade = true;
         await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
     }
     

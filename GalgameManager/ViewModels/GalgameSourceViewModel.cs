@@ -44,6 +44,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     [NotifyCanExecuteChangedFor(nameof(GetInfoFromRssCommand), nameof(ScanAllCommand))]
     private bool _canExecute; //是否正在运行命令
     [ObservableProperty] private bool _logExists; //是否存在日志文件
+    [ObservableProperty] private bool _saveMetadata;
 
     [ObservableProperty] private double _titleMaxWidth = 200;
     [ObservableProperty] private double _gameListHeight;
@@ -166,6 +167,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                 LoadGames();
                 value.GalgamesChanged += ReloadGalgameList;
                 value.PropertyChanged += Save;
+                SaveMetadata = value.SaveMetaBackup;
             }
             OnPropertyChanged(nameof(LogExists));
         }
@@ -712,5 +714,39 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             _settingsService.SaveSettingAsync(KeyValues.GalgameSourcePageShowSubSourceGames, value);
             LoadGames();
         }
+    }
+
+    async partial void OnSaveMetadataChanged(bool value)
+    {
+        try
+        {
+            if (Item == null) return; //不应该发生
+            if (value == Item.SaveMetaBackup) return;
+            Item.SaveMetaBackup = value;
+            if (value)
+            {
+                foreach (Galgame galgame in Item.GetGalgameList())
+                {
+                    _infoService.Info(InfoBarSeverity.Informational,
+                        msg: "GalgameSourcePage_SavingMeta".GetLocalized(galgame.Name.Value ?? string.Empty));
+                    await _galgameService.SaveGalgameMetaAsync(galgame, Item);
+                }
+                _infoService.Info(InfoBarSeverity.Success, msg: "GalgameSourcePage_SaveMetaSuccess".GetLocalized());
+            }
+            else
+            {
+                foreach (Galgame game in Item.GetGalgameList())
+                {
+                    _infoService.Info(InfoBarSeverity.Informational,
+                        msg: "GalgameSourcePage_RemovingMeta".GetLocalized(game.Name.Value ?? string.Empty));
+                    await SourceServiceFactory.GetSourceService(Item.SourceType).RemoveMetaAsync(game);
+                }
+                _infoService.Info(InfoBarSeverity.Success, msg: "GalgameSourcePage_RemoveMetaSuccess".GetLocalized());
+            }
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, msg: e.ToString());
+        } 
     }
 }

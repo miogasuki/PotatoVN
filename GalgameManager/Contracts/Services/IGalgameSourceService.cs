@@ -22,9 +22,11 @@ public interface IGalgameSourceService
     public BgTaskBase MoveOutAsync(GalgameSourceBase target, Galgame game);
 
     /// <summary>
-    /// 在库中保存游戏的Meta
+    /// 在库中保存游戏的Meta，内部应自行处理不需要保存Meta的源
     /// </summary>
-    public Task SaveMetaAsync(Galgame game);
+    /// <param name="game">要保存的游戏</param>
+    /// <param name="targetSource">指定要保存哪个库，如果不填，则保存所有该service能负责的库</param>
+    public Task SaveMetaAsync(Galgame game, GalgameSourceBase? targetSource = null);
 
     /// <summary>
     /// 从游戏文件夹游戏Meta，若不存在则返回null

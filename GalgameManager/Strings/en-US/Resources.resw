@@ -3076,4 +3076,10 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSourcePage_Setting_CheckOnStart.Description" xml:space="preserve">
     <value>Check if the library and games still exist when starting the application. Disable to skip checking non-existent libraries and games.</value>
   </data>
+  <data name="GalgameSourcePage_Setting_SaveMetaBackup.Title" xml:space="preserve">
+    <value>Save metadata backup</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_SaveMetaBackup.Description" xml:space="preserve">
+    <value>Save game metadata within the game folder for this library (.PotatoVN folder)</value>
+  </data>
 </root>

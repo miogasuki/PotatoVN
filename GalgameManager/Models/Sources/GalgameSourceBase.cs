@@ -39,6 +39,8 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     [ObservableProperty] private bool _detect;
     [ObservableProperty] private bool _detectFolderAdd;
     [ObservableProperty] private bool _detectFolderRemove = true;
+    /// 是否保存meta备份（包括meta.json和封面图）
+    [ObservableProperty] private bool _saveMetaBackup = false;
     /// 是否可以手动往这个库里添加游戏
     [JsonIgnore][BsonIgnore] public abstract bool IsGameAddable { get; }
     /// 是否可以扫描这个库

@@ -48,11 +48,12 @@ public class LocalFolderSourceService : IGalgameSourceService
         return new LocalFolderSourceMoveOutTask(game, target);
     }
 
-    public async Task SaveMetaAsync(Galgame game)
+    public async Task SaveMetaAsync(Galgame game, GalgameSourceBase? targetSource = null)
     {
         if (!game.CheckExistLocal()) return;
-        foreach (GalgameFolderSource source in game.Sources.OfType<GalgameFolderSource>())
+        foreach (GalgameFolderSource source in game.Sources.OfType<GalgameFolderSource>().Where(s => s.SaveMetaBackup))
         {
+            if (targetSource is not null && source != targetSource) continue; //如果指定了目标源，则只保存到该源
             var folderPath = source.GetPath(game)!;
             var metaPath = Path.Combine(folderPath, ".PotatoVN");
             if (!Directory.Exists(metaPath)) Directory.CreateDirectory(metaPath);

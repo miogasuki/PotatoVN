@@ -110,6 +110,16 @@ public interface IGalgameCollectionService
     /// 如果设置中没有打开保存备份则不会保存到游戏文件夹
     /// </param>
     public Task SaveGalgameAsync(Galgame galgame);
+    
+    /// <summary>
+    /// 保存galgame的Meta信息<br/>
+    /// 若库没有打开保存Meta信息，则对应的库什么也不会发生
+    /// </summary>
+    /// <param name="galgame">要保存的游戏</param>
+    /// <param name="targetSource">要保存到的库，如果不指定则保存到所有库</param>
+    /// <exception cref="PvnException">targetSource不是null且不包含galgame</exception>
+    /// <returns></returns>
+    public Task SaveGalgameMetaAsync(Galgame galgame, GalgameSourceBase? targetSource = null);
 
     /// <summary>
     /// 从信息源中搜刮游戏信息，会直接修改传入的galgame <br/>

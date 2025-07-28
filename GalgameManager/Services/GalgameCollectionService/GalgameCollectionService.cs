@@ -529,8 +529,15 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     public async Task SaveGalgameAsync(Galgame galgame)
     {
         _dbSet.Upsert(galgame);
-        if (await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.SaveBackupMetadata))
-            await SaveMetaAsync(galgame);
+        await SaveMetaAsync(galgame);
+    }
+    
+    public Task SaveGalgameMetaAsync(Galgame galgame, GalgameSourceBase? targetSource = null)
+    {
+        if (targetSource is null) return SaveMetaAsync(galgame);
+        if (!targetSource.Contain(galgame))
+            throw new PvnException($"{targetSource.Name} does not contain {galgame.Name.Value}");
+        return SourceServiceFactory.GetSourceService(targetSource.SourceType).SaveMetaAsync(galgame, targetSource);
     }
     
     /// <summary>

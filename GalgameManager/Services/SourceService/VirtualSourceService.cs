@@ -11,7 +11,7 @@ public class VirtualSourceService : IGalgameSourceService
 
     public BgTaskBase MoveOutAsync(GalgameSourceBase target, Galgame game) => BgTaskBase.Empty;
 
-    public Task SaveMetaAsync(Galgame game) => Task.CompletedTask;
+    public Task SaveMetaAsync(Galgame game, GalgameSourceBase? targetSource = null) => Task.CompletedTask;
 
     public Task<Galgame?> LoadMetaAsync(string path) => Task.FromResult<Galgame?>(null);
 

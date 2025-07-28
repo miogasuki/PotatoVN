@@ -14,7 +14,6 @@ public static class KeyValues
     public const string GameFolderMustContain = "gameFolderMustContain";
     public const string GameFolderShouldContain = "gameFolderShouldContain";
     public const string FaqLastUpdate = "faqLastUpdate";
-    public const string SaveBackupMetadata = "saveBackupMetadata";
     public const string DisplayedUpdateVersion = "displayedUpdateVersion";
     public const string CustomPasswordSaverName = "PotatoVN";
     public const string CustomPasswordDisplayName = "CustomPassword";
@@ -158,4 +157,5 @@ public static class KeyValues
     public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
     public const string SearchChildFolderDepth = "searchChildFolderDepth"; //int, 搜索子文件夹的深度，默认是0（不搜索），新版本改成智能搜索，不需要这个了
     public const string UpdateBatchPath = "UpdateBatchPath";
+    public const string SaveBackupMetadata = "saveBackupMetadata"; //bool, 是否备份元数据到存档文件夹（原来是全局设置，新版本改成支持各个库独立设置了）
 }

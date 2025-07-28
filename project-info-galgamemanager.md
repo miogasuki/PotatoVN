@@ -49,6 +49,7 @@ The client application implements the core functionalities of PotatoVN:
           * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
           * Usage:
               ```bash
+            cd GalgameManager/Strings #重要，这个脚本应该在Strings目录下运行
               # 搜索所有包含 "Theme" 的key
             python resw_tool.py search "*Theme*"
             # 搜索以 "Settings_" 开头的key
@@ -80,6 +81,7 @@ This section highlights important files and directories specific to the client a
     *   `ShellEventViewModel.cs` (within `ShellViewModel.cs`): Represents an event notification displayed in the shell. It now includes `CallbackAction` and `CallbackButtonText` properties, along with an `ExecuteCallbackCommand` to invoke the action.
 *   **`Views/`**: Contains XAML files defining the user interface pages and controls. Each View typically corresponds to a ViewModel.
     *   `SettingsPage.xaml`: Contains the UI for application settings, including the "Magpie executable path" setting in the "Game" section.
+    *   `GalgameSourcePage.xaml`: Contains the UI for individual game library configuration, including settings for auto-scan, auto-add/remove games, and per-library SaveMetaBackup toggle.
     *   `ShellPage.xaml`: The main shell of the application. Its `ItemsRepeater` for displaying event notifications now includes a `HyperlinkButton` that is visible when `CallbackButtonText` is provided in the `ShellEventViewModel`. This button is bound to the `ExecuteCallbackCommand` and uses `VisibilityHelper.Convert` for its visibility.
     *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
 *   **`Models/`**: Contains data model classes representing the entities and data structures used within the client.
@@ -91,6 +93,7 @@ This section highlights important files and directories specific to the client a
         *   `ScanOnStart` (bool): Whether to automatically scan this library when the application starts.
         *   `CheckOnStart` (bool): Whether to check if the library and games still exist when starting the application. When disabled, the application will skip checking for non-existent libraries and games during startup, which can be useful for libraries on removable drives or network locations that may not always be available.
         *   `Detect` (bool): Whether to enable automatic detection of changes in the library folder.
+        *   `SaveMetaBackup` (bool): Whether to save meta backup (meta.json and cover images) for games in this source. Defaults to false. This replaced the global `SaveBackupMetadata` setting to allow per-source control of meta backup functionality.
         *   Derived classes include `GalgameFolderSource`, `GalgameZipSource`, and `VirtualSource`.
     *   **`Galgame.cs`**: A key model representing a game. It includes various properties like `Name`, `ImagePath`, as well as fields for tracking play history such as:
         *   `PlayedTime` (Dictionary<string, int>): Stores individual play sessions, mapping a date string to play duration in minutes.

@@ -6,9 +6,15 @@
 public partial class VirtualSource : GalgameSourceBase
 {
     public override GalgameSourceType SourceType => GalgameSourceType.Virtual;
+    public override bool CanChangeCheckOnStart => false;
     public override bool IsGameAddable => false;
     public override bool IsSourceScanable => false;
     public override bool IsDelectable => false;
+
+    public VirtualSource()
+    {
+        CheckOnStart = false;
+    }
 
     /// <summary>
     /// 根据allGames构造虚拟游戏游戏列表

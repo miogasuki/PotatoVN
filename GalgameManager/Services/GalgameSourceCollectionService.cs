@@ -50,9 +50,9 @@ public class GalgameSourceCollectionService(
                     "GalgameSourceCollectionService_InitAsync_GalgameIsNull".GetLocalized(g.Path, source.Url));
             }
         }
-        // 去除找不到的库
+        // 去除找不到的库（只对启用了启动检查的库进行检查）
         List<GalgameSourceBase> toRemove = _galgameSources.Where(source =>
-            source.SourceType == GalgameSourceType.LocalFolder && !Directory.Exists(source.Path)).ToList();
+            source is { CheckOnStart: true, SourceType: GalgameSourceType.LocalFolder } && !Directory.Exists(source.Path)).ToList();
         if (toRemove.Count > 0)
         {
             foreach (GalgameSourceBase source in toRemove)

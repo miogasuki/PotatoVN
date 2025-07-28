@@ -241,6 +241,12 @@
                                         x:Uid="GalgameSourcePage_Setting_AutoScan"
                                         IsOn="{x:Bind ViewModel.Item.ScanOnStart, Mode=TwoWay, FallbackValue=False}" />
                                 </control:Panel>
+                                <!-- 启动时检查库和游戏是否存在 -->
+                                <control:Panel IsEnabled="{x:Bind ViewModel.Item.CanChangeCheckOnStart}">
+                                    <views:SettingToggleSwitch
+                                        x:Uid="GalgameSourcePage_Setting_CheckOnStart"
+                                        IsOn="{x:Bind ViewModel.Item.CheckOnStart, Mode=TwoWay, FallbackValue=True}" />
+                                </control:Panel>
                                 <!-- 自动添加/取消托管游戏 -->
                                 <control:Panel>
                                     <StackPanel Spacing="12">

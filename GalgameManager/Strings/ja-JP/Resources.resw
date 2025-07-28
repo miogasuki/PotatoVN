@@ -3071,4 +3071,10 @@
   <data name="AccountPage_Pvn_BatchUploadStarted" xml:space="preserve">
     <value>{1}ゲーム中{0}ゲームの一括アップロードを開始しました</value>
   </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Title" xml:space="preserve">
+    <value>起動時にチェック</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Description" xml:space="preserve">
+    <value>アプリケーション起動時にライブラリとゲームがまだ存在するかどうかをチェックします。無効にすると、存在しないライブラリとゲームのチェックをスキップします。</value>
+  </data>
 </root>

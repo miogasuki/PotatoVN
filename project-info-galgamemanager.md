@@ -87,6 +87,11 @@ This section highlights important files and directories specific to the client a
         *   `GalgameScanResult`: Represents the overall result of a scan operation for a specific source, including `SourceId`, `SourceName`, `ScanTime`, and a list of individual path results. Stored in LiteDB.
         *   `PathScanResultItem`: Represents the outcome of scanning a single path, including the `Path`, `ResultType` (e.g., Success, AlreadyExists, Failed), and a `Message`.
         *   `ScanResultType`: Enum defining the possible outcomes for a path scan (Information, Success, AlreadyExists, Failed).
+    *   **`Models/Sources/GalgameSourceBase.cs`**: The base class for all game library sources, containing common properties and functionality:
+        *   `ScanOnStart` (bool): Whether to automatically scan this library when the application starts.
+        *   `CheckOnStart` (bool): Whether to check if the library and games still exist when starting the application. When disabled, the application will skip checking for non-existent libraries and games during startup, which can be useful for libraries on removable drives or network locations that may not always be available.
+        *   `Detect` (bool): Whether to enable automatic detection of changes in the library folder.
+        *   Derived classes include `GalgameFolderSource`, `GalgameZipSource`, and `VirtualSource`.
     *   **`Galgame.cs`**: A key model representing a game. It includes various properties like `Name`, `ImagePath`, as well as fields for tracking play history such as:
         *   `PlayedTime` (Dictionary<string, int>): Stores individual play sessions, mapping a date string to play duration in minutes.
         *   `PlayCount` (int): Stores the total number of times the game has been played.

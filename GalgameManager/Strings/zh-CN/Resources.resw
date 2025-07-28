@@ -3584,4 +3584,10 @@
   <data name="AccountPage_Pvn_BatchUploadStarted" xml:space="preserve">
     <value>已开始批量上传{1}个游戏中的{0}个</value>
   </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Title" xml:space="preserve">
+    <value>启动时检查</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Description" xml:space="preserve">
+    <value>在应用启动时检查库是否仍然存在。关闭此选项将跳过对不存在的库的检查。</value>
+  </data>
 </root>

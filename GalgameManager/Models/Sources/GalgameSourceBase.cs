@@ -26,6 +26,10 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     public string Path { get; set; } = "";
     public virtual GalgameSourceType SourceType => throw new NotImplementedException();
     [ObservableProperty] private bool _scanOnStart;
+    /// 是否在启动时检查库和游戏是否存在
+    [ObservableProperty] private bool _checkOnStart = true;
+    /// 是否能调整CheckOnStart属性
+    [JsonIgnore][BsonIgnore] public abstract bool CanChangeCheckOnStart { get; }
     public virtual string? ExtraData { get; set; }
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string? _imagePath;

@@ -10,6 +10,7 @@ namespace GalgameManager.Models.Sources;
 public class GalgameFolderSource : GalgameSourceBase
 {
     public override GalgameSourceType SourceType =>  GalgameSourceType.LocalFolder;
+    public override bool CanChangeCheckOnStart => true;
 
     public GalgameFolderSource(string path): base(path)
     {

@@ -3070,4 +3070,10 @@ If play time can record correctly, just cancel this popup.
   <data name="AccountPage_Pvn_BatchUploadStarted" xml:space="preserve">
     <value>Batch upload started for {0} of {1} games</value>
   </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Title" xml:space="preserve">
+    <value>Check on startup</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Description" xml:space="preserve">
+    <value>Check if the library and games still exist when starting the application. Disable to skip checking non-existent libraries and games.</value>
+  </data>
 </root>

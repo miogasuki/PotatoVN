@@ -26,6 +26,8 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     public string Path { get; set; } = "";
     public virtual GalgameSourceType SourceType => throw new NotImplementedException();
     [ObservableProperty] private bool _scanOnStart;
+    /// 是否能调整ScanOnStart属性
+    [JsonIgnore][BsonIgnore] public abstract bool CanChangeScanOnStart { get; }
     /// 是否在启动时检查库和游戏是否存在
     [ObservableProperty] private bool _checkOnStart = true;
     /// 是否能调整CheckOnStart属性
@@ -39,8 +41,12 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     [ObservableProperty] private bool _detect;
     [ObservableProperty] private bool _detectFolderAdd;
     [ObservableProperty] private bool _detectFolderRemove = true;
+    /// 是否可以调整Detect（监听）属性
+    [JsonIgnore][BsonIgnore] public abstract bool CanChangeDetect { get; }
     /// 是否保存meta备份（包括meta.json和封面图）
     [ObservableProperty] private bool _saveMetaBackup = false;
+    /// 是否可以调整SaveMetaBackup属性
+    [JsonIgnore][BsonIgnore] public abstract bool CanChangeSaveMetaBackup { get; }
     /// 是否可以手动往这个库里添加游戏
     [JsonIgnore][BsonIgnore] public abstract bool IsGameAddable { get; }
     /// 是否可以扫描这个库

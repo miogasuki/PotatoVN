@@ -6,7 +6,14 @@
 public partial class VirtualSource : GalgameSourceBase
 {
     public override GalgameSourceType SourceType => GalgameSourceType.Virtual;
+
+    public override bool CanChangeScanOnStart => false;
+
     public override bool CanChangeCheckOnStart => false;
+
+    public override bool CanChangeDetect => false;
+    public override bool CanChangeSaveMetaBackup => false;
+
     public override bool IsGameAddable => false;
     public override bool IsSourceScanable => false;
     public override bool IsDelectable => false;

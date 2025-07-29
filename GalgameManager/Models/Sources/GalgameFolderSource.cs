@@ -7,10 +7,9 @@ using SystemPath = System.IO.Path;
 namespace GalgameManager.Models.Sources;
 
 
-public class GalgameFolderSource : GalgameSourceBase
+public partial class GalgameFolderSource : GalgameSourceBase
 {
     public override GalgameSourceType SourceType =>  GalgameSourceType.LocalFolder;
-    public override bool CanChangeCheckOnStart => true;
 
     public GalgameFolderSource(string path): base(path)
     {
@@ -67,6 +66,10 @@ public class GalgameFolderSource : GalgameSourceBase
         }
     }
 
+    public override bool CanChangeScanOnStart => true;
+    public override bool CanChangeCheckOnStart => true;
+    public override bool CanChangeDetect => true;
+    public override bool CanChangeSaveMetaBackup => true;
     public override bool IsGameAddable => true;
     public override bool IsSourceScanable => true;
     public override bool IsDelectable => true;

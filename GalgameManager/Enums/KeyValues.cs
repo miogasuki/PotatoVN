@@ -121,6 +121,7 @@ public static class KeyValues
     
     //消息通知相关 (最小化到托盘时是否通知/全局消息通知)
     public const string NotifyWhenGetGalgameInFolder = "notifyWhenGetGalgameInFolder"; //bool, 完成获取文件夹内游戏
+    public const string EventGetGalgameInFolderEmpty = "eventGetGalgameInFolderEmpty"; //bool, 是否通知扫描游戏空事件（即没有新游戏）
     public const string NotifyWhenUnpackGame = "notifyWhenUnpackGame"; //bool, 完成解压游戏
     public const string EventPvnSyncNotify = "eventPvnSyncNotify"; //bool, 是否通知PotatoVN同步事件
     public const string EventPvnSyncEmptyNotify = "eventPvnSyncEmptyNotify"; //bool, 是否通知PotatoVN同步空事件（即已是最新）

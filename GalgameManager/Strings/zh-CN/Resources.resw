@@ -1491,7 +1491,7 @@
     <value>暂无运行消息</value>
   </data>
   <data name="GetGalgameInFolderTask_Title" xml:space="preserve">
-    <value>扫描文件夹任务</value>
+    <value>扫描文件夹任务：{0}</value>
   </data>
   <data name="RecordPlayTimeTask_Title" xml:space="preserve">
     <value>记录游戏时长任务</value>
@@ -3610,5 +3610,20 @@
   </data>
   <data name="GalgameSourcePage_RemoveMetaSuccess" xml:space="preserve">
     <value>成功删除本库各游戏信息备份，后续不再自动保存</value>
+  </data>
+  <data name="SettingsPage_Notification_GetGalgameFolder_Empty.Title" xml:space="preserve">
+    <value>游戏扫描空事件通知</value>
+  </data>
+  <data name="SettingsPage_Notification_GetGalgameFolder_Empty.Description" xml:space="preserve">
+    <value>当扫描游戏库未发现新游戏时，是否提醒</value>
+  </data>
+  <data name="GalgameSourceType_LocalFolder_Removeable" xml:space="preserve">
+    <value>可移动介质</value>
+  </data>
+  <data name="GalgameSourceType_LocalFolder_Net" xml:space="preserve">
+    <value>网络存储器</value>
+  </data>
+  <data name="GalgameFolder_GetGalInFolder_GettingPaths" xml:space="preserve">
+    <value>尝试连接游戏库中</value>
   </data>
 </root>

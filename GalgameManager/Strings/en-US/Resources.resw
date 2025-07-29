@@ -1391,7 +1391,7 @@ If play time can record correctly, just cancel this popup.
     <value>No operation messages.</value>
   </data>
   <data name="GetGalgameInFolderTask_Title" xml:space="preserve">
-    <value>Scan Folder Task</value>
+    <value>Scan Folder Task: {0}</value>
   </data>
   <data name="RecordPlayTimeTask_Title" xml:space="preserve">
     <value>Record Play Time Task</value>

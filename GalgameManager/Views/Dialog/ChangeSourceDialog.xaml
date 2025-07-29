@@ -13,7 +13,7 @@
     Style="{ThemeResource DefaultContentDialogStyle}">
 
     <ContentDialog.Resources>
-        <converter:SourceTypeToGlyphConverter x:Key="SourceTypeGlyph" />
+        <converter:SourceToGlyphConverter x:Key="SourceTypeGlyph" />
         <converter:EnumToStringConverter x:Key="EnumToString" />
         <converter:AnyToVisibilityConverter x:Key="AnyToVisibility" />
     </ContentDialog.Resources>

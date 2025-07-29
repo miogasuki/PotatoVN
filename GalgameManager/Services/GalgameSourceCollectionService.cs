@@ -67,6 +67,7 @@ public class GalgameSourceCollectionService(
         }
         await ImportAsync(settingStatus);
         await MetaBackupSettingsUpgrade(settingStatus);
+        await RemoveableUpgrade(settingStatus);
         // 给Galgame注入Source列表
         foreach (GalgameSourceBase s in _galgameSources)
             foreach (Galgame g in s.GetGalgameList().Where(g => !g.Sources.Contains(s)))
@@ -184,7 +185,7 @@ public class GalgameSourceCollectionService(
             case GalgameSourceType.UnKnown:
                 throw new ArgumentOutOfRangeException(nameof(sourceType), sourceType, null);
             case GalgameSourceType.LocalFolder:
-                galgameSource = new GalgameFolderSource(path);
+                galgameSource = new GalgameFolderSource(path).UpdateRemoveable();
                 break;
             case GalgameSourceType.LocalZip:
                 galgameSource = new GalgameZipSource(path);
@@ -613,6 +614,29 @@ public class GalgameSourceCollectionService(
         }
         status.MetaBackupPerSourceUpgrade = true;
         await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+    }
+
+    /// <summary>
+    /// 检测每个库是否为可移动介质升级
+    /// </summary>
+    /// <param name="status"></param>
+    private async Task RemoveableUpgrade(LocalSettingStatus status)
+    {
+        if (status.GalgameSourceRemoveableUpgrade) return;
+        try
+        {
+            foreach (GalgameSourceBase source in _galgameSources)
+            {
+                if (source is not GalgameFolderSource folderSource) continue;
+                folderSource.UpdateRemoveable();
+            }
+            status.GalgameSourceRemoveableUpgrade = true;
+            await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+        }
+        catch (Exception e)
+        {
+            infoService.DeveloperEvent(e: e);
+        }
     }
     
     #endregion

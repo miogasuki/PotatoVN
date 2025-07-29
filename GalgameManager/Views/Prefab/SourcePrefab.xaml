@@ -11,8 +11,8 @@
     Height="160" MinWidth="120">
 
     <UserControl.Resources>
-        <converter:EnumToStringConverter x:Key="EnumStringConverter" />
-        <converter:SourceTypeToGlyphConverter x:Key="SourceTypeGlyphConverter" />
+        <converter:SourceToGlyphConverter x:Key="SourceTypeGlyphConverter" />
+        <converter:SourceToDescriptionStrConverter x:Key="SourceToDescriptionStrConverter"/>
     </UserControl.Resources>
 
     <Grid
@@ -34,7 +34,7 @@
                         <prefab:SourcePrefabTemplateSelector.FontIconTemplate>
                             <DataTemplate x:DataType="sources:GalgameSourceBase">
                                 <FontIcon
-                                    Glyph="{x:Bind SourceType, Mode=OneWay, 
+                                    Glyph="{x:Bind Mode=OneWay, 
                                         Converter={StaticResource SourceTypeGlyphConverter}}"
                                     FontFamily="Segoe Fluent Icons"
                                     FontSize="50" />
@@ -65,8 +65,8 @@
                 MaxHeight="85"
                 HorizontalAlignment="Center" VerticalAlignment="Bottom"
                 Style="{ThemeResource DescriptionTextStyle}"
-                Text="{x:Bind Source.SourceType, Mode=OneWay, 
-                    Converter={StaticResource EnumStringConverter},
+                Text="{x:Bind Source, Mode=OneWay, 
+                    Converter={StaticResource SourceToDescriptionStrConverter},
                     FallbackValue={x:Null}}" />
         </Grid>
         <!-- 透明控件，确保右键时射线检测能够打到Item上 -->

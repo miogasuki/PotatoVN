@@ -1391,7 +1391,7 @@
     <value>実行中のメッセージはまだありません</value>
   </data>
   <data name="GetGalgameInFolderTask_Title" xml:space="preserve">
-    <value>フォルダーのスキャンタスク</value>
+    <value>フォルダー{0}のスキャンタスク</value>
   </data>
   <data name="RecordPlayTimeTask_Title" xml:space="preserve">
     <value>ゲームプレイ時間記録タスク</value>

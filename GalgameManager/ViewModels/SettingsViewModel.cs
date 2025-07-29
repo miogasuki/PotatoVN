@@ -162,6 +162,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _minToTrayWhenAutoStart = _localSettingsService.ReadSettingAsync<bool>(KeyValues.MinToTrayWhenAutoStart).Result;
         //Notification
         NotifyWhenGetGalgameInFolder = _localSettingsService.ReadSettingAsync<bool>(KeyValues.NotifyWhenGetGalgameInFolder).Result;
+        EventWhenGetGalgameInFolderEmpty = _localSettingsService.ReadSettingAsync<bool>(KeyValues.EventGetGalgameInFolderEmpty).Result;
         NotifyWhenUnpackGame = _localSettingsService.ReadSettingAsync<bool>(KeyValues.NotifyWhenUnpackGame).Result;
         _eventPvnSync = _localSettingsService.ReadSettingAsync<bool>(KeyValues.EventPvnSyncNotify).Result;
         _eventPvnSyncEmpty = _localSettingsService.ReadSettingAsync<bool>(KeyValues.EventPvnSyncEmptyNotify).Result;
@@ -989,6 +990,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region Notification
 
     [ObservableProperty] private bool _notifyWhenGetGalgameInFolder;
+    [ObservableProperty] private bool _eventWhenGetGalgameInFolderEmpty;
     [ObservableProperty] private bool _notifyWhenUnpackGame;
     [ObservableProperty] private bool _eventPvnSync;
     [ObservableProperty] private bool _eventPvnSyncEmpty;
@@ -1005,6 +1007,9 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     partial void OnEventPvnSyncEmptyChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.EventPvnSyncEmptyNotify, value);
+
+    partial void OnEventWhenGetGalgameInFolderEmptyChanged(bool value) =>
+        _localSettingsService.SaveSettingAsync(KeyValues.EventGetGalgameInFolderEmpty, value);
 
     #endregion
 

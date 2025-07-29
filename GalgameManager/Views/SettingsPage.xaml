@@ -578,8 +578,12 @@
                         <StackPanel Style="{StaticResource SettingStackPanelStyle}">
                             <!-- 完成游戏扫描通知 -->
                             <control:Panel>
-                                <local:SettingToggleSwitch x:Uid="SettingsPage_Notification_GetGalgameFolder"
-                                                           IsOn="{x:Bind ViewModel.NotifyWhenGetGalgameInFolder, Mode=TwoWay}"/>
+                                <StackPanel Style="{StaticResource SettingStackPanelStyle}">
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Notification_GetGalgameFolder"
+                                                               IsOn="{x:Bind ViewModel.NotifyWhenGetGalgameInFolder, Mode=TwoWay}"/>
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Notification_GetGalgameFolder_Empty"
+                                                               IsOn="{x:Bind ViewModel.EventWhenGetGalgameInFolderEmpty, Mode=TwoWay}"/>
+                                </StackPanel>
                             </control:Panel>
                             <!-- 完成游戏解压通知 -->
                             <control:Panel>
@@ -588,7 +592,7 @@
                             </control:Panel>
                             <!-- Pvn同步事件通知 -->
                             <control:Panel>
-                                <StackPanel>
+                                <StackPanel Style="{StaticResource SettingStackPanelStyle}">
                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Notification_Pvn" 
                                                                IsOn="{x:Bind ViewModel.EventPvnSync, Mode=TwoWay}"/>
                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Notification_Pvn_Empty"

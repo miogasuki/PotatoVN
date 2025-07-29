@@ -20,6 +20,8 @@ public class LocalSettingStatus
     
     /// GalgameSourceCollectionService, 将全局SaveBackupMetadata设置迁移到各个库的SaveMetaBackup属性
     public bool MetaBackupPerSourceUpgrade = false;
+    /// GalgameSourceCollectionService, 检测现有的每个库是否为可移动库
+    public bool GalgameSourceRemoveableUpgrade = false;
     
     /// CategoryService, v1.8.0, 改变分类中游戏索引格式
     public bool CategoryGameIndexUpgrade = false;   

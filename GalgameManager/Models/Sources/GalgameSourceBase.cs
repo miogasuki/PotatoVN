@@ -159,6 +159,24 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     
     public virtual string GetLogName() => $"Source_{Name.RemoveInvalidChars()}.txt";
 
+    /// <summary>
+    /// 获取这个库的子源列表（包括自己与子库的子库等）
+    /// </summary>
+    /// <returns></returns>
+    public List<GalgameSourceBase> GetSubSourcesRecursive()
+    {
+        List<GalgameSourceBase> result = [];
+        Dfs(this);
+        return result;
+
+        void Dfs(GalgameSourceBase current)
+        {
+            result.Add(current);
+            foreach(GalgameSourceBase subSource in current.SubSources) 
+                Dfs(subSource);
+        }
+    }
+
     public async virtual IAsyncEnumerable<(string? path, string msg)> ScanAllGalgames()
     {
         await Task.CompletedTask;

@@ -118,7 +118,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         
         try
         {
-            await _galService.PhraseGalInfoAsync(Gal);
+            await _galService.ParseGalInfoAsync(Gal);
         }
         catch (Exception e)
         {

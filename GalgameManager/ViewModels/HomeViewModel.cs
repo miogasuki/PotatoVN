@@ -524,7 +524,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         if(galgame == null) return;
         IsPhrasing = true;
-        await _galgameService.PhraseGalInfoAsync(galgame);
+        await _galgameService.ParseGalInfoAsync(galgame);
         IsPhrasing = false;
     }
 

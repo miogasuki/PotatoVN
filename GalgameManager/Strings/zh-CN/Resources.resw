@@ -2595,9 +2595,6 @@
   <data name="Career_Relation_Programmer" xml:space="preserve">
     <value>程序</value>
   </data>
-  <data name="Shell_Staff.Content" xml:space="preserve">
-    <value>制作人员</value>
-  </data>
   <data name="Shell_GalgameCharacter.Content" xml:space="preserve">
     <value>角色介绍</value>
   </data>
@@ -2895,7 +2892,7 @@
   <data name="LibraryPage_GetInfoFromRss_Content" xml:space="preserve">
     <value>下载当前库的所有游戏数据，这需要很长时间来下载所有信息</value>
   </data>
-  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders" xml:space="preserve">
+  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders.Content" xml:space="preserve">
     <value>包括所有子文件夹</value>
   </data>
   <data name="LibraryPage_ScanAll_Title" xml:space="preserve">
@@ -3625,5 +3622,29 @@
   </data>
   <data name="GalgameFolder_GetGalInFolder_GettingPaths" xml:space="preserve">
     <value>尝试连接游戏库中</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Description.Text" xml:space="preserve">
+    <value>请选择要搜刮的游戏信息类型：</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_GameInfo.Content" xml:space="preserve">
+    <value>游戏信息</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_HeaderImage.Content" xml:space="preserve">
+    <value>头图</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Image.Content" xml:space="preserve">
+    <value>封面图</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Character.Content" xml:space="preserve">
+    <value>角色</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_PlayStatus.Content" xml:space="preserve">
+    <value>游玩状态</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Title" xml:space="preserve">
+    <value>选择要搜刮的游戏信息</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Fetch" xml:space="preserve">
+    <value>搜刮</value>
   </data>
 </root>

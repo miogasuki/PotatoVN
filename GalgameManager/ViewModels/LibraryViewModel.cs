@@ -237,69 +237,25 @@ public partial class LibraryViewModel(
     [RelayCommand]
     private async Task GetInfoFromRss()
     {
-        CheckBox includeSubfoldersCheckBox = new()
-        {
-            Content = "LibraryPage_GetInfoFromRss_IncludeSubfolders".GetLocalized(),
-            IsChecked = true
-        };
-
-        StackPanel dialogContent = new ()
-        {
-            Spacing = 10
-        };
-        dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_GetInfoFromRss_Content".GetLocalized() });
-        dialogContent.Children.Add(includeSubfoldersCheckBox);
+        // 显示选择搜刮信息类型的对话框
+        SelectGameInfoToFetchDialog selectInfoDialog = new();
+        await selectInfoDialog.ShowAsync();
+        if (selectInfoDialog.Canceled) return;
         
-        ContentDialog dialog = new ()
-        {
-            XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
-            Title = "LibraryPage_GetInfoFromRss_Title".GetLocalized(),
-            Content = dialogContent,
-            PrimaryButtonText = "Yes".GetLocalized(),
-            SecondaryButtonText = "Cancel".GetLocalized()
-        };
-
-        ContentDialogResult result = await dialog.ShowAsync();
-        if (result != ContentDialogResult.Primary)
-        {
-            return;
-        }
-
-        var scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
-        
+        var scanSubfolders = selectInfoDialog.IncludingSubSources;
+        GameParseType selectedParseTypes = selectInfoDialog.SelectedParseTypes;
         List<GalgameSourceBase> sources = new();
         if (CurrentSource is null)
-        {
             sources.AddRange(galSourceService.GetGalgameSources());
-        }
         else
-        {
-            sources.Add(CurrentSource);
-            if (scanSubfolders)
-            {
-                ObservableCollection<GalgameSourceBase> allSources = galSourceService.GetGalgameSources();
-                AddSubSources(CurrentSource, allSources);
-            }
-        }
+            sources.AddRange(scanSubfolders ? CurrentSource.GetSubSourcesRecursive() : [CurrentSource]);
         
         foreach (GalgameSourceBase source in sources)
         {
-            GetGalgameInfoFromRssTask getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(source);
+            GetGalgameInfoFromRssTask getGalgameInfoFromRss = new(source, selectedParseTypes);
             getGalgameInfoFromRss.OnProgress += HandleGetGalInfoProgressChanged;
             RssTasks.Add(getGalgameInfoFromRss);
             _ = bgTaskService.AddBgTask(getGalgameInfoFromRss);
-        }
-        
-        return;
-        
-        void AddSubSources(GalgameSourceBase parent, IEnumerable<GalgameSourceBase> allSources)
-        {
-            foreach (GalgameSourceBase source in allSources.Where(s => s.ParentSource == parent))
-            {
-                sources.Add(source);
-                AddSubSources(source, allSources);
-            }
         }
     }
 
@@ -475,7 +431,7 @@ public partial class LibraryViewModel(
     {
         if(galgame == null) return;
         IsPhrasing = true;
-        await galgameService.PhraseGalInfoAsync(galgame);
+        await galgameService.ParseGalInfoAsync(galgame);
         IsPhrasing = false;
     }
 

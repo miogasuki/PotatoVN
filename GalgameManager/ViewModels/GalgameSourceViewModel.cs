@@ -356,7 +356,14 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                 }
             }
         }
+        
+        SelectGameInfoToFetchDialog selectInfoDialog = new(_selectedGalgames.Count == 0);
+        await selectInfoDialog.ShowAsync();
+        if (selectInfoDialog.Canceled) return;
+        var scanSubfolders = selectInfoDialog.IncludingSubSources;
+        GameParseType selectedParseTypes = selectInfoDialog.SelectedParseTypes;
 
+        // 选择了游戏范围
         if (_selectedGalgames.Count > 0)
         {
             var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(Item, _selectedGalgames);
@@ -365,70 +372,14 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             _ = _bgTaskService.AddBgTask(getGalgameInfoFromRss);
             return;
         }
-
-        // 没有选中任何游戏，获取当前库下所有游戏的信息
-
-        // 创建确认对话框
-        CheckBox includeSubfoldersCheckBox = new()
-        {
-            Content = "LibraryPage_GetInfoFromRss_IncludeSubfolders".GetLocalized(),
-            IsChecked = true
-        };
-
-        StackPanel dialogContent = new()
-        {
-            Spacing = 10
-        };
-        dialogContent.Children.Add(new TextBlock { Text = "LibraryPage_GetInfoFromRss_Content".GetLocalized() });
-        dialogContent.Children.Add(includeSubfoldersCheckBox);
-        
-        ContentDialog dialog = new()
-        {
-            XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
-            Title = "LibraryPage_GetInfoFromRss_Title".GetLocalized(),
-            Content = dialogContent,
-            PrimaryButtonText = "Yes".GetLocalized(),
-            SecondaryButtonText = "Cancel".GetLocalized()
-        };
-
-        ContentDialogResult result = await dialog.ShowAsync();
-        if (result != ContentDialogResult.Primary)
-        {
-            return;
-        }
-
-        bool scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
-
-        // 获取当前目录下所有库
-        List<GalgameSourceBase> sources = new();
-        sources.Add(Item);
-
-        // 如果用户选择包含子文件夹，则添加所有子库
-        if (scanSubfolders)
-        {
-            var allSources = _sourceService.GetGalgameSources();
-            AddSubSources(Item, allSources);
-        }
-
-        // 对于这个列表，每个库都创建一个GetGalgameInfoFromRssTask，并加入到BgTaskService中
+        //else，下载整个库（或包括子库）
+        List<GalgameSourceBase> sources = scanSubfolders ? [Item] : Item.GetSubSourcesRecursive();
         foreach (GalgameSourceBase source in sources)
         {
-            var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(source);
+            var getGalgameInfoFromRss = new GetGalgameInfoFromRssTask(source, selectedParseTypes);
             getGalgameInfoFromRss.OnProgress += HandleGetGalInfoProgressChanged;
             RssTasks.Add(getGalgameInfoFromRss);
             _ = _bgTaskService.AddBgTask(getGalgameInfoFromRss);
-        }
-
-        return;
-
-        void AddSubSources(GalgameSourceBase parent, IEnumerable<GalgameSourceBase> allSources)
-        {
-            foreach (var source in allSources.Where(s => s.ParentSource == parent))
-            {
-                sources.Add(source);
-                AddSubSources(source, allSources);
-            }
         }
     }
 

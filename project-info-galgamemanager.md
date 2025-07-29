@@ -47,7 +47,7 @@ The client application implements the core functionalities of PotatoVN:
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
           * When Editing localizations files, you should *never* directly read or edit the .resw files. 
           * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
-          * Usage:
+          * Usage (note: on Windows PowerShell, use semicolon `;` to separate commands):
               ```bash
             cd GalgameManager/Strings #重要，这个脚本应该在Strings目录下运行
               # 搜索所有包含 "Theme" 的key
@@ -60,6 +60,8 @@ The client application implements the core functionalities of PotatoVN:
             python resw_tool.py update "Settings_Theme.Text" en-US="Theme" ja-JP="テーマ" zh-CN="主题"
             # 添加新的key
             python resw_tool.py update "NewFeature.Title" en-US="New Feature" ja-JP="新機能"
+            # On Windows PowerShell (recommended approach):
+            cd GalgameManager/Strings; python resw_tool.py update "NewKey.Text" en-US="English" zh-CN="中文"
             ```
 
 ## 4. Key Files and Directories within `GalgameManager/`

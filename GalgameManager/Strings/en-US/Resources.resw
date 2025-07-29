@@ -2446,9 +2446,6 @@ If play time can record correctly, just cancel this popup.
   <data name="Career_Relation_Programmer" xml:space="preserve">
     <value>Programmer</value>
   </data>
-  <data name="Shell_Staff.Content" xml:space="preserve">
-    <value>Staff</value>
-  </data>
   <data name="Shell_GalgameCharacter.Content" xml:space="preserve">
     <value>Character Introduction</value>
   </data>
@@ -2743,7 +2740,7 @@ If play time can record correctly, just cancel this popup.
   <data name="LibraryPage_GetInfoFromRss_Content" xml:space="preserve">
     <value>Download all game data for the current library. This will take a long time to download all information.</value>
   </data>
-  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders" xml:space="preserve">
+  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders.Content" xml:space="preserve">
     <value>Include all subfolders</value>
   </data>
   <data name="LibraryPage_ScanAll_Title" xml:space="preserve">
@@ -3081,5 +3078,29 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="GalgameSourcePage_Setting_SaveMetaBackup.Description" xml:space="preserve">
     <value>Save game metadata within the game folder for this library (.PotatoVN folder)</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Description.Text" xml:space="preserve">
+    <value>Select the types of game information you want to fetch:</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_GameInfo.Content" xml:space="preserve">
+    <value>Game Information</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_HeaderImage.Content" xml:space="preserve">
+    <value>Header Image</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Image.Content" xml:space="preserve">
+    <value>Cover Image</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Character.Content" xml:space="preserve">
+    <value>Characters</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_PlayStatus.Content" xml:space="preserve">
+    <value>Play Status</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Title" xml:space="preserve">
+    <value>Select Game Information to Fetch</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Fetch" xml:space="preserve">
+    <value>Fetch</value>
   </data>
 </root>

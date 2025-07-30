@@ -3104,4 +3104,10 @@
   <data name="SelectGameInfoToFetchDialog_Fetch" xml:space="preserve">
     <value>取得</value>
   </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Title" xml:space="preserve">
+    <value>コントロールにゲーム名を表示</value>
+  </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
+    <value>ゲームコントロールウィジェットにゲーム名を表示するかどうかを制御します</value>
+  </data>
 </root>

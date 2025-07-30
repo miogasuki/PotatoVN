@@ -273,6 +273,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GalgamePageNewLayout_CoverImage:
             case KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground:
             case KeyValues.GalgameSourcePageShowSubSourceGames:
+            case KeyValues.ShowGameNameInControl:
             case KeyValues.GalgamePageNewLayout_ShowExpectedPlayTime:
             case KeyValues.GalgamePageNewLayout_ShowRating:
             case KeyValues.GalgamePageNewLayout_ShowTags:

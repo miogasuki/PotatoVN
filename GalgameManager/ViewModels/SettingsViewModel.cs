@@ -119,6 +119,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _fixHorizontalPicture = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture).Result;
         TimeAsHour = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour).Result;
         _transparentNavigationView = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TransparentNavigationView).Result;
+        _showGameNameInControl = _localSettingsService.ReadSettingAsync<bool>(KeyValues.ShowGameNameInControl).Result;
         _defaultGameName = _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.DefaultGameName).Result;
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
@@ -321,6 +322,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     // 时间显示单位改为小时
     [ObservableProperty] private bool _timeAsHour;
     partial void OnTimeAsHourChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.TimeAsHour, value);
+
+    // 游戏控件是否显示游戏名称
+    [ObservableProperty] private bool _showGameNameInControl;
+    partial void OnShowGameNameInControlChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.ShowGameNameInControl, value);
 
     // 软件默认使用的游戏名
     public DisplayName[] DefaultGameNames { get; } = { DisplayName.ChineseName, DisplayName.OriginalName, DisplayName.Name };

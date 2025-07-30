@@ -3647,4 +3647,10 @@
   <data name="SelectGameInfoToFetchDialog_Fetch" xml:space="preserve">
     <value>搜刮</value>
   </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Title" xml:space="preserve">
+    <value>游戏控件显示游戏名称</value>
+  </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
+    <value>控制游戏控件组件中是否显示游戏名称</value>
+  </data>
 </root>

@@ -116,6 +116,11 @@
                                 <local:SettingToggleSwitch x:Uid="SettingsPage_Theme_TimeAsHour"
                                                            IsOn="{x:Bind ViewModel.TimeAsHour, Mode=TwoWay}"/>
                             </control:Panel>
+                            <!-- 游戏控件是否显示游戏名称 -->
+                            <control:Panel>
+                                <local:SettingToggleSwitch x:Uid="SettingsPage_Theme_ShowGameNameInControl"
+                                                           IsOn="{x:Bind ViewModel.ShowGameNameInControl, Mode=TwoWay}"/>
+                            </control:Panel>
                             <!-- 默认显示的游戏名 -->
                             <control:Panel>
                                 <control:Setting x:Uid="SettingsPage_Theme_DefaultGameName">

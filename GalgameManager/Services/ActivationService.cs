@@ -158,6 +158,7 @@ public class ActivationService : IActivationService
     private async Task InitializeAsync()
     {
         await _themeSelectorService.InitializeAsync().ConfigureAwait(false);
+        UiDefaultValues.Init();
 
         // 初始化窗口
         if (IsRestart() == false)

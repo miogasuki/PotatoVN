@@ -3103,4 +3103,10 @@ If play time can record correctly, just cancel this popup.
   <data name="SelectGameInfoToFetchDialog_Fetch" xml:space="preserve">
     <value>Fetch</value>
   </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Title" xml:space="preserve">
+    <value>Show game name in controls</value>
+  </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
+    <value>Controls whether game names are displayed in game control widgets</value>
+  </data>
 </root>

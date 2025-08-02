@@ -16,7 +16,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     
     public const string DefaultString = "——";
     public const string MetaPath = ".PotatoVN";
-    public static readonly int PhraserNumber = 7;
+    public static readonly int PhraserNumber = 8;
     
     public event Action<Galgame, string, object>? GalPropertyChanged;
     public event Action<Exception>? ErrorOccurred; //非致命异常产生时触发
@@ -35,6 +35,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
                 VndbId = Ids[(int)RssType.Vndb],
                 YmgalId = Ids[(int)RssType.Ymgal],
                 PvnId = Ids[(int)RssType.PotatoVn],
+                SteamAppId = Ids[(int)RssType.Steam],
             };
         }
     }
@@ -222,6 +223,37 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         if (LocalPath is null) return [];
         List<string> result = Directory.GetDirectories(LocalPath).ToList();
         return result;
+    }
+
+    /// <summary>
+    /// 尝试获取游戏的id，以int形式返回 <br/>
+    /// 如果id前面有前缀（如v123），会去掉前缀（返回123）<br/> 
+    /// 如果解析失败或者id为null，则返回-1
+    /// </summary>
+    /// <param name="type">不能是mixed</param>
+    /// <returns></returns>
+    public int GetId(RssType type)
+    {
+        if (type is RssType.Mixed) return -1;
+        try
+        {
+            var id = Ids[(int)type];
+            if (string.IsNullOrEmpty(id)) return -1;
+            var numStartIndex = 0;
+            for(var i = 0; i < id.Length; i++)
+            {
+                if (!char.IsDigit(id[i])) continue;
+                numStartIndex = i;
+                break;
+            }
+            if (int.TryParse(id[numStartIndex..], out var result))
+                return result;
+            return -1;
+        }
+        catch (Exception)
+        {
+            return -1;
+        }
     }
 
     /// <summary>

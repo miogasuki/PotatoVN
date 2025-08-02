@@ -16,6 +16,7 @@ public class GalgameUid
     public string? PvnId { get; init; }
     public string Name { get; init; } = string.Empty;
     public string? CnName { get; init; }
+    public string? SteamAppId { get; init; }
     
     /// <summary>
     /// 与另一个UID的相似度，越多字段相同，相似度越高
@@ -30,6 +31,7 @@ public class GalgameUid
         result += !BangumiId.IsNullOrEmpty() && BangumiId == rhs.BangumiId ? 1 : 0;
         result += !VndbId.IsNullOrEmpty() && VndbId == rhs.VndbId ? 1 : 0;
         result += !YmgalId.IsNullOrEmpty() && YmgalId == rhs.YmgalId ? 1 : 0;
+        result += !SteamAppId.IsNullOrEmpty() && SteamAppId == rhs.SteamAppId ? 1 : 0;
         result += !CnName.IsNullOrEmpty() && CnName == rhs.CnName ? 1 : 0;
         result += Name == rhs.Name ? 1 : 0;
         return result;
@@ -66,6 +68,11 @@ public class GalgameUid
             containValue = true;
             if (PvnId != rhs.PvnId) return false;
         }
+        if (!SteamAppId.IsNullOrEmpty() && !rhs.SteamAppId.IsNullOrEmpty())
+        {
+            containValue = true;
+            if (SteamAppId != rhs.SteamAppId) return false;
+        }
         if (containValue) return true;
         return Name == rhs.Name;
     }
@@ -79,6 +86,7 @@ public class GalgameUid
         if (!string.IsNullOrWhiteSpace(VndbId)) parts.Add($"VndbId: {VndbId}");
         if (!string.IsNullOrWhiteSpace(YmgalId)) parts.Add($"YmgalId: {YmgalId}");
         if (!string.IsNullOrWhiteSpace(PvnId)) parts.Add($"PvnId: {PvnId}");
+        if (!string.IsNullOrWhiteSpace(SteamAppId)) parts.Add($"SteamAppId: {SteamAppId}");
 
         return $"GalgameUid [{string.Join(", ", parts)}]";
     }

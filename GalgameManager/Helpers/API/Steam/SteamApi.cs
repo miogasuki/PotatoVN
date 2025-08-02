@@ -21,4 +21,20 @@ public static class SteamAPi
         });
 
     }
+
+    public static ISteamStoreApi GetStoreApi()
+    {
+        HttpClient client = Utils.GetDefaultHttpClient().WithApplicationJson();
+        client.BaseAddress = new Uri("https://store.steampowered.com");
+        return RestService.For<ISteamStoreApi>(client, new RefitSettings
+        {
+            ContentSerializer = new NewtonsoftJsonContentSerializer(new JsonSerializerSettings
+            {
+                Converters =
+                {
+                    new StringEnumConverter(),
+                },
+            }),
+        });
+    }
 }

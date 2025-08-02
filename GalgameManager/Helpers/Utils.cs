@@ -3,14 +3,16 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Web;
 using Windows.Foundation;
 using GalgameManager.Models;
+using HtmlAgilityPack;
 using Microsoft.Web.WebView2.Core;
 using TinyPinyin;
 
 namespace GalgameManager.Helpers;
 
-public static class Utils
+public static partial class Utils
 {
     public static string GetFirstValueByNameOrEmpty(this WwwFormUrlDecoder decoder, string name)
     {
@@ -242,4 +244,94 @@ public static class Utils
             return false;
         }
     }
+
+    public static string CleanHtmlTags(string html)
+    {
+        if (string.IsNullOrEmpty(html)) return string.Empty;
+        HtmlDocument doc = new();
+        doc.LoadHtml(html);
+        // 移除不需要的标签，比如脚本和样式
+        doc.DocumentNode.SelectNodes("//script|//style")?.ToList().ForEach(n => n.Remove());
+        StringBuilder sb = new();
+        using (StringWriter writer = new(sb))
+        {
+            ConvertTo(doc.DocumentNode, writer);
+        }
+        return HttpUtility.HtmlDecode(sb.ToString()); // 解码可能存在的HTML实体，例如 &amp; -> &
+
+        void ConvertTo(HtmlNode node, TextWriter outText)
+        {
+            switch (node.NodeType)
+            {
+                case HtmlNodeType.Comment:
+                    // 不处理注释
+                    break;
+                case HtmlNodeType.Document:
+                    ConvertChildren(node, outText);
+                    break;
+                case HtmlNodeType.Text:
+                    if (node.ParentNode.Name is "script" or "style") // 如果文本在一个脚本或样式块中，则忽略
+                        break;
+                    // 获取并清理文本
+                    var tmpHtml = ((HtmlTextNode)node).Text;
+                    if (HtmlNode.IsOverlappedClosingElement(tmpHtml))
+                        break;
+                    // 将连续的空白字符替换为单个空格
+                    tmpHtml = MultiSpaceRegex().Replace(tmpHtml, " ");
+                    if (!string.IsNullOrWhiteSpace(tmpHtml))
+                        outText.Write(tmpHtml);
+                    break;
+                case HtmlNodeType.Element:
+                    // 根据标签类型进行格式化处理
+                    switch (node.Name.ToLower())
+                    {
+                        case "p":
+                        case "div": // 将div也视作段落
+                            // 在段落前添加一个空行以分隔
+                            outText.Write("\r\n");
+                            ConvertChildren(node, outText);
+                            // 在段落后添加一个空行
+                            outText.Write("\r\n");
+                            break;
+                        case "br":
+                            outText.Write("\r\n");
+                            break;
+                        case "li":
+                            // 为列表项添加前缀
+                            outText.Write(" * ");
+                            ConvertChildren(node, outText);
+                            // outText.Write("\r\n");
+                            break;
+                        case "h1":
+                        case "h2":
+                        case "h3":
+                        case "h4":
+                        case "h5":
+                        case "h6":
+                            // 标题前后都添加换行
+                            outText.Write("\r\n");
+                            ConvertChildren(node, outText);
+                            outText.Write("\r\n");
+                            break;
+                        default:
+                            // 对于其他标签，只处理其子节点
+                            ConvertChildren(node, outText);
+                            break;
+                    }
+                    break;
+            }
+        }
+        
+        void ConvertChildren(HtmlNode parent, TextWriter outText)
+        {
+            foreach (HtmlNode node in parent.ChildNodes)
+            {
+                ConvertTo(node, outText);
+            }
+        }
+
+    }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\s{2,}")]
+    private static partial System.Text.RegularExpressions.Regex MultiSpaceRegex();
 }

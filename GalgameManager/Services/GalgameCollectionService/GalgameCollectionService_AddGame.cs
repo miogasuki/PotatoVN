@@ -132,6 +132,7 @@ public partial class GalgameCollectionService
         {
             case GalgameSourceType.LocalFolder:
             case GalgameSourceType.LocalZip:
+            case GalgameSourceType.Steam:
                 var name = Path.GetFileName(Path.GetDirectoryName(path + Path.DirectorySeparatorChar)) ??
                            throw new Exception("GalgameCollectionService_GetNameFromPathFailed".GetLocalized());
                 var pattern = await LocalSettingsService.ReadSettingAsync<string>(KeyValues.RegexPattern) ?? ".+";
@@ -160,11 +161,15 @@ public partial class GalgameCollectionService
         switch (type)
         {
             case GalgameSourceType.LocalFolder:
+            case GalgameSourceType.Steam:
                 // 一个游戏只能属于一个本地文件夹
-                if (existGame.Sources.Any(s => s is GalgameFolderSource))
+                if (existGame.Sources.Any(s => s is GalgameFolderSource or SteamSource))
                     throw new PvnException("AddGalgameResult_AlreadyInLibrary".GetLocalized());
                 // 把游戏移入对应的本地库
-                _galSrcService.MoveInNoOperate(await GetOrAddSourceAsync(GalgameSourceType.LocalFolder, path),
+                _galSrcService.MoveInNoOperate(
+                    await GetOrAddSourceAsync(
+                        type is GalgameSourceType.LocalFolder ? GalgameSourceType.LocalFolder : 
+                            GalgameSourceType.Steam, path),
                     existGame, path);
                 break;
             case GalgameSourceType.LocalZip:

@@ -270,16 +270,7 @@ public partial class LibraryViewModel(
             };
             await dialog.ShowAsync();
             if (dialog.Canceled) return;
-            switch (dialog.SelectItem)
-            {
-                case 0:
-                    await galSourceService.AddGalgameSourceAsync(GalgameSourceType.LocalFolder, dialog.Path);
-                    break;
-                case 1:
-                    await galSourceService.AddGalgameSourceAsync(GalgameSourceType.LocalZip, dialog.Path);
-                    break;
-            }
-
+            await galSourceService.AddGalgameSourceAsync(dialog.SelectedType, dialog.Path);
         }
         catch (Exception e)
         {

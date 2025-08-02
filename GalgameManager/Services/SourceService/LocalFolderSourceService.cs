@@ -178,6 +178,8 @@ public class LocalFolderSourceService : IGalgameSourceService
         return "LocalFolderSourceService_MoveOutDescription".GetLocalized(path);
     }
 
+    public Task<string> GetSourcePathAsync(string gamePath) => Task.FromResult(Directory.GetParent(gamePath)!.FullName);
+
     public string? CheckMoveOperateValid(GalgameSourceBase? moveIn, GalgameSourceBase? moveOut, Galgame galgame)
     {
         if (moveIn?.SourceType == GalgameSourceType.LocalFolder)

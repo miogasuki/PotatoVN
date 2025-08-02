@@ -34,6 +34,7 @@ public class GalgameSourceConverter : JsonConverter<GalgameSourceBase>
             GalgameSourceType.LocalFolder => new GalgameFolderSource(),
             GalgameSourceType.LocalZip    => new GalgameZipSource(),
             GalgameSourceType.Virtual     => new VirtualSource(),
+            GalgameSourceType.Steam       => new SteamSource(),
             _  => throw new PvnException("Please implement GalgameSourceConverter for new source types."),
         };
         using JsonReader subReader = jObject.CreateReader();

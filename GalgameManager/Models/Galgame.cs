@@ -182,7 +182,9 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <summary>
     /// 该游戏是否是本地游戏（存在于某个本地文件夹库中）
     /// </summary>
-    [JsonIgnore][BsonIgnore] public bool IsLocalGame => Sources.Any(s => s.SourceType == GalgameSourceType.LocalFolder);
+    [JsonIgnore][BsonIgnore]
+    public bool IsLocalGame => Sources.Any(s =>
+        s.SourceType == GalgameSourceType.LocalFolder || s.SourceType == GalgameSourceType.Steam);
 
     /// <summary>
     /// 删除游戏文件夹

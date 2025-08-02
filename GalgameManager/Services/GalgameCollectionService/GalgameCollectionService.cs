@@ -59,12 +59,15 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         VndbPhraser vndbPhraser = new(GetVndbData().Result);
         YmgalPhraser ymgalPhraser = new();
         CngalPhraser cngalPhraser = new();
-        MixedPhraser mixedPhraser = new(bgmPhraser, vndbPhraser, ymgalPhraser, GetMixData());
+        SteamParser steamParser = new(localSettingsService
+            .ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result.ToSteamApiString());
+        MixedPhraser mixedPhraser = new(bgmPhraser, vndbPhraser, ymgalPhraser, steamParser, GetMixData());
         PhraserList[(int)RssType.Bangumi] = bgmPhraser;
         PhraserList[(int)RssType.Vndb] = vndbPhraser;
         PhraserList[(int)RssType.Ymgal] = ymgalPhraser;
         PhraserList[(int)RssType.Cngal] = cngalPhraser;
         PhraserList[(int)RssType.Mixed] = mixedPhraser;
+        PhraserList[(int)RssType.Steam] = steamParser;
     }
     
     public async Task InitAsync()
@@ -350,8 +353,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             if (type.HasFlag(GameParseType.Image))
             {
                 galgame.ImageUrl = tmp.ImageUrl;
-                galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl) ??
-                                          Galgame.DefaultImagePath;
+                galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl,
+                    fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_cover")
+                    ?? Galgame.DefaultImagePath;
             }
             galgame.LastFetchInfoTime = DateTime.Now;
         });

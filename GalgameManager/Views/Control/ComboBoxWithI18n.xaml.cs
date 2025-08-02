@@ -9,10 +9,16 @@ namespace GalgameManager.Views.Control;
 [DependencyProperty<object>("SelectedItem")]
 public partial class ComboBoxWithI18N
 {
+    public event Action<object?>? SelectedItemChangedEvent;
+    
     public ComboBoxWithI18N()
     {
         InitializeComponent();
-        ComboBox.SelectionChanged += (_, _) => SelectedItem = ComboBox.SelectedItem;
+        ComboBox.SelectionChanged += (_, _) =>
+        {
+            SelectedItem = ComboBox.SelectedItem;
+            SelectedItemChangedEvent?.Invoke(SelectedItem);
+        };
     }
 
     partial void OnSelectedItemChanged(object? newValue)

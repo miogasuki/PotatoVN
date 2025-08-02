@@ -3109,4 +3109,7 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
     <value>Controls whether game names are displayed in game control widgets</value>
   </data>
+  <data name="GalgameSourceType_Steam" xml:space="preserve">
+    <value>Steam游戏库</value>
+  </data>
 </root>

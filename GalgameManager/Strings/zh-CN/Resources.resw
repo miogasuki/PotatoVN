@@ -3654,4 +3654,16 @@
   <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
     <value>控制游戏控件组件中是否显示游戏名称</value>
   </data>
+  <data name="AddSourceDialog_SelectSource.Text" xml:space="preserve">
+    <value>游戏库类型</value>
+  </data>
+  <data name="GalgameSourceType_Steam" xml:space="preserve">
+    <value>Steam游戏库</value>
+  </data>
+  <data name="AddSourceDialog_SteamInfo" xml:space="preserve">
+    <value>请选择steam游戏库内的steamapps这个文件夹</value>
+  </data>
+  <data name="SteamSource_ScanAllGalgames_InvalidPath" xml:space="preserve">
+    <value>目录{0}内不包含名为“common”的文件夹或目录不存在</value>
+  </data>
 </root>

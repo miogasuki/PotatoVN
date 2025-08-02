@@ -24,7 +24,7 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
 
     [BsonIgnore] [JsonIgnore] public string Url => CalcUrl(SourceType, Path);
     public string Path { get; set; } = "";
-    public virtual GalgameSourceType SourceType => throw new NotImplementedException();
+    public abstract GalgameSourceType SourceType { get; }
     [ObservableProperty] private bool _scanOnStart;
     /// 是否能调整ScanOnStart属性
     [JsonIgnore][BsonIgnore] public abstract bool CanChangeScanOnStart { get; }
@@ -219,12 +219,22 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
 // 1. GalgameSourceConverter里的ReadJson
 // 2. 其对应的SourceService类（如：LocalFolderSourceService），并把它注册到App里（依赖注入）
 // 3. SourceServiceFactory里获取service相关语句
+// 4. 添加GalgameSourceType_xxx字样的本地化翻译
+// 5. GalgameSourceCollecctionService:
+//  5.1 实现AddSourceAsync方法
+//  5.2 CheckGamesInSourceAsync方法
+//  5.3 GetGalgameSource
+//  5.4 GetSourcePath
+// 6. AddSourceDialog.xaml.cs: 添加对应的SourceTypeComboBox选项，以及相关的检查逻辑
+// 7. 如果这个库能够扫描游戏，则需要重载galgameSourceBase的ScanAllGalgames方法来获取可能的游戏路径
+// 8. SourceTypeHelper（本文件）的两个方法
 public enum GalgameSourceType
 {
     UnKnown,
     LocalFolder,
     LocalZip,
     Virtual,
+    Steam,
 }
 
 public enum GalgameSourceSortKeys
@@ -247,6 +257,7 @@ public static class SourceTypeHelper
             GalgameSourceType.LocalFolder => "local_folder",
             GalgameSourceType.LocalZip => "local_zip",
             GalgameSourceType.Virtual => "virtual",
+            GalgameSourceType.Steam => "steam",
             GalgameSourceType.UnKnown => null,
             _ => null
         };
@@ -259,6 +270,7 @@ public static class SourceTypeHelper
             "local_folder" => GalgameSourceType.LocalFolder,
             "local_zip" => GalgameSourceType.LocalZip,
             "virtual" => GalgameSourceType.Virtual,
+            "steam" => GalgameSourceType.Steam,
             _ => GalgameSourceType.UnKnown
         };
     }

@@ -1,6 +1,7 @@
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using GalgameManager.Helpers;
+using GalgameManager.Models.Sources;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 namespace GalgameManager.Views.Dialog;
@@ -8,19 +9,13 @@ namespace GalgameManager.Views.Dialog;
 public sealed partial class AddSourceDialog : ContentDialog
 {
     public bool Canceled;
-    
-    public int SelectItem
-    {
-        get => (int)GetValue(SelectItemProperty);
-        set => SetValue(SelectItemProperty, value);
-    }
-    
-    public static readonly DependencyProperty SelectItemProperty = DependencyProperty.Register(
-        nameof(SelectItem),
-        typeof(int),
-        typeof(AddSourceDialog),
-        new PropertyMetadata(0)
-    );
+    public GalgameSourceType SelectedType { get; private set; }
+
+    private static readonly GalgameSourceType[] SourceTypes =
+    [
+        GalgameSourceType.LocalFolder,
+        GalgameSourceType.Steam,
+    ];
     
     public string Path
     {
@@ -41,16 +36,29 @@ public sealed partial class AddSourceDialog : ContentDialog
     
     public AddSourceDialog()
     {
-        this.InitializeComponent();
-        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
-        XamlRoot = App.MainWindow!.Content.XamlRoot;
+        InitializeComponent();
+        PrimaryButtonText = "Yes".GetLocalized();
+        SecondaryButtonText = "Cancel".GetLocalized();
+        SourceTypeComboBox.ItemsSource = SourceTypes;
+        SourceTypeComboBox.SelectedItem = SourceTypes[0]; // 默认选择本地文件夹
+        SourceTypeComboBox.SelectedItemChangedEvent += SourceTypeComboBoxOnSelectedItemChangedEvent; 
+        RequestedTheme = App.MainWindow?.Content is FrameworkElement element ? element.RequestedTheme : RequestedTheme;
+        XamlRoot = App.MainWindow!.Content!.XamlRoot;
         IsPrimaryButtonEnabled = false;
         DefaultButton = ContentDialogButton.Primary;
+    }
+
+    private void SourceTypeComboBoxOnSelectedItemChangedEvent(object? obj)
+    {
+        if (obj is not GalgameSourceType type) return; //不应该发生
+        SelectedType = type;
+        UpdateMsg();
     }
 
     private void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         Canceled = false;
+        SelectedType = (GalgameSourceType)SourceTypeComboBox.SelectedItem!;
     }
 
     private void OnSecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -66,9 +74,43 @@ public sealed partial class AddSourceDialog : ContentDialog
         WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindow!.GetWindowHandle());
 
         StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
-        if (folder != null)
+        if (folder is null) return;
+        Path = folder.Path;
+        UpdateMsg();
+    }
+
+    private void UpdateMsg()
+    {
+        switch (SelectedType)
         {
-            Path = folder.Path;
+            case GalgameSourceType.Steam:
+                if (string.IsNullOrEmpty(Path))
+                    DisplayMsg(InfoBarSeverity.Informational, "AddSourceDialog_SteamInfo".GetLocalized());
+                else if (!Path.Contains("steamapps"))
+                {
+                    Path = string.Empty;
+                    DisplayMsg(InfoBarSeverity.Error, "AddSourceDialog_SteamInfo".GetLocalized());
+                }
+                else
+                    DisplayMsg(InfoBarSeverity.Informational, string.Empty);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 如果message为empty，则关闭infobar显示
+    /// </summary>
+    /// <param name="severity"></param>
+    /// <param name="message"></param>
+    private void DisplayMsg(InfoBarSeverity severity, string message)
+    {
+        if (string.IsNullOrEmpty(message))
+            InfoBar.Visibility = Visibility.Collapsed;
+        else
+        {
+            InfoBar.Visibility = Visibility.Visible;
+            InfoBar.Severity = severity;
+            InfoBar.Message = message;
         }
     }
 }

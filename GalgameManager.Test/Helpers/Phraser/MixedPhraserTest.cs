@@ -11,6 +11,7 @@ public class MixedPhraserTest
     private BgmPhraser _bgmPhraser = null!;
     private VndbPhraser _vndbPhraser = null!;
     private YmgalPhraser _ymgalPhraser = null!;
+    private SteamParser _steamParser = null!;
     
     [SetUp]
     public void Init()
@@ -23,7 +24,8 @@ public class MixedPhraserTest
         _bgmPhraser = new(data);
         _vndbPhraser = new();
         _ymgalPhraser = new();
-        _mixedPhraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, new MixedPhraserData
+        _steamParser = new SteamParser("schinese");
+        _mixedPhraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
         {
             Order = new MixedPhraserOrder().SetToDefault(),
         });
@@ -71,7 +73,7 @@ public class MixedPhraserTest
         order.NameOrder = new() { RssType.Vndb, RssType.Bangumi };
         order.ImageUrlOrder = new() { RssType.Bangumi, RssType.Vndb };
         order.DescriptionOrder = new() { RssType.Vndb, RssType.Bangumi };
-        MixedPhraser phraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, new MixedPhraserData
+        MixedPhraser phraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
         {
             Order = order,
         });

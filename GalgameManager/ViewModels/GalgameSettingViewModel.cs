@@ -20,7 +20,8 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [ObservableProperty]
     private Galgame _gal = null!;
 
-    public List<RssType> RssTypes { get; }= new() { RssType.Bangumi, RssType.Vndb, RssType.Mixed, RssType.Ymgal, RssType.Cngal };
+    public List<RssType> RssTypes { get; } = new() { RssType.Bangumi, RssType.Vndb, RssType.Mixed, 
+        RssType.Ymgal, RssType.Cngal, RssType.Steam };
 
     private readonly GalgameCollectionService _galService;
     private readonly GalgameSourceCollectionService _sourceService;
@@ -87,7 +88,8 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     partial void OnSelectedRssChanged(RssType value)
     {
         Gal.RssType = value;
-        SearchUri = _searchUrlList[(int)value] + Gal.Name.Value;
+        if (!string.IsNullOrEmpty(_searchUrlList[(int)value]))
+            SearchUri = _searchUrlList[(int)value] + Gal.Name.Value;
     }
 
     [RelayCommand]
@@ -118,7 +120,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         
         try
         {
-            await _galService.ParseGalInfoAsync(Gal);
+            await _galService.ParseGalInfoAsync(Gal, Gal.RssType);
         }
         catch (Exception e)
         {

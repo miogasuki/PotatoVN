@@ -10,6 +10,7 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
 {
     private static readonly IGalgameCollectionService GameService = App.GetService<IGalgameCollectionService>();
     private readonly VndbPhraser _vndbParser = (GameService.PhraserList[(int)RssType.Vndb] as VndbPhraser)!;
+    private readonly SteamParser _steamParser = (GameService.PhraserList[(int)RssType.Steam] as SteamParser)!;
     private readonly IPvnService _pvnService = App.GetService<IPvnService>();
     private readonly ILocalSettingsService _settingsService = App.GetService<ILocalSettingsService>();
 
@@ -26,7 +27,9 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
     {
         item.AutoFetchStatus.HeaderImage = true;
         await GameService.SaveGalgameAsync(item);
-        var url = await _vndbParser.GetGalHeaderAsync(item);
+        var url = !string.IsNullOrEmpty(item.Ids[(int)RssType.Steam]) ?  
+            await _steamParser.GetGalHeaderAsync(item):
+            await _vndbParser.GetGalHeaderAsync(item);
         if (url is null) return;
         item.HeaderImageUrl = url;
         var targetPath = Path.Combine((await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,

@@ -173,9 +173,10 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <summary>
     /// 检查游戏文件夹是否存在
     /// </summary>
-    public bool CheckExistLocal()
+    /// <param name="targetType">目标类型，可以为localfolder或steam</param>
+    public bool CheckExistLocal(GalgameSourceType targetType = GalgameSourceType.LocalFolder)
     {
-        GalgameSourceBase? s = Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder);
+        GalgameSourceBase? s = Sources.FirstOrDefault(s => s.SourceType == targetType);
         return s != null && Directory.Exists(s.GetPath(this));
     }
 

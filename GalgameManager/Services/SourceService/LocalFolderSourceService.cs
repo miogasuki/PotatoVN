@@ -61,19 +61,19 @@ public class LocalFolderSourceService : IGalgameSourceService
             // 备份图片
             if (Utils.IsImageValid(meta.ImagePath.Value))
             {
-                CopyImg(meta.ImagePath.Value, metaPath);
+                FileHelper.CopyImg(meta.ImagePath.Value, metaPath);
                 meta.ImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.ImagePath.Value!)));
             }
             foreach (GalgameCharacter character in meta.Characters)
             {
                 if (Utils.IsImageValid(character.ImagePath))
                 {
-                    CopyImg(character.ImagePath, metaPath);
+                    FileHelper.CopyImg(character.ImagePath, metaPath);
                     character.ImagePath = Path.Combine(".", Path.GetFileName(character.ImagePath));
                 }
                 if (Utils.IsImageValid(character.PreviewImagePath))
                 {
-                    CopyImg(character.PreviewImagePath, metaPath);
+                    FileHelper.CopyImg(character.PreviewImagePath, metaPath);
                     character.PreviewImagePath = Path.Combine(".", Path.GetFileName(character.PreviewImagePath));
                 }
             }
@@ -91,13 +91,13 @@ public class LocalFolderSourceService : IGalgameSourceService
         Galgame meta = _fileService.Read<Galgame>(metaFolderPath, "meta.json")!;
         if (meta is null) throw new PvnException("meta.json not exist");
         _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
-        meta.ImagePath.ForceSet(LoadImg(meta.ImagePath.Value, metaFolderPath));
+        meta.ImagePath.ForceSet(FileHelper.LoadImg(meta.ImagePath.Value, metaFolderPath));
         foreach (GalgameCharacter character in meta.Characters)
         {
-            character.ImagePath = LoadImg(character.ImagePath, metaFolderPath)!;
-            character.PreviewImagePath = LoadImg(character.PreviewImagePath, metaFolderPath)!;
+            character.ImagePath = FileHelper.LoadImg(character.ImagePath, metaFolderPath)!;
+            character.PreviewImagePath = FileHelper.LoadImg(character.PreviewImagePath, metaFolderPath)!;
         }
-        meta.ExePath = LoadImg(meta.ExePath, metaFolderPath, defaultReturn: null);
+        meta.ExePath = FileHelper.LoadImg(meta.ExePath, metaFolderPath, defaultReturn: null);
         meta.SavePath = Directory.Exists(meta.SavePath) ? meta.SavePath : null; //检查存档路径是否存在并设置SavePosition字段
         meta.FindSaveInPath();
         return meta;
@@ -187,24 +187,6 @@ public class LocalFolderSourceService : IGalgameSourceService
                 ? null
                 : "LocalFolderSourceService_MoveOutError".GetLocalized();
         return null;
-    }
-
-    private static void CopyImg(string? src, string metaPath)
-    {
-        if (!Utils.IsImageValid(src) || src is null) return;
-        var targetName = Path.GetFileName(src);
-        targetName = targetName.Contains('%') ? HttpUtility.UrlDecode(targetName) : targetName;
-        var target = Path.Combine(metaPath, targetName.RemoveInvalidChars());
-        if (File.Exists(target) && new FileInfo(target).Length == new FileInfo(src).Length) return; //文件已存在且大小相同就不复制
-        FolderOperations.CopyEx(src, target, overwrite: true, allowDecrypted: true);
-    }
-
-    private static string? LoadImg(string? target, string path, string defaultTarget = Galgame.DefaultImagePath, 
-        string? defaultReturn = Galgame.DefaultImagePath)
-    {
-        if (string.IsNullOrEmpty(target) || target == defaultTarget) return defaultReturn;
-        var targetPath = Path.GetFullPath(Path.Combine(path, target));
-        return File.Exists(targetPath) ? targetPath : defaultReturn;
     }
     
     private static DriveInfo? GetDriveInfo(string path)

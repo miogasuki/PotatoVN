@@ -115,6 +115,11 @@ This section highlights important files and directories specific to the client a
     *   `ScanResultService.cs`: Manages saving and retrieving `GalgameScanResult` objects to/from LiteDB. Implements `IScanResultService.cs`. The LiteDB collection name is "scan_results".
     *   `LocalSettingsService.cs`: Manages the storage and retrieval of local application settings, including the LiteDB database instance.
     *   `InfoService.cs`: Handles in-app notifications and event logging. Its `OnEvent` delegate and `Event` method now support an optional callback action and button text, allowing event notifications to include a custom action button. This is handled in `ShellViewModel.cs` and displayed in `ShellPage.xaml`.
+    *   **`Services/SourceService/`**: Contains source-specific service implementations that handle different types of game libraries:
+        *   `LocalFolderSourceService.cs`: Handles local folder-based game libraries, including meta backup/restore functionality, file system monitoring, and game move operations.
+        *   `SteamSourceService.cs`: Handles Steam-based game libraries. Supports meta backup/restore functionality by creating `.PotatoVN` folders within Steam game directories to store `meta.json` and associated images. Does not support move operations or file system monitoring due to Steam's managed nature.
+        *   `VirtualSourceService.cs`: Handles virtual game libraries for organizational purposes.
+        *   All source services implement `IGalgameSourceService` interface which defines standard operations like `SaveMetaAsync`, `LoadMetaAsync`, `RemoveMetaAsync` for meta information management.
 *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
     *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
 *   **`Contracts/`**: Defines interfaces and data contracts. Interfaces are crucial for decoupling components and enabling testability. Data contracts might define the structure of data exchanged with services or stored locally.

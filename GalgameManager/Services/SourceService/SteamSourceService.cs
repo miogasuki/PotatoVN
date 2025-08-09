@@ -1,15 +1,14 @@
 ﻿using GalgameManager.Contracts.Services;
+using GalgameManager.Core.Contracts.Services;
+using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Sources;
-using ValveKeyValue;
 
 namespace GalgameManager.Services;
 
-public class SteamSourceService : IGalgameSourceService
+public class SteamSourceService(IInfoService infoService, IFileService fileService) : IGalgameSourceService
 {
-    //installdir->appmanifest_*.acf文件内容，做一个缓存，避免扫描游戏时每次都便利所有文件
-    private readonly Dictionary<string, KVValue> _appManifests = new(); 
     public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null) => 
         throw new PvnException("This source does not support move in operation");
 
@@ -18,19 +17,87 @@ public class SteamSourceService : IGalgameSourceService
 
     public async Task SaveMetaAsync(Galgame game, GalgameSourceBase? targetSource = null)
     {
+        if (!game.CheckExistLocal(GalgameSourceType.Steam)) return;
+        foreach (SteamSource source in game.Sources.OfType<SteamSource>().Where(s => s.SaveMetaBackup))
+        {
+            if (targetSource is not null && source != targetSource) continue; //如果指定了目标源，则只保存到该源
+            var basePath = source.MetaPath;
+            if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
+            if (source.GetPath(game) is not { } gamePath) continue;
+            var metaPath = Path.Combine(basePath, $"{new DirectoryInfo(gamePath).Name}");
+            if (!Directory.Exists(metaPath)) Directory.CreateDirectory(metaPath);
+            Galgame meta = game.DeepClone();
+            // 备份图片
+            if (Utils.IsImageValid(meta.ImagePath.Value))
+            {
+                FileHelper.CopyImg(meta.ImagePath.Value, metaPath);
+                meta.ImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.ImagePath.Value!)));
+            }
+            foreach (GalgameCharacter character in meta.Characters)
+            {
+                if (Utils.IsImageValid(character.ImagePath))
+                {
+                    FileHelper.CopyImg(character.ImagePath, metaPath);
+                    character.ImagePath = Path.Combine(".", Path.GetFileName(character.ImagePath));
+                }
+                if (Utils.IsImageValid(character.PreviewImagePath))
+                {
+                    FileHelper.CopyImg(character.PreviewImagePath, metaPath);
+                    character.PreviewImagePath = Path.Combine(".", Path.GetFileName(character.PreviewImagePath));
+                }
+            }
+            fileService.Save(metaPath, "meta.json", meta);
+        }
+
         await Task.CompletedTask;
-        if (targetSource is null || !targetSource.SaveMetaBackup) return;
-        throw new NotImplementedException();
     }
 
     public async Task<Galgame?> LoadMetaAsync(string path)
     {
-        // DirectoryInfo dir = new(path);
         await Task.CompletedTask;
-        return null;
+        if (!(new DirectoryInfo(path).Parent?.Parent is { } di && di.GetDirectories().Any(d => d.Name == ".PotatoVN")))
+        {
+            infoService.Log(msg: $"[SteamSourceService] skip load meta for {new DirectoryInfo(path).Name} because .PotatoVN not exist");
+            return null;
+        }
+        var metaFolderPath = Path.Combine(di.FullName, ".PotatoVN", new DirectoryInfo(path).Name);
+        if (!Directory.Exists(metaFolderPath)) return null; // 不存在备份文件夹
+        Galgame meta = fileService.Read<Galgame>(metaFolderPath, "meta.json")!;
+        if (meta is null) throw new PvnException("meta.json not exist");
+        _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
+        meta.ImagePath.ForceSet(FileHelper.LoadImg(meta.ImagePath.Value, metaFolderPath));
+        foreach (GalgameCharacter character in meta.Characters)
+        {
+            character.ImagePath = FileHelper.LoadImg(character.ImagePath, metaFolderPath)!;
+            character.PreviewImagePath = FileHelper.LoadImg(character.PreviewImagePath, metaFolderPath)!;
+        }
+        meta.ExePath = FileHelper.LoadImg(meta.ExePath, metaFolderPath, defaultReturn: null);
+        meta.SavePath = Directory.Exists(meta.SavePath) ? meta.SavePath : null; //检查存档路径是否存在并设置SavePosition字段
+        meta.FindSaveInPath();
+        return meta;
     }
 
-    public Task RemoveMetaAsync(Galgame game) => throw new NotImplementedException();
+    public Task RemoveMetaAsync(Galgame game)
+    {
+        return Task.Run(() =>
+        {
+            foreach (SteamSource source in game.Sources.OfType<SteamSource>())
+            {
+                try
+                {
+                    var gamePath = source.GetPath(game)!;
+                    var metaPath = Path.Combine(gamePath, ".PotatoVN");
+                    if (!Directory.Exists(metaPath)) return;
+                    Directory.Delete(metaPath, true);
+                    infoService.Log(msg: $"[SteamSourceService] remove meta folder {metaPath}");
+                }
+                catch (Exception e)
+                {
+                    infoService.DeveloperEvent(msg: $"failed to remove meta folder with exception: {e}");
+                }
+            }
+        });
+    }
 
     public Task<(long total, long used)> GetSpaceAsync(GalgameSourceBase source)
     {

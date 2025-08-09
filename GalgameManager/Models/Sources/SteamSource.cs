@@ -37,4 +37,6 @@ public class SteamSource : GalgameSourceBase
         foreach (DirectoryInfo gameDir in steamappsDir.GetDirectories())
             yield return (gameDir.FullName, "");
     }
+    
+    public string MetaPath => System.IO.Path.Combine(Path, ".PotatoVN");
 }

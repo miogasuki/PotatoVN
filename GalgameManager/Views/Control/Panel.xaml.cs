@@ -11,7 +11,7 @@ namespace GalgameManager.Views.Control
         public Panel()
         {
             InitializeComponent();
-            BackgroundBrush = Application.Current.Resources["ControlStrokeColorOnAccentDefaultBrush"] as Brush;
+            BackgroundBrush = Application.Current.Resources["LayerFillColorDefaultBrush"] as Brush;
         }
 
         public static readonly new DependencyProperty ContentProperty = DependencyProperty.Register(
@@ -35,6 +35,6 @@ namespace GalgameManager.Views.Control
         }
 
         partial void OnBackgroundBrushChanged() => 
-            BackgroundBrush ??= Application.Current.Resources["ControlStrokeColorOnAccentDefaultBrush"] as Brush;
+            BackgroundBrush ??= Application.Current.Resources["LayerFillColorDefaultBrush"] as Brush;
     }
 }

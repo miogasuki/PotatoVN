@@ -33,6 +33,11 @@ public class SteamSourceService(IInfoService infoService, IFileService fileServi
                 FileHelper.CopyImg(meta.ImagePath.Value, metaPath);
                 meta.ImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.ImagePath.Value!)));
             }
+            if (Utils.IsImageValid(meta.HeaderImagePath.Value))
+            {
+                FileHelper.CopyImg(meta.HeaderImagePath.Value, metaPath);
+                meta.HeaderImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.HeaderImagePath.Value!)));
+            }
             foreach (GalgameCharacter character in meta.Characters)
             {
                 if (Utils.IsImageValid(character.ImagePath))
@@ -66,6 +71,7 @@ public class SteamSourceService(IInfoService infoService, IFileService fileServi
         if (meta is null) throw new PvnException("meta.json not exist");
         _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
         meta.ImagePath.ForceSet(FileHelper.LoadImg(meta.ImagePath.Value, metaFolderPath));
+        meta.HeaderImagePath.ForceSet(FileHelper.LoadImg(meta.HeaderImagePath.Value, metaFolderPath));
         foreach (GalgameCharacter character in meta.Characters)
         {
             character.ImagePath = FileHelper.LoadImg(character.ImagePath, metaFolderPath)!;

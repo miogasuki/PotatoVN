@@ -77,6 +77,11 @@ public class LocalFolderSourceService : IGalgameSourceService
                     character.PreviewImagePath = Path.Combine(".", Path.GetFileName(character.PreviewImagePath));
                 }
             }
+            if (Utils.IsImageValid(meta.HeaderImagePath.Value))
+            {
+                FileHelper.CopyImg(meta.HeaderImagePath.Value, metaPath);
+                meta.HeaderImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.HeaderImagePath.Value!)));
+            }
             _fileService.Save(metaPath, "meta.json", meta);
         }
 
@@ -92,6 +97,7 @@ public class LocalFolderSourceService : IGalgameSourceService
         if (meta is null) throw new PvnException("meta.json not exist");
         _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
         meta.ImagePath.ForceSet(FileHelper.LoadImg(meta.ImagePath.Value, metaFolderPath));
+        meta.HeaderImagePath.ForceSet(FileHelper.LoadImg(meta.HeaderImagePath.Value, metaFolderPath));
         foreach (GalgameCharacter character in meta.Characters)
         {
             character.ImagePath = FileHelper.LoadImg(character.ImagePath, metaFolderPath)!;

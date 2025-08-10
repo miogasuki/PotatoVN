@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.System;
 using CommunityToolkit.WinUI.Collections;
 using CommunityToolkit.WinUI.Controls;
 using GalgameManager.Helpers.Converter;
@@ -578,6 +579,14 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             Galgame? game = flyout.Target.DataContext as Galgame;
             SetCurrentContextGame(game);
         }
+    }
+
+    [RelayCommand]
+    private async Task OpenGameInExplorer(Galgame? game)
+    {
+        if (game == null) return;
+        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(game.LocalPath);
+        await Launcher.LaunchFolderAsync(folder);
     }
 
     #endregion

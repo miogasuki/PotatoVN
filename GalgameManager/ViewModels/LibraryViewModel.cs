@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using Windows.Storage;
+using Windows.System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.Collections;
@@ -309,6 +311,19 @@ public partial class LibraryViewModel(
     }
 
     [RelayCommand]
+    private async Task OpenFolderInExplorer(GalgameSourceBase? galgameFolder)
+    {
+        if (galgameFolder is null) return;
+        if (!galgameFolder.IsDelectable)
+        {
+            infoService.Info(InfoBarSeverity.Error, msg: "LibraryPage_NoPath".GetLocalized());
+            return;
+        }
+        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(galgameFolder.Path);
+        await Launcher.LaunchFolderAsync(folder);
+    }
+
+    [RelayCommand]
     private async Task ScanAll()
     {
         CheckBox includeSubfoldersCheckBox = new ()
@@ -433,6 +448,14 @@ public partial class LibraryViewModel(
         IsPhrasing = true;
         await galgameService.ParseGalInfoAsync(galgame);
         IsPhrasing = false;
+    }
+
+    [RelayCommand]
+    private async Task OpenGameInExplorer(Galgame? galgame)
+    {
+        if(galgame == null) return;
+        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(galgame.LocalPath);
+        await Launcher.LaunchFolderAsync(folder);
     }
 
     [RelayCommand]

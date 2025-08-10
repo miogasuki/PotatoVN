@@ -485,10 +485,10 @@
     <value>回到上个界面</value>
   </data>
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_Title" xml:space="preserve">
-    <value>删除库</value>
+    <value>删除游戏库</value>
   </data>
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content" xml:space="preserve">
-    <value>删除库会删除子库，并取消托管所有游戏</value>
+    <value>删除游戏库会同时删除所有子库</value>
   </data>
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_RemoveFromLibrary" xml:space="preserve">
     <value>一并从游戏库中移除游戏</value>
@@ -498,6 +498,12 @@
   </data>
   <data name="LibraryPage_DeleteFolder.ToolTipService.ToolTip" xml:space="preserve">
     <value>删除游戏库</value>
+  </data>
+  <data name="LibraryPage_OpenFolderInExplorer.Text" xml:space="preserve">
+    <value>在文件管理器中打开</value>
+  </data>
+  <data name="LibraryPage_OpenFolderInExplorer.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在文件管理器中打开游戏库</value>
   </data>
   <data name="GalgameFolderPage_DownloadInfo" xml:space="preserve">
     <value>下载所有游戏数据</value>
@@ -1958,6 +1964,12 @@
   <data name="LibraryPage_DownloadGameInfo.ToolTipService.ToolTip" xml:space="preserve">
     <value>从网络数据源下载游戏信息</value>
   </data>
+  <data name="LibraryPage_OpenGameInExplorer.Text" xml:space="preserve">
+    <value>在文件管理器中打开</value>
+  </data>
+  <data name="LibraryPage_OpenGameInExplorer.ToolTipService.ToolTip" xml:space="preserve">
+    <value>在文件管理器中打开游戏</value>
+  </data>
   <data name="LibraryPage_RemoveGame.Text" xml:space="preserve">
     <value>从库中移除游戏</value>
   </data>
@@ -2735,6 +2747,9 @@
   </data>
   <data name="LibraryPage_CannotDelete" xml:space="preserve">
     <value>这个库不能被删除</value>
+  </data>
+  <data name="LibraryPage_NoPath" xml:space="preserve">
+    <value>这个库不在本地，无法在文件管理器中打开</value>
   </data>
   <data name="StaffService_Export" xml:space="preserve">
     <value>正在导出staff：{0}</value>

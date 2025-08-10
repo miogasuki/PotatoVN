@@ -15,20 +15,35 @@
     
     <Page.Resources>
         <converter:EnumEqualsConverter x:Key="EnumEqualsConverter" />
+        <!-- 游戏库的右键菜单 -->
         <MenuFlyout Placement="Right" x:Key="FolderFlyout">
+            <!-- 编辑游戏库 -->
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditFolder"
                             Command="{x:Bind ViewModel.EditLibraryCommand}" CommandParameter="{Binding}"/>
+            <!-- 在资源管理器中打开 -->
+            <MenuFlyoutItem Icon="OpenLocal" x:Uid="LibraryPage_OpenFolderInExplorer"
+                            IsEnabled="{Binding CommandParameter.IsDelectable,
+                                    RelativeSource={RelativeSource Mode=Self},
+                                    TargetNullValue=False}"
+                            Command="{x:Bind ViewModel.OpenFolderInExplorerCommand}" CommandParameter="{Binding}"/>
+            <!-- 删除游戏库 -->
             <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_DeleteFolder"
+                            IsEnabled="{Binding CommandParameter.IsDelectable,
+                                    RelativeSource={RelativeSource Mode=Self},
+                                    TargetNullValue=False}"
                             Command="{x:Bind ViewModel.DeleteFolderCommand}" CommandParameter="{Binding}"/>
         </MenuFlyout>
         
+        <!-- 页面空白处的右键菜单 -->
         <MenuFlyout Placement="Right" x:Key="PageFlyout">
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditCurrentFolder"
                            Command="{x:Bind ViewModel.EditCurrentFolderCommand}"
                            IsEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"/>
         </MenuFlyout>
 
+        <!-- 游戏的右键菜单 -->
         <MenuFlyout Placement="Right" x:Key="GameFlyout" Opening="{x:Bind ViewModel.GalFlyout_Opening}">
+            <!-- 游玩状态管理 -->
             <MenuFlyoutSubItem x:Uid="LibraryPage_PlayStatusSubMenu">
                 <MenuFlyoutSubItem.Icon>
                     <FontIcon FontFamily="Segoe Fluent Icons"
@@ -63,12 +78,22 @@
                 <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusMoreSettings"
                      Command="{x:Bind ViewModel.ShowChangePlayStatusDialogCommand}" CommandParameter="{Binding}" />
             </MenuFlyoutSubItem>
+            <!-- 编辑游戏信息 -->
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditGameInfo"
                            Command="{x:Bind ViewModel.GalFlyOutEditCommand}"
                            CommandParameter="{Binding}"/>
+            <!-- 下载游戏信息 -->
             <MenuFlyoutItem Icon="Download" x:Uid="LibraryPage_DownloadGameInfo"
                            Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}"
                            CommandParameter="{Binding}"/>
+            <!-- 在文件管理器中打开 -->
+            <MenuFlyoutItem Icon="OpenLocal" x:Uid="LibraryPage_OpenGameInExplorer"
+                           Command="{x:Bind ViewModel.OpenGameInExplorerCommand}"
+                           IsEnabled="{Binding CommandParameter.IsLocalGame,
+                                    RelativeSource={RelativeSource Mode=Self},
+                                    TargetNullValue=False}"
+                           CommandParameter="{Binding}"/>
+            <!-- 删除游戏 -->
             <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_RemoveGame"
                            Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}"
                            CommandParameter="{Binding}"/>

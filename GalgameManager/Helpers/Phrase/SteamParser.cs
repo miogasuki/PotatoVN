@@ -96,6 +96,7 @@ public class SteamParser : IGalInfoPhraser
         {
             if (await PhraseHelper.TryGetMapAsync(game) is { } map && map.SteamSimilarity > 0.9) return map.SteamId;
             var name = game.Name.Value;
+            if (string.IsNullOrWhiteSpace(name)) return null;
             var url =
                 $"https://store.steampowered.com/api/storesearch?term={HttpUtility.UrlEncode(name)}&l={_lang}&cc=US";
             var json   = await _httpClient.GetStringAsync(url);

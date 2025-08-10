@@ -11,6 +11,13 @@ public class GalgameZipSource : GalgameSourceBase
 {
     public static string FxRegex = @"(?<=\\)(?<name>[^\.\\]+)(?:(\.part1)?\.(zip|rar|7z))$";
     public override GalgameSourceType SourceType => GalgameSourceType.LocalZip;
+    public override bool CanChangeScanOnStart => false;
+    public override bool CanChangeCheckOnStart => true;
+    public override bool CanChangeDetect => false;
+    public override bool CanChangeSaveMetaBackup => false;
+    public override bool IsGameAddable => false;
+    public override bool IsSourceScanable => true;
+    public override bool IsDelectable => true;
 
     public GalgameZipSource(string path): base(path)
     {

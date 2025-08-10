@@ -263,6 +263,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.LibraryStatistics:
             case KeyValues.SyncGameCharacters:
             case KeyValues.SyncStaff:
+            case KeyValues.SyncHeaderImage:
             case KeyValues.GalgamePageNewLayout:
             case KeyValues.GalgamePageNewLayout_ShowPainter:
             case KeyValues.GalgamePageNewLayout_ShowSeiyu:
@@ -272,6 +273,7 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GalgamePageNewLayout_CoverImage:
             case KeyValues.GalgamePageNewLayout_ShowCoverWhenNoBackground:
             case KeyValues.GalgameSourcePageShowSubSourceGames:
+            case KeyValues.ShowGameNameInControl:
             case KeyValues.GalgamePageNewLayout_ShowExpectedPlayTime:
             case KeyValues.GalgamePageNewLayout_ShowRating:
             case KeyValues.GalgamePageNewLayout_ShowTags:

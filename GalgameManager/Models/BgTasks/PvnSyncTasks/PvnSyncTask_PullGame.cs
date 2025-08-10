@@ -68,6 +68,37 @@ public class PvnSyncTaskPullGame(
                 if (item.ImageUrl is not null)
                     game.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(item.ImageUrl, 0,
                         $"pvn_{item.Id}") ?? game.ImagePath.Value ?? Galgame.DefaultImagePath;
+                        
+                if (item.HeaderImageUrl is not null && await settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
+                {
+                    game.AutoFetchStatus.HeaderImage = true;
+                    var rawImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(item.HeaderImageUrl, 0,
+                        $"pvn_{item.Id}_header_tmp");
+                    if (rawImagePath is not null)
+                    {
+                        var finalHeaderPath = Path.Combine(
+                            (await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
+                            $"{item.Name ?? "unknown"}_Header.png".RemoveInvalidChars());
+                        await Task.Run(() =>
+                        {
+                            if (DownloadHelper.IsImageProcessed(rawImagePath))
+                                File.Move(rawImagePath, finalHeaderPath, true);
+                            else
+                            {
+                                // Image needs processing, apply the same logic as GetHeaderFromRssTask
+                                DownloadHelper.ProcessImage(rawImagePath, finalHeaderPath, true);
+                                if (File.Exists(rawImagePath)) File.Delete(rawImagePath);
+                            }
+                        });
+                        if (Utils.IsImageValid(finalHeaderPath))
+                        {
+                            game.HeaderImagePath.Value = finalHeaderPath;
+                            game.RaisePropertyChanged(nameof(game.HeaderImagePath));
+                        }
+                        game.HeaderImageUrl = item.HeaderImageUrl;
+                    }
+                }
+                
                 if (item.Tags is not null)
                 {
                     game.Tags.Value?.Clear();

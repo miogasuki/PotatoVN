@@ -1,52 +1,110 @@
-<?xml version='1.0' encoding='utf-8'?>
-<root xmlns:ns1="urn:schemas-microsoft-com:xml-msdata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  
-  <xs:schema id="root">
-    <xs:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xs:element name="root" ns1:IsDataSet="true">
-      <xs:complexType>
-        <xs:choice maxOccurs="unbounded">
-          <xs:element name="metadata">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" />
-              </xs:sequence>
-              <xs:attribute name="name" use="required" type="xsd:string" />
-              <xs:attribute name="type" type="xsd:string" />
-              <xs:attribute name="mimetype" type="xsd:string" />
-              <xs:attribute ref="xml:space" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="assembly">
-            <xs:complexType>
-              <xs:attribute name="alias" type="xsd:string" />
-              <xs:attribute name="name" type="xsd:string" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="data">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
-                <xs:element name="comment" type="xsd:string" minOccurs="0" ns1:Ordinal="2" />
-              </xs:sequence>
-              <xs:attribute name="name" type="xsd:string" use="required" ns1:Ordinal="1" />
-              <xs:attribute name="type" type="xsd:string" ns1:Ordinal="3" />
-              <xs:attribute name="mimetype" type="xsd:string" ns1:Ordinal="4" />
-              <xs:attribute ref="xml:space" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="resheader">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
-              </xs:sequence>
-              <xs:attribute name="name" type="xsd:string" use="required" />
-            </xs:complexType>
-          </xs:element>
-        </xs:choice>
-      </xs:complexType>
-    </xs:element>
-  </xs:schema>
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -1048,7 +1106,7 @@ If play time can record correctly, just cancel this popup.
     <value>Scanning path: {0}</value>
   </data>
   <data name="GalgameFolder_GetGalInFolder_Done" xml:space="preserve">
-    <value>Scan of library {1} complete, {0,plural,one{# game} other{# games}} added.</value>
+    <value>Scan of library {1} complete, {0} games added.</value>
   </data>
   <data name="SettingsPage_Notification.SettingTitle" xml:space="preserve">
     <value>Notifications</value>
@@ -1333,7 +1391,7 @@ If play time can record correctly, just cancel this popup.
     <value>No operation messages.</value>
   </data>
   <data name="GetGalgameInFolderTask_Title" xml:space="preserve">
-    <value>Scan Folder Task</value>
+    <value>Scan Folder Task: {0}</value>
   </data>
   <data name="RecordPlayTimeTask_Title" xml:space="preserve">
     <value>Record Play Time Task</value>
@@ -2290,7 +2348,7 @@ If play time can record correctly, just cancel this popup.
     <value>Note: Downloading a large amount of game character information simultaneously may cause API congestion, which will lead to longer download times to complete</value>
   </data>
   <data name="Galgame_GetCharacterInfo_RunningTasks" xml:space="preserve">
-    <value>There {0, plural, one {is} other {are}} {0} game{0, plural, one {} other {s}} waiting to download character info</value>
+    <value>There are {0} games waiting to download character info</value>
   </data>
   <data name="LibraryPage_NavVisible.Label" xml:space="preserve">
     <value>Show Navigation Bar</value>
@@ -2387,9 +2445,6 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="Career_Relation_Programmer" xml:space="preserve">
     <value>Programmer</value>
-  </data>
-  <data name="Shell_Staff.Content" xml:space="preserve">
-    <value>Staff</value>
   </data>
   <data name="Shell_GalgameCharacter.Content" xml:space="preserve">
     <value>Character Introduction</value>
@@ -2685,7 +2740,7 @@ If play time can record correctly, just cancel this popup.
   <data name="LibraryPage_GetInfoFromRss_Content" xml:space="preserve">
     <value>Download all game data for the current library. This will take a long time to download all information.</value>
   </data>
-  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders" xml:space="preserve">
+  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders.Content" xml:space="preserve">
     <value>Include all subfolders</value>
   </data>
   <data name="LibraryPage_ScanAll_Title" xml:space="preserve">
@@ -2940,4 +2995,118 @@ If play time can record correctly, just cancel this popup.
   <data name="Settings_Game_AlwaysMuteInBackground.Description" xml:space="preserve">
     <value>Overrides individual game settings. If enabled, all games will be muted when in the background.</value>
   </data>
-<data name="PvnSyncTask_PullStaff_Title" xml:space="preserve"><value>PotatoVN Sync Task: Pull Staff</value></data><data name="PvnSyncTask_PullStaff_Progress" xml:space="preserve"><value>Downloading following staff information:</value></data><data name="PvnSyncTask_PullStaff_Waiting" xml:space="preserve"><value>Still {0} staff in queue</value></data><data name="PvnSyncTask_PullStaff_Success" xml:space="preserve"><value>Staff {0} (ID: {1}) synced successfully</value></data><data name="PvnSyncTask_PullStaff_Deleted" xml:space="preserve"><value>Staff {0} (ID: {1}) deleted</value></data><data name="PvnSyncTask_PullStaff_Error" xml:space="preserve"><value>Staff {0} sync failed</value></data><data name="SettingsPage_Other_BetaChannel.Title" xml:space="preserve"><value>Use beta channel to get updates</value></data><data name="SettingsPage_Other_BetaChannel.Description" xml:space="preserve"><value>You will get new features and bug fixes earlier, but it may be unstable.</value></data></root>
+  <data name="PvnSyncTask_PullStaff_Title" xml:space="preserve">
+    <value>PotatoVN Sync Task: Pull Staff</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Progress" xml:space="preserve">
+    <value>Downloading following staff information:</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Waiting" xml:space="preserve">
+    <value>Still {0} staff in queue</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Success" xml:space="preserve">
+    <value>Staff {0} (ID: {1}) synced successfully</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Deleted" xml:space="preserve">
+    <value>Staff {0} (ID: {1}) deleted</value>
+  </data>
+  <data name="PvnSyncTask_PullStaff_Error" xml:space="preserve">
+    <value>Staff {0} sync failed</value>
+  </data>
+  <data name="SettingsPage_Other_BetaChannel.Title" xml:space="preserve">
+    <value>Use beta channel to get updates</value>
+  </data>
+  <data name="SettingsPage_Other_BetaChannel.Description" xml:space="preserve">
+    <value>You will get new features and bug fixes earlier, but it may be unstable.</value>
+  </data>
+  <data name="AccountPage_Pvn_SyncHeaderImage.Title" xml:space="preserve">
+    <value>Sync Header Images</value>
+  </data>
+  <data name="AccountPage_Pvn_SyncHeaderImage.Description" xml:space="preserve">
+    <value>Upload/download game header images when syncing?</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload.Title" xml:space="preserve">
+    <value>Batch Upload</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload.Description" xml:space="preserve">
+    <value>Upload all games data to server with selected properties</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload_Button.Content" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Title" xml:space="preserve">
+    <value>Batch Upload to PotatoVN</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Description.Text" xml:space="preserve">
+    <value>Select which game properties to upload for all games:</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Upload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Infos.Content" xml:space="preserve">
+    <value>Game Information</value>
+  </data>
+  <data name="PvnBatchUploadDialog_ImageLoc.Content" xml:space="preserve">
+    <value>Game Images</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Review.Content" xml:space="preserve">
+    <value>Reviews &amp; Comments</value>
+  </data>
+  <data name="PvnBatchUploadDialog_PlayTime.Content" xml:space="preserve">
+    <value>Play Time &amp; Count</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Character.Content" xml:space="preserve">
+    <value>Game Characters</value>
+  </data>
+  <data name="PvnBatchUploadDialog_HeaderImageLoc.Content" xml:space="preserve">
+    <value>Header Images</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploading" xml:space="preserve">
+    <value>Starting batch upload...</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploadStarted" xml:space="preserve">
+    <value>Batch upload started for {0} of {1} games</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Title" xml:space="preserve">
+    <value>Check on startup</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Description" xml:space="preserve">
+    <value>Check if the library and games still exist when starting the application. Disable to skip checking non-existent libraries and games.</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_SaveMetaBackup.Title" xml:space="preserve">
+    <value>Save metadata backup</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_SaveMetaBackup.Description" xml:space="preserve">
+    <value>Save game metadata within the game folder for this library (.PotatoVN folder)</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Description.Text" xml:space="preserve">
+    <value>Select the types of game information you want to fetch:</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_GameInfo.Content" xml:space="preserve">
+    <value>Game Information</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_HeaderImage.Content" xml:space="preserve">
+    <value>Header Image</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Image.Content" xml:space="preserve">
+    <value>Cover Image</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Character.Content" xml:space="preserve">
+    <value>Characters</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_PlayStatus.Content" xml:space="preserve">
+    <value>Play Status</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Title" xml:space="preserve">
+    <value>Select Game Information to Fetch</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Fetch" xml:space="preserve">
+    <value>Fetch</value>
+  </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Title" xml:space="preserve">
+    <value>Show game name in controls</value>
+  </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
+    <value>Controls whether game names are displayed in game control widgets</value>
+  </data>
+</root>

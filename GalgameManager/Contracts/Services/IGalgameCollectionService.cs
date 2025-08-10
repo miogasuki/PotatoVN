@@ -110,6 +110,16 @@ public interface IGalgameCollectionService
     /// 如果设置中没有打开保存备份则不会保存到游戏文件夹
     /// </param>
     public Task SaveGalgameAsync(Galgame galgame);
+    
+    /// <summary>
+    /// 保存galgame的Meta信息<br/>
+    /// 若库没有打开保存Meta信息，则对应的库什么也不会发生
+    /// </summary>
+    /// <param name="galgame">要保存的游戏</param>
+    /// <param name="targetSource">要保存到的库，如果不指定则保存到所有库</param>
+    /// <exception cref="PvnException">targetSource不是null且不包含galgame</exception>
+    /// <returns></returns>
+    public Task SaveGalgameMetaAsync(Galgame galgame, GalgameSourceBase? targetSource = null);
 
     /// <summary>
     /// 从信息源中搜刮游戏信息，会直接修改传入的galgame <br/>
@@ -120,9 +130,11 @@ public interface IGalgameCollectionService
     /// <param name="galgame">待搜刮游戏</param>
     /// <param name="rssType">指定信息源，若为None则使用设置中的默认值</param>
     /// <param name="requireConfirm">是否需要用户确认解析信息</param>
+    /// <param name="type">要搜刮游戏的哪些信息</param>
     /// <returns>修改过后的galgame</returns>
     /// <exception cref="PvnException">要求用户确认解析信息且用户取消了该确认对话框</exception>
-    public Task<Galgame> PhraseGalInfoAsync(Galgame galgame, RssType rssType = RssType.None, bool requireConfirm = false);
+    public Task<Galgame> ParseGalInfoAsync(Galgame galgame, RssType rssType = RssType.None,
+        bool requireConfirm = false, GameParseType type = GameParseType.All);
 
     /// <summary>
     /// 从信息源中搜刮游戏信息，只解析基本信息，直接修改传入的galgame
@@ -132,15 +144,6 @@ public interface IGalgameCollectionService
     /// <param name="requireConfirm">是否需要用户确认解析信息</param>
     /// <returns>修改过后的游戏</returns>
     public Task<Galgame> ParseGalInfoOnlyAsync(Galgame galgame, RssType rssType = RssType.None, bool requireConfirm = false);
-
-    /// <summary>
-    /// 从信息源中搜刮某个游戏的某部分信息，直接修改传入的galgame <br/>
-    /// </summary>
-    /// <param name="galgame">待搜刮游戏</param>
-    /// <param name="rssType">指定信息源，若为None则使用默认值</param>
-    /// <param name="type">要搜刮的部分</param>
-    /// <returns></returns>
-    public Task<Galgame> ParseGalInfoAsync(Galgame galgame, GameParseType type, RssType rssType = RssType.None);
 
     /// <summary>
     /// 从信息源中搜刮游戏角色信息，直接修改传入的galgameCharacter

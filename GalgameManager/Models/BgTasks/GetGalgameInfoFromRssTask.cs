@@ -11,6 +11,7 @@ public class GetGalgameInfoFromRssTask : BgTaskBase
 {
     public string GalgameSourceUrl = string.Empty;
     public IList<string> GalgamesName = new List<string>();
+    public GameParseType ParseType = GameParseType.All;
     private GalgameSourceBase? _galgameSource;
     private List<Galgame>? _galgames;
 
@@ -22,6 +23,19 @@ public class GetGalgameInfoFromRssTask : BgTaskBase
         _galgameSource = galgameSource;
         GalgameSourceUrl = galgameSource.Url;
         _galgames = toUpdate ?? _galgameSource.GetGalgameList().ToList();
+        ParseType = GameParseType.All;
+        foreach (Galgame galgame in _galgames)
+        {
+            GalgamesName.Add(galgame.Name.Value ?? "");
+        }
+    }
+
+    public GetGalgameInfoFromRssTask(GalgameSourceBase galgameSource, GameParseType parseType, List<Galgame>? toUpdate = null)
+    {
+        _galgameSource = galgameSource;
+        GalgameSourceUrl = galgameSource.Url;
+        _galgames = toUpdate ?? _galgameSource.GetGalgameList().ToList();
+        ParseType = parseType;
         foreach (Galgame galgame in _galgames)
         {
             GalgamesName.Add(galgame.Name.Value ?? "");
@@ -61,7 +75,7 @@ public class GetGalgameInfoFromRssTask : BgTaskBase
                 ChangeProgress(i, total, $"正在获取 {galgame.Name.Value} 的信息");
                 await UiThreadInvokeHelper.InvokeAsync(async Task() =>
                 {
-                    Galgame result = await galgameService.PhraseGalInfoAsync(galgame);
+                    Galgame result = await galgameService.ParseGalInfoAsync(galgame, type: ParseType);
                     await galgameService.SaveGalgameAsync(result);
                     log += $"{result.Name} Done\n";
                 });

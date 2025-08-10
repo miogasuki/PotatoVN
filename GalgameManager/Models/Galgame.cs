@@ -22,15 +22,23 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public event Action<Exception>? ErrorOccurred; //非致命异常产生时触发
     
     [JsonIgnore][BsonIgnore]
-    public GalgameUid Uid => new()
+    public GalgameUid Uid
     {
-        Name = Name.Value!,
-        CnName = CnName,
-        BangumiId = Ids[(int)RssType.Bangumi],
-        VndbId = Ids[(int)RssType.Vndb],
-        YmgalId = Ids[(int)RssType.Ymgal],
-        PvnId = Ids[(int)RssType.PotatoVn],
-    };
+        get
+        {
+            if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
+            return new()
+            {
+                Name = Name.Value!,
+                CnName = CnName,
+                BangumiId = Ids[(int)RssType.Bangumi],
+                VndbId = Ids[(int)RssType.Vndb],
+                YmgalId = Ids[(int)RssType.Ymgal],
+                PvnId = Ids[(int)RssType.PotatoVn],
+            };
+        }
+    }
+
     /// 唯一标识， 若要判断两个游戏是否为同一个游戏，应使用<see cref="GalgameUid"/>
     [BsonId] public Guid Uuid { get; set; }  = Guid.NewGuid();
     
@@ -101,10 +109,15 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [JsonIgnore][BsonIgnore]
     public string? Id
     {
-        get => Ids[(int)RssType];
+        get 
+        {
+            if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
+            return Ids[(int)RssType];
+        }
 
         set
         {
+            if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
             if (Ids[(int)RssType] != value)
             {
                Ids[(int)RssType] = value;
@@ -216,6 +229,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// </summary>
     public void UpdateIdFromMixed()
     {
+        if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
         foreach (RssType rss in RssTypeHelper.UsablePhrasers)
             Ids[(int)rss] = null;
         var ids = Ids[(int)RssType.Mixed] ?? string.Empty.Replace("，", ",").Replace(" ", "");
@@ -233,6 +247,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// </summary>
     public void UpdateMixedId()
     {
+        if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
         // 更新id
         var mixedId = string.Empty;
         foreach (RssType rss in RssTypeHelper.UsablePhrasers)

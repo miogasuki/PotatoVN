@@ -75,6 +75,7 @@ public partial class GalgameCollectionService
                 _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameAddEvent", e);
             }
         });
+        await ParseGalInfoAsync(meta, type: GameParseType.HeaderImage | GameParseType.Character);
         
         meta.ErrorOccurred += e =>
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgameEvent", e);

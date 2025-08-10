@@ -119,6 +119,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _fixHorizontalPicture = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture).Result;
         TimeAsHour = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TimeAsHour).Result;
         _transparentNavigationView = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TransparentNavigationView).Result;
+        _showGameNameInControl = _localSettingsService.ReadSettingAsync<bool>(KeyValues.ShowGameNameInControl).Result;
         _defaultGameName = _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.DefaultGameName).Result;
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
@@ -145,7 +146,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _galgameCollectionService = ((GalgameCollectionService?)galgameService)!;
         _galgameCollectionService.MetaSavedEvent += SetSaveMetaPopUp;
         _searchSubFolder = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SearchChildFolder).Result;
-        _metaBackup = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SaveBackupMetadata).Result;
+        _metaBackup = false;
         _ignoreFetchResult = _localSettingsService.ReadSettingAsync<bool>(KeyValues.IgnoreFetchResult).Result;
         _regex = _localSettingsService.ReadSettingAsync<string>(KeyValues.RegexPattern).Result ?? ".+";
         _regexIndex = _localSettingsService.ReadSettingAsync<int>(KeyValues.RegexIndex).Result;
@@ -162,6 +163,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _minToTrayWhenAutoStart = _localSettingsService.ReadSettingAsync<bool>(KeyValues.MinToTrayWhenAutoStart).Result;
         //Notification
         NotifyWhenGetGalgameInFolder = _localSettingsService.ReadSettingAsync<bool>(KeyValues.NotifyWhenGetGalgameInFolder).Result;
+        EventWhenGetGalgameInFolderEmpty = _localSettingsService.ReadSettingAsync<bool>(KeyValues.EventGetGalgameInFolderEmpty).Result;
         NotifyWhenUnpackGame = _localSettingsService.ReadSettingAsync<bool>(KeyValues.NotifyWhenUnpackGame).Result;
         _eventPvnSync = _localSettingsService.ReadSettingAsync<bool>(KeyValues.EventPvnSyncNotify).Result;
         _eventPvnSyncEmpty = _localSettingsService.ReadSettingAsync<bool>(KeyValues.EventPvnSyncEmptyNotify).Result;
@@ -320,6 +322,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     // 时间显示单位改为小时
     [ObservableProperty] private bool _timeAsHour;
     partial void OnTimeAsHourChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.TimeAsHour, value);
+
+    // 游戏控件是否显示游戏名称
+    [ObservableProperty] private bool _showGameNameInControl;
+    partial void OnShowGameNameInControlChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.ShowGameNameInControl, value);
 
     // 软件默认使用的游戏名
     public DisplayName[] DefaultGameNames { get; } = { DisplayName.ChineseName, DisplayName.OriginalName, DisplayName.Name };
@@ -656,7 +662,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private string _gameFolderShouldContain;
     [ObservableProperty] private string _regexTryItOut = "";
 
-    partial void OnMetaBackupChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SaveBackupMetadata, value);
+    partial void OnMetaBackupChanged(bool value)
+    {
+        IGalgameSourceCollectionService sourceCollectionService = App.GetService<IGalgameSourceCollectionService>();
+        foreach (GalgameSourceBase source in sourceCollectionService.GetGalgameSources())
+        {
+            source.SaveMetaBackup = value;
+            sourceCollectionService.Save(source);
+        }
+    }
     partial void OnSearchSubFolderChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SearchChildFolder, value);
     partial void OnIgnoreFetchResultChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.IgnoreFetchResult, value);
     
@@ -691,7 +705,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         foreach(Galgame game in _galgameCollectionService.Galgames)
         foreach (GalgameSourceBase source in game.Sources)
         {
-            RemoveMetaBackupProgress = "SettingsPage_Library_RemoveMetaBackupProgress".GetLocalized(game.Name);
+            RemoveMetaBackupProgress = "SettingsPage_Library_RemoveMetaBackupProgress".GetLocalized(game.Name.Value ?? Empty);
             await SourceServiceFactory.GetSourceService(source.SourceType).RemoveMetaAsync(game);
         }
         RemoveMetaBackupProgress = "Done!";
@@ -981,6 +995,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region Notification
 
     [ObservableProperty] private bool _notifyWhenGetGalgameInFolder;
+    [ObservableProperty] private bool _eventWhenGetGalgameInFolderEmpty;
     [ObservableProperty] private bool _notifyWhenUnpackGame;
     [ObservableProperty] private bool _eventPvnSync;
     [ObservableProperty] private bool _eventPvnSyncEmpty;
@@ -997,6 +1012,9 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     partial void OnEventPvnSyncEmptyChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.EventPvnSyncEmptyNotify, value);
+
+    partial void OnEventWhenGetGalgameInFolderEmptyChanged(bool value) =>
+        _localSettingsService.SaveSettingAsync(KeyValues.EventGetGalgameInFolderEmpty, value);
 
     #endregion
 

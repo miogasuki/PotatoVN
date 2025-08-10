@@ -236,13 +236,19 @@
                                     </control:Setting>
                                 </control:Panel>
                                 <!-- 启动时自动扫描 -->
-                                <control:Panel>
+                                <control:Panel Visibility="{x:Bind ViewModel.Item.CanChangeScanOnStart}">
                                     <views:SettingToggleSwitch
                                         x:Uid="GalgameSourcePage_Setting_AutoScan"
                                         IsOn="{x:Bind ViewModel.Item.ScanOnStart, Mode=TwoWay, FallbackValue=False}" />
                                 </control:Panel>
+                                <!-- 启动时检查库和游戏是否存在 -->
+                                <control:Panel Visibility="{x:Bind ViewModel.Item.CanChangeCheckOnStart}">
+                                    <views:SettingToggleSwitch
+                                        x:Uid="GalgameSourcePage_Setting_CheckOnStart"
+                                        IsOn="{x:Bind ViewModel.Item.CheckOnStart, Mode=TwoWay, FallbackValue=True}" />
+                                </control:Panel>
                                 <!-- 自动添加/取消托管游戏 -->
-                                <control:Panel>
+                                <control:Panel Visibility="{x:Bind ViewModel.Item.CanChangeDetect}">
                                     <StackPanel Spacing="12">
                                         <views:SettingToggleSwitch
                                             x:Uid="GalgameSourcePage_Setting_Auto"
@@ -256,6 +262,12 @@
                                             IsOn="{x:Bind ViewModel.Item.DetectFolderRemove, Mode=TwoWay, FallbackValue=False}" 
                                             Visibility="{x:Bind ViewModel.Item.Detect, Mode=OneWay, FallbackValue=0}"/>
                                     </StackPanel>    
+                                </control:Panel>
+                                <!-- 保存元数据备份 -->
+                                <control:Panel Visibility="{x:Bind ViewModel.Item.CanChangeSaveMetaBackup}">
+                                    <views:SettingToggleSwitch
+                                        x:Uid="GalgameSourcePage_Setting_SaveMetaBackup"
+                                        IsOn="{x:Bind ViewModel.SaveMetadata, Mode=TwoWay, FallbackValue=False}" />
                                 </control:Panel>
                             </StackPanel>
                         </control:SettingExpander.SettingContent>

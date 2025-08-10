@@ -10,6 +10,8 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
 {
     private static readonly IGalgameCollectionService GameService = App.GetService<IGalgameCollectionService>();
     private readonly VndbPhraser _vndbParser = (GameService.PhraserList[(int)RssType.Vndb] as VndbPhraser)!;
+    private readonly IPvnService _pvnService = App.GetService<IPvnService>();
+    private readonly ILocalSettingsService _settingsService = App.GetService<ILocalSettingsService>();
 
     public void AddGalgame(Galgame? game)
     {
@@ -40,6 +42,9 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
         });
         await GameService.SaveGalgameAsync(item);
         if (File.Exists(rawImage)) File.Delete(rawImage);
+        if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&
+            await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
+            _pvnService.Upload(item, PvnUploadProperties.HeaderImageLoc);
     }
 
     protected override string ProgressTitle() => "GetHeaderFromRssTask_Progress_Title";

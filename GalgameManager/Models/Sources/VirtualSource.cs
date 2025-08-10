@@ -7,6 +7,22 @@ public partial class VirtualSource : GalgameSourceBase
 {
     public override GalgameSourceType SourceType => GalgameSourceType.Virtual;
 
+    public override bool CanChangeScanOnStart => false;
+
+    public override bool CanChangeCheckOnStart => false;
+
+    public override bool CanChangeDetect => false;
+    public override bool CanChangeSaveMetaBackup => false;
+
+    public override bool IsGameAddable => false;
+    public override bool IsSourceScanable => false;
+    public override bool IsDelectable => false;
+
+    public VirtualSource()
+    {
+        CheckOnStart = false;
+    }
+
     /// <summary>
     /// 根据allGames构造虚拟游戏游戏列表
     /// </summary>
@@ -20,6 +36,4 @@ public partial class VirtualSource : GalgameSourceBase
             if (!game.IsLocalGame && !allGamesSet.Contains(game)) AddGalgame(game, string.Empty);
         }
     }
-
-    public override bool IsDelectable => false;
 }

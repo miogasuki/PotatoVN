@@ -20,16 +20,19 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
     private readonly IBgmOAuthService _bgmService;
     private readonly IVndbAuthService _vndbAuthService;
     private readonly IInfoService _infoService;
+    private readonly IGalgameCollectionService _gameService;
     
     
     public AccountViewModel(ILocalSettingsService localSettingsService, IPvnService pvnService, 
-        IBgmOAuthService bgmService, IVndbAuthService vndbAuthService, IInfoService infoService)
+        IBgmOAuthService bgmService, IVndbAuthService vndbAuthService, IInfoService infoService,
+        IGalgameCollectionService gameService)
     {
         _localSettingsService = localSettingsService;
         _pvnService = pvnService;
         _bgmService = bgmService;
         _infoService = infoService;
         _vndbAuthService = vndbAuthService;
+        _gameService = gameService;
     }
     
     public async void OnNavigatedTo(object parameter)
@@ -44,6 +47,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         PvnSyncGames = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncGames);
         PvnSyncCharacters = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncGameCharacters);
         PvnSyncStaffs = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncStaff);
+        PvnSyncHeaderImages = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage);
         await UpdateAccountDisplay();
     }
 
@@ -105,6 +109,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _pvnSyncGames;
     [ObservableProperty] private bool _pvnSyncCharacters;
     [ObservableProperty] private bool _pvnSyncStaffs;
+    [ObservableProperty] private bool _pvnSyncHeaderImages;
     public string UsedSpace => $"{((double)(PvnAccount?.UsedSpace ?? 0) / 1024 / 1024)
         .ToString("F1", CultureInfo.InvariantCulture)} MB";
     public string TotalSpace => $"{((double)(PvnAccount?.TotalSpace ?? 0) / 1024 / 1024)
@@ -226,6 +231,9 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
     partial void OnPvnSyncStaffsChanged(bool value) =>
         _localSettingsService.SaveSettingAsync(KeyValues.SyncStaff, value);
 
+    partial void OnPvnSyncHeaderImagesChanged(bool value) =>
+        _localSettingsService.SaveSettingAsync(KeyValues.SyncHeaderImage, value);
+
     [RelayCommand]
     private async Task PvnRefreshToken()
     {
@@ -245,6 +253,32 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         catch (Exception e)
         {
             _infoService.Info(InfoBarSeverity.Error, msg: e.ToString());
+        }
+    }
+
+    [RelayCommand]
+    private async Task PvnBatchUpload()
+    {
+        if (PvnAccount is null) return;
+        try
+        {
+            PvnBatchUploadDialog dialog = new();
+            await dialog.ShowAsync();
+            if (dialog.Canceled || dialog.SelectedProperties == PvnUploadProperties.None) return;
+            _infoService.Info(InfoBarSeverity.Informational, msg: "AccountPage_Pvn_BatchUploading".GetLocalized());
+            var totalGames = _gameService.Galgames.Count;
+            var uploadedCount = 0;
+            foreach (Galgame galgame in _gameService.Galgames)
+            {
+                _pvnService.Upload(galgame, dialog.SelectedProperties);
+                uploadedCount++;
+            }
+            _infoService.Info(InfoBarSeverity.Success, 
+                msg: "AccountPage_Pvn_BatchUploadStarted".GetLocalized(uploadedCount, totalGames));
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, msg: e.Message);
         }
     }
 

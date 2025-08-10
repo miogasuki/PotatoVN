@@ -1,52 +1,110 @@
-<?xml version='1.0' encoding='utf-8'?>
-<root xmlns:ns1="urn:schemas-microsoft-com:xml-msdata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  
-  <xs:schema id="root">
-    <xs:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xs:element name="root" ns1:IsDataSet="true">
-      <xs:complexType>
-        <xs:choice maxOccurs="unbounded">
-          <xs:element name="metadata">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" />
-              </xs:sequence>
-              <xs:attribute name="name" use="required" type="xsd:string" />
-              <xs:attribute name="type" type="xsd:string" />
-              <xs:attribute name="mimetype" type="xsd:string" />
-              <xs:attribute ref="xml:space" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="assembly">
-            <xs:complexType>
-              <xs:attribute name="alias" type="xsd:string" />
-              <xs:attribute name="name" type="xsd:string" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="data">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
-                <xs:element name="comment" type="xsd:string" minOccurs="0" ns1:Ordinal="2" />
-              </xs:sequence>
-              <xs:attribute name="name" type="xsd:string" use="required" ns1:Ordinal="1" />
-              <xs:attribute name="type" type="xsd:string" ns1:Ordinal="3" />
-              <xs:attribute name="mimetype" type="xsd:string" ns1:Ordinal="4" />
-              <xs:attribute ref="xml:space" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="resheader">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
-              </xs:sequence>
-              <xs:attribute name="name" type="xsd:string" use="required" />
-            </xs:complexType>
-          </xs:element>
-        </xs:choice>
-      </xs:complexType>
-    </xs:element>
-  </xs:schema>
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -460,12 +518,13 @@
     <value>搜索</value>
   </data>
   <data name="SettingsPage_Library_MetaBackup" xml:space="preserve">
-    <value>元数据备份</value>
+    <value>批量设置各个库的元数据备份</value>
   </data>
   <data name="SettingsPage_Library_MetaBackupDescription" xml:space="preserve">
     <value>选择是否在游戏文件夹内备份游戏信息数据：
 启用：在游戏文件夹内创建备份文件（.PotatoVN文件夹）
-禁用：数据仅保存在软件内部，可以通过数据导入导出功能手动备份</value>
+禁用：数据仅保存在软件内部，可以通过数据导入导出功能手动备份
+修改这个按钮会批量修改所有游戏库设置的元数据备份</value>
   </data>
   <data name="SettingsPage_Library_BackupNow.Title" xml:space="preserve">
     <value>备份所有游戏信息</value>
@@ -1432,7 +1491,7 @@
     <value>暂无运行消息</value>
   </data>
   <data name="GetGalgameInFolderTask_Title" xml:space="preserve">
-    <value>扫描文件夹任务</value>
+    <value>扫描文件夹任务：{0}</value>
   </data>
   <data name="RecordPlayTimeTask_Title" xml:space="preserve">
     <value>记录游戏时长任务</value>
@@ -2536,9 +2595,6 @@
   <data name="Career_Relation_Programmer" xml:space="preserve">
     <value>程序</value>
   </data>
-  <data name="Shell_Staff.Content" xml:space="preserve">
-    <value>制作人员</value>
-  </data>
   <data name="Shell_GalgameCharacter.Content" xml:space="preserve">
     <value>角色介绍</value>
   </data>
@@ -2836,7 +2892,7 @@
   <data name="LibraryPage_GetInfoFromRss_Content" xml:space="preserve">
     <value>下载当前库的所有游戏数据，这需要很长时间来下载所有信息</value>
   </data>
-  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders" xml:space="preserve">
+  <data name="LibraryPage_GetInfoFromRss_IncludeSubfolders.Content" xml:space="preserve">
     <value>包括所有子文件夹</value>
   </data>
   <data name="LibraryPage_ScanAll_Title" xml:space="preserve">
@@ -3466,11 +3522,135 @@
   <data name="UpdateService_FailedToGetVersion" xml:space="preserve">
     <value>无法获取当前最新版本</value>
   </data>
-<data name="SettingsPage_Other_BetaChannel.Title" xml:space="preserve"><value>使用测试通道获取更新</value></data><data name="SettingsPage_Other_BetaChannel.Description" xml:space="preserve"><value>你将会更早地获取到新功能与bug修复，但这可能是不稳定的。</value></data>
+  <data name="SettingsPage_Other_BetaChannel.Title" xml:space="preserve">
+    <value>使用测试通道获取更新</value>
+  </data>
+  <data name="SettingsPage_Other_BetaChannel.Description" xml:space="preserve">
+    <value>你将会更早地获取到新功能与bug修复，但这可能是不稳定的。</value>
+  </data>
   <data name="SettingsPage_Other_BetaChannel_Success" xml:space="preserve">
     <value>设置成功，重启软件后生效</value>
   </data>
   <data name="GalgameCollectionService_SavePathIsSymbolicLink" xml:space="preserve">
     <value>这个存档看起来已经在云端了，已修改本游戏云存档位置记录值~</value>
+  </data>
+  <data name="AccountPage_Pvn_SyncHeaderImage.Title" xml:space="preserve">
+    <value>同步Header图</value>
+  </data>
+  <data name="AccountPage_Pvn_SyncHeaderImage.Description" xml:space="preserve">
+    <value>是否在同步时上传/下载游戏Header图</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload.Title" xml:space="preserve">
+    <value>批量上传</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload.Description" xml:space="preserve">
+    <value>将所有游戏数据以选定的属性上传到服务器</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUpload_Button.Content" xml:space="preserve">
+    <value>上传</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Title" xml:space="preserve">
+    <value>批量上传至PotatoVN</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Description.Text" xml:space="preserve">
+    <value>选择要为所有游戏上传的游戏属性：</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Upload" xml:space="preserve">
+    <value>上传</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Infos.Content" xml:space="preserve">
+    <value>游戏信息</value>
+  </data>
+  <data name="PvnBatchUploadDialog_ImageLoc.Content" xml:space="preserve">
+    <value>游戏图片</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Review.Content" xml:space="preserve">
+    <value>评价与评论</value>
+  </data>
+  <data name="PvnBatchUploadDialog_PlayTime.Content" xml:space="preserve">
+    <value>游玩时间与次数</value>
+  </data>
+  <data name="PvnBatchUploadDialog_Character.Content" xml:space="preserve">
+    <value>游戏角色</value>
+  </data>
+  <data name="PvnBatchUploadDialog_HeaderImageLoc.Content" xml:space="preserve">
+    <value>头图</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploading" xml:space="preserve">
+    <value>正在开始批量上传...</value>
+  </data>
+  <data name="AccountPage_Pvn_BatchUploadStarted" xml:space="preserve">
+    <value>已开始批量上传{1}个游戏中的{0}个</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Title" xml:space="preserve">
+    <value>启动时检查</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_CheckOnStart.Description" xml:space="preserve">
+    <value>在应用启动时检查库是否仍然存在。关闭此选项将跳过对不存在的库的检查。</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_SaveMetaBackup.Title" xml:space="preserve">
+    <value>保存元数据备份</value>
+  </data>
+  <data name="GalgameSourcePage_Setting_SaveMetaBackup.Description" xml:space="preserve">
+    <value>选择是否在游戏文件夹内备份游戏信息数据：
+启用：在游戏文件夹内创建备份文件（.PotatoVN文件夹），后续重新搜刮这个库时能快速读取这些数据。
+禁用：数据仅保存在软件内部，可以通过数据导入导出功能手动备份</value>
+  </data>
+  <data name="GalgameSourcePage_SavingMeta" xml:space="preserve">
+    <value>正在保存{0}的Meta信息</value>
+  </data>
+  <data name="GalgameSourcePage_SaveMetaSuccess" xml:space="preserve">
+    <value>已成功保存各个游戏信息，后续会自动保存</value>
+  </data>
+  <data name="GalgameSourcePage_RemovingMeta" xml:space="preserve">
+    <value>正在删除{0}的信息备份</value>
+  </data>
+  <data name="GalgameSourcePage_RemoveMetaSuccess" xml:space="preserve">
+    <value>成功删除本库各游戏信息备份，后续不再自动保存</value>
+  </data>
+  <data name="SettingsPage_Notification_GetGalgameFolder_Empty.Title" xml:space="preserve">
+    <value>游戏扫描空事件通知</value>
+  </data>
+  <data name="SettingsPage_Notification_GetGalgameFolder_Empty.Description" xml:space="preserve">
+    <value>当扫描游戏库未发现新游戏时，是否提醒</value>
+  </data>
+  <data name="GalgameSourceType_LocalFolder_Removeable" xml:space="preserve">
+    <value>可移动介质</value>
+  </data>
+  <data name="GalgameSourceType_LocalFolder_Net" xml:space="preserve">
+    <value>网络存储器</value>
+  </data>
+  <data name="GalgameFolder_GetGalInFolder_GettingPaths" xml:space="preserve">
+    <value>尝试连接游戏库中</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Description.Text" xml:space="preserve">
+    <value>请选择要搜刮的游戏信息类型：</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_GameInfo.Content" xml:space="preserve">
+    <value>游戏信息</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_HeaderImage.Content" xml:space="preserve">
+    <value>头图</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Image.Content" xml:space="preserve">
+    <value>封面图</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Character.Content" xml:space="preserve">
+    <value>角色</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_PlayStatus.Content" xml:space="preserve">
+    <value>游玩状态</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Title" xml:space="preserve">
+    <value>选择要搜刮的游戏信息</value>
+  </data>
+  <data name="SelectGameInfoToFetchDialog_Fetch" xml:space="preserve">
+    <value>搜刮</value>
+  </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Title" xml:space="preserve">
+    <value>游戏控件显示游戏名称</value>
+  </data>
+  <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
+    <value>控制游戏控件组件中是否显示游戏名称</value>
   </data>
 </root>

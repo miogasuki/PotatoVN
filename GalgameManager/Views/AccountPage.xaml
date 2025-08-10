@@ -61,6 +61,9 @@
                                 <views:SettingToggleSwitch
                                     x:Uid="AccountPage_Pvn_SyncStaff"
                                     IsOn="{x:Bind ViewModel.PvnSyncStaffs, Mode=TwoWay}" />
+                                <views:SettingToggleSwitch
+                                    x:Uid="AccountPage_Pvn_SyncHeaderImage"
+                                    IsOn="{x:Bind ViewModel.PvnSyncHeaderImages, Mode=TwoWay}" />
                             </StackPanel>
                         </control:Panel>
                         <!-- 云存储空间 -->
@@ -96,6 +99,14 @@
                                 <Button x:Uid="AccountPage_Pvn_SetAccount_Button"
                                         MinWidth="{StaticResource ToggleSwitchWidth}"
                                         Command="{x:Bind ViewModel.PvnSetAccountCommand}" />
+                            </control:Setting>
+                        </control:Panel>
+                        <!-- 批量上传 -->
+                        <control:Panel Visibility="{x:Bind ViewModel.IsPvnLogin, Mode=OneWay}" >
+                            <control:Setting x:Uid="AccountPage_Pvn_BatchUpload">
+                                <Button x:Uid="AccountPage_Pvn_BatchUpload_Button"
+                                        MinWidth="{StaticResource ToggleSwitchWidth}"
+                                        Command="{x:Bind ViewModel.PvnBatchUploadCommand}"/>
                             </control:Setting>
                         </control:Panel>
                         <!-- 服务器类型 -->

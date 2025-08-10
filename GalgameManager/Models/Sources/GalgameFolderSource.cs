@@ -7,12 +7,13 @@ using SystemPath = System.IO.Path;
 namespace GalgameManager.Models.Sources;
 
 
-public class GalgameFolderSource : GalgameSourceBase
+public partial class GalgameFolderSource : GalgameSourceBase
 {
     public override GalgameSourceType SourceType =>  GalgameSourceType.LocalFolder;
 
     public GalgameFolderSource(string path): base(path)
     {
+        UpdateRemoveable();
     }
 
     public GalgameFolderSource()
@@ -66,8 +67,15 @@ public class GalgameFolderSource : GalgameSourceBase
         }
     }
 
+    public override bool CanChangeScanOnStart => true;
+    public override bool CanChangeCheckOnStart => true;
+    public override bool CanChangeDetect => true;
+    public override bool CanChangeSaveMetaBackup => true;
     public override bool IsGameAddable => true;
     public override bool IsSourceScanable => true;
+    public override bool IsDelectable => true;
+    public bool RemoveableDrive { get; private set; }
+    public bool NetworkDrive { get; private set; }
 
     /// <summary>
     /// 检查是否具有读取文件夹的权限
@@ -111,6 +119,30 @@ public class GalgameFolderSource : GalgameSourceBase
     {
         return SystemPath.GetFileName(
             SystemPath.GetDirectoryName(path + SystemPath.DirectorySeparatorChar)) ?? "";
+    }
+
+    /// <summary>
+    /// 更新这个库的RemoveableDrive属性（以及如果其可移动，自动配置一些属性）
+    /// </summary>
+    public GalgameFolderSource UpdateRemoveable()
+    {
+        try
+        {
+            DriveInfo driver = new(Path);
+            RemoveableDrive = driver.DriveType is DriveType.Network or DriveType.Removable;
+            if (RemoveableDrive)
+            {
+                CheckOnStart = false;
+                ScanOnStart = true;
+                SaveMetaBackup = true;
+            }
+            NetworkDrive = driver.DriveType == DriveType.Network;
+        }
+        catch (Exception)
+        {
+            //ignore
+        }
+        return this;
     }
 }
 

@@ -26,7 +26,7 @@ public class GalgameSourceCollectionService(
     private readonly List<JsonConverter> _converters =
     [
         new GalgameAndUidConverter(),
-        new GalgameSourceCustomConverter(),
+        new GalgameSourceConverter(),
     ];
     private ILiteCollection<GalgameSourceBase> _dbSet = null!;
 
@@ -50,9 +50,9 @@ public class GalgameSourceCollectionService(
                     "GalgameSourceCollectionService_InitAsync_GalgameIsNull".GetLocalized(g.Path, source.Url));
             }
         }
-        // 去除找不到的库
+        // 去除找不到的库（只对启用了启动检查的库进行检查）
         List<GalgameSourceBase> toRemove = _galgameSources.Where(source =>
-            source.SourceType == GalgameSourceType.LocalFolder && !Directory.Exists(source.Path)).ToList();
+            source is { CheckOnStart: true, SourceType: GalgameSourceType.LocalFolder } && !Directory.Exists(source.Path)).ToList();
         if (toRemove.Count > 0)
         {
             foreach (GalgameSourceBase source in toRemove)
@@ -66,6 +66,8 @@ public class GalgameSourceCollectionService(
                     $"\n{string.Join('\n', toRemove.Select(s => s.Path))}"));
         }
         await ImportAsync(settingStatus);
+        await MetaBackupSettingsUpgrade(settingStatus);
+        await RemoveableUpgrade(settingStatus);
         // 给Galgame注入Source列表
         foreach (GalgameSourceBase s in _galgameSources)
             foreach (Galgame g in s.GetGalgameList().Where(g => !g.Sources.Contains(s)))
@@ -183,7 +185,7 @@ public class GalgameSourceCollectionService(
             case GalgameSourceType.UnKnown:
                 throw new ArgumentOutOfRangeException(nameof(sourceType), sourceType, null);
             case GalgameSourceType.LocalFolder:
-                galgameSource = new GalgameFolderSource(path);
+                galgameSource = new GalgameFolderSource(path).UpdateRemoveable();
                 break;
             case GalgameSourceType.LocalZip:
                 galgameSource = new GalgameZipSource(path);
@@ -589,6 +591,52 @@ public class GalgameSourceCollectionService(
         Save(source);
         status.GalgameSourceAddVirtualSource = true;
         await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+    }
+
+    /// <summary>
+    /// 将全局SaveBackupMetadata设置迁移到各个库的SaveMetaBackup属性
+    /// </summary>
+    private async Task MetaBackupSettingsUpgrade(LocalSettingStatus status)
+    {
+        if (status.MetaBackupPerSourceUpgrade) return;
+        try
+        {
+            var globalSetting = await localSettingsService.ReadSettingAsync<bool>(KeyValues.SaveBackupMetadata);
+            foreach (GalgameSourceBase source in _galgameSources)
+            {
+                source.SaveMetaBackup = globalSetting;
+                Save(source);
+            }
+        }
+        catch (Exception e)
+        {
+            infoService.DeveloperEvent(e: e);
+        }
+        status.MetaBackupPerSourceUpgrade = true;
+        await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+    }
+
+    /// <summary>
+    /// 检测每个库是否为可移动介质升级
+    /// </summary>
+    /// <param name="status"></param>
+    private async Task RemoveableUpgrade(LocalSettingStatus status)
+    {
+        if (status.GalgameSourceRemoveableUpgrade) return;
+        try
+        {
+            foreach (GalgameSourceBase source in _galgameSources)
+            {
+                if (source is not GalgameFolderSource folderSource) continue;
+                folderSource.UpdateRemoveable();
+            }
+            status.GalgameSourceRemoveableUpgrade = true;
+            await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+        }
+        catch (Exception e)
+        {
+            infoService.DeveloperEvent(e: e);
+        }
     }
     
     #endregion

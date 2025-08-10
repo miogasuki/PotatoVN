@@ -153,7 +153,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             {
                 if (Item is null) return;
                 if (Item.HeaderImagePath.Value is null && !Item.AutoFetchStatus.HeaderImage)
-                    _ = _galgameService.ParseGalInfoAsync(Item, GameParseType.HeaderImage);
+                    _ = _galgameService.ParseGalInfoAsync(Item, type: GameParseType.HeaderImage);
                 if (_staffService.GetStaffs(Item).Count == 0 && !Item.AutoFetchStatus.Staff)
                     _ = _staffService.ParseStaffAsync(Item);
             }
@@ -338,7 +338,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         if (Item == null) return;
         IsPhrasing = true;
-        await _galgameService.PhraseGalInfoAsync(Item);
+        await _galgameService.ParseGalInfoAsync(Item);
     }
 
     [RelayCommand]

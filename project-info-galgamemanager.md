@@ -47,8 +47,9 @@ The client application implements the core functionalities of PotatoVN:
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
           * When Editing localizations files, you should *never* directly read or edit the .resw files. 
           * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
-          * Usage:
+          * Usage (note: on Windows PowerShell, use semicolon `;` to separate commands):
               ```bash
+            cd GalgameManager/Strings #重要，这个脚本应该在Strings目录下运行
               # 搜索所有包含 "Theme" 的key
             python resw_tool.py search "*Theme*"
             # 搜索以 "Settings_" 开头的key
@@ -59,6 +60,8 @@ The client application implements the core functionalities of PotatoVN:
             python resw_tool.py update "Settings_Theme.Text" en-US="Theme" ja-JP="テーマ" zh-CN="主题"
             # 添加新的key
             python resw_tool.py update "NewFeature.Title" en-US="New Feature" ja-JP="新機能"
+            # On Windows PowerShell (recommended approach):
+            cd GalgameManager/Strings; python resw_tool.py update "NewKey.Text" en-US="English" zh-CN="中文"
             ```
 
 ## 4. Key Files and Directories within `GalgameManager/`
@@ -80,6 +83,7 @@ This section highlights important files and directories specific to the client a
     *   `ShellEventViewModel.cs` (within `ShellViewModel.cs`): Represents an event notification displayed in the shell. It now includes `CallbackAction` and `CallbackButtonText` properties, along with an `ExecuteCallbackCommand` to invoke the action.
 *   **`Views/`**: Contains XAML files defining the user interface pages and controls. Each View typically corresponds to a ViewModel.
     *   `SettingsPage.xaml`: Contains the UI for application settings, including the "Magpie executable path" setting in the "Game" section.
+    *   `GalgameSourcePage.xaml`: Contains the UI for individual game library configuration, including settings for auto-scan, auto-add/remove games, and per-library SaveMetaBackup toggle.
     *   `ShellPage.xaml`: The main shell of the application. Its `ItemsRepeater` for displaying event notifications now includes a `HyperlinkButton` that is visible when `CallbackButtonText` is provided in the `ShellEventViewModel`. This button is bound to the `ExecuteCallbackCommand` and uses `VisibilityHelper.Convert` for its visibility.
     *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
 *   **`Models/`**: Contains data model classes representing the entities and data structures used within the client.
@@ -87,6 +91,12 @@ This section highlights important files and directories specific to the client a
         *   `GalgameScanResult`: Represents the overall result of a scan operation for a specific source, including `SourceId`, `SourceName`, `ScanTime`, and a list of individual path results. Stored in LiteDB.
         *   `PathScanResultItem`: Represents the outcome of scanning a single path, including the `Path`, `ResultType` (e.g., Success, AlreadyExists, Failed), and a `Message`.
         *   `ScanResultType`: Enum defining the possible outcomes for a path scan (Information, Success, AlreadyExists, Failed).
+    *   **`Models/Sources/GalgameSourceBase.cs`**: The base class for all game library sources, containing common properties and functionality:
+        *   `ScanOnStart` (bool): Whether to automatically scan this library when the application starts.
+        *   `CheckOnStart` (bool): Whether to check if the library and games still exist when starting the application. When disabled, the application will skip checking for non-existent libraries and games during startup, which can be useful for libraries on removable drives or network locations that may not always be available.
+        *   `Detect` (bool): Whether to enable automatic detection of changes in the library folder.
+        *   `SaveMetaBackup` (bool): Whether to save meta backup (meta.json and cover images) for games in this source. Defaults to false. This replaced the global `SaveBackupMetadata` setting to allow per-source control of meta backup functionality.
+        *   Derived classes include `GalgameFolderSource`, `GalgameZipSource`, and `VirtualSource`.
     *   **`Galgame.cs`**: A key model representing a game. It includes various properties like `Name`, `ImagePath`, as well as fields for tracking play history such as:
         *   `PlayedTime` (Dictionary<string, int>): Stores individual play sessions, mapping a date string to play duration in minutes.
         *   `PlayCount` (int): Stores the total number of times the game has been played.
@@ -94,6 +104,7 @@ This section highlights important files and directories specific to the client a
         *   `MuteInBackground` (bool): A per-game setting to determine if the game audio should be muted when the application is not in the foreground.
         *   `PvnUpdate` (bool): A flag indicating if the game's data needs to be synced with the server.
         *   `PvnUploadProperties` (enum `PvnUploadProperties`): A flags enum specifying which particular properties of the game need to be uploaded to the server. The `PlayTime` flag is used to indicate that `PlayedTime`, `TotalPlayTime`, and `PlayCount` should be synced.
+        *   `Ids` (string?[]): An array storing IDs from different data sources (Bangumi, VNDB, etc.). The array size is defined by `PhraserNumber` constant. All methods accessing this array include bounds checking to prevent `IndexOutOfRangeException` for legacy data with smaller arrays.
 *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.
@@ -117,15 +128,23 @@ This section highlights important files and directories specific to the client a
 *   **`Activation/`**: Includes classes responsible for handling different ways the application can be activated (e.g., normal launch, protocol activation, file association).
     *   `IActivationHandler.cs`: Interface for activation handlers.
     *   Specific handlers like `DefaultActivationHandler.cs`, `BgmOAuthActivationHandler.cs`.
-*   **`Models/BgTasks/PvnSyncTask.cs`**: Responsible for the background synchronization logic with `GalgameManager.Server`. The `UploadGame` method within this class constructs the `GalgameUpdateDto` (from the generated `PotatoVN.Client.Model` namespace) to send updates to the server. When `PvnUploadProperties.PlayTime` is flagged, it includes `PlayCount`, `TotalPlayTime`, and the `PlayedTime` dictionary (converted to a list of `PlayLogDto`).
+*   **`Models/BgTasks/PvnSyncTask.cs`**: Responsible for the background synchronization logic with `GalgameManager.Server`. The `UploadGame` method within this class constructs the `GalgameUpdateDto` (from the generated `PotatoVN.Client.Model` namespace) to send updates to the server. When `PvnUploadProperties.PlayTime` is flagged, it includes `PlayCount`, `TotalPlayTime`, and the `PlayedTime` dictionary (converted to a list of `PlayLogDto`). When `PvnUploadProperties.HeaderImageLoc` is flagged, it handles header image synchronization by uploading manually selected images to OSS or using external URLs for automatically fetched images.
 *   **`Models/BgTasks/PvnSyncTasks/`**: Contains specialized background tasks for PotatoVN synchronization:
     *   **`PvnSyncTask_PullGame.cs`**: A parallelized background task that inherits from `QueueTaskBase<GalgameDto>` to handle game data pulling from the server. It processes multiple games concurrently (up to 5 simultaneously) and handles game creation, updates, character synchronization, and playtime merging.
     *   **`PvnSyncTask_PullStaff.cs`**: A parallelized background task that inherits from `QueueTaskBase<StaffDto>` to handle staff data pulling from the server. It processes multiple staff records concurrently (up to 5 simultaneously) and handles staff creation, updates, deletion, image downloading, and game relationship management. This task was extracted from the main `PvnSyncTask` to enable parallel processing of staff synchronization.
+*   **`Views/Dialog/PvnBatchUploadDialog.xaml`**: A dialog for selecting which game properties to upload in batch operations. Allows users to choose from available `PvnUploadProperties` flags before initiating bulk uploads to the server.
 *   **`Behaviors/`**: Contains custom UI behaviors that can be attached to XAML elements to add specific functionalities or modify their behavior without extensive code-behind.
     *   `ScanResultRowStyleSelector.cs`: A `StyleSelector` used in `ScanResultPage.xaml` to apply different row background colors in the `ListView` based on the `ScanResultType` of each `PathScanResultItem`.
 *   **`Enums/`**: Defines enumeration types used throughout the client application for representing sets of named constants (e.g., game status, filter types, page identifiers).
-    *   `KeyValues.cs`: Contains constant strings for settings keys. Keys like `MagpieTotalSwitch`, `MagpiePath`, `MagpieHotkeys`, `AlwaysEnableMagpie`, and the new `AlwaysMuteInBackground` (for globally overriding per-game background mute settings) are defined here. The `CustomTextFileExtensions` key has also been added.
-    *   `Enums/PotatoVN/PvnUploadProperties.cs`: Defines the `PvnUploadProperties` flags enum used to control which parts of a `Galgame` object are synchronized with the server.
+    *   `KeyValues.cs`: Contains constant strings for settings keys. Keys like `MagpieTotalSwitch`, `MagpiePath`, `MagpieHotkeys`, `AlwaysEnableMagpie`, `ShowGameNameInControl` (for controlling game name display in controls), and the new `AlwaysMuteInBackground` (for globally overriding per-game background mute settings) are defined here. The `CustomTextFileExtensions` key has also been added.
+    *   `Enums/PotatoVN/PvnUploadProperties.cs`: Defines the `PvnUploadProperties` flags enum used to control which parts of a `Galgame` object are synchronized with the server. Includes `HeaderImageLoc` for header image synchronization.
+    *   **Synchronization Settings Pattern**: The application follows a consistent pattern for implementing sync toggle settings:
+        *   Settings keys are defined in `KeyValues.cs` with descriptive names (e.g., `SyncStaff`, `SyncGameCharacters`, `SyncHeaderImage`)
+        *   Default values (typically `true`) are added to `LocalSettingsService.cs` in the `TryGetDefaultValue` method
+        *   ViewModel properties are created in `AccountViewModel.cs` with corresponding change handlers that save to settings
+        *   UI toggle switches are added to `AccountPage.xaml` using `SettingToggleSwitch` controls with localized `x:Uid` attributes
+        *   Localization strings are managed via `resw_tool.py` script for title and description text
+        *   Sync logic in background tasks (e.g., `PvnSyncTask.cs`, `GetHeaderFromRssTask.cs`) checks these settings before performing uploads
 *   **`Styles/`**: May contain XAML resource dictionaries defining common styles and templates for UI controls, ensuring a consistent look and feel. (e.g., `Resource.xaml`)
 *   **`Usings.cs`**: Often used in newer C# projects for global using directives to reduce boilerplate in individual files.
 

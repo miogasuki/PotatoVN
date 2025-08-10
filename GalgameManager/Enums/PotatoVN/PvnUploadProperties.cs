@@ -9,5 +9,6 @@ public enum PvnUploadProperties
     Review = 1 << 2,
     PlayTime = 1 << 3,
     Character = 1 << 4,
+    HeaderImageLoc = 1 << 5,
     All = int.MaxValue,
 }

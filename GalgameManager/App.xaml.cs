@@ -94,7 +94,10 @@ public partial class App : Application
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IGalgameCollectionService, GalgameCollectionService>();
             services.AddSingleton<IGalgameSourceCollectionService, GalgameSourceCollectionService>();
+            // Source Services
             services.AddSingleton<LocalFolderSourceService>();
+            services.AddSingleton<VirtualSourceService>();
+            //
             services.AddSingleton<IFaqService, FaqService>();
             services.AddSingleton<IFilterService, FilterService>();
             services.AddSingleton<ICategoryService, CategoryService>();
@@ -107,7 +110,7 @@ public partial class App : Application
             services.AddSingleton<IBgTaskService, BgTaskService>();
             services.AddSingleton<IPvnService, PvnService>();
             services.AddSingleton<IVndbAuthService, VndbAuthService>();
-            services.AddSingleton<ISourceScanResultService, SourceScanResultService>(); // Added ScanResultService
+            services.AddSingleton<ISourceScanResultService, SourceScanResultService>();
 
             // Core Services
             services.AddSingleton<IFileService, FileService>();

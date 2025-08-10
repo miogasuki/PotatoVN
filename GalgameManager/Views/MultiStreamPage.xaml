@@ -38,7 +38,8 @@
                                         Click="ClickGame">
                                     <prefab:GalgamePrefab Galgame="{Binding}"
                                                           ImageStretch="UniformToFill"
-                                                          ItemScale="0.8" TextHeight="38"/>
+                                                          ItemScale="0.8" TextHeight="38"
+                                                          NameVisibility="Visible"/>
                                 </Button>
                             </DataTemplate>
                         </control:MultiFlipView.ItemTemplate>

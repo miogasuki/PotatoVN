@@ -49,6 +49,7 @@ public class GetGalgameInSourceTask : BgTaskBase
 
             _galgameFolderSource.IsRunning = true;
             var cnt = 0;
+            ChangeProgress(0, 1, "GalgameFolder_GetGalInFolder_GettingPaths".GetLocalized());
             await foreach (var (path, l) in _galgameFolderSource.ScanAllGalgames())
             {
                 PathScanResultItem itemResult = new() { Path = path ?? "N/A" };
@@ -81,13 +82,14 @@ public class GetGalgameInSourceTask : BgTaskBase
                 catch (Exception e)
                 {
                     itemResult.ResultType = ScanResultType.Failed;
-                    itemResult.Message = e.Message;
+                    itemResult.Message = e.ToString();
                 }
                 scanResult.Results.Add(itemResult);
             }
             ChangeProgress(0, 1, "GalgameFolder_GetGalInFolder_Saving".GetLocalized(cnt));
             sourceScanResultService.SaveScanResult(scanResult);
-            ChangeProgress(1, 1, "GalgameFolder_GetGalInFolder_Done".GetLocalized(cnt, _galgameFolderSource.Name));
+            var notify = !(cnt == 0 && await localSettings.ReadSettingAsync<bool>(KeyValues.EventGetGalgameInFolderEmpty) == false);
+            ChangeProgress(1, 1, "GalgameFolder_GetGalInFolder_Done".GetLocalized(cnt, _galgameFolderSource.Name), notify);
             EventAction = () => navigationService.NavigateTo(typeof(ScanResultViewModel).FullName!, scanResult.SourceId);
             EventActionText = "GetGalgameInFolderTask_CheckResult".GetLocalized();
             _galgameFolderSource.IsRunning = false;
@@ -100,8 +102,7 @@ public class GetGalgameInSourceTask : BgTaskBase
     }
 
     public override bool OnSearch(string key) => _galgameSourceUrl.Contains(key);
-    
-    public override string Title { get; } = "GetGalgameInFolderTask_Title".GetLocalized();
-    
-    
+
+    public override string Title =>
+        "GetGalgameInFolderTask_Title".GetLocalized(_galgameFolderSource?.Name ?? string.Empty);
 }

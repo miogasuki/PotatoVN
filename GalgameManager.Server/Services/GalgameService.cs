@@ -55,6 +55,10 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         if (!string.IsNullOrEmpty(payload.ImageLoc) && payload.ImageLoc != galgame.ImageLoc) 
             await ossService.DeleteObjectAsync(userId, galgame.ImageLoc);
         galgame.ImageLoc = payload.ImageLoc ?? galgame.ImageLoc;
+        if (!string.IsNullOrEmpty(payload.HeaderImageOssLoc) && payload.HeaderImageOssLoc != galgame.HeaderImageOssPosition)
+            await ossService.DeleteObjectAsync(userId, galgame.HeaderImageOssPosition);
+        galgame.HeaderImageOssPosition = payload.HeaderImageOssLoc ?? galgame.HeaderImageOssPosition;
+        galgame.HeaderImageUrl = payload.HeaderImageExternalUrl ?? galgame.HeaderImageUrl;
         galgame.Tags = payload.Tags ?? galgame.Tags;
 
         if (payload.PlayTime is not null)
@@ -142,14 +146,18 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         });
         await userService.UpdateLastModifiedAsync(gal.UserId, timestamp);
         if(gal.ImageLoc is not null) await ossService.DeleteObjectAsync(userId, gal.ImageLoc);
+        if(gal.HeaderImageOssPosition is not null) await ossService.DeleteObjectAsync(userId, gal.HeaderImageOssPosition);
     }
 
     public async Task DeleteGalgamesAsync(int userId)
     {
         var timestamp = DateTime.Now.ToUnixTime();
         PagedResult<Galgame> gals = await galRep.GetGalgamesAsync(userId, 0, 0, 1000000);
-        foreach (Galgame game in gals.Items.Where(g => g.ImageLoc is not null))
-            await ossService.DeleteObjectAsync(userId, game.ImageLoc!);
+        foreach (Galgame game in gals.Items)
+        {
+            if(game.ImageLoc is not null) await ossService.DeleteObjectAsync(userId, game.ImageLoc);
+            if(game.HeaderImageOssPosition is not null) await ossService.DeleteObjectAsync(userId, game.HeaderImageOssPosition);
+        }
         List<int> ids = await galRep.DeleteGalgamesAsync(userId);
         foreach (var id in ids)
             await galDeletedRep.AddGalgameDeletedAsync(new GalgameDeleted

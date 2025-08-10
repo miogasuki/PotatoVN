@@ -31,6 +31,8 @@ public class Galgame
     public float Rating { get; set; }
     public long ReleaseDateTimeStamp { get; set; }
     [MaxLength(220)] public string? ImageLoc { get; set; }
+    [MaxLength(500)] public string? HeaderImageUrl { get; set; }
+    [MaxLength(220)] public string? HeaderImageOssPosition { get; set; }
     public List<string>? Tags { get; set; }
     public List<Character> Characters { get; set; } = [];
     public List<StaffGame> StaffGames { get; set; } = [];

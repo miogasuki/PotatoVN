@@ -14,8 +14,7 @@
         <converter:SourcesToStringConverter x:Key="SourcesToStringConverter" />
     </UserControl.Resources>
 
-    <Grid MinWidth="{x:Bind CalcValue(175)}" 
-          MinHeight="{x:Bind CalcValue(300)}" 
+    <Grid MinWidth="{x:Bind CalcValue(175)}"
           ContextFlyout="{x:Bind Flyout}" Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
         <StackPanel HorizontalAlignment="Center">
             <Grid
@@ -68,6 +67,7 @@
             </Grid>
 
             <TextBlock
+                x:Name="NameTextBlock"
                 HorizontalAlignment="Center"
                 Margin="{StaticResource XXSmallTopMargin}"
                 Height="{x:Bind CalcValue(TextHeight), Mode=OneWay}" 

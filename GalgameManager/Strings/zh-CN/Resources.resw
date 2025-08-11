@@ -3668,4 +3668,29 @@
   <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
     <value>在Steam中打开</value>
   </data>
+  <data name="GalgamePage_Play_GettingSteamId" xml:space="preserve">
+    <value>正在尝试获取steam id中，请稍后</value>
+  </data>
+  <data name="GalgamePage_Play_NoSteamId" xml:space="preserve">
+    <value>自动获取steam id失败了，对于steam库里的游戏，强烈推荐手动在设置中填入它的steam id来使用steam启动游戏。否则有可能启动失败~</value>
+  </data>
+  <data name="GalgamePage_Play_SteamLaunchError" xml:space="preserve">
+    <value>调用steam启动游戏失败</value>
+  </data>
+  <data name="GalgamePage_Play_SteamDialog_Title" xml:space="preserve">
+    <value>启动Steam游戏注意事项</value>
+  </data>
+  <data name="GalgamePage_Play_SteamDialog_Message" xml:space="preserve">
+    <value>要正确记录steam游戏的游戏次数与游玩时长，请使用右上角折叠菜单里的手动指定游戏进程。具体操作步骤如下：
+1. 点击确定后软件会调用steam启动游戏
+2. 软件会弹出一个手动选择游戏进程的对话框，先不要管他
+3. 等游戏启动后，在手动选择游戏进程的对话框里找到游戏，选游戏。
+4. 关闭游戏，后续正常使用PotatoVN启动游戏即可正常计时。</value>
+  </data>
+  <data name="GalgamePage_Play_SteamDialog_CheckBox" xml:space="preserve">
+    <value>我知道了，后续不再提醒</value>
+  </data>
+  <data name="GalgamePage_Play_StartingSteam" xml:space="preserve">
+    <value>启动steam游戏需要一点时间，请稍安勿躁</value>
+  </data>
 </root>

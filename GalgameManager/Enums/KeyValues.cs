@@ -120,6 +120,9 @@ public static class KeyValues
     public const string LibraryFolderSortKey = "LibraryFolderSortKey"; //string, 库文件夹排序的key
     public const string LibraryFolderSortDescending = "LibraryFolderSortDescending"; //bool, 库文件夹是否降序排列
     
+    //游戏详情界面
+    public const string NotifiedSteamNeedManual = "notifyedSteamNeedManual"; //bool, 是否已经通知过Steam游戏需要手动选择游戏进程
+    
     //消息通知相关 (最小化到托盘时是否通知/全局消息通知)
     public const string NotifyWhenGetGalgameInFolder = "notifyWhenGetGalgameInFolder"; //bool, 完成获取文件夹内游戏
     public const string EventGetGalgameInFolderEmpty = "eventGetGalgameInFolderEmpty"; //bool, 是否通知扫描游戏空事件（即没有新游戏）

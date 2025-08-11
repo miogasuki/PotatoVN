@@ -159,6 +159,14 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
+                    <!-- 在Steam中打开 -->
+                    <AppBarButton x:Uid="GalgamePage_OpenInSteam" Command="{x:Bind ViewModel.OpenInSteamCommand}" 
+                                  Visibility="{x:Bind ViewModel.CanOpenInSteam, 
+                                  Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                     <!-- 下载游玩状态 -->
                     <AppBarButton x:Uid="GalgamePage_SyncFromBgm"
                             Command="{x:Bind ViewModel.SyncFromBgmCommand}"

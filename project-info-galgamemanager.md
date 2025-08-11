@@ -35,13 +35,25 @@ The client application implements the core functionalities of PotatoVN:
   *   **Localization:** Supports multiple languages through localization files, managed via Crowdin (configuration in `crowdin.yml` at the repository root). String resources are located in `GalgameManager/Strings/` within language-specific subfolders (e.g., `zh-CN`, `en-US`), typically in `Resources.resw` files.
       *   **Implementing XAML Localization:**
           *   Use the `x:Uid` attribute on XAML elements to mark them for localization. For example: `<TextBlock x:Uid="MyUniqueControlUid" />`.
-          *   In the `.resw` resource file (e.g., `Strings/zh-CN/Resources.resw`), create a `<data>` entry where the `name` attribute is the `x:Uid` value followed by a dot and the target property name. For instance, to set the `Text` property of the `TextBlock` above, the resource key would be `MyUniqueControlUid.Text`.
-          *   Example:
+          *   In the `.resw` resource file (e.g., `Strings/zh-CN/Resources.resw`), create a `<data>` entry where the `name` attribute is the `x:Uid` value followed by a dot and the target property name. The property name varies by control type:
+              *   `TextBlock`, `TextBox`, etc.: Use `.Text` (e.g., `MyUid.Text`)
+              *   `AppBarButton`, `Button`: Use `.Label` (e.g., `MyUid.Label`) 
+              *   `ContentDialog`: Use `.Title` for titles
+              *   `ToolTip`: Use `.ToolTipService.ToolTip`
+          *   Example for TextBlock:
               *   XAML: `<TextBlock x:Uid="EditPlayTimeDialog_PlayCountLabel" />`
               *   `Resources.resw` entry:
                   ```xml
                   <data name="EditPlayTimeDialog_PlayCountLabel.Text" xml:space="preserve">
                     <value>游玩次数:</value>
+                  </data>
+                  ```
+          *   Example for AppBarButton:
+              *   XAML: `<AppBarButton x:Uid="GalgamePage_OpenInSteam" />`
+              *   `Resources.resw` entry:
+                  ```xml
+                  <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
+                    <value>在Steam中打开</value>
                   </data>
                   ```
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
@@ -76,9 +88,9 @@ This section highlights important files and directories specific to the client a
     *   `MainWindow.xaml`: Defines the XAML structure for the main application window.
     *   `MainWindow.xaml.cs`: Contains the code-behind logic for the main window, including event handlers and interaction with ViewModels.
 *   **`appsettings.json`**: Configuration file for the client application. May store settings like API keys (if not user-specific), default paths, feature flags, etc. Note that user-specific settings are typically managed by `LocalSettingsService.cs` and stored in `LocalSettings.json` or individual `data.{key}.json` files.
-*   **`ViewModels/`**: Contains ViewModel classes that drive the application's UI logic and data binding. These ViewModels often orchestrate interactions with dialogs for editing specific pieces of data (e.g., `PlayedTimeViewModel.cs` launching `EditPlayTimeDialog`).
-    *   `SettingsViewModel.cs`: Manages application settings, including the `CustomTextFileExtensionsString` property for user-defined text file extensions, the `MagpiePath` property (with `SelectMagpiePathCommand`) for the Magpie executable path, and the `AlwaysEnableMagpie` property for globally overriding Magpie settings. It also includes a `IsSideloadVersion` property to control visibility of certain settings for non-Store versions of the application.
-    *   `GalgameViewModel.cs`: Handles logic for the individual game page, including the "Open Text" feature which now uses the `CustomTextFileExtensions` setting. It also checks the global `AlwaysEnableMagpie` setting when determining Magpie activation for a game.
+    *   **`ViewModels/`**: Contains ViewModel classes that drive the application's UI logic and data binding. These ViewModels often orchestrate interactions with dialogs for editing specific pieces of data (e.g., `PlayedTimeViewModel.cs` launching `EditPlayTimeDialog`).
+        *   `SettingsViewModel.cs`: Manages application settings, including the `CustomTextFileExtensionsString` property for user-defined text file extensions, the `MagpiePath` property (with `SelectMagpiePathCommand`) for the Magpie executable path, and the `AlwaysEnableMagpie` property for globally overriding Magpie settings. It also includes a `IsSideloadVersion` property to control visibility of certain settings for non-Store versions of the application.
+        *   `GalgameViewModel.cs`: Handles logic for the individual game page, including the "Open Text" feature which now uses the `CustomTextFileExtensions` setting. It also checks the global `AlwaysEnableMagpie` setting when determining Magpie activation for a game. Contains "Open in X" commands for external services like Bangumi, VNDB, Ymgal, Cngal, and Steam that allow users to view game information on these platforms directly from the game details page.
     *   `ShellViewModel.cs`: Manages the main application shell. It subscribes to `InfoService.OnEvent` and its `DisplayEventMsgAsync` method now handles the optional callback action and button text for event notifications. It creates `ShellEventViewModel` instances for display.
     *   `ShellEventViewModel.cs` (within `ShellViewModel.cs`): Represents an event notification displayed in the shell. It now includes `CallbackAction` and `CallbackButtonText` properties, along with an `ExecuteCallbackCommand` to invoke the action.
 *   **`Views/`**: Contains XAML files defining the user interface pages and controls. Each View typically corresponds to a ViewModel.

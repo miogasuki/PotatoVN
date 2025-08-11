@@ -3112,4 +3112,7 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSourceType_Steam" xml:space="preserve">
     <value>Steam游戏库</value>
   </data>
+  <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
+    <value>Open in Steam</value>
+  </data>
 </root>

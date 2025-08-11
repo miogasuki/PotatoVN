@@ -95,25 +95,38 @@ public class SteamParser : IGalInfoPhraser
         try
         {
             if (await PhraseHelper.TryGetMapAsync(game) is { } map && map.SteamSimilarity > 0.9) return map.SteamId;
-            var name = game.Name.Value;
-            if (string.IsNullOrWhiteSpace(name)) return null;
-            var url =
-                $"https://store.steampowered.com/api/storesearch?term={HttpUtility.UrlEncode(name)}&l={_lang}&cc=US";
-            var json   = await _httpClient.GetStringAsync(url);
-            JObject jo    = JObject.Parse(json);
-            JArray? items = jo["items"] as JArray ?? jo["apps"] as JArray;
-            if (items is null || items.Count == 0) return null;
-            // 取相似度最高的那条
+            if (string.IsNullOrEmpty(game.Name.Value)) return null;
+            List<string> nameLists = await PhraseHelper.TryGetAliasesAsync(game.Name.Value);
+            if (!nameLists.Contains(game.Name.Value)) nameLists.Insert(0, game.Name.Value);
+            Dictionary<string, JArray?> cache = new();
             double max = 0;
             int?   id  = null;
-            foreach (JToken it in items)
+            foreach (var name in nameLists)
             {
-                var itemName = it["name"]?.ToObject<string>();
-                if (itemName is null) continue;
-                var s = IGalInfoPhraser.Similarity(name, itemName);
-                if (!(s > max)) continue;
-                max = s;
-                id  = it["id"]?.ToObject<int>();
+                var langStr = LanguageEnum.English.ToSteamApiString();
+                if (name.IsJapanese()) langStr = LanguageEnum.Japanese.ToSteamApiString();
+                else if (name.IsChinese()) langStr = LanguageEnum.ChineseSimplified.ToSteamApiString();
+                if (string.IsNullOrWhiteSpace(name)) continue;
+                if (!cache.TryGetValue(langStr, out JArray? items))
+                {
+                    var url =
+                        $"https://store.steampowered.com/api/storesearch?term={HttpUtility.UrlEncode(name)}&l={langStr}&cc=US";
+                    var json   = await _httpClient.GetStringAsync(url);
+                    JObject jo    = JObject.Parse(json);
+                    items = jo["items"] as JArray ?? jo["apps"] as JArray;
+                    cache[langStr] = items;
+                }
+                if (items is null || items.Count == 0) continue;
+                foreach (JToken it in items)
+                {
+                    var itemName = it["name"]?.ToObject<string>();
+                    if (itemName is null) continue;
+                    var s = IGalInfoPhraser.Similarity(name, itemName);
+                    if (!(s > max)) continue;
+                    max = s;
+                    id  = it["id"]?.ToObject<int>();
+                    if (max > 0.999) return id;
+                }
             }
             return id;
         }

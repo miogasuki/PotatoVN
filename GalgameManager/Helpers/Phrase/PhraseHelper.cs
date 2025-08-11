@@ -61,6 +61,27 @@ public static class PhraseHelper
         _isUsing = false;
         return result;
     }
+
+    /// <summary>
+    /// 获取别名列表，若无则返回空列表
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public static async Task<List<string>> TryGetAliasesAsync(string name)
+    {
+        List<string> result = [];
+        _isUsing = true;
+        Init();
+        List<(MapModel model, double similarity)> tmp = await _vnDbMapper!.TryGetMapsWithName(name, 1);
+        if (tmp.Count > 0)
+        {
+            var vndbId = tmp[0].model.VndbId;
+            List<TitleModel> t = await _vnDbMapper.Db.Table<TitleModel>().Where(t => t.VndbId == vndbId).ToListAsync();
+            result.AddRange(t.Where(tit => !string.IsNullOrEmpty(tit.Title)).Select(title => title.Title!));
+        }
+        _isUsing = false;
+        return result;
+    }
     
     private static async Task<MapModel?> TryGetMapAsync(string name)
     {

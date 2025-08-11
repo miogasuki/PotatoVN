@@ -56,6 +56,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _canOpenInVndb;
     [ObservableProperty] private bool _canOpenInYmgal;
     [ObservableProperty] private bool _canOpenInCngal;
+    [ObservableProperty] private bool _canOpenInSteam;
     [ObservableProperty] private Thickness _headerMargin = new(0, 0, 0, 0);
     [ObservableProperty] private double _headerHeight = 400;
     [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
@@ -199,6 +200,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             CanOpenInVndb = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Vndb]);
             CanOpenInYmgal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Ymgal]);
             CanOpenInCngal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Cngal]);
+            CanOpenInSteam = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Steam]);
         }
         catch (Exception ex)
         {
@@ -247,6 +249,13 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Cngal])) return;
         await Launcher.LaunchUriAsync(new Uri("https://www.cngal.org/entries/index/"+Item!.Ids[(int)RssType.Cngal]));
+    }
+
+    [RelayCommand]
+    private async Task OpenInSteam()
+    {
+        if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Steam])) return;
+        await Launcher.LaunchUriAsync(new Uri("https://store.steampowered.com/app/"+Item!.Ids[(int)RssType.Steam]));
     }
     
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
@@ -427,7 +436,9 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task OpenInExplorer()
     {
         if(Item == null) return;
-        var path = Item.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(Item);
+        var path = Item.Sources
+            .FirstOrDefault(s => s.SourceType is GalgameSourceType.LocalFolder or GalgameSourceType.Steam)
+            ?.GetPath(Item);
         if (path is null) //不应该发生
         {
             _infoService.DeveloperEvent(InfoBarSeverity.Error, "Can't find the path of the game");

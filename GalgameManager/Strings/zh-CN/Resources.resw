@@ -490,8 +490,7 @@
   <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_Content" xml:space="preserve">
     <value>删除库会删除子库，并取消托管所有游戏</value>
   </data>
-  <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_RemoveFromLibrary"
-    xml:space="preserve">
+  <data name="GalgameFolderCollectionService_DeleteGalgameFolderAsync_RemoveFromLibrary" xml:space="preserve">
     <value>一并从游戏库中移除游戏</value>
   </data>
   <data name="LibraryPage_DeleteFolder.Text" xml:space="preserve">
@@ -3665,5 +3664,8 @@
   </data>
   <data name="SteamSource_ScanAllGalgames_InvalidPath" xml:space="preserve">
     <value>目录{0}内不包含名为“common”的文件夹或目录不存在</value>
+  </data>
+  <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
+    <value>在Steam中打开</value>
   </data>
 </root>

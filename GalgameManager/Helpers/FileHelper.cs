@@ -104,10 +104,12 @@ public static class FileHelper
     /// </summary>
     /// <param name="src">源图片路径</param>
     /// <param name="metaPath">meta文件夹路径</param>
-    public static void CopyImg(string? src, string metaPath)
+    /// <param name="targetName">目标图片名（不带后缀），如果为null则和原名一致</param>
+    public static void CopyImg(string? src, string metaPath, string? targetName = null)
     {
         if (!Utils.IsImageValid(src) || src is null) return;
-        var targetName = Path.GetFileName(src);
+        if (targetName is not null) targetName += Path.GetExtension(src);
+        targetName ??= Path.GetFileName(src);
         targetName = targetName.Contains('%') ? HttpUtility.UrlDecode(targetName) : targetName;
         var target = Path.Combine(metaPath, targetName.RemoveInvalidChars());
         if (File.Exists(target) && new FileInfo(target).Length == new FileInfo(src).Length) return; //文件已存在且大小相同就不复制

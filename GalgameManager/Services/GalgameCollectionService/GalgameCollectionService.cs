@@ -6,6 +6,7 @@ using Windows.Storage.Pickers;
 using GalgameManager.Contracts.BgTasks;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Contracts.Services;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.Phrase;
@@ -353,9 +354,11 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             if (type.HasFlag(GameParseType.Image))
             {
                 galgame.ImageUrl = tmp.ImageUrl;
+                var oldImg = galgame.ImagePath.Value;
                 galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl,
-                    fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_cover")
+                    fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover")
                     ?? Galgame.DefaultImagePath;
+                if (File.Exists(oldImg) && oldImg != galgame.ImagePath.Value) File.Delete(oldImg);
             }
             galgame.LastFetchInfoTime = DateTime.Now;
         });

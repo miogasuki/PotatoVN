@@ -7,7 +7,7 @@ using GalgameManager.Models.Sources;
 
 namespace GalgameManager.Services;
 
-public class SteamSourceService(IInfoService infoService, IFileService fileService) : IGalgameSourceService
+public class SteamSourceService(IInfoService infoService) : IGalgameSourceService
 {
     public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null) => 
         throw new PvnException("This source does not support move in operation");
@@ -25,33 +25,7 @@ public class SteamSourceService(IInfoService infoService, IFileService fileServi
             if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
             if (source.GetPath(game) is not { } gamePath) continue;
             var metaPath = Path.Combine(basePath, $"{new DirectoryInfo(gamePath).Name}");
-            if (!Directory.Exists(metaPath)) Directory.CreateDirectory(metaPath);
-            Galgame meta = game.DeepClone();
-            // 备份图片
-            if (Utils.IsImageValid(meta.ImagePath.Value))
-            {
-                FileHelper.CopyImg(meta.ImagePath.Value, metaPath);
-                meta.ImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.ImagePath.Value!)));
-            }
-            if (Utils.IsImageValid(meta.HeaderImagePath.Value))
-            {
-                FileHelper.CopyImg(meta.HeaderImagePath.Value, metaPath);
-                meta.HeaderImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.HeaderImagePath.Value!)));
-            }
-            foreach (GalgameCharacter character in meta.Characters)
-            {
-                if (Utils.IsImageValid(character.ImagePath))
-                {
-                    FileHelper.CopyImg(character.ImagePath, metaPath);
-                    character.ImagePath = Path.Combine(".", Path.GetFileName(character.ImagePath));
-                }
-                if (Utils.IsImageValid(character.PreviewImagePath))
-                {
-                    FileHelper.CopyImg(character.PreviewImagePath, metaPath);
-                    character.PreviewImagePath = Path.Combine(".", Path.GetFileName(character.PreviewImagePath));
-                }
-            }
-            fileService.Save(metaPath, "meta.json", meta);
+            LocalFolderSourceService.FolderBaseSaveMeta(game, metaPath);
         }
 
         await Task.CompletedTask;
@@ -66,21 +40,7 @@ public class SteamSourceService(IInfoService infoService, IFileService fileServi
             return null;
         }
         var metaFolderPath = Path.Combine(di.FullName, ".PotatoVN", new DirectoryInfo(path).Name);
-        if (!Directory.Exists(metaFolderPath)) return null; // 不存在备份文件夹
-        Galgame meta = fileService.Read<Galgame>(metaFolderPath, "meta.json")!;
-        if (meta is null) throw new PvnException("meta.json not exist");
-        _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
-        meta.ImagePath.ForceSet(FileHelper.LoadImg(meta.ImagePath.Value, metaFolderPath));
-        meta.HeaderImagePath.ForceSet(FileHelper.LoadImg(meta.HeaderImagePath.Value, metaFolderPath));
-        foreach (GalgameCharacter character in meta.Characters)
-        {
-            character.ImagePath = FileHelper.LoadImg(character.ImagePath, metaFolderPath)!;
-            character.PreviewImagePath = FileHelper.LoadImg(character.PreviewImagePath, metaFolderPath)!;
-        }
-        meta.ExePath = FileHelper.LoadImg(meta.ExePath, metaFolderPath, defaultReturn: null);
-        meta.SavePath = Directory.Exists(meta.SavePath) ? meta.SavePath : null; //检查存档路径是否存在并设置SavePosition字段
-        meta.FindSaveInPath();
-        return meta;
+        return LocalFolderSourceService.FolderBaseLoadMeta(metaFolderPath);
     }
 
     public Task RemoveMetaAsync(Galgame game)

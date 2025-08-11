@@ -56,57 +56,79 @@ public class LocalFolderSourceService : IGalgameSourceService
             if (targetSource is not null && source != targetSource) continue; //如果指定了目标源，则只保存到该源
             var folderPath = source.GetPath(game)!;
             var metaPath = Path.Combine(folderPath, ".PotatoVN");
-            if (!Directory.Exists(metaPath)) Directory.CreateDirectory(metaPath);
-            Galgame meta = game.DeepClone();
-            // 备份图片
-            if (Utils.IsImageValid(meta.ImagePath.Value))
-            {
-                FileHelper.CopyImg(meta.ImagePath.Value, metaPath);
-                meta.ImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.ImagePath.Value!)));
-            }
-            foreach (GalgameCharacter character in meta.Characters)
-            {
-                if (Utils.IsImageValid(character.ImagePath))
-                {
-                    FileHelper.CopyImg(character.ImagePath, metaPath);
-                    character.ImagePath = Path.Combine(".", Path.GetFileName(character.ImagePath));
-                }
-                if (Utils.IsImageValid(character.PreviewImagePath))
-                {
-                    FileHelper.CopyImg(character.PreviewImagePath, metaPath);
-                    character.PreviewImagePath = Path.Combine(".", Path.GetFileName(character.PreviewImagePath));
-                }
-            }
-            if (Utils.IsImageValid(meta.HeaderImagePath.Value))
-            {
-                FileHelper.CopyImg(meta.HeaderImagePath.Value, metaPath);
-                meta.HeaderImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.HeaderImagePath.Value!)));
-            }
-            _fileService.Save(metaPath, "meta.json", meta);
+            FolderBaseSaveMeta(game, metaPath);
         }
 
         await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 保存游戏的元数据到指定的.PotatoVN文件夹中
+    /// </summary>
+    /// <param name="targetGame">这个targetGame是const的，函数内部不会修改它</param>
+    /// <param name="pvnPath">要保存的文件夹的位置</param>
+    public static void FolderBaseSaveMeta(Galgame targetGame, string pvnPath) 
+    {
+        if (!Directory.Exists(pvnPath)) Directory.CreateDirectory(pvnPath);
+        IFileService fileService = App.GetService<IFileService>();
+        Galgame meta = targetGame.DeepClone();
+        // 备份图片
+        if (Utils.IsImageValid(meta.ImagePath.Value))
+        {
+            FileHelper.CopyImg(meta.ImagePath.Value, pvnPath, $"{meta.Name.Value}_cover");
+            meta.ImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.ImagePath.Value!)));
+        }
+        foreach (GalgameCharacter character in meta.Characters)
+        {
+            if (Utils.IsImageValid(character.ImagePath))
+            {
+                FileHelper.CopyImg(character.ImagePath, pvnPath);
+                character.ImagePath = Path.Combine(".", Path.GetFileName(character.ImagePath));
+            }
+            if (Utils.IsImageValid(character.PreviewImagePath))
+            {
+                FileHelper.CopyImg(character.PreviewImagePath, pvnPath);
+                character.PreviewImagePath = Path.Combine(".", Path.GetFileName(character.PreviewImagePath));
+            }
+        }
+        if (Utils.IsImageValid(meta.HeaderImagePath.Value))
+        {
+            FileHelper.CopyImg(meta.HeaderImagePath.Value, pvnPath, $"{meta.Name.Value}_Header");
+            meta.HeaderImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.HeaderImagePath.Value!)));
+        }
+        fileService.Save(pvnPath, "meta.json", meta);
+    }
+
+    /// <summary>
+    /// 从指定的.potatovn文件夹中加载元数据，若加载失败则抛异常或返回null
+    /// </summary>
+    /// <param name="pvnPath"></param>
+    /// <returns></returns>
+    public static Galgame? FolderBaseLoadMeta(string pvnPath)
+    {
+        if (!Directory.Exists(pvnPath)) return null; // 不存在备份文件夹
+        IFileService fileService = App.GetService<IFileService>();
+        Galgame meta = fileService.Read<Galgame>(pvnPath, "meta.json")!;
+        if (meta is null) throw new PvnException("meta.json not exist");
+        _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
+        meta.ImagePath.ForceSet(FileHelper.LoadImg(meta.ImagePath.Value, pvnPath));
+        meta.HeaderImagePath.ForceSet(FileHelper.LoadImg(meta.HeaderImagePath.Value, pvnPath));
+        foreach (GalgameCharacter character in meta.Characters)
+        {
+            character.ImagePath = FileHelper.LoadImg(character.ImagePath, pvnPath)!;
+            character.PreviewImagePath = FileHelper.LoadImg(character.PreviewImagePath, pvnPath)!;
+        }
+        meta.ExePath = FileHelper.LoadImg(meta.ExePath, pvnPath, defaultReturn: null);
+        meta.SavePath = Directory.Exists(meta.SavePath) ? meta.SavePath : null; //检查存档路径是否存在并设置SavePosition字段
+        meta.FindSaveInPath();
+        return meta;
     }
 
     public async Task<Galgame?> LoadMetaAsync(string path)
     {
         await Task.CompletedTask;
         var metaFolderPath = Path.Combine(path, ".PotatoVN");
-        if (!Directory.Exists(metaFolderPath)) return null; // 不存在备份文件夹
-        Galgame meta = _fileService.Read<Galgame>(metaFolderPath, "meta.json")!;
-        if (meta is null) throw new PvnException("meta.json not exist");
-        _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
-        meta.ImagePath.ForceSet(FileHelper.LoadImg(meta.ImagePath.Value, metaFolderPath));
-        meta.HeaderImagePath.ForceSet(FileHelper.LoadImg(meta.HeaderImagePath.Value, metaFolderPath));
-        foreach (GalgameCharacter character in meta.Characters)
-        {
-            character.ImagePath = FileHelper.LoadImg(character.ImagePath, metaFolderPath)!;
-            character.PreviewImagePath = FileHelper.LoadImg(character.PreviewImagePath, metaFolderPath)!;
-        }
-        meta.ExePath = FileHelper.LoadImg(meta.ExePath, metaFolderPath, defaultReturn: null);
-        meta.SavePath = Directory.Exists(meta.SavePath) ? meta.SavePath : null; //检查存档路径是否存在并设置SavePosition字段
-        meta.FindSaveInPath();
-        return meta;
+        return FolderBaseLoadMeta(metaFolderPath);
     }
 
     public Task RemoveMetaAsync(Galgame game)

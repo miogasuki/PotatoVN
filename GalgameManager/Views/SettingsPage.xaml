@@ -186,7 +186,7 @@
                             <!-- Mixed -->
                             <control:Panel
                                 Visibility="{x:Bind ViewModel.RssType, Mode=OneWay, Converter={StaticResource RssTypeToVisibilityConverter}, ConverterParameter=Mixed}">
-                                <StackPanel>
+                                <StackPanel Style="{StaticResource SettingStackPanelStyle}">
                                     <HyperlinkButton x:Uid="SettingsPage_Rss_Mixed"
                                             Padding="0"/>
                                     <TextBlock x:Uid="SettingsPage_Rss_Mixed_Description"
@@ -197,6 +197,11 @@
                                         <Button Content="Go"
                                                 MinWidth="{StaticResource ButtonMinWidth}"
                                                 Command="{x:Bind ViewModel.SetMixedPhraserOrderCommand}"/>
+                                    </control:Setting>
+                                    <control:Setting x:Uid="SettingsPage_Rss_Mixed_Enable">
+                                        <Button Content="Go"
+                                                MinWidth="{StaticResource ButtonMinWidth}"
+                                                Command="{x:Bind ViewModel.SetMixedPhraserEnabledCommand}"/>
                                     </control:Setting>
                                 </StackPanel>
                             </control:Panel>

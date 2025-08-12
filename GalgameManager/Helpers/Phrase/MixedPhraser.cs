@@ -45,6 +45,18 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         return result;
     }
 
+    private bool IsPhraserEnabled(RssType rssType)
+    {
+        return rssType switch
+        {
+            RssType.Bangumi => _data.Enabled.BangumiEnabled,
+            RssType.Vndb => _data.Enabled.VndbEnabled,
+            RssType.Ymgal => _data.Enabled.YmgalEnabled,
+            RssType.Steam => _data.Enabled.SteamEnabled,
+            _ => true
+        };
+    }
+
     public MixedPhraser(BgmPhraser bgmPhraser, VndbPhraser vndbPhraser, YmgalPhraser ymgalPhraser, 
         SteamParser steamParser, MixedPhraserData data)
     {
@@ -62,7 +74,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         Dictionary<RssType, Task<Galgame?>?> phraserTasks = new();
         foreach (RssType phraserType in RssTypeHelper.UsablePhrasers)
         {
-            if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) && phraser != null)
+            if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) && phraser != null && IsPhraserEnabled(phraserType))
             {
                 Galgame game = new() { Name = galgame.Name };
                 game.RssType = phraserType;
@@ -342,4 +354,13 @@ public class MixedPhraserOrder
 public class MixedPhraserData : IGalInfoPhraserData
 {
     public required MixedPhraserOrder Order { get; init; }
+    public required MixedPhraserEnabled Enabled { get; init; }
+}
+
+public class MixedPhraserEnabled
+{
+    public bool BangumiEnabled { get; set; } = true;
+    public bool VndbEnabled { get; set; } = true;
+    public bool YmgalEnabled { get; set; } = true;
+    public bool SteamEnabled { get; set; } = true;
 }

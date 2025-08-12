@@ -97,8 +97,14 @@ This section highlights important files and directories specific to the client a
     *   `SettingsPage.xaml`: Contains the UI for application settings, including the "Magpie executable path" setting in the "Game" section.
     *   `GalgameSourcePage.xaml`: Contains the UI for individual game library configuration, including settings for auto-scan, auto-add/remove games, and per-library SaveMetaBackup toggle.
     *   `ShellPage.xaml`: The main shell of the application. Its `ItemsRepeater` for displaying event notifications now includes a `HyperlinkButton` that is visible when `CallbackButtonText` is provided in the `ShellEventViewModel`. This button is bound to the `ExecuteCallbackCommand` and uses `VisibilityHelper.Convert` for its visibility.
-    *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
+*   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
         *   `AddSourceDialog.xaml`: Dialog for adding new game library sources. Uses a ComboBox to select library type (currently supports "本地库" for local folders). The SelectedIndex is bound to the SelectItem property which determines the library type in LibraryViewModel.AddLibrary method.
+        *   `MixedPhraserEnabledDialog.xaml`: Dialog for configuring which search engines/databases are enabled in the mixed phraser. Contains checkboxes for Bangumi, VNDB, Ymgal, and Steam. The dialog receives a `MixedPhraserEnabled` configuration object and allows users to enable/disable individual phrasers.
+        *   **ContentDialog Localization Pattern**: ContentDialog elements follow specific localization conventions:
+            *   Use `x:Uid` attribute on the ContentDialog root element for title and button text
+            *   Localization keys use `.Title`, `.PrimaryButtonText`, `.SecondaryButtonText` suffixes
+            *   Child elements like CheckBox use `.Content` suffix for their text content
+            *   Example: `<ContentDialog x:Uid="MyDialog">` with localization key `MyDialog.Title`
 *   **`Models/`**: Contains data model classes representing the entities and data structures used within the client.
     *   **`ScanResult.cs`**: Defines models for storing and displaying the results of a game source scan.
         *   `GalgameScanResult`: Represents the overall result of a scan operation for a specific source, including `SourceId`, `SourceName`, `ScanTime`, and a list of individual path results. Stored in LiteDB.
@@ -134,6 +140,11 @@ This section highlights important files and directories specific to the client a
         *   All source services implement `IGalgameSourceService` interface which defines standard operations like `SaveMetaAsync`, `LoadMetaAsync`, `RemoveMetaAsync` for meta information management.
 *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
     *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
+    *   **`Helpers/Phrase/`**: Contains the mixed phraser system for aggregating game information from multiple sources:
+        *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration.
+        *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, and `SteamEnabled`, all defaulting to true.
+        *   `MixedPhraserOrder`: Configuration class that defines the priority order for different game properties when merging data from multiple sources. Uses reflection to determine property orders and supports both Chinese and non-Chinese cultural preferences.
+        *   `MixedPhraserData`: Container class that holds both the `MixedPhraserEnabled` settings and `MixedPhraserOrder` configuration for the mixed phraser.
 *   **`Contracts/`**: Defines interfaces and data contracts. Interfaces are crucial for decoupling components and enabling testability. Data contracts might define the structure of data exchanged with services or stored locally.
     *   `Contracts/Services/IScanResultService.cs`: Interface for `ScanResultService`.
     *   `Contracts/Services/`: Interfaces for service classes.

@@ -748,6 +748,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         return new MixedPhraserData
         {
             Order = LocalSettingsService.ReadSettingAsync<MixedPhraserOrder>(KeyValues.MixedPhraserOrder).Result!,
+            Enabled = LocalSettingsService.ReadSettingAsync<MixedPhraserEnabled>(KeyValues.MixedPhraserEnabled).Result ?? new MixedPhraserEnabled(),
         };
     }
 
@@ -762,6 +763,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 PhraserList[(int)RssType.Vndb].UpdateData(await GetVndbData());
                 break;
             case KeyValues.MixedPhraserOrder:
+            case KeyValues.MixedPhraserEnabled:
                 PhraserList[(int)RssType.Mixed].UpdateData(GetMixData());
                 break;
         }

@@ -75,7 +75,7 @@ public class VndbPhraserTest
     }
 
     [Test]
-    [TestCase("紙の上の魔法使い", "原型是书的女主角", "主人公的妹妹女主角")]
+    [TestCase("紙の上の魔法使い", "傲娇女主角", "主人公的妹妹女主角")]
     [TestCase("Gyakuten Saiban", "智斗", "被冤枉")]
     public async Task ParseGameWithIdandChineseTest(string name, string expectedTag1, string expectedTag2)
     {

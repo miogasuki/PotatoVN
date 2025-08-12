@@ -603,6 +603,17 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         await _localSettingsService.SaveSettingAsync(KeyValues.MixedPhraserOrder, order);
     }
 
+    [RelayCommand]
+    public async Task SetMixedPhraserEnabledAsync()
+    {
+        MixedPhraserEnabled enabled = await _localSettingsService.
+            ReadSettingAsync<MixedPhraserEnabled>(KeyValues.MixedPhraserEnabled) ?? new MixedPhraserEnabled();
+        MixedPhraserEnabledDialog dialog = new(enabled);
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary) return;
+        await _localSettingsService.SaveSettingAsync(KeyValues.MixedPhraserEnabled, dialog.Result);
+    }
+
 
     #endregion
 

@@ -3677,6 +3677,33 @@
   <data name="GalgamePage_Play_SteamLaunchError" xml:space="preserve">
     <value>调用steam启动游戏失败</value>
   </data>
+  <data name="MixedPhraserEnabledDialog.Title" xml:space="preserve">
+    <value>混合搜刮器启用设置</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog.SecondaryButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_BangumiCheckBox.Content" xml:space="preserve">
+    <value>启用 Bangumi 搜刮器</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_VndbCheckBox.Content" xml:space="preserve">
+    <value>启用 VNDB 搜刮器</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_YmgalCheckBox.Content" xml:space="preserve">
+    <value>启用 Ymgal 搜刮器</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_SteamCheckBox.Content" xml:space="preserve">
+    <value>启用 Steam 搜刮器</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Enable.Title" xml:space="preserve">
+    <value>混合搜刮器启用设置</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Enable.Description" xml:space="preserve">
+    <value>配置混合搜刮中启用哪些搜刮器</value>
+  </data>
   <data name="GalgamePage_Play_SteamDialog_Title" xml:space="preserve">
     <value>启动Steam游戏注意事项</value>
   </data>

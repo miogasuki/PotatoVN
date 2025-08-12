@@ -33,7 +33,7 @@ public class BangumiPhraserTest
     }
 
     [Test]
-    [TestCase("22423", "サクラノ詩 —櫻の森の上を舞う—", "枕")] // 樱之诗 - 在樱花之森上飞舞
+    [TestCase("22423", "サクラノ詩 —櫻の森の上を舞う—"/*, "枕"*/)] // 樱之诗 - 在樱花之森上飞舞(bgm上这个条目的infobox没有开发商信息了)
     public async Task ParseGameWithIdTest(string id, string? targetName=null, string? targetDeveloper=null)
     {
         Galgame? game = new()

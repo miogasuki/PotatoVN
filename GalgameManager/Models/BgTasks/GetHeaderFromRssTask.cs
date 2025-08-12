@@ -28,10 +28,11 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
     {
         item.AutoFetchStatus.HeaderImage = true;
         await GameService.SaveGalgameAsync(item);
-        var url = !string.IsNullOrEmpty(item.Ids[(int)RssType.Steam]) ?  
+        var fromSteam = !string.IsNullOrEmpty(item.Ids[(int)RssType.Steam]) && item.Ids[(int)RssType.Steam] != "-1";
+        var url =  fromSteam?  
             await _steamParser.GetGalHeaderAsync(item):
             await _vndbParser.GetGalHeaderAsync(item);
-        var fromVndb = string.IsNullOrEmpty(item.Ids[(int)RssType.Steam]);
+        
         if (url is null) return;
         item.HeaderImageUrl = url;
         var targetPath = Path.Combine((await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
@@ -39,7 +40,7 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
         var rawImage = await DownloadHelper.DownloadAndSaveImageWithDiffThread(url,
             fileNameWithoutExtension: $"{item.Name.Value ?? string.Empty}_tmp");
         if (rawImage is null) return;
-        DownloadHelper.ProcessImage(rawImage, targetPath, fromVndb);
+        DownloadHelper.ProcessImage(rawImage, targetPath, !fromSteam);
         var oldImg = item.HeaderImagePath.Value;
         await UiThreadInvokeHelper.InvokeAsync(() =>
         {

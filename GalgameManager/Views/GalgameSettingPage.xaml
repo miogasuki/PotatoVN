@@ -277,14 +277,13 @@
 
         <Grid
             Grid.Row="1"
-            Background="#00000000"
-            Visibility="{x:Bind ViewModel.IsPhrasing, Mode=OneWay}">
-            <ProgressRing
-                IsActive="True"
-                Width="100"
-                Height="100"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center" />
+            Visibility="{x:Bind ViewModel.IsPhrasing, Mode=OneWay}"
+            Background="{ThemeResource ControlFillColorSecondaryBrush}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+                <ProgressRing IsActive="True" Width="100" Height="100"/>
+                <TextBlock Text="{x:Bind ViewModel.ParsingMsg, Mode=OneWay}" TextWrapping="Wrap"/>
+            </StackPanel>
+            <Grid/>
         </Grid>
     </Grid>
 </Page>

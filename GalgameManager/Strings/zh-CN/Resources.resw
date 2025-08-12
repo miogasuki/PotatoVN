@@ -3720,4 +3720,14 @@
   <data name="GalgamePage_Play_StartingSteam" xml:space="preserve">
     <value>启动steam游戏需要一点时间，请稍安勿躁</value>
   </data>
+  <data name="MixedParser_WaitingMsg" xml:space="preserve">
+    <value>正在从下列源获取信息：
+    </value>
+  </data>
+  <data name="GalgameCollectionService_ParseAsync_GettingImg" xml:space="preserve">
+    <value>正在下载封面图</value>
+  </data>
+  <data name="GalgameCollectionService_ParseAsync_WaitingParser" xml:space="preserve">
+    <value>搜刮器从信息源中获取游戏信息中</value>
+  </data>
 </root>

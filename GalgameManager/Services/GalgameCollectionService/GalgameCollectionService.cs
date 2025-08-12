@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.BgTasks;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Contracts.Services;
@@ -31,6 +32,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     private readonly IBgTaskService _bgTaskService;
     private readonly IGalgameSourceCollectionService _galSrcService;
     private ILiteCollection<Galgame> _dbSet = null!;
+    private readonly IMessenger _bus;
     public event Action<Galgame>? GalgameAddedEvent; //当有galgame添加时触发
     public event Action<Galgame>? GalgameDeletedEvent; //当有galgame删除时触发
     public event Action<Galgame>? MetaSavedEvent; //当有galgame元数据保存时触发
@@ -46,7 +48,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     } = new IGalInfoPhraser[Galgame.PhraserNumber];
 
     public GalgameCollectionService(ILocalSettingsService localSettingsService, IJumpListService jumpListService, 
-        IGalgameSourceCollectionService galgameSourceService, IInfoService infoService, IBgTaskService bgTaskService)
+        IGalgameSourceCollectionService galgameSourceService, IInfoService infoService, IBgTaskService bgTaskService,
+        IMessenger bus)
     {
         LocalSettingsService = localSettingsService;
         LocalSettingsService.OnSettingChanged += async (key, _) => await OnSettingChanged(key);
@@ -55,6 +58,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         _infoService = infoService;
         _bgTaskService = bgTaskService;
         _galSrcService = galgameSourceService;
+        _bus = bus;
         
         BgmPhraser bgmPhraser = new(GetBgmData().Result);
         VndbPhraser vndbPhraser = new(GetVndbData().Result);
@@ -62,7 +66,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         CngalPhraser cngalPhraser = new();
         SteamParser steamParser = new(localSettingsService
             .ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result.ToSteamApiString());
-        MixedPhraser mixedPhraser = new(bgmPhraser, vndbPhraser, ymgalPhraser, steamParser, GetMixData());
+        MixedPhraser mixedPhraser = new(bgmPhraser, vndbPhraser, ymgalPhraser, steamParser, GetMixData(), bus);
         PhraserList[(int)RssType.Bangumi] = bgmPhraser;
         PhraserList[(int)RssType.Vndb] = vndbPhraser;
         PhraserList[(int)RssType.Ymgal] = ymgalPhraser;
@@ -303,8 +307,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         return galgameCharacter;
     }
 
-    private static async Task<Galgame> ParseAsync(Galgame galgame, IGalInfoPhraser phraser, GameParseType type)
+    private async Task<Galgame> ParseAsync(Galgame galgame, IGalInfoPhraser phraser, GameParseType type)
     {
+        _bus.Send(new GalgameParsingEventArgs(galgame, "GalgameCollectionService_ParseAsync_WaitingParser".GetLocalized()));
         Galgame? tmp = await phraser.GetGalgameInfo(galgame);
         if (tmp == null) return galgame;
 
@@ -353,6 +358,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 galgame.Characters = tmp.Characters;
             if (type.HasFlag(GameParseType.Image))
             {
+                await Task.Delay(20);
+                _bus.Send(new GalgameParsingEventArgs(galgame, "GalgameCollectionService_ParseAsync_GettingImg".GetLocalized()));
                 galgame.ImageUrl = tmp.ImageUrl;
                 var oldImg = galgame.ImagePath.Value;
                 galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl,

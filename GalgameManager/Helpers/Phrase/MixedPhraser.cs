@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.Phrase;
-using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Models;
 
@@ -14,6 +14,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
     private IEnumerable<string> _developerList;
     private bool _init;
     private Dictionary<RssType, IGalInfoPhraser?> _phrasers = new();
+    private readonly IMessenger? _bus;
 
     private void Init()
     {
@@ -58,7 +59,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
     }
 
     public MixedPhraser(BgmPhraser bgmPhraser, VndbPhraser vndbPhraser, YmgalPhraser ymgalPhraser, 
-        SteamParser steamParser, MixedPhraserData data)
+        SteamParser steamParser, MixedPhraserData data, IMessenger? bus = null)
     {
         _phrasers[RssType.Bangumi] = bgmPhraser;
         _phrasers[RssType.Vndb] = vndbPhraser;
@@ -66,36 +67,54 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         _phrasers[RssType.Steam] = steamParser;
         _data = data;
         _developerList = new List<string>();
+        _bus = bus;
     }
 
     public async Task<Galgame?> GetGalgameInfo(Galgame galgame)
     {
         if (!_init) Init();
         Dictionary<RssType, Task<Galgame?>?> phraserTasks = new();
+        object lockObj = new();
         foreach (RssType phraserType in RssTypeHelper.UsablePhrasers)
         {
             if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) && phraser != null && IsPhraserEnabled(phraserType))
             {
+                if (galgame.Ids[(int)phraserType] == "-1") continue;
                 Galgame game = new() { Name = galgame.Name };
                 game.RssType = phraserType;
                 game.Ids = (string?[])galgame.Ids.Clone();
-                phraserTasks[phraserType] = phraser.GetGalgameInfo(game);
+                lock (lockObj)
+                {
+                    phraserTasks[phraserType] = phraser.GetGalgameInfo(game);
+                }
+                _ = phraserTasks[phraserType]!.ContinueWith(_ =>
+                {
+                    _bus?.Send(new GalgameParsingEventArgs(galgame, GetWaitingMsg()));
+                });
             }
         }
 
-        foreach (var (rssType, task) in phraserTasks)
+        _bus?.Send(new GalgameParsingEventArgs(galgame, GetWaitingMsg()));
         {
-            try
+            Dictionary<RssType, Task<Galgame?>?> tmp = new();
+            lock (lockObj)
+                foreach (var (rssType, task) in phraserTasks)
+                    tmp[rssType] = task;
+            foreach (var (rssType, task) in tmp)
             {
-                if (task != null)
-                    await task;
-            }
-            catch (Exception)
-            {
-                phraserTasks[rssType] = null;
+                try
+                {
+                    if (task != null)
+                        await task;
+                }
+                catch (Exception)
+                {
+                    lock (lockObj)
+                        phraserTasks[rssType] = null;
+                }
             }
         }
-
+        
         Dictionary<RssType, Galgame> metas = new();
         Galgame result = new();
         foreach (var (rssType, task) in phraserTasks)
@@ -106,9 +125,9 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
                 metas[rssType] = game;
                 result.Ids[(int)rssType] = game.Id;
             }
-            else
-                result.Ids[(int)rssType] = null;
         }
+        foreach (RssType rss in RssTypeHelper.UsablePhrasers.Where(rss => galgame.Ids[(int)rss] == "-1"))
+            result.Ids[(int)rss] = "-1";
 
         if (metas.Count == 0) return null;
 
@@ -208,9 +227,25 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
                 result.Developer = tmp;
         }
 
+        _bus?.Send(new GalgameParsingEventArgs(galgame, "done!"));
         return result;
 
         bool CheckStr(string? str) => !string.IsNullOrEmpty(str) && str != Galgame.DefaultString;
+
+        string GetWaitingMsg()
+        {
+            lock (lockObj)
+            {
+                var tmp = "MixedParser_WaitingMsg".GetLocalized();
+                foreach (var (rssType, task) in phraserTasks)
+                {
+                    if (task == null) continue;
+                    if (!task.IsCompleted)
+                        tmp += rssType + " ";
+                }
+                return tmp.Trim();
+            }
+        }
     }
 
     public void UpdateData(IGalInfoPhraserData data) => _data = (MixedPhraserData)data;

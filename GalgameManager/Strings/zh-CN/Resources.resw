@@ -3730,4 +3730,10 @@
   <data name="GalgameCollectionService_ParseAsync_WaitingParser" xml:space="preserve">
     <value>搜刮器从信息源中获取游戏信息中</value>
   </data>
+  <data name="LockSwitchButton.OnContent" xml:space="preserve">
+    <value>已锁定</value>
+  </data>
+  <data name="LockSwitchButton.OffContent" xml:space="preserve">
+    <value>已解锁</value>
+  </data>
 </root>

@@ -3736,4 +3736,10 @@
   <data name="LockSwitchButton.OffContent" xml:space="preserve">
     <value>已解锁</value>
   </data>
+  <data name="GalgamePage_ChangeSavePosFailed" xml:space="preserve">
+    <value>转换存档位置失败</value>
+  </data>
+  <data name="GalgameCollectionService_SavePathIsCloudRoot" xml:space="preserve">
+    <value>你选错目录啦，这里应该选择这个游戏的存档文件夹，而不是云存档根目录~</value>
+  </data>
 </root>

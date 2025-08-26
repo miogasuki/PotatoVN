@@ -446,7 +446,18 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task ChangeSavePosition()
     {
         if (Item?.IsLocalGame != true) return;
-        await _galgameService.ChangeGalgameSavePosition(Item);
+        try
+        {
+            await _galgameService.ChangeGalgameSavePosition(Item);
+        }
+        catch (PvnException e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgamePage_ChangeSavePosFailed".GetLocalized(), e.Message);
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgamePage_ChangeSavePosFailed".GetLocalized(), e.ToString());
+        }
     }
     
     [RelayCommand(CanExecute = nameof(IsLocalGame))]

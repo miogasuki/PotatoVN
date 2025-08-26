@@ -199,9 +199,11 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <summary>
     /// 获取该游戏的本地文件夹路径，若其不是本地游戏则返回null
     /// </summary>
-    [JsonIgnore][BsonIgnore]
+    [JsonIgnore]
+    [BsonIgnore]
     public string? LocalPath =>
-        Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(this);
+        Sources.FirstOrDefault(s => s.SourceType is GalgameSourceType.LocalFolder or GalgameSourceType.Steam)
+            ?.GetPath(this);
 
     /// <summary>
     /// 获取游戏文件夹下的所有exe以及bat文件

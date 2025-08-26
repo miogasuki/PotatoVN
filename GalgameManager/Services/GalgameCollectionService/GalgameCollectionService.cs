@@ -648,6 +648,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             }
             var localSavePath = await GetGalgameSaveAsync(galgame);
             if (localSavePath == null) return;
+            if (Utils.ArePathsEqual(remoteRoot, localSavePath))
+                throw new PvnException("GalgameCollectionService_SavePathIsCloudRoot".GetLocalized());
             if (FolderOperations.IsSymbolicLink(localSavePath))
             {
                 _infoService.Info(InfoBarSeverity.Warning, msg:"GalgameCollectionService_SavePathIsSymbolicLink".GetLocalized());
@@ -706,8 +708,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 });
                 ContentDialog dialog = new()
                 {
-                    XamlRoot = App.MainWindow!.Content.XamlRoot,
-                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+                    XamlRoot = App.MainWindow!.Content?.XamlRoot,
+                    RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
                     Title = "Error".GetLocalized(),
                     Content = stackPanel,
                     PrimaryButtonText = "Yes".GetLocalized()

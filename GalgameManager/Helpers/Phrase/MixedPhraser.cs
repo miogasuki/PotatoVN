@@ -200,6 +200,10 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         // imageUrl
         result.ImageUrl = GetValue<string>(metas, nameof(Galgame.ImageUrl),
             meta => CheckStr(meta.ImageUrl), null!);
+        foreach (RssType type in _data.Order.ImageUrlOrder)
+            if (metas.TryGetValue(type, out Galgame? tmp) && !string.IsNullOrEmpty(tmp?.ImageUrl))
+                result.AlternateImageUrls.Add(tmp.ImageUrl);
+        result.AlternateImageUrls.Remove(result.ImageUrl);
         // release date
         result.ReleaseDate = GetValue(metas, nameof(Galgame.ReleaseDate),
             meta => meta.ReleaseDate.Value != DateTime.MinValue,

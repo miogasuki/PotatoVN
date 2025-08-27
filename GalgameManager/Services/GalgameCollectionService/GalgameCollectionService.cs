@@ -362,9 +362,12 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 _bus.Send(new GalgameParsingEventArgs(galgame, "GalgameCollectionService_ParseAsync_GettingImg".GetLocalized()));
                 galgame.ImageUrl = tmp.ImageUrl;
                 var oldImg = galgame.ImagePath.Value;
-                galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl,
-                    fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover")
-                    ?? Galgame.DefaultImagePath;
+                var newImg = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl,
+                    fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover");
+                for (var i = 0; i < tmp.AlternateImageUrls.Count && string.IsNullOrEmpty(newImg); i++)
+                    newImg = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.AlternateImageUrls[i],
+                        fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover");
+                galgame.ImagePath.Value = newImg ?? oldImg;
                 if (File.Exists(oldImg) && oldImg != galgame.ImagePath.Value) File.Delete(oldImg);
             }
             galgame.LastFetchInfoTime = DateTime.Now;

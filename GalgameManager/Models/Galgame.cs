@@ -47,6 +47,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private LockableProperty<string?> _headerImagePath = new(null);
 
     [JsonIgnore][BsonIgnore] public string? ImageUrl;
+    [JsonIgnore][BsonIgnore] public List<string> AlternateImageUrls = [];
     public string? HeaderImageUrl { get; set; }
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public Dictionary<string, int> PlayedTime { get; set; }= new(); //ShortDateString() -> PlayedTime, 分钟

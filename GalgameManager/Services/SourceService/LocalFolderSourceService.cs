@@ -73,10 +73,10 @@ public class LocalFolderSourceService : IGalgameSourceService
         IFileService fileService = App.GetService<IFileService>();
         Galgame meta = targetGame.DeepClone();
         // 备份图片
-        if (Utils.IsImageValid(meta.ImagePath.Value))
+        if (Utils.IsImageValid(meta.ImagePath.Value) &&
+            FileHelper.CopyImg(meta.ImagePath.Value, pvnPath, $"{meta.Name.Value}_cover")?.Name is { } fileName) 
         {
-            FileHelper.CopyImg(meta.ImagePath.Value, pvnPath, $"{meta.Name.Value}_cover");
-            meta.ImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.ImagePath.Value!)));
+            meta.ImagePath.ForceSet(Path.Combine(".", fileName));
         }
         foreach (GalgameCharacter character in meta.Characters)
         {

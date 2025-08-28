@@ -145,11 +145,16 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <!-- 添加游戏 -->
-                <AppBarButton
-                    Icon="Add"
-                    x:Uid="HomePage_AddNewGame"
-                    Command="{x:Bind ViewModel.AddGalgameCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsPhrasing, Mode=OneWay, Converter={StaticResource InverseBooleanConverter}}">
+                <AppBarButton x:Uid="HomePage_AddNewGame" Icon="Add"
+                              IsEnabled="{x:Bind ViewModel.IsPhrasing, Mode=OneWay, Converter={StaticResource InverseBooleanConverter}}">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+                            <MenuFlyoutItem x:Uid="HomePage_AddNewGame_Local"
+                                            Command="{x:Bind ViewModel.AddGalgameCommand}"/>
+                            <MenuFlyoutItem x:Uid="HomePage_AddNewGame_Virtual"
+                                            Command="{x:Bind ViewModel.AddVirtualGameCommand}"/>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control" Key="N"/>
                     </AppBarButton.KeyboardAccelerators>

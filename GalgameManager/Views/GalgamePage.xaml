@@ -20,11 +20,6 @@
     </Page.Resources>
 
     <Grid>
-        <interactivity:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="SizeChanged">
-                <core:InvokeCommandAction Command="{x:Bind ViewModel.PageSizeChangedCommand}"/>
-            </core:EventTriggerBehavior>
-        </interactivity:Interaction.Behaviors>
         <Grid RowDefinitions="Auto,*">
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="{StaticResource CommandBarMargin}">
@@ -268,7 +263,7 @@
             <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <ScrollViewer IsTabStop="True" Margin="-55 0 -55 0" CornerRadius="8">
                     <Grid RowDefinitions="*,*">
-                        <Image Grid.Row="0" Height="{x:Bind ViewModel.HeaderHeight, Mode=OneWay}"
+                        <Image Grid.Row="0"
                                Visibility="{x:Bind ViewModel.ShowBackgroundImage, Mode=OneWay}"
                                VerticalAlignment="Top"
                                Stretch="Uniform" HorizontalAlignment="Stretch"

@@ -20,7 +20,7 @@ public partial class GalgameCollectionService
         // 尝试从本地获取游戏信息
         try
         {
-            meta = await sourceService.LoadMetaAsync(path);
+            if (sourceType is not GalgameSourceType.Virtual) meta = await sourceService.LoadMetaAsync(path);
         }
         catch (Exception)
         {
@@ -132,6 +132,8 @@ public partial class GalgameCollectionService
     {
         switch (sourceType)
         {
+            case GalgameSourceType.Virtual: 
+                return path;
             case GalgameSourceType.LocalFolder:
             case GalgameSourceType.LocalZip:
             case GalgameSourceType.Steam:
@@ -162,6 +164,8 @@ public partial class GalgameCollectionService
         existGame.MergeTime(meta);
         switch (type)
         {
+            case GalgameSourceType.Virtual:
+                throw new PvnException("AddGalgameResult_AlreadyInLibrary".GetLocalized());
             case GalgameSourceType.LocalFolder:
             case GalgameSourceType.Steam:
                 // 一个游戏只能属于一个本地文件夹

@@ -3742,4 +3742,16 @@
   <data name="GalgameCollectionService_SavePathIsCloudRoot" xml:space="preserve">
     <value>你选错目录啦，这里应该选择这个游戏的存档文件夹，而不是云存档根目录~</value>
   </data>
+  <data name="HomePage_AddNewGame_Local.Text" xml:space="preserve">
+    <value>本地游戏</value>
+  </data>
+  <data name="HomePage_AddNewGame_Virtual.Text" xml:space="preserve">
+    <value>非本机游戏</value>
+  </data>
+  <data name="GalgamePage_AddVirtualGame" xml:space="preserve">
+    <value>添加非本机游戏</value>
+  </data>
+  <data name="GalgamePage_AddVirtualGame_PlaceHolder" xml:space="preserve">
+    <value>游戏名（使用游戏原名识别准确度更高）</value>
+  </data>
 </root>

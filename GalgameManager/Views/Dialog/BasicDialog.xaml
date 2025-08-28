@@ -8,10 +8,11 @@
     Style="{ThemeResource DefaultContentDialogStyle}"
     mc:Ignorable="d">
 
-    <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
-        <TextBlock x:Name="TextBlock" Grid.Row="0" TextWrapping="Wrap"/>
-        <Rectangle Grid.Row="1" Height="1"
+    <StackPanel Spacing="10">
+        <TextBlock x:Name="TextBlock" TextWrapping="Wrap"/>
+        <TextBox x:Name="InputTextBox"/>
+        <Rectangle x:Name="CheckBoxLine" Height="1"
                    Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
-        <CheckBox Grid.Row="2" x:Name="CheckBox"/>
-    </Grid>
+        <CheckBox x:Name="CheckBox"/>
+    </StackPanel>
 </ContentDialog>

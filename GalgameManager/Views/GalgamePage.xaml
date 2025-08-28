@@ -268,16 +268,13 @@
             <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <ScrollViewer IsTabStop="True" Margin="-55 0 -55 0" CornerRadius="8">
                     <Grid RowDefinitions="*,*">
-                        <Grid Grid.Row="0" Height="{x:Bind ViewModel.HeaderHeight, Mode=OneWay}"
-                              Visibility="{x:Bind ViewModel.ShowBackgroundImage, Mode=OneWay}"
-                              Margin="{x:Bind ViewModel.HeaderMargin, Mode=OneWay}">
-                            <Grid.Background>
-                                <ImageBrush Stretch="UniformToFill"
-                                            ImageSource="{x:Bind ViewModel.Item.HeaderImagePath, Mode=OneWay,
-                                         FallbackValue={x:Null},
-                                         Converter={StaticResource ImagePathConverter}, ConverterParameter='null'}" />
-                            </Grid.Background>
-                        </Grid>
+                        <Image Grid.Row="0" Height="{x:Bind ViewModel.HeaderHeight, Mode=OneWay}"
+                               Visibility="{x:Bind ViewModel.ShowBackgroundImage, Mode=OneWay}"
+                               VerticalAlignment="Top"
+                               Stretch="Uniform" HorizontalAlignment="Stretch"
+                               Source="{x:Bind ViewModel.Item.HeaderImagePath, Mode=OneWay,
+                                         FallbackValue={x:Null}, Converter={StaticResource ImagePathConverter}, 
+                                         ConverterParameter='null_ignoreDefaultPotato'}"/>
 
                         <StackPanel Grid.Row="0" Grid.RowSpan="2">
                             <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
@@ -297,9 +294,6 @@
                             <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
                                     Visibility="{x:Bind ViewModel.ShowCharacterPanel, Mode=OneWay}"/>
                             <interactivity:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="SizeChanged">
-                                    <core:InvokeCommandAction Command="{x:Bind ViewModel.NewLayoutSizeChangedCommand}"/>
-                                </core:EventTriggerBehavior>
                                 <behaviors:ResponsivePaddingBehavior OrinWidth="1000" OrinPadding="100 0 100 0"/>
                             </interactivity:Interaction.Behaviors>
                         </StackPanel>

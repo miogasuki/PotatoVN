@@ -59,7 +59,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _canOpenInYmgal;
     [ObservableProperty] private bool _canOpenInCngal;
     [ObservableProperty] private bool _canOpenInSteam;
-    [ObservableProperty] private Thickness _headerMargin = new(0, 0, 0, 0);
     [ObservableProperty] private double _headerHeight = 400;
     [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showTagPanel = Visibility.Collapsed;
@@ -816,10 +815,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         
 
     }
-
-    [RelayCommand]
-    private void OnNewLayoutSizeChanged(SizeChangedEventArgs e) =>
-        HeaderMargin = new Thickness(0, -300f * e.NewSize.Height / 886, 0, 0);
     
     [RelayCommand]
     private void OnPageSizeChanged(SizeChangedEventArgs e) => HeaderHeight = 400f * e.NewSize.Width / 886;

@@ -19,6 +19,8 @@ public class ImagePathConverter : IValueConverter
         if (value is LockableProperty<string?> lo) value = lo.Value!;
         try
         {
+            if (value is Galgame.DefaultImagePath && parameter is "null_ignoreDefaultPotato")
+                return new BitmapImage();
             if (value is string str && !string.IsNullOrEmpty(str))
                 return new BitmapImage(new Uri(str));
             if (parameter is string para)

@@ -3,9 +3,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.BgTasks;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Contracts.Services;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.Phrase;
@@ -30,6 +32,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     private readonly IBgTaskService _bgTaskService;
     private readonly IGalgameSourceCollectionService _galSrcService;
     private ILiteCollection<Galgame> _dbSet = null!;
+    private readonly IMessenger _bus;
     public event Action<Galgame>? GalgameAddedEvent; //当有galgame添加时触发
     public event Action<Galgame>? GalgameDeletedEvent; //当有galgame删除时触发
     public event Action<Galgame>? MetaSavedEvent; //当有galgame元数据保存时触发
@@ -45,7 +48,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     } = new IGalInfoPhraser[Galgame.PhraserNumber];
 
     public GalgameCollectionService(ILocalSettingsService localSettingsService, IJumpListService jumpListService, 
-        IGalgameSourceCollectionService galgameSourceService, IInfoService infoService, IBgTaskService bgTaskService)
+        IGalgameSourceCollectionService galgameSourceService, IInfoService infoService, IBgTaskService bgTaskService,
+        IMessenger bus)
     {
         LocalSettingsService = localSettingsService;
         LocalSettingsService.OnSettingChanged += async (key, _) => await OnSettingChanged(key);
@@ -54,17 +58,21 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         _infoService = infoService;
         _bgTaskService = bgTaskService;
         _galSrcService = galgameSourceService;
+        _bus = bus;
         
         BgmPhraser bgmPhraser = new(GetBgmData().Result);
         VndbPhraser vndbPhraser = new(GetVndbData().Result);
         YmgalPhraser ymgalPhraser = new();
         CngalPhraser cngalPhraser = new();
-        MixedPhraser mixedPhraser = new(bgmPhraser, vndbPhraser, ymgalPhraser, GetMixData());
+        SteamParser steamParser = new(localSettingsService
+            .ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result.ToSteamApiString());
+        MixedPhraser mixedPhraser = new(bgmPhraser, vndbPhraser, ymgalPhraser, steamParser, GetMixData(), bus);
         PhraserList[(int)RssType.Bangumi] = bgmPhraser;
         PhraserList[(int)RssType.Vndb] = vndbPhraser;
         PhraserList[(int)RssType.Ymgal] = ymgalPhraser;
         PhraserList[(int)RssType.Cngal] = cngalPhraser;
         PhraserList[(int)RssType.Mixed] = mixedPhraser;
+        PhraserList[(int)RssType.Steam] = steamParser;
     }
     
     public async Task InitAsync()
@@ -299,8 +307,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         return galgameCharacter;
     }
 
-    private static async Task<Galgame> ParseAsync(Galgame galgame, IGalInfoPhraser phraser, GameParseType type)
+    private async Task<Galgame> ParseAsync(Galgame galgame, IGalInfoPhraser phraser, GameParseType type)
     {
+        _bus.Send(new GalgameParsingEventArgs(galgame, "GalgameCollectionService_ParseAsync_WaitingParser".GetLocalized()));
         Galgame? tmp = await phraser.GetGalgameInfo(galgame);
         if (tmp == null) return galgame;
 
@@ -349,9 +358,17 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 galgame.Characters = tmp.Characters;
             if (type.HasFlag(GameParseType.Image))
             {
+                await Task.Delay(20);
+                _bus.Send(new GalgameParsingEventArgs(galgame, "GalgameCollectionService_ParseAsync_GettingImg".GetLocalized()));
                 galgame.ImageUrl = tmp.ImageUrl;
-                galgame.ImagePath.Value = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl) ??
-                                          Galgame.DefaultImagePath;
+                var oldImg = galgame.ImagePath.Value;
+                var newImg = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl,
+                    fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover");
+                for (var i = 0; i < tmp.AlternateImageUrls.Count && string.IsNullOrEmpty(newImg); i++)
+                    newImg = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.AlternateImageUrls[i],
+                        fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover");
+                galgame.ImagePath.Value = newImg ?? oldImg;
+                if (File.Exists(oldImg) && oldImg != galgame.ImagePath.Value) File.Delete(oldImg);
             }
             galgame.LastFetchInfoTime = DateTime.Now;
         });
@@ -634,6 +651,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             }
             var localSavePath = await GetGalgameSaveAsync(galgame);
             if (localSavePath == null) return;
+            if (Utils.ArePathsEqual(remoteRoot, localSavePath))
+                throw new PvnException("GalgameCollectionService_SavePathIsCloudRoot".GetLocalized());
             if (FolderOperations.IsSymbolicLink(localSavePath))
             {
                 _infoService.Info(InfoBarSeverity.Warning, msg:"GalgameCollectionService_SavePathIsSymbolicLink".GetLocalized());
@@ -692,8 +711,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 });
                 ContentDialog dialog = new()
                 {
-                    XamlRoot = App.MainWindow!.Content.XamlRoot,
-                    RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
+                    XamlRoot = App.MainWindow!.Content?.XamlRoot,
+                    RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
                     Title = "Error".GetLocalized(),
                     Content = stackPanel,
                     PrimaryButtonText = "Yes".GetLocalized()
@@ -741,6 +760,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         return new MixedPhraserData
         {
             Order = LocalSettingsService.ReadSettingAsync<MixedPhraserOrder>(KeyValues.MixedPhraserOrder).Result!,
+            Enabled = LocalSettingsService.ReadSettingAsync<MixedPhraserEnabled>(KeyValues.MixedPhraserEnabled).Result ?? new MixedPhraserEnabled(),
         };
     }
 
@@ -755,6 +775,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 PhraserList[(int)RssType.Vndb].UpdateData(await GetVndbData());
                 break;
             case KeyValues.MixedPhraserOrder:
+            case KeyValues.MixedPhraserEnabled:
                 PhraserList[(int)RssType.Mixed].UpdateData(GetMixData());
                 break;
         }

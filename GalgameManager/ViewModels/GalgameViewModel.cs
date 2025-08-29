@@ -18,7 +18,9 @@ using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.ComponentModel;
+using System.Globalization;
 using GalgameManager.Views.GalgamePagePanel;
+using ValveKeyValue;
 
 namespace GalgameManager.ViewModels;
 
@@ -56,8 +58,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _canOpenInVndb;
     [ObservableProperty] private bool _canOpenInYmgal;
     [ObservableProperty] private bool _canOpenInCngal;
-    [ObservableProperty] private Thickness _headerMargin = new(0, 0, 0, 0);
-    [ObservableProperty] private double _headerHeight = 400;
+    [ObservableProperty] private bool _canOpenInSteam;
     [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showTagPanel = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showCharacterPanel = Visibility.Collapsed;
@@ -199,6 +200,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             CanOpenInVndb = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Vndb]);
             CanOpenInYmgal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Ymgal]);
             CanOpenInCngal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Cngal]);
+            CanOpenInSteam = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Steam]);
         }
         catch (Exception ex)
         {
@@ -248,40 +250,81 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Cngal])) return;
         await Launcher.LaunchUriAsync(new Uri("https://www.cngal.org/entries/index/"+Item!.Ids[(int)RssType.Cngal]));
     }
+
+    [RelayCommand]
+    private async Task OpenInSteam()
+    {
+        if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Steam])) return;
+        await Launcher.LaunchUriAsync(new Uri("https://store.steampowered.com/app/"+Item!.Ids[(int)RssType.Steam]));
+    }
     
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task Play()
     {
         if (!Item!.IsLocalGame) return;
         if (Item.ExePath is not null && !File.Exists(Item.ExePath)) Item.ExePath = null;
-        if (string.IsNullOrEmpty(Item.ExePath))
+
+        if (Item.Sources.Any(s => s.SourceType is GalgameSourceType.Steam) && Item.GetId(RssType.Steam) == -1)
+        {
+            Item.Ids[(int)RssType.Steam] = await TryGetSteamIdAsync();
+            if (string.IsNullOrEmpty(Item.Ids[(int)RssType.Steam]))
+                _infoService.Info(InfoBarSeverity.Warning, msg:"GalgamePage_Play_NoSteamId".GetLocalized());
+        }
+        
+        var isSteamGame = Item.Sources.Any(s => s.SourceType is GalgameSourceType.Steam) &&
+                          !string.IsNullOrEmpty(Item.Ids[(int)RssType.Steam]);
+        if (string.IsNullOrEmpty(Item.ExePath) && !isSteamGame)
         {
             await _galgameService.GetGalgameExeAsync(Item);
             if (string.IsNullOrEmpty(Item.ExePath)) return;
         }
 
-        var exePath = Item.ExePath;
-        var args = Item.ExeArguments;
-        if (Item.RunInLocaleEmulator && await CheckLocaleEmulator())
+        Process process = null!;
+        // 非steam游戏启动参数
+        if (!isSteamGame)
         {
-            exePath = await _localSettingsService.ReadSettingAsync<string>(KeyValues.LocaleEmulatorPath);
-            args = Item.ExePath;
-        }
+            var exePath = Item.ExePath;
+            var args = Item.ExeArguments;
+            if (Item.RunInLocaleEmulator && await CheckLocaleEmulator())
+            {
+                exePath = await _localSettingsService.ReadSettingAsync<string>(KeyValues.LocaleEmulatorPath);
+                args = Item.ExePath;
+            }
 
-        ProcessStartInfo info = new()
-        {
-            FileName = exePath,
-            CreateNoWindow = !string.IsNullOrEmpty(args),
-            WorkingDirectory = Item.LocalPath,
-            UseShellExecute = Item.RunAsAdmin | Item.ExePath!.ToLower().EndsWith("lnk"),
-            Verb = Item.RunAsAdmin ? "runas" : null,
-        };
-        if (args is not null) info.ArgumentList.Add(args);
-        Process process = new(){ StartInfo = info };
+            ProcessStartInfo info = new()
+            {
+                FileName = exePath,
+                CreateNoWindow = !string.IsNullOrEmpty(args),
+                WorkingDirectory = Item.LocalPath,
+                UseShellExecute = Item.RunAsAdmin | Item.ExePath!.ToLower().EndsWith("lnk"),
+                Verb = Item.RunAsAdmin ? "runas" : null,
+            };
+            if (args is not null) info.ArgumentList.Add(args);
+            process = new() { StartInfo = info };
+        }
+        // Steam游戏第一次启动会弹窗警告，提示用户选择游戏进程以记录游戏时长
+        else if (isSteamGame && string.IsNullOrEmpty(Item.ProcessName) && !await DisplaySteamMsgAsync()) return; //false:取消对话框
 
         try
         {
-            process.Start();
+            if (!isSteamGame)
+                process.Start();
+            else
+            {
+                Uri steamUri = new($"steam://run/{Item.Ids[(int)RssType.Steam]}");
+                _infoService.Info(InfoBarSeverity.Informational, msg: "GalgamePage_Play_StartingSteam".GetLocalized());
+                if (await Launcher.LaunchUriAsync(steamUri) == false)
+                {
+                    _infoService.Info(InfoBarSeverity.Error, "GalgamePage_Play_SteamLaunchError".GetLocalized());
+                    return;
+                }
+                if (string.IsNullOrEmpty(Item.ProcessName))
+                {
+                    await SelectProcess();
+                    return;
+                }
+            }
+
             Item.LastPlayTime = DateTime.Now;
             await _galgameService.SaveGalgameAsync(Item);
             // _galgameService.Sort();
@@ -331,6 +374,55 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         {
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Error, "GalgamePage_Play_Error".GetLocalized() + e.Message);
         }
+        return;
+
+        // 尝试获取Steam ID
+        async Task<string?> TryGetSteamIdAsync()
+        {
+            _infoService.Info(InfoBarSeverity.Informational, msg:"GalgamePage_Play_GettingSteamId".GetLocalized());
+            try
+            {
+                if (Item is null) return null;
+                var path = Item.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.Steam)?.GetPath(Item);
+                if (path is null || !Directory.Exists(path)) return null;
+                DirectoryInfo? di = new(path);
+                di = di.Parent?.Parent;
+                if (di is null) throw new PvnException("Cannot find steamapps folder");
+                foreach (FileInfo file in di.GetFiles("appmanifest_*.acf"))
+                {
+                    await using FileStream fs = file.OpenRead();
+                    KVValue? kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text).Deserialize(fs).Value;
+                    if (kv is null) continue;
+                    var name = kv["name"].ToString(CultureInfo.InvariantCulture);
+                    if (path.Contains(name)) return kv["appid"].ToString(CultureInfo.InvariantCulture);
+                }
+            }
+            catch (Exception e)
+            {
+                _infoService.DeveloperEvent(e: e);
+            }
+            finally
+            {
+                _infoService.Info(InfoBarSeverity.Informational);
+            }
+            return null;
+        }
+
+        // 使用steam启动游戏，第一次弹窗警告需要手动选择游戏进程以记录游戏时长，若返回bool则是取消了对话框
+        async Task<bool> DisplaySteamMsgAsync()
+        {
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.NotifiedSteamNeedManual)) return true;
+            BasicDialog dialog = new("GalgamePage_Play_SteamDialog_Title".GetLocalized(),
+                "GalgamePage_Play_SteamDialog_Message".GetLocalized(),
+                checkBoxText:"GalgamePage_Play_SteamDialog_CheckBox".GetLocalized());
+            await dialog.ShowAsync();
+            if (dialog.PrimaryButtonClicked)
+            {
+                await _localSettingsService.SaveSettingAsync(KeyValues.NotifiedSteamNeedManual, dialog.CheckBoxChecked);
+                return true;
+            }
+            return false;
+        }
     }
 
     [RelayCommand]
@@ -352,7 +444,18 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task ChangeSavePosition()
     {
         if (Item?.IsLocalGame != true) return;
-        await _galgameService.ChangeGalgameSavePosition(Item);
+        try
+        {
+            await _galgameService.ChangeGalgameSavePosition(Item);
+        }
+        catch (PvnException e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgamePage_ChangeSavePosFailed".GetLocalized(), e.Message);
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgamePage_ChangeSavePosFailed".GetLocalized(), e.ToString());
+        }
     }
     
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
@@ -427,7 +530,9 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task OpenInExplorer()
     {
         if(Item == null) return;
-        var path = Item.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(Item);
+        var path = Item.Sources
+            .FirstOrDefault(s => s.SourceType is GalgameSourceType.LocalFolder or GalgameSourceType.Steam)
+            ?.GetPath(Item);
         if (path is null) //不应该发生
         {
             _infoService.DeveloperEvent(InfoBarSeverity.Error, "Can't find the path of the game");
@@ -709,13 +814,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         
 
     }
-
-    [RelayCommand]
-    private void OnNewLayoutSizeChanged(SizeChangedEventArgs e) =>
-        HeaderMargin = new Thickness(0, -300f * e.NewSize.Height / 886, 0, 0);
-    
-    [RelayCommand]
-    private void OnPageSizeChanged(SizeChangedEventArgs e) => HeaderHeight = 400f * e.NewSize.Width / 886;
 }
 
 public class GalgamePageParameter

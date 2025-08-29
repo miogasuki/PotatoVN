@@ -20,11 +20,6 @@
     </Page.Resources>
 
     <Grid>
-        <interactivity:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="SizeChanged">
-                <core:InvokeCommandAction Command="{x:Bind ViewModel.PageSizeChangedCommand}"/>
-            </core:EventTriggerBehavior>
-        </interactivity:Interaction.Behaviors>
         <Grid RowDefinitions="Auto,*">
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="{StaticResource CommandBarMargin}">
@@ -159,6 +154,14 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
+                    <!-- 在Steam中打开 -->
+                    <AppBarButton x:Uid="GalgamePage_OpenInSteam" Command="{x:Bind ViewModel.OpenInSteamCommand}" 
+                                  Visibility="{x:Bind ViewModel.CanOpenInSteam, 
+                                  Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                     <!-- 下载游玩状态 -->
                     <AppBarButton x:Uid="GalgamePage_SyncFromBgm"
                             Command="{x:Bind ViewModel.SyncFromBgmCommand}"
@@ -260,16 +263,13 @@
             <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <ScrollViewer IsTabStop="True" Margin="-55 0 -55 0" CornerRadius="8">
                     <Grid RowDefinitions="*,*">
-                        <Grid Grid.Row="0" Height="{x:Bind ViewModel.HeaderHeight, Mode=OneWay}"
-                              Visibility="{x:Bind ViewModel.ShowBackgroundImage, Mode=OneWay}"
-                              Margin="{x:Bind ViewModel.HeaderMargin, Mode=OneWay}">
-                            <Grid.Background>
-                                <ImageBrush Stretch="UniformToFill"
-                                            ImageSource="{x:Bind ViewModel.Item.HeaderImagePath, Mode=OneWay,
-                                         FallbackValue={x:Null},
-                                         Converter={StaticResource ImagePathConverter}, ConverterParameter='null'}" />
-                            </Grid.Background>
-                        </Grid>
+                        <Image Grid.Row="0"
+                               Visibility="{x:Bind ViewModel.ShowBackgroundImage, Mode=OneWay}"
+                               VerticalAlignment="Top"
+                               Stretch="Uniform" HorizontalAlignment="Stretch"
+                               Source="{x:Bind ViewModel.Item.HeaderImagePath, Mode=OneWay,
+                                         FallbackValue={x:Null}, Converter={StaticResource ImagePathConverter}, 
+                                         ConverterParameter='null_ignoreDefaultPotato'}"/>
 
                         <StackPanel Grid.Row="0" Grid.RowSpan="2">
                             <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
@@ -289,9 +289,6 @@
                             <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
                                     Visibility="{x:Bind ViewModel.ShowCharacterPanel, Mode=OneWay}"/>
                             <interactivity:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="SizeChanged">
-                                    <core:InvokeCommandAction Command="{x:Bind ViewModel.NewLayoutSizeChangedCommand}"/>
-                                </core:EventTriggerBehavior>
                                 <behaviors:ResponsivePaddingBehavior OrinWidth="1000" OrinPadding="100 0 100 0"/>
                             </interactivity:Interaction.Behaviors>
                         </StackPanel>

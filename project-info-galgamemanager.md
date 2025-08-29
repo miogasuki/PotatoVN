@@ -35,13 +35,25 @@ The client application implements the core functionalities of PotatoVN:
   *   **Localization:** Supports multiple languages through localization files, managed via Crowdin (configuration in `crowdin.yml` at the repository root). String resources are located in `GalgameManager/Strings/` within language-specific subfolders (e.g., `zh-CN`, `en-US`), typically in `Resources.resw` files.
       *   **Implementing XAML Localization:**
           *   Use the `x:Uid` attribute on XAML elements to mark them for localization. For example: `<TextBlock x:Uid="MyUniqueControlUid" />`.
-          *   In the `.resw` resource file (e.g., `Strings/zh-CN/Resources.resw`), create a `<data>` entry where the `name` attribute is the `x:Uid` value followed by a dot and the target property name. For instance, to set the `Text` property of the `TextBlock` above, the resource key would be `MyUniqueControlUid.Text`.
-          *   Example:
+          *   In the `.resw` resource file (e.g., `Strings/zh-CN/Resources.resw`), create a `<data>` entry where the `name` attribute is the `x:Uid` value followed by a dot and the target property name. The property name varies by control type:
+              *   `TextBlock`, `TextBox`, etc.: Use `.Text` (e.g., `MyUid.Text`)
+              *   `AppBarButton`, `Button`: Use `.Label` (e.g., `MyUid.Label`) 
+              *   `ContentDialog`: Use `.Title` for titles
+              *   `ToolTip`: Use `.ToolTipService.ToolTip`
+          *   Example for TextBlock:
               *   XAML: `<TextBlock x:Uid="EditPlayTimeDialog_PlayCountLabel" />`
               *   `Resources.resw` entry:
                   ```xml
                   <data name="EditPlayTimeDialog_PlayCountLabel.Text" xml:space="preserve">
                     <value>游玩次数:</value>
+                  </data>
+                  ```
+          *   Example for AppBarButton:
+              *   XAML: `<AppBarButton x:Uid="GalgamePage_OpenInSteam" />`
+              *   `Resources.resw` entry:
+                  ```xml
+                  <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
+                    <value>在Steam中打开</value>
                   </data>
                   ```
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
@@ -76,16 +88,23 @@ This section highlights important files and directories specific to the client a
     *   `MainWindow.xaml`: Defines the XAML structure for the main application window.
     *   `MainWindow.xaml.cs`: Contains the code-behind logic for the main window, including event handlers and interaction with ViewModels.
 *   **`appsettings.json`**: Configuration file for the client application. May store settings like API keys (if not user-specific), default paths, feature flags, etc. Note that user-specific settings are typically managed by `LocalSettingsService.cs` and stored in `LocalSettings.json` or individual `data.{key}.json` files.
-*   **`ViewModels/`**: Contains ViewModel classes that drive the application's UI logic and data binding. These ViewModels often orchestrate interactions with dialogs for editing specific pieces of data (e.g., `PlayedTimeViewModel.cs` launching `EditPlayTimeDialog`).
-    *   `SettingsViewModel.cs`: Manages application settings, including the `CustomTextFileExtensionsString` property for user-defined text file extensions, the `MagpiePath` property (with `SelectMagpiePathCommand`) for the Magpie executable path, and the `AlwaysEnableMagpie` property for globally overriding Magpie settings. It also includes a `IsSideloadVersion` property to control visibility of certain settings for non-Store versions of the application.
-    *   `GalgameViewModel.cs`: Handles logic for the individual game page, including the "Open Text" feature which now uses the `CustomTextFileExtensions` setting. It also checks the global `AlwaysEnableMagpie` setting when determining Magpie activation for a game.
+    *   **`ViewModels/`**: Contains ViewModel classes that drive the application's UI logic and data binding. These ViewModels often orchestrate interactions with dialogs for editing specific pieces of data (e.g., `PlayedTimeViewModel.cs` launching `EditPlayTimeDialog`).
+        *   `SettingsViewModel.cs`: Manages application settings, including the `CustomTextFileExtensionsString` property for user-defined text file extensions, the `MagpiePath` property (with `SelectMagpiePathCommand`) for the Magpie executable path, and the `AlwaysEnableMagpie` property for globally overriding Magpie settings. It also includes a `IsSideloadVersion` property to control visibility of certain settings for non-Store versions of the application.
+        *   `GalgameViewModel.cs`: Handles logic for the individual game page, including the "Open Text" feature which now uses the `CustomTextFileExtensions` setting. It also checks the global `AlwaysEnableMagpie` setting when determining Magpie activation for a game. Contains "Open in X" commands for external services like Bangumi, VNDB, Ymgal, Cngal, and Steam that allow users to view game information on these platforms directly from the game details page.
     *   `ShellViewModel.cs`: Manages the main application shell. It subscribes to `InfoService.OnEvent` and its `DisplayEventMsgAsync` method now handles the optional callback action and button text for event notifications. It creates `ShellEventViewModel` instances for display.
     *   `ShellEventViewModel.cs` (within `ShellViewModel.cs`): Represents an event notification displayed in the shell. It now includes `CallbackAction` and `CallbackButtonText` properties, along with an `ExecuteCallbackCommand` to invoke the action.
 *   **`Views/`**: Contains XAML files defining the user interface pages and controls. Each View typically corresponds to a ViewModel.
     *   `SettingsPage.xaml`: Contains the UI for application settings, including the "Magpie executable path" setting in the "Game" section.
     *   `GalgameSourcePage.xaml`: Contains the UI for individual game library configuration, including settings for auto-scan, auto-add/remove games, and per-library SaveMetaBackup toggle.
     *   `ShellPage.xaml`: The main shell of the application. Its `ItemsRepeater` for displaying event notifications now includes a `HyperlinkButton` that is visible when `CallbackButtonText` is provided in the `ShellEventViewModel`. This button is bound to the `ExecuteCallbackCommand` and uses `VisibilityHelper.Convert` for its visibility.
-    *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
+*   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
+        *   `AddSourceDialog.xaml`: Dialog for adding new game library sources. Uses a ComboBox to select library type (currently supports "本地库" for local folders). The SelectedIndex is bound to the SelectItem property which determines the library type in LibraryViewModel.AddLibrary method.
+        *   `MixedPhraserEnabledDialog.xaml`: Dialog for configuring which search engines/databases are enabled in the mixed phraser. Contains checkboxes for Bangumi, VNDB, Ymgal, and Steam. The dialog receives a `MixedPhraserEnabled` configuration object and allows users to enable/disable individual phrasers.
+        *   **ContentDialog Localization Pattern**: ContentDialog elements follow specific localization conventions:
+            *   Use `x:Uid` attribute on the ContentDialog root element for title and button text
+            *   Localization keys use `.Title`, `.PrimaryButtonText`, `.SecondaryButtonText` suffixes
+            *   Child elements like CheckBox use `.Content` suffix for their text content
+            *   Example: `<ContentDialog x:Uid="MyDialog">` with localization key `MyDialog.Title`
 *   **`Models/`**: Contains data model classes representing the entities and data structures used within the client.
     *   **`ScanResult.cs`**: Defines models for storing and displaying the results of a game source scan.
         *   `GalgameScanResult`: Represents the overall result of a scan operation for a specific source, including `SourceId`, `SourceName`, `ScanTime`, and a list of individual path results. Stored in LiteDB.
@@ -114,8 +133,18 @@ This section highlights important files and directories specific to the client a
     *   `ScanResultService.cs`: Manages saving and retrieving `GalgameScanResult` objects to/from LiteDB. Implements `IScanResultService.cs`. The LiteDB collection name is "scan_results".
     *   `LocalSettingsService.cs`: Manages the storage and retrieval of local application settings, including the LiteDB database instance.
     *   `InfoService.cs`: Handles in-app notifications and event logging. Its `OnEvent` delegate and `Event` method now support an optional callback action and button text, allowing event notifications to include a custom action button. This is handled in `ShellViewModel.cs` and displayed in `ShellPage.xaml`.
+    *   **`Services/SourceService/`**: Contains source-specific service implementations that handle different types of game libraries:
+        *   `LocalFolderSourceService.cs`: Handles local folder-based game libraries, including meta backup/restore functionality, file system monitoring, and game move operations.
+        *   `SteamSourceService.cs`: Handles Steam-based game libraries. Supports meta backup/restore functionality by creating `.PotatoVN` folders within Steam game directories to store `meta.json` and associated images. Does not support move operations or file system monitoring due to Steam's managed nature.
+        *   `VirtualSourceService.cs`: Handles virtual game libraries for organizational purposes.
+        *   All source services implement `IGalgameSourceService` interface which defines standard operations like `SaveMetaAsync`, `LoadMetaAsync`, `RemoveMetaAsync` for meta information management.
 *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
     *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
+    *   **`Helpers/Phrase/`**: Contains the mixed phraser system for aggregating game information from multiple sources:
+        *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration.
+        *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, and `SteamEnabled`, all defaulting to true.
+        *   `MixedPhraserOrder`: Configuration class that defines the priority order for different game properties when merging data from multiple sources. Uses reflection to determine property orders and supports both Chinese and non-Chinese cultural preferences.
+        *   `MixedPhraserData`: Container class that holds both the `MixedPhraserEnabled` settings and `MixedPhraserOrder` configuration for the mixed phraser.
 *   **`Contracts/`**: Defines interfaces and data contracts. Interfaces are crucial for decoupling components and enabling testability. Data contracts might define the structure of data exchanged with services or stored locally.
     *   `Contracts/Services/IScanResultService.cs`: Interface for `ScanResultService`.
     *   `Contracts/Services/`: Interfaces for service classes.

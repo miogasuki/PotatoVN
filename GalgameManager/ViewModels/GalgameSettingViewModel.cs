@@ -3,6 +3,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
@@ -15,12 +16,13 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.ViewModels;
 
-public partial class GalgameSettingViewModel : ObservableObject, INavigationAware
+public partial class GalgameSettingViewModel : ObservableObject, INavigationAware, IRecipient<GalgameParsingEventArgs>
 {
     [ObservableProperty]
     private Galgame _gal = null!;
 
-    public List<RssType> RssTypes { get; }= new() { RssType.Bangumi, RssType.Vndb, RssType.Mixed, RssType.Ymgal, RssType.Cngal };
+    public List<RssType> RssTypes { get; } = new() { RssType.Bangumi, RssType.Vndb, RssType.Mixed, 
+        RssType.Ymgal, RssType.Cngal, RssType.Steam };
 
     private readonly GalgameCollectionService _galService;
     private readonly GalgameSourceCollectionService _sourceService;
@@ -28,9 +30,11 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     private readonly IPvnService _pvnService;
     private readonly IInfoService _infoService;
     private readonly ILocalSettingsService _settingsService;
+    private readonly IMessenger _bus;
     private readonly string[] _searchUrlList = new string[Galgame.PhraserNumber];
     [ObservableProperty] private string _searchUri = "";
     [ObservableProperty] private bool _isPhrasing;
+    [ObservableProperty] private string _parsingMsg = string.Empty;
     [ObservableProperty] private RssType _selectedRss = RssType.None;
     [ObservableProperty] private string _galgameInfoDescription = string.Empty;
     [ObservableProperty] private DateTimeOffset _releasedDate; //包一层的原因：CalendarDatePicker的Date为DateTimeOffset（而非datetime）
@@ -41,7 +45,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
         IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService, 
-        ILocalSettingsService settingsService)
+        ILocalSettingsService settingsService, IMessenger bus)
     {
         Gal = new Galgame();
         _galService = (GalgameCollectionService)galCollectionService;
@@ -50,6 +54,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         _pvnService = pvnService;
         _infoService = infoService;
         _settingsService = settingsService;
+        _bus = bus;
         _searchUrlList[(int)RssType.Bangumi] = "https://bgm.tv/subject_search/";
         _searchUrlList[(int)RssType.Vndb] = "https://vndb.org/v/all?sq=";
         _searchUrlList[(int)RssType.Mixed] = "https://bgm.tv/subject_search/";
@@ -66,6 +71,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         _pvnService.Upload(Gal, PvnUploadProperties.Infos | PvnUploadProperties.ImageLoc);
         _galService.PhrasedEvent -= Update;
         Gal.PropertyChanged -= HandleGalPropertyChanged;
+        _bus.Unregister<GalgameParsingEventArgs>(this);
     }
 
     public void OnNavigatedTo(object parameter)
@@ -81,13 +87,15 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         if (Gal.ReleaseDate.Value > DateTime.MinValue)
             ReleasedDate = Gal.ReleaseDate.Value;
         _galService.PhrasedEvent += Update;
+        _bus.Register(this);
         Update();
     }
 
     partial void OnSelectedRssChanged(RssType value)
     {
         Gal.RssType = value;
-        SearchUri = _searchUrlList[(int)value] + Gal.Name.Value;
+        if (!string.IsNullOrEmpty(_searchUrlList[(int)value]))
+            SearchUri = _searchUrlList[(int)value] + Gal.Name.Value;
     }
 
     [RelayCommand]
@@ -118,7 +126,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         
         try
         {
-            await _galService.ParseGalInfoAsync(Gal);
+            await _galService.ParseGalInfoAsync(Gal, Gal.RssType);
         }
         catch (Exception e)
         {
@@ -247,5 +255,11 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     {
         if (e.NewSize.Width <= 65) return;
         TagWidth = e.NewSize.Width - 65;
+    }
+
+    public void Receive(GalgameParsingEventArgs message)
+    {
+        if (message.Galgame.Uuid != Gal.Uuid) return;
+        UiThreadInvokeHelper.Invoke(() => ParsingMsg = message.Message);
     }
 }

@@ -8,5 +8,6 @@ public enum RssType
     None,
     PotatoVn,
     Ymgal,
-    Cngal
+    Cngal,
+    Steam,
 }

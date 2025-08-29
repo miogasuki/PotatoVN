@@ -160,6 +160,7 @@ public class GalgameSourceCollectionService(
         switch (type)
         {
             case GalgameSourceType.LocalFolder:
+            case GalgameSourceType.Steam:
                 return tmp.FirstOrDefault(s => Utils.ArePathsEqual(s.Path, path));
             case GalgameSourceType.Virtual:
                 return tmp.FirstOrDefault(s => s.SourceType == GalgameSourceType.Virtual);
@@ -189,6 +190,9 @@ public class GalgameSourceCollectionService(
                 break;
             case GalgameSourceType.LocalZip:
                 galgameSource = new GalgameZipSource(path);
+                break;
+            case GalgameSourceType.Steam:
+                galgameSource = new SteamSource(path);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(sourceType), sourceType, null);
@@ -339,13 +343,7 @@ public class GalgameSourceCollectionService(
 
     public string GetSourcePath(GalgameSourceType type, string gamePath)
     {
-        switch (type)
-        {
-            case GalgameSourceType.LocalFolder or GalgameSourceType.LocalZip:
-                return Directory.GetParent(gamePath)!.FullName;
-            default:
-                throw new NotImplementedException();
-        }
+        return SourceServiceFactory.GetSourceService(type).GetSourcePathAsync(gamePath).Result;
     }
 
     public async Task ExportAsync(Action<string, int, int>? progress)
@@ -422,6 +420,7 @@ public class GalgameSourceCollectionService(
         switch (source.SourceType)
         {
             case GalgameSourceType.LocalFolder:
+            case GalgameSourceType.Steam:
                 return Task.Run(() =>
                 {
                     IEnumerable<Galgame> gamesToRemove =

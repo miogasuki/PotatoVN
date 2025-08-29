@@ -11,6 +11,7 @@ public class MixedPhraserTest
     private BgmPhraser _bgmPhraser = null!;
     private VndbPhraser _vndbPhraser = null!;
     private YmgalPhraser _ymgalPhraser = null!;
+    private SteamParser _steamParser = null!;
     
     [SetUp]
     public void Init()
@@ -23,9 +24,11 @@ public class MixedPhraserTest
         _bgmPhraser = new(data);
         _vndbPhraser = new();
         _ymgalPhraser = new();
-        _mixedPhraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, new MixedPhraserData
+        _steamParser = new SteamParser("schinese");
+        _mixedPhraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
         {
             Order = new MixedPhraserOrder().SetToDefault(),
+            Enabled = new MixedPhraserEnabled(),
         });
     }
 
@@ -48,12 +51,13 @@ public class MixedPhraserTest
         {
             case "近月少女的礼仪":
                 if(game.Name != "月に寄りそう乙女の作法") Assert.Fail();
-                Assert.That(game.Ids[(int)RssType.Bangumi], Is.EqualTo(null));
+                Assert.That(game.Ids[(int)RssType.Bangumi], Is.EqualTo("44123"));
                 Assert.That(game.Ids[(int)RssType.Vndb], Is.EqualTo("10680"));
                 Assert.That(game.Ids[(int)RssType.Ymgal], Is.EqualTo("31147"));
-                if(!game.Description.Value!.StartsWith("主人公大藏游星")) Assert.Fail(); //没有bgm数据，回退到YMGAL
-                if(game.Developer != "Navel") Assert.Fail();
-                Assert.That(game.ImageUrl?.StartsWith("https://store.ymgal.games"), Is.True); //没有bgm数据，回退到YMGAL
+                if(!game.Description.Value!.StartsWith("主人公身为“大藏游星”")) Assert.Fail(); // from BGM
+                if(game.Developer != "Navel") Assert.Fail(); // from VNDB
+                // from STEAM
+                Assert.That(game.ImageUrl?.StartsWith("https://cdn.akamai.steamstatic.com/steam/apps/1776970/library_600x900.jpg"), Is.True);
                 break;
         }
         
@@ -71,9 +75,10 @@ public class MixedPhraserTest
         order.NameOrder = new() { RssType.Vndb, RssType.Bangumi };
         order.ImageUrlOrder = new() { RssType.Bangumi, RssType.Vndb };
         order.DescriptionOrder = new() { RssType.Vndb, RssType.Bangumi };
-        MixedPhraser phraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, new MixedPhraserData
+        MixedPhraser phraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
         {
             Order = order,
+            Enabled = new MixedPhraserEnabled(),
         });
         // Act
         game = await phraser.GetGalgameInfo(game);
@@ -100,6 +105,38 @@ public class MixedPhraserTest
                 break;
         }
         
+        Assert.Pass();
+    }
+    
+    
+    [Test]
+    [TestCase("千恋＊万花")]
+    public async Task ParseTestWithCustomEnabled(string name)
+    {
+        // Arrange
+        Galgame? game = new(name);
+        MixedPhraserEnabled enabled = new()
+        {
+            BangumiEnabled = false,
+            VndbEnabled = false,
+        };
+        MixedPhraser phraser = new(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
+        {
+            Order = new MixedPhraserOrder().SetToDefault(),
+            Enabled = enabled,
+        });
+        // Act
+        game = await phraser.GetGalgameInfo(game);
+        // Assert
+        if(game == null)
+        {
+            Assert.Fail();
+            return;
+        }
+        Assert.That(string.IsNullOrEmpty(game.Ids[(int)RssType.Bangumi]));
+        Assert.That(string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb]));
+        Assert.That(game.Ids[(int)RssType.Ymgal], Is.EqualTo("22374"));
+        Assert.That(game.Ids[(int)RssType.Steam], Is.EqualTo("1144400"));
         Assert.Pass();
     }
 

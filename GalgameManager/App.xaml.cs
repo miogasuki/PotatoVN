@@ -1,4 +1,5 @@
 ﻿using Windows.ApplicationModel;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Activation;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Contracts.Services;
@@ -97,6 +98,7 @@ public partial class App : Application
             // Source Services
             services.AddSingleton<LocalFolderSourceService>();
             services.AddSingleton<VirtualSourceService>();
+            services.AddSingleton<SteamSourceService>();
             //
             services.AddSingleton<IFaqService, FaqService>();
             services.AddSingleton<IFilterService, FilterService>();
@@ -110,7 +112,10 @@ public partial class App : Application
             services.AddSingleton<IBgTaskService, BgTaskService>();
             services.AddSingleton<IPvnService, PvnService>();
             services.AddSingleton<IVndbAuthService, VndbAuthService>();
+            services.AddSingleton<ISteamService, SteamService>();
             services.AddSingleton<ISourceScanResultService, SourceScanResultService>();
+            // Main Bus
+            services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
 
             // Core Services
             services.AddSingleton<IFileService, FileService>();

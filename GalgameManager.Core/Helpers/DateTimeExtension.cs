@@ -36,7 +36,15 @@ public static class DateTimeExtensions
         if (DateTime.TryParseExact(dateTime, formats, CultureInfo.InvariantCulture, DateTimeStyles.None,
                 out DateTime parsedDate))
             return parsedDate;
-        
+        try
+        {
+            if (dateTime is not null)
+                return DateTime.Parse(dateTime);
+        }
+        catch (Exception)
+        {
+            //ignore
+        }
         // 返回一个安全的默认值，默认的DateTime.MinValue会导致navigation出错
         return new DateTime(1900, 1, 1);
     }

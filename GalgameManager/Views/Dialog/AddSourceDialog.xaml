@@ -10,20 +10,23 @@
     PrimaryButtonClick="OnPrimaryButtonClick"
     SecondaryButtonClick="OnSecondaryButtonClick"
     DefaultButton="Primary"
-    PrimaryButtonText="确定"
-    SecondaryButtonText="取消"
     Style="{ThemeResource DefaultContentDialogStyle}"
     mc:Ignorable="d"
     x:Uid="AddSourceDialog">
 
-    <StackPanel>
-        <RadioButtons SelectedIndex="{x:Bind SelectItem, Mode=TwoWay}">
-            <x:String>本地库</x:String>
-            <!-- <x:String>本地压缩库</x:String> -->
-        </RadioButtons>
+    <StackPanel Spacing="20">
+        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="20">
+            <TextBlock Grid.Column="0" x:Uid="AddSourceDialog_SelectSource"
+                       VerticalAlignment="Center"/>
+            <local:ComboBoxWithI18N Grid.Column="1" x:Name="SourceTypeComboBox"
+                                    VerticalAlignment="Center"/>
+        </Grid>
+        
         <StackPanel Orientation="Horizontal">
             <TextBox  MinWidth="300" Text="{x:Bind Path ,Mode=TwoWay}"/>
             <Button Margin="20 0" Click="ButtonBase_OnClick">选择路径</Button>
         </StackPanel>
+        
+        <InfoBar x:Name="InfoBar" Visibility="Collapsed" IsOpen="True" IsClosable="False"/>
     </StackPanel>
 </ContentDialog>

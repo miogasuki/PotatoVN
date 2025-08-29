@@ -420,12 +420,13 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     }
 
     #endregion
-    
+
     /// <summary>
     /// 添加Galgame
     /// </summary>
     /// <param name="path">游戏文件夹路径</param>
-    private async Task AddGalgameInternal(string path)
+    /// <param name="isVirtual">添加非本机游戏则设为true</param>
+    private async Task AddGalgameInternal(string path, bool isVirtual = false)
     {
         //TODO
         IsPhrasing = true;
@@ -433,7 +434,8 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         string msg;
         try
         {
-            Galgame tmp = await _galgameService.AddGameAsync(GalgameSourceType.LocalFolder, path, true);
+            Galgame tmp = await _galgameService.AddGameAsync(
+                    isVirtual ? GalgameSourceType.Virtual : GalgameSourceType.LocalFolder, path, true);
             infoBarSeverity = tmp.IsIdsEmpty() ? InfoBarSeverity.Warning : InfoBarSeverity.Success;
             msg = tmp.IsIdsEmpty()
                 ? "AddGalgameResult_NotFoundInRss".GetLocalized()
@@ -442,7 +444,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         catch (Exception e)
         {
             infoBarSeverity = InfoBarSeverity.Error;
-            msg = e.ToString();
+            msg = e is PvnException ? e.Message : e.ToString();
         }
 
         IsPhrasing = false;
@@ -487,6 +489,16 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         {
             _infoService.Info(InfoBarSeverity.Error, msg: e.ToString());
         }
+    }
+
+    [RelayCommand]
+    private async Task AddVirtualGame()
+    {
+        BasicDialog dialog = new("GalgamePage_AddVirtualGame".GetLocalized(), inputBox: true,
+            inputBoxPlaceHolder: "GalgamePage_AddVirtualGame_PlaceHolder".GetLocalized(), minWidth:200);
+        await dialog.ShowAsync();
+        if (!dialog.PrimaryButtonClicked) return;
+        await AddGalgameInternal(dialog.InputText, true);
     }
 
     #region MenuFlyout

@@ -71,13 +71,9 @@ public class GetGalgameInSourceTask : BgTaskBase
                 ChangeProgress(0, 1, "GalgameFolder_GetGalInFolder_Progress".GetLocalized(path));
                 try
                 {
-                    await UiThreadInvokeHelper.InvokeAsync(async () =>
-                    {
-                        await galgameService.AddGameAsync(_galgameFolderSource.SourceType, path, ignoreFetchResult,
-                            false);
-                        cnt++;
-                        itemResult.ResultType = ScanResultType.Success;
-                    });
+                    await galgameService.AddGameAsync(_galgameFolderSource.SourceType, path, ignoreFetchResult, false);
+                    cnt++;
+                    itemResult.ResultType = ScanResultType.Success;
                 }
                 catch (Exception e)
                 {

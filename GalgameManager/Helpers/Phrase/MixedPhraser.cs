@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.Phrase;
-using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Models;
 
@@ -14,6 +14,7 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
     private IEnumerable<string> _developerList;
     private bool _init;
     private Dictionary<RssType, IGalInfoPhraser?> _phrasers = new();
+    private readonly IMessenger? _bus;
 
     private void Init()
     {
@@ -45,44 +46,75 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         return result;
     }
 
-    public MixedPhraser(BgmPhraser bgmPhraser, VndbPhraser vndbPhraser, YmgalPhraser ymgalPhraser,
-        MixedPhraserData data)
+    private bool IsPhraserEnabled(RssType rssType)
+    {
+        return rssType switch
+        {
+            RssType.Bangumi => _data.Enabled.BangumiEnabled,
+            RssType.Vndb => _data.Enabled.VndbEnabled,
+            RssType.Ymgal => _data.Enabled.YmgalEnabled,
+            RssType.Steam => _data.Enabled.SteamEnabled,
+            _ => true
+        };
+    }
+
+    public MixedPhraser(BgmPhraser bgmPhraser, VndbPhraser vndbPhraser, YmgalPhraser ymgalPhraser, 
+        SteamParser steamParser, MixedPhraserData data, IMessenger? bus = null)
     {
         _phrasers[RssType.Bangumi] = bgmPhraser;
         _phrasers[RssType.Vndb] = vndbPhraser;
         _phrasers[RssType.Ymgal] = ymgalPhraser;
+        _phrasers[RssType.Steam] = steamParser;
         _data = data;
         _developerList = new List<string>();
+        _bus = bus;
     }
 
     public async Task<Galgame?> GetGalgameInfo(Galgame galgame)
     {
         if (!_init) Init();
         Dictionary<RssType, Task<Galgame?>?> phraserTasks = new();
+        object lockObj = new();
         foreach (RssType phraserType in RssTypeHelper.UsablePhrasers)
         {
-            if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) && phraser != null)
+            if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) && phraser != null && IsPhraserEnabled(phraserType))
             {
+                if (galgame.Ids[(int)phraserType] == "-1") continue;
                 Galgame game = new() { Name = galgame.Name };
                 game.RssType = phraserType;
                 game.Ids = (string?[])galgame.Ids.Clone();
-                phraserTasks[phraserType] = phraser.GetGalgameInfo(game);
+                lock (lockObj)
+                {
+                    phraserTasks[phraserType] = phraser.GetGalgameInfo(game);
+                }
+                _ = phraserTasks[phraserType]!.ContinueWith(_ =>
+                {
+                    _bus?.Send(new GalgameParsingEventArgs(galgame, GetWaitingMsg()));
+                });
             }
         }
 
-        foreach (var (rssType, task) in phraserTasks)
+        _bus?.Send(new GalgameParsingEventArgs(galgame, GetWaitingMsg()));
         {
-            try
+            Dictionary<RssType, Task<Galgame?>?> tmp = new();
+            lock (lockObj)
+                foreach (var (rssType, task) in phraserTasks)
+                    tmp[rssType] = task;
+            foreach (var (rssType, task) in tmp)
             {
-                if (task != null)
-                    await task;
-            }
-            catch (Exception)
-            {
-                phraserTasks[rssType] = null;
+                try
+                {
+                    if (task != null)
+                        await task;
+                }
+                catch (Exception)
+                {
+                    lock (lockObj)
+                        phraserTasks[rssType] = null;
+                }
             }
         }
-
+        
         Dictionary<RssType, Galgame> metas = new();
         Galgame result = new();
         foreach (var (rssType, task) in phraserTasks)
@@ -93,9 +125,9 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
                 metas[rssType] = game;
                 result.Ids[(int)rssType] = game.Id;
             }
-            else
-                result.Ids[(int)rssType] = null;
         }
+        foreach (RssType rss in RssTypeHelper.UsablePhrasers.Where(rss => galgame.Ids[(int)rss] == "-1"))
+            result.Ids[(int)rss] = "-1";
 
         if (metas.Count == 0) return null;
 
@@ -168,6 +200,10 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         // imageUrl
         result.ImageUrl = GetValue<string>(metas, nameof(Galgame.ImageUrl),
             meta => CheckStr(meta.ImageUrl), null!);
+        foreach (RssType type in _data.Order.ImageUrlOrder)
+            if (metas.TryGetValue(type, out Galgame? tmp) && !string.IsNullOrEmpty(tmp?.ImageUrl))
+                result.AlternateImageUrls.Add(tmp.ImageUrl);
+        result.AlternateImageUrls.Remove(result.ImageUrl);
         // release date
         result.ReleaseDate = GetValue(metas, nameof(Galgame.ReleaseDate),
             meta => meta.ReleaseDate.Value != DateTime.MinValue,
@@ -195,9 +231,25 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
                 result.Developer = tmp;
         }
 
+        _bus?.Send(new GalgameParsingEventArgs(galgame, "done!"));
         return result;
 
         bool CheckStr(string? str) => !string.IsNullOrEmpty(str) && str != Galgame.DefaultString;
+
+        string GetWaitingMsg()
+        {
+            lock (lockObj)
+            {
+                var tmp = "MixedParser_WaitingMsg".GetLocalized();
+                foreach (var (rssType, task) in phraserTasks)
+                {
+                    if (task == null) continue;
+                    if (!task.IsCompleted)
+                        tmp += rssType + " ";
+                }
+                return tmp.Trim();
+            }
+        }
     }
 
     public void UpdateData(IGalInfoPhraserData data) => _data = (MixedPhraserData)data;
@@ -284,7 +336,7 @@ public class MixedPhraserOrder
 {
     // 版本号，每次添加新搜刮器/添加新字段的时候都应该把这个数字+1，以便galgameCollectionService能够更新配置中已有的顺序配置
     // 更新配置不需要手动编写，已经在GalgameCollectionService中使用反射实现，会自动添加新的默认配置
-    public const int Version = 11;
+    public const int Version = 12;
     
     // 为什么使用ObservableCollection：为了能够在MixedPhraserOrderDialog中使顺序能够drag&drop
     // 所有变量都应该命名为：{字段名}Order，此处字段名应该与Galgame中对应的字段名一致（为了让GetValue中的反射能够找到对应的字段）
@@ -306,31 +358,31 @@ public class MixedPhraserOrder
         if (isChineseCulture)
         {
             // 中文用户偏好的顺序设置
-            NameOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
-            DescriptionOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
+            NameOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb, RssType.Steam };
+            DescriptionOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb, RssType.Steam };
             ExpectedPlayTimeOrder = new() { RssType.Vndb };
             RatingOrder = new() { RssType.Bangumi, RssType.Vndb };
-            ImageUrlOrder = new() { RssType.Vndb, RssType.Bangumi, RssType.Ymgal,  };
+            ImageUrlOrder = new() { RssType.Steam, RssType.Vndb, RssType.Bangumi, RssType.Ymgal,  };
             ReleaseDateOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             CharactersOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             CnNameOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
-            DeveloperOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
-            TagsOrder = new() { RssType.Bangumi, RssType.Vndb };
+            DeveloperOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb, RssType.Steam };
+            TagsOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Steam };
             StaffOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
         }
         else
         {
             // 非中文用户偏好的顺序设置
-            NameOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
-            DescriptionOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            NameOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi, RssType.Steam };
+            DescriptionOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Steam, RssType.Bangumi };
             ExpectedPlayTimeOrder = new() { RssType.Vndb };
             RatingOrder = new() { RssType.Vndb, RssType.Bangumi };
-            ImageUrlOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
+            ImageUrlOrder = new() { RssType.Steam, RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
             ReleaseDateOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
             CharactersOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
             CnNameOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
-            DeveloperOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
-            TagsOrder = new() { RssType.Vndb, RssType.Bangumi };
+            DeveloperOrder = new() { RssType.Vndb, RssType.Steam, RssType.Ymgal, RssType.Bangumi };
+            TagsOrder = new() { RssType.Vndb, RssType.Steam, RssType.Bangumi };
             StaffOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
         }
 
@@ -341,4 +393,13 @@ public class MixedPhraserOrder
 public class MixedPhraserData : IGalInfoPhraserData
 {
     public required MixedPhraserOrder Order { get; init; }
+    public required MixedPhraserEnabled Enabled { get; init; }
+}
+
+public class MixedPhraserEnabled
+{
+    public bool BangumiEnabled { get; set; } = true;
+    public bool VndbEnabled { get; set; } = true;
+    public bool YmgalEnabled { get; set; } = true;
+    public bool SteamEnabled { get; set; } = true;
 }

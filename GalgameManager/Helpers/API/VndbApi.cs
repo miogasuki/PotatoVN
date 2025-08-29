@@ -9,19 +9,19 @@ namespace GalgameManager.Helpers.API;
 public interface IVndbApi
 {
     [Post("/vn")]
-    public Task<VndbResponse<VndbVn>> GetVisualNovelAsync([Body]VndbQuery vndbQuery);
+    public Task<VndbResponse<VndbVn>> GetVisualNovelAsync([Body] VndbQuery vndbQuery);
 
     [Post("/character")]
-    public Task<VndbResponse<VndbCharacter>> GetVnCharacterAsync([Body]VndbQuery vndbQuery);
-    
+    public Task<VndbResponse<VndbCharacter>> GetVnCharacterAsync([Body] VndbQuery vndbQuery);
+
     [Post("/staff")]
-    public Task<VndbResponse<VndbStaff>> GetStaffAsync([Body]VndbQuery vndbQuery);
+    public Task<VndbResponse<VndbStaff>> GetStaffAsync([Body] VndbQuery vndbQuery);
 
     // [Headers("Authorization: Token")] 用于标记，以便插入header
     [Headers("Authorization: Token")]
     [Get("/ulist_labels?user={id}")]
     public Task<UserLabelsResponse> GetUserLabelsAsync(string id);
-    
+
     [Headers("Authorization: Token")]
     [Get("/ulist_labels")]
     public Task<UserLabelsResponse> GetCurrentUserLabelsAsync(string id);
@@ -29,7 +29,7 @@ public interface IVndbApi
     [Headers("Authorization: Token")]
     [Get("/authinfo")]
     public Task<AuthInfoResponse> GetAuthInfo();
-    
+
     [Headers("Authorization: Token")]
     [Post("/ulist")]
     public Task<VndbResponse<VndbUserListItem>> GetUserVisualNovelListAsync([Body] VndbQuery vndbQuery);
@@ -37,10 +37,11 @@ public interface IVndbApi
     [Headers("Authorization: Token")]
     [Patch("/ulist/{id}")]
     public Task<ApiResponse<object>> ModifyUserVnAsync(string id, [Body] PatchUserListRequest patchUserListRequest);
-    
+
     [Headers("Authorization: Token")]
     [Delete("/ulist/{id}")]
     public Task<ApiResponse<object>> DeleteUserVnAsync(string id);
+
 }
 
 public class VndbApi : IVndbApi
@@ -73,7 +74,8 @@ public class VndbApi : IVndbApi
 
     public async Task<ApiResponse<object>> DeleteUserVnAsync(string id) => 
         await _vndbApiImplementation.DeleteUserVnAsync(id);
-    
+
+
     public void UpdateToken(string? token)
     {
         _vndbAuthorizationHandler.UpdateToken(token);
@@ -111,6 +113,8 @@ public class VndbApi : IVndbApi
             _ => null
         };
     }
+
+    
 }
 
 /// <summary>

@@ -82,6 +82,12 @@ public interface IGalgameSourceService
     public string GetMoveOutDescription(GalgameSourceBase target, Galgame galgame);
 
     /// <summary>
+    /// 从游戏路径获取其源应该在的路径
+    /// </summary>
+    /// <returns></returns>
+    public Task<string> GetSourcePathAsync(string gamePath);
+
+    /// <summary>
     /// 检查移动操作是否合法，若合法返回null，否则返回错误信息 <br/>
     /// 该方法只会在移动游戏对话框中被调用
     /// </summary>

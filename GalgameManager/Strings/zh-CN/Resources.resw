@@ -3668,4 +3668,105 @@
   <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
     <value>控制游戏控件组件中是否显示游戏名称</value>
   </data>
+  <data name="AddSourceDialog_SelectSource.Text" xml:space="preserve">
+    <value>游戏库类型</value>
+  </data>
+  <data name="GalgameSourceType_Steam" xml:space="preserve">
+    <value>Steam游戏库</value>
+  </data>
+  <data name="AddSourceDialog_SteamInfo" xml:space="preserve">
+    <value>请选择steam游戏库内的steamapps这个文件夹</value>
+  </data>
+  <data name="SteamSource_ScanAllGalgames_InvalidPath" xml:space="preserve">
+    <value>目录{0}内不包含名为“common”的文件夹或目录不存在</value>
+  </data>
+  <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
+    <value>在Steam中打开</value>
+  </data>
+  <data name="GalgamePage_Play_GettingSteamId" xml:space="preserve">
+    <value>正在尝试获取steam id中，请稍后</value>
+  </data>
+  <data name="GalgamePage_Play_NoSteamId" xml:space="preserve">
+    <value>自动获取steam id失败了，对于steam库里的游戏，强烈推荐手动在设置中填入它的steam id来使用steam启动游戏。否则有可能启动失败~</value>
+  </data>
+  <data name="GalgamePage_Play_SteamLaunchError" xml:space="preserve">
+    <value>调用steam启动游戏失败</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog.Title" xml:space="preserve">
+    <value>混合搜刮器启用设置</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog.SecondaryButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_BangumiCheckBox.Content" xml:space="preserve">
+    <value>启用 Bangumi 搜刮器</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_VndbCheckBox.Content" xml:space="preserve">
+    <value>启用 VNDB 搜刮器</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_YmgalCheckBox.Content" xml:space="preserve">
+    <value>启用 Ymgal 搜刮器</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_SteamCheckBox.Content" xml:space="preserve">
+    <value>启用 Steam 搜刮器</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Enable.Title" xml:space="preserve">
+    <value>混合搜刮器启用设置</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Enable.Description" xml:space="preserve">
+    <value>配置混合搜刮中启用哪些搜刮器</value>
+  </data>
+  <data name="GalgamePage_Play_SteamDialog_Title" xml:space="preserve">
+    <value>启动Steam游戏注意事项</value>
+  </data>
+  <data name="GalgamePage_Play_SteamDialog_Message" xml:space="preserve">
+    <value>要正确记录steam游戏的游戏次数与游玩时长，请使用右上角折叠菜单里的手动指定游戏进程。具体操作步骤如下：
+1. 点击确定后软件会调用steam启动游戏
+2. 软件会弹出一个手动选择游戏进程的对话框，先不要管他
+3. 等游戏启动后，在手动选择游戏进程的对话框里找到游戏，选游戏。
+4. 关闭游戏，后续正常使用PotatoVN启动游戏即可正常计时。</value>
+  </data>
+  <data name="GalgamePage_Play_SteamDialog_CheckBox" xml:space="preserve">
+    <value>我知道了，后续不再提醒</value>
+  </data>
+  <data name="GalgamePage_Play_StartingSteam" xml:space="preserve">
+    <value>启动steam游戏需要一点时间，请稍安勿躁</value>
+  </data>
+  <data name="MixedParser_WaitingMsg" xml:space="preserve">
+    <value>正在从下列源获取信息：
+    </value>
+  </data>
+  <data name="GalgameCollectionService_ParseAsync_GettingImg" xml:space="preserve">
+    <value>正在下载封面图</value>
+  </data>
+  <data name="GalgameCollectionService_ParseAsync_WaitingParser" xml:space="preserve">
+    <value>搜刮器从信息源中获取游戏信息中</value>
+  </data>
+  <data name="LockSwitchButton.OnContent" xml:space="preserve">
+    <value>已锁定</value>
+  </data>
+  <data name="LockSwitchButton.OffContent" xml:space="preserve">
+    <value>已解锁</value>
+  </data>
+  <data name="GalgamePage_ChangeSavePosFailed" xml:space="preserve">
+    <value>转换存档位置失败</value>
+  </data>
+  <data name="GalgameCollectionService_SavePathIsCloudRoot" xml:space="preserve">
+    <value>你选错目录啦，这里应该选择这个游戏的存档文件夹，而不是云存档根目录~</value>
+  </data>
+  <data name="HomePage_AddNewGame_Local.Text" xml:space="preserve">
+    <value>本地游戏</value>
+  </data>
+  <data name="HomePage_AddNewGame_Virtual.Text" xml:space="preserve">
+    <value>非本机游戏</value>
+  </data>
+  <data name="GalgamePage_AddVirtualGame" xml:space="preserve">
+    <value>添加非本机游戏</value>
+  </data>
+  <data name="GalgamePage_AddVirtualGame_PlaceHolder" xml:space="preserve">
+    <value>游戏名（使用游戏原名识别准确度更高）</value>
+  </data>
 </root>

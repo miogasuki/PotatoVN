@@ -4,6 +4,7 @@ using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.Converter;
+using GalgameManager.Models.Sources;
 using GalgameManager.Services;
 using GalgameManager.ViewModels;
 
@@ -29,7 +30,7 @@ public class RecordPlayTimeTask : BgTaskBase
 
     public RecordPlayTimeTask(Galgame game, Process process)
     {
-        Debug.Assert(game.CheckExistLocal());
+        Debug.Assert(game.CheckExistLocal(GalgameSourceType.Steam) || game.CheckExistLocal());
         if (process.HasExited) return;
         ProcessName = process.ProcessName;
         Galgame = game;

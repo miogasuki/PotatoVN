@@ -79,6 +79,7 @@ public static class KeyValues
     public const string SyncPlayStatusWhenPhrasing = "syncPlayStatusWhenPhrasing"; //bool, 是否在获取游戏信息时同步游玩状态
     public const string DownloadCharacters = "fetchCharacters"; //bool, 搜刮时是否获取角色信息
     public const string MixedPhraserOrder = "mixedPhraserOrder"; //MixedPhraserOrder,混合搜刮器的顺序
+    public const string MixedPhraserEnabled = "mixedPhraserEnabled"; //MixedPhraserEnabled,混合搜刮器各个搜刮器的启用状态
     
     //显示相关
     public const string DisplayPlayTypePolygon = "displayPlayTypePolygon"; //bool, 游戏页是否显示游玩状态的小三角形
@@ -119,6 +120,9 @@ public static class KeyValues
     public const string LibraryGameSortDescending = "LibraryGameSortDescending"; //bool, 是否降序排列，默认是false（升序）
     public const string LibraryFolderSortKey = "LibraryFolderSortKey"; //string, 库文件夹排序的key
     public const string LibraryFolderSortDescending = "LibraryFolderSortDescending"; //bool, 库文件夹是否降序排列
+    
+    //游戏详情界面
+    public const string NotifiedSteamNeedManual = "notifyedSteamNeedManual"; //bool, 是否已经通知过Steam游戏需要手动选择游戏进程
     
     //消息通知相关 (最小化到托盘时是否通知/全局消息通知)
     public const string NotifyWhenGetGalgameInFolder = "notifyWhenGetGalgameInFolder"; //bool, 完成获取文件夹内游戏

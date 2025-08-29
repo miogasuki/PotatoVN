@@ -1,0 +1,16 @@
+<ContentDialog
+    x:Class="GalgameManager.Views.Dialog.MixedPhraserEnabledDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Uid="MixedPhraserEnabledDialog"
+    Style="{ThemeResource DefaultContentDialogStyle}">
+
+    <ScrollViewer>
+        <StackPanel Spacing="6">
+            <CheckBox x:Name="BangumiCheckBox" x:Uid="MixedPhraserEnabledDialog_BangumiCheckBox" />
+            <CheckBox x:Name="VndbCheckBox" x:Uid="MixedPhraserEnabledDialog_VndbCheckBox" />
+            <CheckBox x:Name="YmgalCheckBox" x:Uid="MixedPhraserEnabledDialog_YmgalCheckBox" />
+            <CheckBox x:Name="SteamCheckBox" x:Uid="MixedPhraserEnabledDialog_SteamCheckBox" />
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

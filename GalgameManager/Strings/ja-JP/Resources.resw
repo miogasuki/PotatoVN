@@ -3110,4 +3110,34 @@
   <data name="SettingsPage_Theme_ShowGameNameInControl.Description" xml:space="preserve">
     <value>ゲームコントロールウィジェットにゲーム名を表示するかどうかを制御します</value>
   </data>
+  <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
+    <value>Steamで開く</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog.Title" xml:space="preserve">
+    <value>混合スクレイパー有効設定</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog.PrimaryButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog.SecondaryButtonText" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_BangumiCheckBox.Content" xml:space="preserve">
+    <value>Bangumiスクレイパーを有効にする</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_VndbCheckBox.Content" xml:space="preserve">
+    <value>VNDBスクレイパーを有効にする</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_YmgalCheckBox.Content" xml:space="preserve">
+    <value>Ymgalスクレイパーを有効にする</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_SteamCheckBox.Content" xml:space="preserve">
+    <value>Steamスクレイパーを有効にする</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Enable.Title" xml:space="preserve">
+    <value>混合スクレイパー有効設定</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Enable.Description" xml:space="preserve">
+    <value>混合スクレイピングで有効にするスクレイパーを設定</value>
+  </data>
 </root>

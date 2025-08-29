@@ -18,6 +18,8 @@ internal class SourceToGlyphConverter : IValueConverter
                 return "\uF012";
             case GalgameSourceType.Virtual:
                 return "\ue8ff";
+            case GalgameSourceType.Steam:
+                return "\uE7FC";
             default:
                 return "\uE897";
         }

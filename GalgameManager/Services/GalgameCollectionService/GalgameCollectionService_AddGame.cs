@@ -20,7 +20,7 @@ public partial class GalgameCollectionService
         // 尝试从本地获取游戏信息
         try
         {
-            meta = await sourceService.LoadMetaAsync(path);
+            if (sourceType is not GalgameSourceType.Virtual) meta = await sourceService.LoadMetaAsync(path);
         }
         catch (Exception)
         {
@@ -75,7 +75,9 @@ public partial class GalgameCollectionService
                 _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameAddEvent", e);
             }
         });
-        await ParseGalInfoAsync(meta, type: GameParseType.HeaderImage | GameParseType.Character);
+        GameParseType parseType = GameParseType.HeaderImage | GameParseType.Character;
+        if (meta.ImagePath.Value == Galgame.DefaultImagePath) parseType |= GameParseType.Image;
+        await ParseGalInfoAsync(meta, type: parseType);
         
         meta.ErrorOccurred += e =>
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgameEvent", e);
@@ -130,8 +132,11 @@ public partial class GalgameCollectionService
     {
         switch (sourceType)
         {
+            case GalgameSourceType.Virtual: 
+                return path;
             case GalgameSourceType.LocalFolder:
             case GalgameSourceType.LocalZip:
+            case GalgameSourceType.Steam:
                 var name = Path.GetFileName(Path.GetDirectoryName(path + Path.DirectorySeparatorChar)) ??
                            throw new Exception("GalgameCollectionService_GetNameFromPathFailed".GetLocalized());
                 var pattern = await LocalSettingsService.ReadSettingAsync<string>(KeyValues.RegexPattern) ?? ".+";
@@ -159,12 +164,18 @@ public partial class GalgameCollectionService
         existGame.MergeTime(meta);
         switch (type)
         {
+            case GalgameSourceType.Virtual:
+                throw new PvnException("AddGalgameResult_AlreadyInLibrary".GetLocalized());
             case GalgameSourceType.LocalFolder:
+            case GalgameSourceType.Steam:
                 // 一个游戏只能属于一个本地文件夹
-                if (existGame.Sources.Any(s => s is GalgameFolderSource))
+                if (existGame.Sources.Any(s => s is GalgameFolderSource or SteamSource))
                     throw new PvnException("AddGalgameResult_AlreadyInLibrary".GetLocalized());
                 // 把游戏移入对应的本地库
-                _galSrcService.MoveInNoOperate(await GetOrAddSourceAsync(GalgameSourceType.LocalFolder, path),
+                _galSrcService.MoveInNoOperate(
+                    await GetOrAddSourceAsync(
+                        type is GalgameSourceType.LocalFolder ? GalgameSourceType.LocalFolder : 
+                            GalgameSourceType.Steam, path),
                     existGame, path);
                 break;
             case GalgameSourceType.LocalZip:

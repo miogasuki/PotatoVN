@@ -1,5 +1,6 @@
 ﻿using GalgameManager.Contracts.BgTasks;
 using GalgameManager.Contracts.Services;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.Phrase;
@@ -10,6 +11,7 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
 {
     private static readonly IGalgameCollectionService GameService = App.GetService<IGalgameCollectionService>();
     private readonly VndbPhraser _vndbParser = (GameService.PhraserList[(int)RssType.Vndb] as VndbPhraser)!;
+    private readonly SteamParser _steamParser = (GameService.PhraserList[(int)RssType.Steam] as SteamParser)!;
     private readonly IPvnService _pvnService = App.GetService<IPvnService>();
     private readonly ILocalSettingsService _settingsService = App.GetService<ILocalSettingsService>();
 
@@ -26,20 +28,26 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
     {
         item.AutoFetchStatus.HeaderImage = true;
         await GameService.SaveGalgameAsync(item);
-        var url = await _vndbParser.GetGalHeaderAsync(item);
+        var fromSteam = !string.IsNullOrEmpty(item.Ids[(int)RssType.Steam]) && item.Ids[(int)RssType.Steam] != "-1";
+        var url =  fromSteam?  
+            await _steamParser.GetGalHeaderAsync(item):
+            await _vndbParser.GetGalHeaderAsync(item);
+        
         if (url is null) return;
         item.HeaderImageUrl = url;
         var targetPath = Path.Combine((await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
-            $"{item.Name.Value}_Header.png".RemoveInvalidChars());
+            $"{item.Name.Value}_Header_{DateTime.Now.ToUnixTime()}.png".RemoveInvalidChars());
         var rawImage = await DownloadHelper.DownloadAndSaveImageWithDiffThread(url,
             fileNameWithoutExtension: $"{item.Name.Value ?? string.Empty}_tmp");
         if (rawImage is null) return;
-        DownloadHelper.ProcessImage(rawImage, targetPath, true);
+        DownloadHelper.ProcessImage(rawImage, targetPath, !fromSteam);
+        var oldImg = item.HeaderImagePath.Value;
         await UiThreadInvokeHelper.InvokeAsync(() =>
         {
             item.HeaderImagePath.Value = targetPath;
             item.RaisePropertyChanged(nameof(item.HeaderImagePath));
         });
+        if (Utils.IsImageValid(oldImg)) File.Delete(oldImg!);
         await GameService.SaveGalgameAsync(item);
         if (File.Exists(rawImage)) File.Delete(rawImage);
         if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&

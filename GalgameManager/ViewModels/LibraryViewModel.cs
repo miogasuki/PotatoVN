@@ -152,6 +152,15 @@ public partial class LibraryViewModel(
     [RelayCommand]
     private void NavigateTo(IDisplayableGameObject? clickedItem)
     {
+        if (clickedItem is Galgame galgame)
+        {
+            _beforeNavigateFromSource = CurrentSource;
+            navigationService.NavigateTo(typeof(GalgameViewModel).FullName!,
+                    new GalgamePageParameter { Galgame = galgame });
+            // 直接进入游戏详情页，避免清空集合导致返回后无法记住滚动位置
+            return;
+        }
+
         UpdateGridSpacing = false;
         Source.Clear();
         Galgames.Clear();
@@ -162,13 +171,7 @@ public partial class LibraryViewModel(
                 Source.Add(src);
         }
 
-        if (clickedItem is Galgame galgame)
-        {
-            _beforeNavigateFromSource = CurrentSource;
-            navigationService.NavigateTo(typeof(GalgameViewModel).FullName!,
-                new GalgamePageParameter { Galgame = galgame });
-        }
-        else if (clickedItem is GalgameSourceBase source)
+        if (clickedItem is GalgameSourceBase source)
         {
             if (source.SubSources.Count > 0)
             {
@@ -401,6 +404,7 @@ public partial class LibraryViewModel(
     #region MenuFlyout
 
     [ObservableProperty] private Galgame? _currentContextGame; // 当前右键菜单上下文游戏对象
+    [ObservableProperty] private GalgameSourceBase? _currentContextSource; // 当前右键菜单上下文库对象
 
     [RelayCommand]
     private async Task GalFlyOutDelete(Galgame? galgame)
@@ -429,7 +433,10 @@ public partial class LibraryViewModel(
     {
         if(galgame == null) return;
         _beforeNavigateFromSource = CurrentSource;
-        navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, galgame);
+        // 在主线程队列中执行导航，避免与 MenuFlyout 的关闭动画同帧竞争导致目标页 CommandBar 初始误判为紧凑模式
+        App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
+            navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, galgame)
+        );
     }
 
     [RelayCommand]
@@ -500,6 +507,15 @@ public partial class LibraryViewModel(
         {
             Galgame? game = flyout.Target.DataContext as Galgame;
             SetCurrentContextGame(game);
+        }
+    }
+
+    public void FolderFlyout_Opening(object sender, object e)
+    {
+        if (sender is MenuFlyout flyout && flyout.Target != null)
+        {
+            GalgameSourceBase? source = flyout.Target.DataContext as GalgameSourceBase;
+            CurrentContextSource = source;
         }
     }
 

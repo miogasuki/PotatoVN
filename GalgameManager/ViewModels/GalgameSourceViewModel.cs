@@ -617,7 +617,10 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private void EditGame(GalgameAndPath gameAndPath)
     {
         if (gameAndPath?.Galgame == null) return;
-        NavigationHelper.NavigateToGalgameSettingPage(_navigationService, gameAndPath.Galgame);
+        // 在主线程中执行导航，修复appbarbutton描述文字延迟显示的问题
+        App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
+            _navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, gameAndPath.Galgame)
+        );
     }
 
     [RelayCommand]

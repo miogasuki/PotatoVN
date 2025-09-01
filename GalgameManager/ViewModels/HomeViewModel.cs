@@ -126,7 +126,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         try
         {
             await Task.Delay(200); //等待动画结束
-            Source.Filter = _ => true; 
             if(await _localSettingsService.ReadSettingAsync<bool>(KeyValues.KeepFilters) == false)
                 _filterService.ClearFilters();
             _galgameService.PhrasedEvent -= OnGalgameServicePhrased;
@@ -529,7 +528,10 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private void GalFlyOutEdit(Galgame? galgame)
     {
         if(galgame == null) return;
-        _navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, galgame);
+        // 在主线程中执行导航，修复appbarbutton描述文字延迟显示的问题
+        App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
+            _navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, galgame)
+);
     }
 
     [RelayCommand]

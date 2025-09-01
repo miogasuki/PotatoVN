@@ -11,27 +11,24 @@
     xmlns:behaviors="using:GalgameManager.Behaviors"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
     mc:Ignorable="d"
-    x:Name="Page">
+    x:Name="Page"
+    NavigationCacheMode="Enabled">
     
     <Page.Resources>
         <converter:EnumEqualsConverter x:Key="EnumEqualsConverter" />
         <!-- 游戏库的右键菜单 -->
-        <MenuFlyout Placement="Right" x:Key="FolderFlyout">
+        <MenuFlyout Placement="Right" x:Key="FolderFlyout" Opening="{x:Bind ViewModel.FolderFlyout_Opening}">
             <!-- 编辑游戏库 -->
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_EditFolder"
-                            Command="{x:Bind ViewModel.EditLibraryCommand}" CommandParameter="{Binding}"/>
+                            Command="{x:Bind ViewModel.EditLibraryCommand}" CommandParameter="{x:Bind ViewModel.CurrentContextSource, Mode=OneWay}"/>
             <!-- 在资源管理器中打开 -->
             <MenuFlyoutItem Icon="OpenLocal" x:Uid="LibraryPage_OpenFolderInExplorer"
-                            IsEnabled="{Binding CommandParameter.IsDelectable,
-                                    RelativeSource={RelativeSource Mode=Self},
-                                    TargetNullValue=False}"
-                            Command="{x:Bind ViewModel.OpenFolderInExplorerCommand}" CommandParameter="{Binding}"/>
+                            IsEnabled="{x:Bind ViewModel.CurrentContextSource.IsDelectable, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenFolderInExplorerCommand}" CommandParameter="{x:Bind ViewModel.CurrentContextSource, Mode=OneWay}"/>
             <!-- 删除游戏库 -->
             <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_DeleteFolder"
-                            IsEnabled="{Binding CommandParameter.IsDelectable,
-                                    RelativeSource={RelativeSource Mode=Self},
-                                    TargetNullValue=False}"
-                            Command="{x:Bind ViewModel.DeleteFolderCommand}" CommandParameter="{Binding}"/>
+                            IsEnabled="{x:Bind ViewModel.CurrentContextSource.IsDelectable, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.DeleteFolderCommand}" CommandParameter="{x:Bind ViewModel.CurrentContextSource, Mode=OneWay}"/>
         </MenuFlyout>
         
         <!-- 页面空白处的右键菜单 -->

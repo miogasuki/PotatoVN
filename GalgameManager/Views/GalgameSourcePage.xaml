@@ -14,7 +14,8 @@
     xmlns:sources="using:GalgameManager.Models.Sources"
     xmlns:enums="using:GalgameManager.Enums"
     mc:Ignorable="d"
-    x:Name="Page">
+    x:Name="Page"
+    NavigationCacheMode="Enabled">
 
     <Page.Resources>
         <converter:EnumToStringConverter x:Key="EnumStringConverter" />
@@ -271,9 +272,6 @@
                             <views:SettingToggleSwitch x:Uid="GalgameSourcePage_Setting_IncludeSubSources"
                                 Margin="0,12,0,8"
                                 IsOn="{x:Bind ViewModel.IncludeSubSources, Mode=TwoWay}" />
-
-                            <!-- 列头 -->
-                            
                         </StackPanel>
                     </ListView.Header>
                     <ListView.ItemTemplate>

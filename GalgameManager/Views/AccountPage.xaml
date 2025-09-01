@@ -9,7 +9,9 @@
     xmlns:enums="using:GalgameManager.Enums"
     xmlns:views="using:GalgameManager.Views"
     xmlns:viewModels="using:GalgameManager.ViewModels"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    NavigationCacheMode="Enabled">
+        
     <Page.Resources>
         <x:Double x:Key="ToggleSwitchWidth">20</x:Double>
         <converter:EnumToStringConverter x:Key="EnumStringConverter" />

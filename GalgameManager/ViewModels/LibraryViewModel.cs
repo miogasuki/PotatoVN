@@ -132,6 +132,7 @@ public partial class LibraryViewModel(
     public void OnNavigatedFrom()
     {
         galSourceService.OnSourceChanged -= HandleSourceCollectionChanged;
+        if (CurrentSource is not null) _beforeNavigateFromSource = CurrentSource;
         _lastBackSource = CurrentSource = null;
         foreach (GetGalgameInfoFromRssTask task in RssTasks)
             task.OnProgress -= HandleGetGalInfoProgressChanged;

@@ -10,7 +10,9 @@
     xmlns:enums="using:GalgameManager.Enums"
     xmlns:models="using:GalgameManager.Models"
     xmlns:cmtkConverters="using:CommunityToolkit.WinUI.Converters"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    NavigationCacheMode="Enabled">
+    
     <Page.Resources>
         <converter:RssTypeToVisibilityConverter x:Key="RssTypeToVisibilityConverter"/>
         <converter:AuthenticationTypeToStringConverter x:Key="AuthenticationTypeToStringConverter"/>

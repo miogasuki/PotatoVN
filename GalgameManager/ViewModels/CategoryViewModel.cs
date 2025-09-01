@@ -111,8 +111,16 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
         };
         CategoryGroups = await _categoryService.GetCategoryGroupsAsync();
         
-        // 设置SelectedCategoryGroup，通过绑定更新UI
-        SelectedCategoryGroup = parameter as CategoryGroup ?? await GetCategoryGroup();
+        // 仅在首次进入或显式传参时更新分组，避免返回页面时重建集合导致滚动位置丢失
+        if (parameter is CategoryGroup paramGroup)
+        {
+            if (SelectedCategoryGroup != paramGroup)
+                SelectedCategoryGroup = paramGroup;
+        }
+        else if (SelectedCategoryGroup is null)
+        {
+            SelectedCategoryGroup = await GetCategoryGroup();
+        }
     }
 
     /// <summary>

@@ -2428,7 +2428,7 @@
     <value>游戏名</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_Path.Text" xml:space="preserve">
-    <value>路径</value>
+    <value>路径：</value>
   </data>
   <data name="GalgameSourcePage_GamesTable_Edit.Text" xml:space="preserve">
     <value>编辑游戏信息</value>

@@ -53,6 +53,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private double _pageWidth;
 
     [ObservableProperty] private bool _includeSubSources;
+    public ObservableCollection<string> DontScanPaths = [];
     
     #region SORTING
     // 为XAML绑定添加静态枚举值属性
@@ -207,6 +208,10 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         // 应用排序
         ApplySorting();
         
+        // 加载不扫描路径列表
+        DontScanPaths.Clear();
+        foreach (var path in _item.DontScanPath)
+            DontScanPaths.Add(path);
         return;
         
         void LoadSubSourceGames(GalgameSourceBase source)
@@ -699,5 +704,29 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         {
             _infoService.Info(InfoBarSeverity.Error, msg: e.ToString());
         } 
+    }
+
+    [RelayCommand]
+    private void RemoveDontScanPath(string path)
+    {
+        if (Item == null) return;
+        DontScanPaths.Remove(path);
+        Item.DontScanPath.Remove(path);
+        _sourceService.Save(Item);
+    }
+
+    [RelayCommand]
+    private async Task AddDontScanPath()
+    {
+        if (Item is null) return;
+        try
+        {
+            await new SelectToScanFolderDialog(Item).ShowAsync();
+            DontScanPaths.SyncCollection(Item.DontScanPath);
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, msg: e is PvnException ? e.Message : e.ToString());
+        }
     }
 }

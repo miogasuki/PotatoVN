@@ -5,13 +5,13 @@ using Microsoft.UI.Xaml.Media;
 
 namespace GalgameManager.Views.Control
 {
-    [DependencyProperty<Brush>("BackgroundBrush")]
+
     public sealed partial class Panel: UserControl
     {
         public Panel()
         {
             InitializeComponent();
-            BackgroundBrush = Application.Current.Resources["LayerFillColorDefaultBrush"] as Brush;
+
         }
 
         public static readonly new DependencyProperty ContentProperty = DependencyProperty.Register(
@@ -34,7 +34,6 @@ namespace GalgameManager.Views.Control
             }
         }
 
-        partial void OnBackgroundBrushChanged() => 
-            BackgroundBrush ??= Application.Current.Resources["LayerFillColorDefaultBrush"] as Brush;
+    
     }
 }

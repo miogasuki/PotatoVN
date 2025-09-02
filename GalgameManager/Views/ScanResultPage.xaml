@@ -43,8 +43,7 @@
             <ItemsRepeater ItemsSource="{x:Bind ViewModel.DisplayResults, Mode=OneWay}">
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:Key="ScanResultItemTemplate" x:DataType="models:PathScanResultItem">
-                        <control:Panel Margin="0 0 0 8"
-                                       BackgroundBrush="{x:Bind ResultType, Converter={StaticResource ResultToBrush}}">
+                        <control:Panel Margin="0 0 0 8" >
                             <Grid ColumnDefinitions="Auto, *, Auto, Auto">
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                     <TextBlock Text="{x:Bind Path}" TextTrimming="CharacterEllipsis"/>

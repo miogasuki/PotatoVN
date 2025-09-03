@@ -548,19 +548,22 @@ public partial class LibraryViewModel(
 
     private void HandleGalgamesChanged(Galgame galgame, bool isRemoved)
     {
-        // 只刷新游戏列表，不刷新整个页面
-        if (isRemoved)
+        // 只刷新游戏列表，不刷新整个页面（确保在 UI 线程执行）
+        UiThreadInvokeHelper.Invoke(() =>
         {
-            Galgames.Remove(galgame);
-        }
-        else if (!Galgames.Contains(galgame))
-        {
-            Galgames.Add(galgame);
-        }
-        UpdateStatistics();
+            if (isRemoved)
+            {
+                Galgames.Remove(galgame);
+            }
+            else if (!Galgames.Contains(galgame))
+            {
+                Galgames.Add(galgame);
+            }
+            UpdateStatistics();
 
-        // 重新应用排序，启用后会导致刷新整个页面，覆盖原有的动画效果
-        // ApplySorting();
+            // 重新应用排序，启用后会导致刷新整个页面，覆盖原有的动画效果
+            // ApplySorting();
+        });
     }
     
     private void HandleGetGalInfoProgressChanged(Progress progress)

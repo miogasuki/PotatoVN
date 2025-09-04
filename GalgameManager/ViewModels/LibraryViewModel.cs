@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using Windows.Storage;
+using Windows.System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.Collections;
@@ -130,6 +132,7 @@ public partial class LibraryViewModel(
     public void OnNavigatedFrom()
     {
         galSourceService.OnSourceChanged -= HandleSourceCollectionChanged;
+        if (CurrentSource is not null) _beforeNavigateFromSource = CurrentSource;
         _lastBackSource = CurrentSource = null;
         foreach (GetGalgameInfoFromRssTask task in RssTasks)
             task.OnProgress -= HandleGetGalInfoProgressChanged;
@@ -150,6 +153,15 @@ public partial class LibraryViewModel(
     [RelayCommand]
     private void NavigateTo(IDisplayableGameObject? clickedItem)
     {
+        if (clickedItem is Galgame galgame)
+        {
+            _beforeNavigateFromSource = CurrentSource;
+            navigationService.NavigateTo(typeof(GalgameViewModel).FullName!,
+                    new GalgamePageParameter { Galgame = galgame });
+            // 直接进入游戏详情页，避免清空集合导致返回后无法记住滚动位置
+            return;
+        }
+
         UpdateGridSpacing = false;
         Source.Clear();
         Galgames.Clear();
@@ -160,13 +172,7 @@ public partial class LibraryViewModel(
                 Source.Add(src);
         }
 
-        if (clickedItem is Galgame galgame)
-        {
-            _beforeNavigateFromSource = CurrentSource;
-            navigationService.NavigateTo(typeof(GalgameViewModel).FullName!,
-                new GalgamePageParameter { Galgame = galgame });
-        }
-        else if (clickedItem is GalgameSourceBase source)
+        if (clickedItem is GalgameSourceBase source)
         {
             if (source.SubSources.Count > 0)
             {
@@ -301,6 +307,19 @@ public partial class LibraryViewModel(
     }
 
     [RelayCommand]
+    private async Task OpenFolderInExplorer(GalgameSourceBase? galgameFolder)
+    {
+        if (galgameFolder is null) return;
+        if (!galgameFolder.IsDelectable)
+        {
+            infoService.Info(InfoBarSeverity.Error, msg: "LibraryPage_NoPath".GetLocalized());
+            return;
+        }
+        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(galgameFolder.Path);
+        await Launcher.LaunchFolderAsync(folder);
+    }
+
+    [RelayCommand]
     private async Task ScanAll()
     {
         CheckBox includeSubfoldersCheckBox = new ()
@@ -396,6 +415,7 @@ public partial class LibraryViewModel(
     #region MenuFlyout
 
     [ObservableProperty] private Galgame? _currentContextGame; // 当前右键菜单上下文游戏对象
+    [ObservableProperty] private GalgameSourceBase? _currentContextSource; // 当前右键菜单上下文库对象
 
     [RelayCommand]
     private async Task GalFlyOutDelete(Galgame? galgame)
@@ -424,7 +444,10 @@ public partial class LibraryViewModel(
     {
         if(galgame == null) return;
         _beforeNavigateFromSource = CurrentSource;
-        navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, galgame);
+        // 在主线程队列中执行导航，避免与 MenuFlyout 的关闭动画同帧竞争导致目标页 CommandBar 初始误判为紧凑模式
+        App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
+            navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, galgame)
+        );
     }
 
     [RelayCommand]
@@ -434,6 +457,14 @@ public partial class LibraryViewModel(
         IsPhrasing = true;
         await galgameService.ParseGalInfoAsync(galgame);
         IsPhrasing = false;
+    }
+
+    [RelayCommand]
+    private async Task OpenGameInExplorer(Galgame? galgame)
+    {
+        if(galgame == null) return;
+        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(galgame.LocalPath);
+        await Launcher.LaunchFolderAsync(folder);
     }
 
     [RelayCommand]
@@ -490,6 +521,15 @@ public partial class LibraryViewModel(
         }
     }
 
+    public void FolderFlyout_Opening(object sender, object e)
+    {
+        if (sender is MenuFlyout flyout && flyout.Target != null)
+        {
+            GalgameSourceBase? source = flyout.Target.DataContext as GalgameSourceBase;
+            CurrentContextSource = source;
+        }
+    }
+
     #endregion
 
     public void OnBreadcrumbBarItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
@@ -518,19 +558,22 @@ public partial class LibraryViewModel(
 
     private void HandleGalgamesChanged(Galgame galgame, bool isRemoved)
     {
-        // 只刷新游戏列表，不刷新整个页面
-        if (isRemoved)
+        // 只刷新游戏列表，不刷新整个页面（确保在 UI 线程执行）
+        UiThreadInvokeHelper.Invoke(() =>
         {
-            Galgames.Remove(galgame);
-        }
-        else if (!Galgames.Contains(galgame))
-        {
-            Galgames.Add(galgame);
-        }
-        UpdateStatistics();
+            if (isRemoved)
+            {
+                Galgames.Remove(galgame);
+            }
+            else if (!Galgames.Contains(galgame))
+            {
+                Galgames.Add(galgame);
+            }
+            UpdateStatistics();
 
-        // 重新应用排序，启用后会导致刷新整个页面，覆盖原有的动画效果
-        // ApplySorting();
+            // 重新应用排序，启用后会导致刷新整个页面，覆盖原有的动画效果
+            // ApplySorting();
+        });
     }
     
     private void HandleGetGalInfoProgressChanged(Progress progress)

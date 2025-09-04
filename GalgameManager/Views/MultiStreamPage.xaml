@@ -13,7 +13,8 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d"
-    x:Name="Page">
+    x:Name="Page"
+    NavigationCacheMode="Enabled">
     
     <interactivity:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Loaded">

@@ -8,7 +8,8 @@
     xmlns:control="using:GalgameManager.Views.Control"
     xmlns:prefab="using:GalgameManager.Views.Prefab"
     mc:Ignorable="d"
-    x:Name="Page">
+    x:Name="Page"
+    NavigationCacheMode="Enabled">
     
     <Page.Resources>
         <MenuFlyout Placement="Right" x:Key="Flyout">

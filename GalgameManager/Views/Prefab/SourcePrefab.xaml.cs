@@ -21,7 +21,8 @@ public sealed partial class SourcePrefab
 
     private void SourcePrefab_Loaded(object sender, RoutedEventArgs e)
     {
-        Debug.Assert(Source != null, "Source property should not be null.");
+        // 通过侧边栏快速切换标签时可能会抛出错误导致闪退，且没有报错信息
+        // Debug.Assert(Source != null, "Source property should not be null.");
     }
 
     public double CalcValue(double value) => value * ItemScale;

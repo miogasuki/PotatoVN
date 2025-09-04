@@ -21,6 +21,7 @@
     <Page.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <MenuFlyout x:Name="GalFlyout" Opening="{x:Bind ViewModel.GalFlyout_Opening}">
+            <!-- 游玩状态管理 -->
             <MenuFlyoutSubItem x:Uid="LibraryPage_PlayStatusSubMenu">
                 <MenuFlyoutSubItem.Icon>
                     <FontIcon FontFamily="Segoe Fluent Icons"
@@ -55,8 +56,16 @@
                 <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusMoreSettings"
                         Command="{x:Bind ViewModel.ShowChangePlayStatusDialogCommand}" CommandParameter="{Binding}" />
             </MenuFlyoutSubItem>
+            <!-- 编辑游戏信息 -->
             <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_Edit" Command="{x:Bind ViewModel.GalFlyOutEditCommand}" CommandParameter="{Binding}"/>
+            <!-- 下载游戏信息 -->
             <MenuFlyoutItem Icon="Download" x:Uid="LibraryPage_Download" Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}" CommandParameter="{Binding}"/>
+            <!-- 在文件管理器中打开 -->
+            <MenuFlyoutItem Icon="OpenLocal" x:Uid="LibraryPage_OpenGameInExplorer"
+                           Command="{x:Bind ViewModel.OpenGameInExplorerCommand}"
+                           IsEnabled="{x:Bind ViewModel.CurrentContextGame.IsLocalGame, Mode=OneWay}"
+                           CommandParameter="{Binding}"/>
+            <!-- 删除游戏 -->
             <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_Remove" Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}" CommandParameter="{Binding}"/>
         </MenuFlyout>
     </Page.Resources>

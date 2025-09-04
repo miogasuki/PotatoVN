@@ -5,6 +5,7 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI.Collections;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
@@ -32,7 +33,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private static readonly List<GetGalgameInfoFromRssTask> RssTasks = [];
 
     private GalgameSourceBase? _item;
-    public ObservableCollection<GalgameAndPath> Galgames { get; } = new();
+    public AdvancedCollectionView Galgames { get; } = new(new ObservableCollection<GalgameAndPath>(), true);
     public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None};
     private readonly List<Galgame> _selectedGalgames = new();
     private UnpackGameTask? _unpackGameTask;
@@ -88,52 +89,35 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void ApplySorting()
     {
-        // 创建一个新的AdvancedCollectionView来应用排序
-        var sortedGames = new List<GalgameAndPath>(Galgames);
-
-        // 根据当前排序键和方向应用排序
-        Comparison<GalgameAndPath> comparison = (x, y) =>
+        Galgames.SortDescriptions.Clear();
+        var direction = SortDescending ? SortDirection.Descending : SortDirection.Ascending;
+        switch (CurrentSortKey)
         {
-            int result = 0;
-            switch (CurrentSortKey)
-            {
-                case SortKeys.Name:
-                    result = string.Compare(x.Galgame.Name.Value, y.Galgame.Name.Value, StringComparison.CurrentCultureIgnoreCase);
-                    break;
-                case SortKeys.LastPlay:
-                    result = DateTime.Compare(x.Galgame.LastPlayTime, y.Galgame.LastPlayTime);
-                    break;
-                case SortKeys.Developer:
-                    result = string.Compare(x.Galgame.Developer, y.Galgame.Developer, StringComparison.CurrentCultureIgnoreCase);
-                    break;
-                case SortKeys.Rating:
-                    result = x.Galgame.Rating.CompareTo(y.Galgame.Rating);
-                    break;
-                case SortKeys.ReleaseDate:
-                    result = DateTime.Compare(x.Galgame.ReleaseDate, y.Galgame.ReleaseDate);
-                    break;
-                case SortKeys.AddTime:
-                    result = DateTime.Compare(x.Galgame.AddTime, y.Galgame.AddTime);
-                    break;
-                case SortKeys.Path:
-                    result = string.Compare(x.Path, y.Path, StringComparison.CurrentCultureIgnoreCase);
-                    break;
-            }
-            
-            return SortDescending ? -result : result; // 如果是降序，则反转结果
-        };
-
-        // 应用排序
-        sortedGames.Sort(comparison);
-        
-        // 更新集合
-        Galgames.Clear();
-        foreach (var game in sortedGames)
-        {
-            Galgames.Add(game);
+            case SortKeys.Name:
+                Galgames.SortDescriptions.Add(new SortDescription("NameForSort", direction, StringComparer.CurrentCultureIgnoreCase));
+                break;
+            case SortKeys.LastPlay:
+                Galgames.SortDescriptions.Add(new SortDescription("LastPlayTimeForSort", direction));
+                break;
+            case SortKeys.Developer:
+                Galgames.SortDescriptions.Add(new SortDescription("DeveloperForSort", direction, StringComparer.CurrentCultureIgnoreCase));
+                break;
+            case SortKeys.Rating:
+                Galgames.SortDescriptions.Add(new SortDescription("RatingForSort", direction));
+                break;
+            case SortKeys.ReleaseDate:
+                Galgames.SortDescriptions.Add(new SortDescription("ReleaseDateForSort", direction));
+                break;
+            case SortKeys.AddTime:
+                Galgames.SortDescriptions.Add(new SortDescription("AddTimeForSort", direction));
+                break;
+            case SortKeys.Path:
+                Galgames.SortDescriptions.Add(new SortDescription("PathForSort", direction, StringComparer.CurrentCultureIgnoreCase));
+                break;
         }
 
-        // 保存排序设置到本地设置
+        Galgames.RefreshSorting();
+
         _ = Task.Run(async () =>
         {
             await _settingsService.SaveSettingAsync(KeyValues.LibrarySortKey, (int)CurrentSortKey);
@@ -190,60 +174,56 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
 
     private void LoadGames()
     {
-        Galgames.Clear();
-        if (_item == null) return;
-        
-        // 加载当前库中的游戏
+        if (_item == null)
+        {
+            Galgames.Clear();
+            return;
+        }
+
+        List<GalgameAndPath> target = new();
+        // 当前库
         foreach (GalgameAndPath g in _item.Galgames)
-        {
-            Galgames.Add(g);
-        }
-        
-        // 如果设置为包含子库，则递归加载所有子库中的游戏
+            target.Add(new GalgameAndPath(g.Galgame, g.Path));
+
+        // 子库（可选）
         if (IncludeSubSources)
+            LoadFromSubSources(_item, target);
+
+        // 去重（按 Galgame 实例）
+        List<GalgameAndPath> distinct = new();
+        HashSet<Galgame> seen = new();
+        foreach (var g in target)
         {
-            LoadSubSourceGames(_item);
+            if (seen.Add(g.Galgame))
+                distinct.Add(g);
         }
-        
-        // 应用排序
-        ApplySorting();
-        
+
+        // 刷新底层源并应用排序
+        var source = (ObservableCollection<GalgameAndPath>)Galgames.Source;
+        source.Clear();
+        foreach (var t in distinct)
+            source.Add(t);
+        Galgames.RefreshSorting();
+
         // 加载不扫描路径列表
         DontScanPaths.Clear();
         foreach (var path in _item.DontScanPath)
             DontScanPaths.Add(path);
-        return;
-        
-        void LoadSubSourceGames(GalgameSourceBase source)
-        {
-            foreach (GalgameSourceBase subSource in source.SubSources)
-            {
-                foreach (GalgameAndPath g in subSource.Galgames)
-                {
-                    if (!Galgames.Any(existing => existing.Galgame == g.Galgame))
-                    {
-                        Galgames.Add(g);
-                    }
-                }
-            
-                // 递归加载子库的子库
-                LoadSubSourceGames(subSource);
-            }
-        }
     }
     
     private void ReloadGalgameList(Galgame game, bool isDeleted)
     {
         if (_item == null) return;
-        if (isDeleted && Galgames.FirstOrDefault(g => g.Galgame == game) is { } tmp)
-            Galgames.Remove(tmp);
+        var source = (ObservableCollection<GalgameAndPath>)Galgames.Source;
+        if (isDeleted && source.FirstOrDefault(g => g.Galgame == game) is { } tmp)
+            source.Remove(tmp);
         else if (!isDeleted)
         {
             // 检查游戏是在当前库还是子库中
             var path = _item.GetPath(game);
             if (path != null)
             {
-                Galgames.Add(new GalgameAndPath(game, path));
+                source.Add(new GalgameAndPath(game, path));
             }
             else if (IncludeSubSources)
             {
@@ -251,11 +231,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                 CheckSubSourcesForGame(_item, game);
             }
         }
-        // 更新UI
-        OnPropertyChanged(nameof(Galgames));
-        
-        // 重新应用排序
-        ApplySorting();
+        // 刷新排序
+        Galgames.RefreshSorting();
     }
 
     private bool CheckSubSourcesForGame(GalgameSourceBase source, Galgame game)
@@ -265,7 +242,8 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             var path = subSource.GetPath(game);
             if (path != null)
             {
-                Galgames.Add(new GalgameAndPath(game, path));
+                var src = (ObservableCollection<GalgameAndPath>)Galgames.Source;
+                src.Add(new GalgameAndPath(game, path));
                 return true;
             }
             
@@ -286,6 +264,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             // 加载排序设置
             CurrentSortKey = (SortKeys)_settingsService.ReadSettingAsync<int>(KeyValues.LibrarySortKey).Result;
             SortDescending = _settingsService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending).Result;
+            ApplySorting();
         
             if (parameter is not string url) return;
             Item = _sourceService.GetGalgameSourceFromUrl(url);
@@ -433,7 +412,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             return;
         }
 
-        bool scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
+        var scanSubfolders = includeSubfoldersCheckBox.IsChecked ?? true;
 
         // 获取当前目录下所有库
         List<GalgameSourceBase> sources = new();
@@ -634,7 +613,10 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private void EditGame(GalgameAndPath gameAndPath)
     {
         if (gameAndPath?.Galgame == null) return;
-        NavigationHelper.NavigateToGalgameSettingPage(_navigationService, gameAndPath.Galgame);
+        // 在主线程中执行导航，修复appbarbutton描述文字延迟显示的问题
+        App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
+            _navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, gameAndPath.Galgame)
+        );
     }
 
     [RelayCommand]

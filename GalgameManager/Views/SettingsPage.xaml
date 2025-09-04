@@ -10,7 +10,9 @@
     xmlns:enums="using:GalgameManager.Enums"
     xmlns:models="using:GalgameManager.Models"
     xmlns:cmtkConverters="using:CommunityToolkit.WinUI.Converters"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    NavigationCacheMode="Enabled">
+    
     <Page.Resources>
         <converter:RssTypeToVisibilityConverter x:Key="RssTypeToVisibilityConverter"/>
         <converter:AuthenticationTypeToStringConverter x:Key="AuthenticationTypeToStringConverter"/>
@@ -215,8 +217,7 @@
 
                                     <!-- 下载游戏角色信息 -->
                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Download_Character"
-                                                                IsOn="{x:Bind ViewModel.DownloadCharacters, Mode=TwoWay}"
-                                                                Margin="0, 0, 0, 13"/>
+                                                                IsOn="{x:Bind ViewModel.DownloadCharacters, Mode=TwoWay}"/>
                                     <!-- 覆盖名字
                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Download_OverrideName"
                                     IsOn="{x:Bind ViewModel.OverrideLocalName, Mode=TwoWay}" />

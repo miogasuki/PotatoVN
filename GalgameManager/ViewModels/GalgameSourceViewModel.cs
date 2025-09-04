@@ -211,6 +211,16 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             DontScanPaths.Add(path);
     }
     
+    private void LoadFromSubSources(GalgameSourceBase source, List<GalgameAndPath> target)
+    {
+        foreach (GalgameSourceBase sub in source.SubSources)
+        {
+            foreach (GalgameAndPath g in sub.Galgames)
+                target.Add(new GalgameAndPath(g.Galgame, g.Path));
+            LoadFromSubSources(sub, target);
+        }
+    }
+    
     private void ReloadGalgameList(Galgame game, bool isDeleted)
     {
         if (_item == null) return;

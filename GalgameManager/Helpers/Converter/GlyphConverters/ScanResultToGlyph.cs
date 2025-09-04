@@ -32,7 +32,7 @@ public class ScanResultToBrush : IValueConverter
             ScanResultType.AlreadyExists => Application.Current.Resources["SystemFillColorCautionBackgroundBrush"],
             ScanResultType.Success => Application.Current.Resources["SystemFillColorSuccessBackgroundBrush"],
             ScanResultType.Failed => Application.Current.Resources["SystemFillColorCriticalBackgroundBrush"],
-            _ => ""
+            _ => Application.Current.Resources["LayerFillColorDefaultBrush"]
         };
     }
 

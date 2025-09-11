@@ -1,11 +1,17 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.WinUI;
 using GalgameManager.Contracts;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models.Sources;
 using LiteDB;
 using Newtonsoft.Json;
+using GalgameManager.WinApp.Base.Helpers;
 
 namespace GalgameManager.Models;
 
@@ -19,7 +25,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public static readonly int PhraserNumber = 8;
     
     public event Action<Galgame, string, object>? GalPropertyChanged;
-    public event Action<Exception>? ErrorOccurred; //非致命异常产生时触发
+    public Action<Exception>? ErrorOccurred; //非致命异常产生时触发
     
     [JsonIgnore][BsonIgnore]
     public GalgameUid Uid
@@ -150,10 +156,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         set
         {
             _savePath = value;
-            UiThreadInvokeHelper.Invoke(() =>
-            {
-                SavePosition = _savePath is null ? "Galgame_SavePath_Local".GetLocalized() : "Galgame_SavePath_Remote".GetLocalized();
-            });
+            SavePosition = _savePath is null ? "Galgame_SavePath_Local".GetLocalized() : "Galgame_SavePath_Remote".GetLocalized();
         }
     }
 
@@ -296,31 +299,6 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         }
         Ids[(int)RssType.Mixed] = mixedId.TrimEnd(',');
     }
-
-    /// <summary>
-    /// 试图从游戏根目录中找到存档位置（仅能找到已同步到服务器的存档）
-    /// </summary>
-    public void FindSaveInPath()
-    {
-        if (!CheckExistLocal() || LocalPath is not { } path) return;
-        try
-        {
-            var cnt = 0;
-            string? result = null;
-            foreach (var subDir in Directory.GetDirectories(path))
-                if (FolderOperations.IsSymbolicLink(subDir))
-                {
-                    cnt++;
-                    result = subDir;
-                }
-            if (cnt == 1)
-                SavePath = result;
-        }
-        catch (Exception e)
-        {
-            ErrorOccurred?.Invoke(e);
-        }
-    }
     
     /// 检查是否所有的id都为空
     public bool IsIdsEmpty() => Ids.All(string.IsNullOrEmpty);
@@ -349,15 +327,6 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     }
 
     public string GetLogName() => $"Galgame_{(Name.Value ?? string.Empty).RemoveInvalidChars()}.txt";
-    
-    public bool ApplySearchKey(string searchKey)
-    {
-        return Name.Value!.ContainX(searchKey) || 
-               ChineseName.Value!.ContainX(searchKey) ||
-               OriginalName.Value!.ContainX(searchKey) ||
-               Developer.Value!.ContainX(searchKey) || 
-               Tags.Value!.Any(str => str.ContainX(searchKey));
-    }
 
     /// 触发属性变更事件，用于手动更新页面
     public void RaisePropertyChanged(string propertyName) => OnPropertyChanged(propertyName);

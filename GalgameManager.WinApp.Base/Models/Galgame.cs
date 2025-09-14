@@ -25,7 +25,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public static readonly int PhraserNumber = 8;
     
     public event Action<Galgame, string, object>? GalPropertyChanged;
-    public Action<Exception>? ErrorOccurred; //非致命异常产生时触发
+    [JsonIgnore] public Action<Exception>? ErrorOccurred; //非致命异常产生时触发
     
     [JsonIgnore][BsonIgnore]
     public GalgameUid Uid
@@ -86,6 +86,8 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     // ReSharper disable once MemberCanBePrivate.Global
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public string?[] Ids { get; set; } = new string?[PhraserNumber]; //magic number: 钦定了一个最大Phraser数目
+    /// 插件专用的id存储
+    public Dictionary<int,  string?> IdForPlugins { get; set; } = []; 
     [JsonIgnore][BsonIgnore] public readonly ObservableCollection<Category> Categories = new();
     [JsonIgnore][BsonIgnore] public ObservableCollection<GalgameSourceBase> Sources { get; } = new(); //所属的源
     [ObservableProperty] private string _comment = string.Empty; //吐槽（评论）
@@ -119,12 +121,18 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     {
         get 
         {
+            if ((int)RssType >= 100) return IdForPlugins.GetValueOrDefault((int)RssType); //插件用的id
             if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
             return Ids[(int)RssType];
         }
 
         set
         {
+            if ((int)RssType >= 100) //插件用的id
+            {
+                IdForPlugins[(int)RssType] = value;
+                return;
+            }
             if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
             if (Ids[(int)RssType] != value)
             {
@@ -156,7 +164,9 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         set
         {
             _savePath = value;
-            SavePosition = _savePath is null ? "Galgame_SavePath_Local".GetLocalized() : "Galgame_SavePath_Remote".GetLocalized();
+            SavePosition = (_savePath is null 
+                ? "Galgame_SavePath_Local".GetLocalized()
+                : "Galgame_SavePath_Remote".GetLocalized()) ?? string.Empty;
         }
     }
 

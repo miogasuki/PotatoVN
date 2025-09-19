@@ -9,6 +9,7 @@ using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.Converter;
+using GalgameManager.Helpers.EnumHelpers;
 using GalgameManager.Models;
 using GalgameManager.Services;
 using Microsoft.UI.Xaml;
@@ -21,8 +22,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [ObservableProperty]
     private Galgame _gal = null!;
 
-    public List<RssType> RssTypes { get; } = new() { RssType.Bangumi, RssType.Vndb, RssType.Mixed, 
-        RssType.Ymgal, RssType.Cngal, RssType.Steam };
+    public List<RssType> RssTypes { get; } = [];
 
     private readonly GalgameCollectionService _galService;
     private readonly GalgameSourceCollectionService _sourceService;
@@ -31,7 +31,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     private readonly IInfoService _infoService;
     private readonly ILocalSettingsService _settingsService;
     private readonly IMessenger _bus;
-    private readonly string[] _searchUrlList = new string[Galgame.PhraserNumber];
+    private readonly Dictionary<int, string> _searchUrlList = [];
     [ObservableProperty] private string _searchUri = "";
     [ObservableProperty] private bool _isPhrasing;
     [ObservableProperty] private string _parsingMsg = string.Empty;
@@ -61,6 +61,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         _searchUrlList[(int)RssType.Ymgal] = "https://www.ymgal.games/search?type=ga&keyword=";
         _searchUrlList[(int)RssType.Cngal] = "https://www.cngal.org/search?Types=Game&Text=";
         SearchUri = _searchUrlList[(int)RssType.Vndb]; // default
+        foreach (RssType type in RssHelperX.GetAvailableTypes(_galService)) RssTypes.Add(type);
     }
 
     public async void OnNavigatedFrom()
@@ -94,7 +95,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     partial void OnSelectedRssChanged(RssType value)
     {
         Gal.RssType = value;
-        if (!string.IsNullOrEmpty(_searchUrlList[(int)value]))
+        if (!string.IsNullOrEmpty(_searchUrlList.GetValueOrDefault((int)value)))
             SearchUri = _searchUrlList[(int)value] + Gal.Name.Value;
     }
 

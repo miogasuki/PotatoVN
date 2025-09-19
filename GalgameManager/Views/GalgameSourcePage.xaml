@@ -354,7 +354,7 @@
                                             <TextBlock x:Uid="GalgameSourcePage_GamesTable_RssType"
                                                        Style="{StaticResource DescriptionTextStyle}"
                                                        VerticalAlignment="Center" />
-                                            <control:ComboBoxWithoutNull
+                                            <control:ComboBoxWithI18N
                                                 SelectedItem="{x:Bind Galgame.RssType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 ItemsSource="{x:Bind RssTypes}"
                                                 VerticalAlignment="Center" />

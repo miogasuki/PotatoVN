@@ -23,6 +23,7 @@ using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
 using Windows.Globalization;
 using Windows.System;
 using Windows.ApplicationModel.Store.Preview;
+using GalgameManager.Helpers.EnumHelpers;
 using static System.String;
 
 namespace GalgameManager.ViewModels;
@@ -585,7 +586,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private RssType _rssType;
     // ReSharper disable once CollectionNeverQueried.Global
-    public readonly RssType[] RssTypes = { RssType.Mixed , RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal};
+    public readonly List<RssType> RssTypes = RssHelperX.GetAvailableTypes(App.GetService<IGalgameCollectionService>());
     
     partial void OnRssTypeChanged(RssType value)
     {

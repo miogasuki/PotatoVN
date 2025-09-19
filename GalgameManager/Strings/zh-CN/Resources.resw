@@ -3821,4 +3821,28 @@
   <data name="PluginPage_Add_Failed" xml:space="preserve">
     <value>添加插件失败</value>
   </data>
+  <data name="RssType_Vndb" xml:space="preserve">
+    <value>VNDB</value>
+  </data>
+  <data name="RssType_Bangumi" xml:space="preserve">
+    <value>Bangumi</value>
+  </data>
+  <data name="RssType_Mixed" xml:space="preserve">
+    <value>混合源</value>
+  </data>
+  <data name="RssType_None" xml:space="preserve">
+    <value>尚未设置</value>
+  </data>
+  <data name="RssType_PotatoVn" xml:space="preserve">
+    <value>PotatoVN</value>
+  </data>
+  <data name="RssType_Ymgal" xml:space="preserve">
+    <value>月暮Galgame</value>
+  </data>
+  <data name="RssType_Cngal" xml:space="preserve">
+    <value>Cngal</value>
+  </data>
+  <data name="RssType_Steam" xml:space="preserve">
+    <value>Steam</value>
+  </data>
 </root>

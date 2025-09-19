@@ -55,6 +55,12 @@ public class PluginService(
         bus.Send(new PluginLoadArgs { Plugin = plugin });
     }
 
+    public async Task UnloadPluginAsync(PluginX plugin)
+    {
+        await Task.CompletedTask;
+        throw new NotImplementedException();
+    }
+
     public class PluginData
     {
         Guid Id { get; set; }

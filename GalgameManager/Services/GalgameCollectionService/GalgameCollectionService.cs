@@ -360,15 +360,19 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 galgame.Characters = tmp.Characters;
             if (type.HasFlag(GameParseType.Image))
             {
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                HttpClient? client = phraser is IHttpClientProvider provider ? provider.HttpClient : null; 
                 await Task.Delay(20);
                 _bus.Send(new GalgameParsingEventArgs(galgame, "GalgameCollectionService_ParseAsync_GettingImg".GetLocalized()));
                 galgame.ImageUrl = tmp.ImageUrl;
                 var oldImg = galgame.ImagePath.Value;
                 var newImg = await DownloadHelper.DownloadAndSaveImageWithDiffThread(galgame.ImageUrl,
-                    fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover");
+                    fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover",
+                    client: client);
                 for (var i = 0; i < tmp.AlternateImageUrls.Count && string.IsNullOrEmpty(newImg); i++)
                     newImg = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.AlternateImageUrls[i],
-                        fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover");
+                        fileNameWithoutExtension: $"{galgame.Name.Value ?? string.Empty}_{DateTime.Now.ToUnixTime()}_cover",
+                        client: client);
                 galgame.ImagePath.Value = newImg ?? oldImg;
                 if (File.Exists(oldImg) && oldImg != galgame.ImagePath.Value) File.Delete(oldImg);
             }

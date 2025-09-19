@@ -24,4 +24,11 @@ public interface IPluginService
     /// <exception cref="PvnException">已知错误</exception>
     /// <returns></returns>
     public Task LoadPluginsAsync(string path);
+    
+    /// <summary>
+    /// 卸载插件，注意捕获异常
+    /// </summary>
+    /// <param name="plugin"></param>
+    /// <returns></returns>
+    public Task UnloadPluginAsync(PluginX plugin);
 }

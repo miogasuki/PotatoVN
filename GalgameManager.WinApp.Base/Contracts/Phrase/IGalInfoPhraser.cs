@@ -6,6 +6,9 @@ using GalgameManager.Models;
 
 namespace GalgameManager.Contracts.Phrase;
 
+/// <summary>
+/// 如果这个搜刮器需要使用自定义HttpClient，请实现IHttpClientProvider这个接口
+/// </summary>
 public interface IGalInfoPhraser
 {
     /// <summary>

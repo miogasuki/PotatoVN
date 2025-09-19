@@ -157,7 +157,7 @@
                                         <TextBlock Text="{x:Bind ViewModel.UiRssDescription}"
                                                    Style="{StaticResource DescriptionTextStyle}"/>
                                     </StackPanel>
-                                    <ComboBox ItemsSource="{x:Bind ViewModel.RssTypes}"
+                                    <control:ComboBoxWithI18N ItemsSource="{x:Bind ViewModel.RssTypes}"
                                               SelectedItem="{x:Bind ViewModel.RssType, Mode=TwoWay}"
                                               RelativePanel.AlignRightWithPanel="True"/>
                                 </RelativePanel>

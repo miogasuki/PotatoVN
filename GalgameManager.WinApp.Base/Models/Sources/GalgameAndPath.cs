@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GalgameManager.Enums;
 using LiteDB;
 using Newtonsoft.Json;
@@ -10,7 +11,7 @@ public class GalgameAndPath(Galgame game, string path)
     public Galgame Galgame { get; set; } = game;
     public string Path { get; set; } = path;
     [JsonIgnore][BsonIgnore] 
-    public RssType[] RssTypes { get; } = [RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None];
+    public List<RssType> RssTypes { get; set; } = [];
 
     // 提供用于排序的原生类型快照，避免 ACV 比较 LockableProperty 时出错
     [JsonIgnore][BsonIgnore]

@@ -128,18 +128,14 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
         set
         {
-            if ((int)RssType >= 100) //插件用的id
+            if (Ids.Length < PhraserNumber && (int)RssType < 100) Ids = Ids.ResizeArray(PhraserNumber);
+            if (((int)RssType < 100 && Ids[(int)RssType] != value) || (int)RssType >= 100)
             {
-                IdForPlugins[(int)RssType] = value;
-                return;
-            }
-            if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
-            if (Ids[(int)RssType] != value)
-            {
-               Ids[(int)RssType] = value;
-               OnPropertyChanged();
-               if (_rssType == RssType.Mixed) UpdateIdFromMixed();
-               else UpdateMixedId();
+                if ((int) RssType < 100) Ids[(int)RssType] = value;
+                else IdForPlugins[(int)RssType] = value;
+                OnPropertyChanged();
+                if (_rssType == RssType.Mixed) UpdateIdFromMixed();
+                else UpdateMixedId();
             }
         }
     }

@@ -18,6 +18,7 @@ using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.DataTransfer;
+using GalgameManager.Helpers.EnumHelpers;
 
 namespace GalgameManager.ViewModels;
 
@@ -209,6 +210,11 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         DontScanPaths.Clear();
         foreach (var path in _item.DontScanPath)
             DontScanPaths.Add(path);
+        
+        List<RssType> availableTypes = RssHelperX.GetAvailableTypes(_galgameService);
+        foreach (var t in Galgames.Source)
+            if (t is GalgameAndPath g)
+                g.RssTypes = availableTypes;
     }
     
     private void LoadFromSubSources(GalgameSourceBase source, List<GalgameAndPath> target)

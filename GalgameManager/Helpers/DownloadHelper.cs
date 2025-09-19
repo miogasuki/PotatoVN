@@ -17,14 +17,15 @@ public static class DownloadHelper
     /// <param name="retry">这是第几次重试</param>
     /// <param name="fileNameWithoutExtension">目标文件名（不带扩展名）</param>
     /// <param name="onException">失败时回调，若为Http异常则等到重试次数满后触发，否则在有异常时立刻触发</param>
+    /// <param name="client">下载图片时使用的client，若不提供则使用软件默认client</param>
     /// <returns>本地文件路径, 如果下载失败则返回null</returns>
     public static async Task<string?> DownloadAndSaveImageAsync(string? imageUrl, int retry = 0, 
-        string? fileNameWithoutExtension = null, Action<Exception>? onException = null)
+        string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null)
     {
         try
         {
             if (imageUrl == null) return null;
-            HttpClient httpClient = new();
+            HttpClient httpClient = client ?? Utils.GetDefaultHttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(10); // 10s内收不到响应则超时
             HttpResponseMessage response = await httpClient.GetAsync(imageUrl);
             response.EnsureSuccessStatusCode();
@@ -80,9 +81,9 @@ public static class DownloadHelper
     }
     
     public static Task<string?> DownloadAndSaveImageWithDiffThread(string? imageUrl, int retry = 0, 
-        string? fileNameWithoutExtension = null, Action<Exception>? onException = null)
+        string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null)
     {
-        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException));
+        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException, client));
     }
     
     /// <summary>

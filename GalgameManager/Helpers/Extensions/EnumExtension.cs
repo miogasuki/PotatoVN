@@ -33,4 +33,10 @@ public static class EnumExtension
         }
         map[value] = localized;
     }
+
+    public static void Unregister(Type enumType, int value)
+    {
+        if (!enumType.IsEnum) throw new ArgumentException("Type must be an enum");
+        if (!AddedEnum.TryGetValue(enumType, out Dictionary<int, string>? map)) map?.Remove(value);
+    }
 }

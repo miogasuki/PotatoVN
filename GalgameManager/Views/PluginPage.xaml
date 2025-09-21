@@ -27,14 +27,28 @@
             <ItemsRepeater ItemsSource="{x:Bind ViewModel.Plugins}">
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="models:PluginX">
-                        <control:Panel>
-                            <StackPanel>
-                                <TextBlock Text="{x:Bind Plugin.Info.Name}"/>
-                                <TextBlock
-                                    Text="{x:Bind Plugin.Info.Description}"
-                                    Style="{StaticResource DescriptionTextStyle}"/>
-                            </StackPanel>
-                        </control:Panel>
+                        <Grid>
+                            <Expander HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" >
+                                <Expander.Header>
+                                    <Grid ColumnDefinitions="*, Auto"  Padding=" 0 10">
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{x:Bind Info.Name}"/>
+                                            <TextBlock
+                                                Text="{x:Bind Info.Description}"
+                                                Style="{StaticResource DescriptionTextStyle}"/>
+                                        </StackPanel>
+                                        <ToggleSwitch Grid.Column="1" x:Uid="PluginPage_PluginStatus"
+                                                      IsOn="{x:Bind Enable, Mode=TwoWay}"
+                                                      Margin="0 0 -20 0"/>
+                                    </Grid>
+                                </Expander.Header>
+                                <Expander.Content>
+                                    <Grid>
+                                        <Button Margin="15" Content="This is a Button in the content"/>
+                                    </Grid>
+                                </Expander.Content>
+                            </Expander>
+                        </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>

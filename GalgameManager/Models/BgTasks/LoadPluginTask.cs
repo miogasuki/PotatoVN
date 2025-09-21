@@ -3,6 +3,7 @@ using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Services;
 using LiteDB;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Models.BgTasks;
 
@@ -15,21 +16,20 @@ public class LoadPluginTask : BgTaskBase
 
     protected override Task RunInternal() => Task.Run(async () =>
     {
-        ILiteCollection<PluginService.PluginData> dataDb =
-            _settingService.Database.GetCollection<PluginService.PluginData>("plugin_data");
+        ILiteCollection<PluginX> db = _settingService.Database.GetCollection<PluginX>("plugin");
         List<string> pluginPaths = await _settingService.ReadSettingAsync<List<string>>(KeyValues.PluginPaths) ?? [];
-        for (var i = 0; i < pluginPaths.Count; i++)
+        List<PluginX> plugins = db.FindAll().ToList();
+        for (var i = 0; i < plugins.Count; i++)
         {
-            var path = pluginPaths[i];
-            ChangeProgress(i, pluginPaths.Count, "LoadPluginTask_Loading".GetLocalized(path));
+            PluginX plugin = plugins[i];
+            ChangeProgress(i, pluginPaths.Count, "LoadPluginTask_Loading".GetLocalized(plugin.Info.Name));
             try
             {
-                await _pluginService.LoadPluginsAsync(path);
+                await _pluginService.LoadPluginAsync(plugin, plugin.Enable);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                App.GetService<IInfoService>().DeveloperEvent(e: e);
             }
         }
         ChangeProgress(1, 1, string.Empty, false);

@@ -3806,8 +3806,7 @@
     <value>加载插件任务</value>
   </data>
   <data name="LoadPluginTask_Loading" xml:space="preserve">
-    <value>正在加载以下目录的插件：
-{0}</value>
+    <value>正在加载插件：{0}</value>
   </data>
   <data name="PathNotExist_Brief" xml:space="preserve">
     <value>路径不存在</value>
@@ -3844,5 +3843,17 @@
   </data>
   <data name="RssType_Steam" xml:space="preserve">
     <value>Steam</value>
+  </data>
+  <data name="PluginPage_PluginStatus.OnContent" xml:space="preserve">
+    <value>已启用</value>
+  </data>
+  <data name="PluginPage_PluginStatus.OffContent" xml:space="preserve">
+    <value>未启用</value>
+  </data>
+  <data name="PluginService_PluginStatusChangedFailed" xml:space="preserve">
+    <value>启用/关闭插件失败</value>
+  </data>
+  <data name="PluginService_PluginUnloaded" xml:space="preserve">
+    <value>设置成功，该插件将不在下次启动时加载</value>
   </data>
 </root>

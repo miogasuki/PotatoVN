@@ -21,7 +21,8 @@ public interface IGalInfoPhraser
     public RssType GetPhraseType();
 
     /// <summary>
-    /// 更新数据
+    /// 更新数据 <p/>
+    /// 对于插件搜刮器：这个函数不会被调用，留空即可。请自行实现搜刮器所需数据（比如说账号）的更新逻辑
     /// </summary>
     /// <param name="data">数据包</param>
     public void UpdateData(IGalInfoPhraserData data)

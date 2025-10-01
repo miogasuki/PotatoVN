@@ -4,8 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:GalgameManager.Models"
     xmlns:control="using:GalgameManager.Views.Control"
+    xmlns:viewModels="using:GalgameManager.ViewModels"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
@@ -22,30 +24,31 @@
                 </AppBarButton.Icon>
             </AppBarButton>
         </CommandBar>
-        
+
         <ScrollView Grid.Row="1">
             <ItemsRepeater ItemsSource="{x:Bind ViewModel.Plugins}">
                 <ItemsRepeater.ItemTemplate>
-                    <DataTemplate x:DataType="models:PluginX">
+                    <DataTemplate x:DataType="viewModels:PluginSettingViewModel">
                         <Grid>
-                            <Expander HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" >
+                            <Expander HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
+                                      IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}">
                                 <Expander.Header>
                                     <Grid ColumnDefinitions="*, Auto"  Padding=" 0 10">
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{x:Bind Info.Name}"/>
+                                            <TextBlock Text="{x:Bind Plugin.Info.Name}"/>
                                             <TextBlock
-                                                Text="{x:Bind Info.Description}"
+                                                Text="{x:Bind Plugin.Info.Description}"
                                                 Style="{StaticResource DescriptionTextStyle}"/>
                                         </StackPanel>
                                         <ToggleSwitch Grid.Column="1" x:Uid="PluginPage_PluginStatus"
-                                                      IsOn="{x:Bind Enable, Mode=TwoWay}"
+                                                      IsOn="{x:Bind Plugin.Enable, Mode=TwoWay}"
                                                       Margin="0 0 -20 0"/>
                                     </Grid>
                                 </Expander.Header>
                                 <Expander.Content>
-                                    <Grid>
-                                        <Button Margin="15" Content="This is a Button in the content"/>
-                                    </Grid>
+                                    <StackPanel Orientation="Vertical">
+                                        <ContentPresenter Content="{x:Bind Ui, Mode=OneWay}" />
+                                    </StackPanel>
                                 </Expander.Content>
                             </Expander>
                         </Grid>

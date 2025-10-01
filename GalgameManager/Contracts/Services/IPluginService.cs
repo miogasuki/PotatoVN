@@ -25,4 +25,12 @@ public interface IPluginService
     /// <param name="load">是否要加载插件，若设置为false则只把插件加到插件列表里而不加载（初始化插件表时用）</param>
     /// <returns></returns>
     public Task LoadPluginAsync(PluginX plugin, bool load);
+    
+    /// <summary>
+    /// 当调用插件功能抛出异常时可以调用此方法提醒用户（内部会调用infoService发送一个Event）
+    /// </summary>
+    /// <param name="plugin"></param>
+    /// <param name="e"></param>
+    /// <param name="msgHeader">消息头，最后消息会这样组合：mesHeader+"建议联系插件开发者了解解决方案~\n\n以下为详细报错：\n"</param>
+    public void ThrowPluginExceptionEvent(PluginX plugin, Exception e, string msgHeader);
 }

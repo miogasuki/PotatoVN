@@ -1,7 +1,6 @@
 ﻿using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using GalgameManager.Services;
 using LiteDB;
 using Microsoft.UI.Xaml.Controls;
 
@@ -29,7 +28,9 @@ public class LoadPluginTask : BgTaskBase
             }
             catch (Exception e)
             {
-                App.GetService<IInfoService>().DeveloperEvent(e: e);
+                var msg = "LoadPluginTask_ErrorLoading_Msg".GetLocalized(e is PvnException ex ? ex.FullMsg : e.ToString());
+                App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Warning,
+                    "LoadPluginTask_ErrorLoading".GetLocalized(plugin.Info.Name), msg: msg);
             }
         }
         ChangeProgress(1, 1, string.Empty, false);

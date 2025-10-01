@@ -3856,4 +3856,25 @@
   <data name="PluginService_PluginUnloaded" xml:space="preserve">
     <value>设置成功，该插件将不在下次启动时加载</value>
   </data>
+  <data name="LoadPluginTask_ErrorLoading_Msg" xml:space="preserve">
+    <value>插件加载失败，建议联系开发者~
+ 
+以下为失败原因：
+{0}</value>
+  </data>
+  <data name="LoadPluginTask_ErrorLoading" xml:space="preserve">
+    <value>插件{0}加载失败</value>
+  </data>
+  <data name="PluginService_PluginError" xml:space="preserve">
+    <value>插件{0}发生了错误！</value>
+  </data>
+  <data name="PluginService_PluginError_Msg" xml:space="preserve">
+    <value>建议联系插件开发者以了解解决方案~
+
+下为错误详情：
+{0}</value>
+  </data>
+  <data name="PluginSettingViewModel_CreateUiFailed" xml:space="preserve">
+    <value>创建插件设置界面失败，</value>
+  </data>
 </root>

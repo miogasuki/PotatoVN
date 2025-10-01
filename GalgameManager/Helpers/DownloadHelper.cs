@@ -18,9 +18,11 @@ public static class DownloadHelper
     /// <param name="fileNameWithoutExtension">目标文件名（不带扩展名）</param>
     /// <param name="onException">失败时回调，若为Http异常则等到重试次数满后触发，否则在有异常时立刻触发</param>
     /// <param name="client">下载图片时使用的client，若不提供则使用软件默认client</param>
+    /// <param name="targetFolder">保存图片的位置，若不指定则使用数据目录的images文件夹</param>
     /// <returns>本地文件路径, 如果下载失败则返回null</returns>
     public static async Task<string?> DownloadAndSaveImageAsync(string? imageUrl, int retry = 0, 
-        string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null)
+        string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null,
+        DirectoryInfo? targetFolder = null)
     {
         try
         {
@@ -33,6 +35,11 @@ public static class DownloadHelper
             var imageBytes = await response.Content.ReadAsByteArrayAsync();
 
             StorageFolder localFolder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Images);
+            if (targetFolder != null)
+            {
+                if (!targetFolder.Exists) targetFolder.Create();
+                localFolder = await StorageFolder.GetFolderFromPathAsync(targetFolder.FullName);
+            }
             var fileName = fileNameWithoutExtension is not null
                 ? $"{fileNameWithoutExtension}{GetImageFormat(imageBytes)}"
                 : imageUrl[(imageUrl.LastIndexOf('/') + 1)..];
@@ -72,7 +79,8 @@ public static class DownloadHelper
                 if (retry < 3)
                 {
                     await Task.Delay(1000);
-                    return await DownloadAndSaveImageAsync(imageUrl, retry + 1, fileNameWithoutExtension, onException);
+                    return await DownloadAndSaveImageAsync(imageUrl, retry + 1, fileNameWithoutExtension, onException,
+                        targetFolder: targetFolder);
                 }
             }
             onException?.Invoke(e);
@@ -81,9 +89,11 @@ public static class DownloadHelper
     }
     
     public static Task<string?> DownloadAndSaveImageWithDiffThread(string? imageUrl, int retry = 0, 
-        string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null)
+        string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null,
+        DirectoryInfo? targetFolder = null)
     {
-        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException, client));
+        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException, 
+            client, targetFolder));
     }
     
     /// <summary>

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Loader;
+using Windows.Storage;
 using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
@@ -54,6 +55,8 @@ public class PluginService(
             (IPlugin plugin, PluginLoadContext contex) tmp = await LoadPluginInternalAsync(plugin.Path);
             plugin.Plugin = tmp.plugin;
             plugin.LoadContext = tmp.contex;
+            plugin.Info = plugin.Plugin.Info;
+            await plugin.Plugin.InitializeAsync(new PotatoVnApiHost(plugin));
             plugin.IsLoaded = true;
         }
         if (_plugins.All(p => p.Info.Id != plugin.Info.Id))
@@ -81,7 +84,14 @@ public class PluginService(
             }
         }
     }
-    
+
+    public void ThrowPluginExceptionEvent(PluginX plugin, Exception e, string msgHeader)
+    {
+        infoService.Event(EventType.PluginError, InfoBarSeverity.Warning,
+            "PluginService_PluginError".GetLocalized(plugin.Info.Name),
+            msg: msgHeader + "PluginService_PluginError_Msg".GetLocalized(e.ToString()));
+    }
+
     private static async Task<(IPlugin plugin, PluginLoadContext contex)> LoadPluginInternalAsync(string path)
     {
         await Task.CompletedTask; //预留异步
@@ -94,6 +104,21 @@ public class PluginService(
             .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsInterface);
         if (pluginType == null) throw new PvnException($"no valid plugin found in {path}");
         return ((IPlugin)Activator.CreateInstance(pluginType)!, loadContext);
+    }
+
+    public class PotatoVnApiHost(PluginX plugin) : IPotatoVnApi
+    {
+        public async Task<string?> DownloadImageAsync(string imageUrl, string imageName, HttpClient? client,
+            Action<Exception>? onException = null)
+        {
+            StorageFolder imgFolder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Images);
+            DirectoryInfo pluginImgDir = new(Path.Combine(imgFolder.Path, plugin.Info.Id.ToString()));
+            return await DownloadHelper.DownloadAndSaveImageWithDiffThread(imageUrl,
+                fileNameWithoutExtension: imageName, onException: onException, client: client,
+                targetFolder: pluginImgDir);
+        }
+
+        public string GetPluginPath() => plugin.Path;
     }
 }
 

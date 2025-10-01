@@ -26,4 +26,5 @@ public enum EventType
     
     PageError,
     UpgradeError,
+    PluginError,
 }

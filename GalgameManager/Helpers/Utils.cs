@@ -161,8 +161,9 @@ public static partial class Utils
     /// <param name="parentPath"></param>
     /// <param name="childPath"></param>
     /// <returns></returns>
-    public static bool IsPathContained(string parentPath, string childPath)
+    public static bool IsPathContained(string? parentPath, string? childPath)
     {
+        if (string.IsNullOrEmpty(parentPath) || string.IsNullOrEmpty(childPath)) return false;
         try
         {
             var parent = Path.GetFullPath(parentPath).TrimEnd(Path.DirectorySeparatorChar);

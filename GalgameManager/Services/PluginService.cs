@@ -158,8 +158,8 @@ public class PluginService(
 
     public class PluginData
     {
-        [BsonId] public Guid PluginId;
-        public string? Data;
+        [BsonId] public Guid PluginId { get; set; }
+        public string? Data { get; set; }
     }
 }
 

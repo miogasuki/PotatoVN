@@ -17,9 +17,6 @@ public partial class PluginX : ObservableObject
     /// 是否已经加载
     [BsonIgnore] public bool IsLoaded { get; set; } = false;
     [BsonIgnore] public PluginLoadContext LoadContext { get; set; }
-    /// 插件自己存储的数据
-    public string? Data { get; set; }
-
     [Obsolete("For deserialization only", true)]
     public PluginX()
     {

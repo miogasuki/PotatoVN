@@ -108,6 +108,41 @@ public class PluginService(
 
     public class PotatoVnApiHost(PluginX plugin) : IPotatoVnApi
     {
+        private readonly ILiteCollection<PluginData> _pluginDataDb = App.GetService<ILocalSettingsService>()
+            .Database.GetCollection<PluginData>("plugin_data");
+        
+        public Task<string?> GetDataAsync()
+        {
+            //Task包一层，防止调用方直接在UI线程调用
+            return Task.Run(() =>
+            {   
+                PluginData? data = _pluginDataDb.FindById(plugin.Info.Id);
+                return data?.Data;
+            });
+        }
+
+        public async Task SaveDataAsync(string data)
+        {
+            //Task包一层，防止调用方直接在UI线程调用
+            await Task.Run(() =>
+            {
+                PluginData? existing = _pluginDataDb.FindById(plugin.Info.Id);
+                if (existing == null)
+                {
+                    _pluginDataDb.Insert(new PluginData
+                    {
+                        PluginId = plugin.Info.Id,
+                        Data = data,
+                    });
+                }
+                else
+                {
+                    existing.Data = data;
+                    _pluginDataDb.Update(existing);
+                }
+            });
+        }
+
         public async Task<string?> DownloadImageAsync(string imageUrl, string imageName, HttpClient? client,
             Action<Exception>? onException = null)
         {
@@ -119,6 +154,12 @@ public class PluginService(
         }
 
         public string GetPluginPath() => plugin.Path;
+    }
+
+    public class PluginData
+    {
+        [BsonId] public Guid PluginId;
+        public string? Data;
     }
 }
 

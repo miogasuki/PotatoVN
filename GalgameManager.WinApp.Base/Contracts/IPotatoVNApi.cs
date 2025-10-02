@@ -6,6 +6,23 @@ namespace GalgameManager.WinApp.Base.Contracts;
 
 public interface IPotatoVnApi
 {
+    #region DATA
+
+    /// <summary>
+    /// 读取本插件存储的数据
+    /// </summary>
+    /// <returns></returns>
+    public Task<string?> GetDataAsync();
+    
+    /// <summary>
+    /// 保存本插件存储的数据
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    public Task SaveDataAsync(string data);
+
+    #endregion
+    
     #region UTILS
 
     /// <summary>

@@ -42,5 +42,11 @@ public interface IPotatoVnApi
     /// <returns></returns>
     public string GetPluginPath();
     
+    /// <summary>
+    /// 在主线程执行某个操作（一般用于UI相关操作）
+    /// </summary>
+    /// <param name="action"></param>
+    public void InvokeOnMainThread(Action action);
+    
     #endregion
 }

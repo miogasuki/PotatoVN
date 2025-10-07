@@ -154,6 +154,7 @@ public class PluginService(
         }
 
         public string GetPluginPath() => plugin.Path;
+        public void InvokeOnMainThread(Action action) => UiThreadInvokeHelper.Invoke(action);
     }
 
     public class PluginData

@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,22 +11,27 @@ using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.Services;
 using GalgameManager.Views.Dialog;
+using GalgameManager.WinApp.Base.Contracts.PluginUi;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.ViewModels;
 
 public partial class AccountViewModel : ObservableObject, INavigationAware
 {
+    public ObservableCollection<UIElement?> PluginUis = [];
+    private readonly HashSet<Guid> _loadedPluginIds = [];
     private readonly ILocalSettingsService _localSettingsService;
     private readonly IBgmOAuthService _bgmService;
     private readonly IVndbAuthService _vndbAuthService;
     private readonly IInfoService _infoService;
     private readonly IGalgameCollectionService _gameService;
+    private readonly IPluginService _pluginService;
     
     
     public AccountViewModel(ILocalSettingsService localSettingsService, IPvnService pvnService, 
         IBgmOAuthService bgmService, IVndbAuthService vndbAuthService, IInfoService infoService,
-        IGalgameCollectionService gameService)
+        IGalgameCollectionService gameService, IPluginService pluginService)
     {
         _localSettingsService = localSettingsService;
         _pvnService = pvnService;
@@ -33,6 +39,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         _infoService = infoService;
         _vndbAuthService = vndbAuthService;
         _gameService = gameService;
+        _pluginService = pluginService;
     }
     
     public async void OnNavigatedTo(object parameter)
@@ -49,6 +56,23 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
         PvnSyncStaffs = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncStaff);
         PvnSyncHeaderImages = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage);
         await UpdateAccountDisplay();
+        await LoadPluginUi(); //加载插件UI
+        return;
+        
+        async Task LoadPluginUi()
+        {
+            ObservableCollection<PluginX> plugins = await _pluginService.GetAllPluginsAsync();
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            foreach (PluginX p in plugins)
+            {
+                if (p.Plugin is not IPluginAccount accPlugin) continue;
+                if (_loadedPluginIds.Contains(p.Id)) continue;
+                UIElement? ui = p.GetPluginUi(accPlugin.CreateAccountUi);
+                if (ui is null) continue;
+                PluginUis.Add(ui);
+                _loadedPluginIds.Add(p.Id);
+            }
+        }
     }
 
     public void OnNavigatedFrom()

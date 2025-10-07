@@ -1,8 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using GalgameManager.Contracts.Services;
+using GalgameManager.Enums;
+using GalgameManager.Helpers;
 using GalgameManager.Services;
 using GalgameManager.WinApp.Base.Contracts;
 using GalgameManager.WinApp.Base.Models;
 using LiteDB;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Models;
 
@@ -34,6 +39,23 @@ public partial class PluginX : ObservableObject
         LoadContext = context;
         Info = plugin.Info.ShallowClone();
         Id = Info.Id;
+    }
+
+    /// <summary>
+    /// 对获取插件UI的函数的包装，对于执行时间过长的函数（这会卡住主进程）进行提示
+    /// </summary>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public UIElement? GetPluginUi(Func<UIElement?> func)
+    {
+        DateTime start = DateTime.Now;
+        UIElement? ui = func();
+        DateTime end = DateTime.Now;
+        TimeSpan span = end - start;
+        if (span.TotalMilliseconds > 1000)
+            App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Informational,
+                "PluginX_UiSlow_Title".GetLocalized(), msg: "PluginX_UiSlow_Msg".GetLocalized(Info.Name));
+        return ui;
     }
 }
 

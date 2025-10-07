@@ -1,5 +1,7 @@
-﻿using System.Runtime.InteropServices;
-using GalgameManager.Helpers;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using GalgameManager.WinApp.Base.Helpers;
 using Newtonsoft.Json;
 
 namespace GalgameManager.Models.BgTasks;

@@ -1,11 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using GalgameManager.Models;
+using GalgameManager.Models.BgTasks;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.WinApp.Base.Contracts;
 
 public interface IPotatoVnApi
 {
+    //与游戏相关的API
+    #region GAMES
+    
+    /// <summary>
+    /// 获取所有游戏，这个列表只是一个快照（即后续添加的游戏或删除的游戏均不会在这个List中反馈）
+    /// </summary>
+    /// <returns></returns>
+    public List<Galgame> GetAllGames();
+
+    #endregion
+    
+    //与插件数据存储相关的API
     #region DATA
 
     /// <summary>
@@ -22,6 +38,72 @@ public interface IPotatoVnApi
     public Task SaveDataAsync(string data);
 
     #endregion
+
+    //与事件/通知相关的API
+    #region NOTIFICATIONS 
+
+    /// <summary>
+    /// 使用InfoBar通知信息，若title与msg均为空则关闭InfoBar
+    /// </summary>
+    /// <param name="infoBarSeverity"></param>
+    /// <param name="title"></param>
+    /// <param name="msg"></param>
+    /// <param name="displayTimeMs"></param>
+    public void Info(InfoBarSeverity infoBarSeverity, string? title = null, string? msg = null,int? displayTimeMs = 3000);
+
+    /// <summary>
+    /// 记录并通知事件
+    /// </summary>
+    /// <param name="infoBarSeverity">严重程度</param>
+    /// <param name="title">事件名</param>
+    /// <param name="exception">与之相关的异常，若不是异常则不填</param>
+    /// <param name="msg">事件信息</param>
+    /// <param name="callbackAction">点击按钮后执行的回调</param>
+    /// <param name="callbackButtonText">按钮上显示的文字</param>
+    public void Event(InfoBarSeverity infoBarSeverity, string title, Exception? exception = null, string? msg = null,
+        Action? callbackAction = null, string? callbackButtonText = null);
+
+    /// <summary>
+    /// 不严重的非预期错误，仅在开发模式下通知
+    /// </summary>
+    /// <param name="msg"></param>
+    /// <param name="infoBarSeverity"></param>
+    /// <param name="e"></param>
+    public void DeveloperEvent(InfoBarSeverity infoBarSeverity = InfoBarSeverity.Warning, string? msg = null,
+        Exception? e = null);
+
+    /// <summary>
+    /// 手动记录日志，默认只将severity >= InfoBarSeverity.Warning的日志通知，开发者模式下通知所有日志 <br/>
+    /// <see cref="Event"/>会自动调用该方法记录日志
+    /// </summary>
+    /// <param name="severity"></param>
+    /// <param name="msg"></param>
+    public void Log(InfoBarSeverity severity = InfoBarSeverity.Warning, string msg = "");
+
+    #endregion
+
+    //与后台任务相关的API
+    #region BG_TASKS
+
+    /// <summary>
+    /// 新增后台任务
+    /// </summary>
+    /// <returns>这个后台任务对应的task</returns>
+    public Task AddBgTask(BgTaskBase bgTask);
+
+    /// <summary>
+    /// 获取所有后台任务
+    /// </summary>
+    public IEnumerable<BgTaskBase> GetBgTasks();
+
+    /// <summary>
+    /// 获取指定类型的后台任务，如果没有则返回null
+    /// </summary>
+    /// <param name="key">关键字</param>
+    public T? GetBgTask<T>(string key) where T : BgTaskBase;
+
+    #endregion BG_TASKS
+    
     
     #region UTILS
 

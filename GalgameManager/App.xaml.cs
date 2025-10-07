@@ -199,6 +199,9 @@ public partial class App : Application
         // 设置LiveCharts字体
         LiveCharts.Configure(config => config.HasGlobalSKTypeface(SKFontManager.Default.MatchCharacter('汉')));
         _instance = this;
+#pragma warning disable CS0618 // 计划的一部分
+        WinApp.Base.Helpers.UiThreadInvokeHelper.Init(DispatcherQueue);
+#pragma warning restore CS0618 // 
         Status = WindowMode.Booting;
         await GetService<IActivationService>().LaunchedAsync(AppInstance.GetCurrent().GetActivatedEventArgs());
     }

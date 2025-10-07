@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Loader;
-using Windows.Storage;
 using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
@@ -16,7 +15,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Services;
 
-public class PluginService(
+public partial class PluginService(
     ILocalSettingsService settingService,
     IBgTaskService bgTaskService,
     IInfoService infoService,
@@ -105,58 +104,7 @@ public class PluginService(
         if (pluginType == null) throw new PvnException($"no valid plugin found in {path}");
         return ((IPlugin)Activator.CreateInstance(pluginType)!, loadContext);
     }
-
-    public class PotatoVnApiHost(PluginX plugin) : IPotatoVnApi
-    {
-        private readonly ILiteCollection<PluginData> _pluginDataDb = App.GetService<ILocalSettingsService>()
-            .Database.GetCollection<PluginData>("plugin_data");
-        
-        public Task<string?> GetDataAsync()
-        {
-            //Task包一层，防止调用方直接在UI线程调用
-            return Task.Run(() =>
-            {   
-                PluginData? data = _pluginDataDb.FindById(plugin.Info.Id);
-                return data?.Data;
-            });
-        }
-
-        public async Task SaveDataAsync(string data)
-        {
-            //Task包一层，防止调用方直接在UI线程调用
-            await Task.Run(() =>
-            {
-                PluginData? existing = _pluginDataDb.FindById(plugin.Info.Id);
-                if (existing == null)
-                {
-                    _pluginDataDb.Insert(new PluginData
-                    {
-                        PluginId = plugin.Info.Id,
-                        Data = data,
-                    });
-                }
-                else
-                {
-                    existing.Data = data;
-                    _pluginDataDb.Update(existing);
-                }
-            });
-        }
-
-        public async Task<string?> DownloadImageAsync(string imageUrl, string imageName, HttpClient? client,
-            Action<Exception>? onException = null)
-        {
-            StorageFolder imgFolder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Images);
-            DirectoryInfo pluginImgDir = new(Path.Combine(imgFolder.Path, plugin.Info.Id.ToString()));
-            return await DownloadHelper.DownloadAndSaveImageWithDiffThread(imageUrl,
-                fileNameWithoutExtension: imageName, onException: onException, client: client,
-                targetFolder: pluginImgDir);
-        }
-
-        public string GetPluginPath() => plugin.Path;
-        public void InvokeOnMainThread(Action action) => UiThreadInvokeHelper.Invoke(action);
-    }
-
+    
     public class PluginData
     {
         [BsonId] public Guid PluginId { get; set; }

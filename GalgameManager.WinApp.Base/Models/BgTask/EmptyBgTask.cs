@@ -1,4 +1,6 @@
-﻿namespace GalgameManager.Models.BgTasks;
+﻿using System.Threading.Tasks;
+
+namespace GalgameManager.Models.BgTasks;
 
 public class EmptyBgTask : BgTaskBase
 {

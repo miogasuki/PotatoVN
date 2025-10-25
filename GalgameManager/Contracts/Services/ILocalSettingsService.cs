@@ -89,4 +89,9 @@ public interface ILocalSettingsService
     /// </summary>
     /// <returns></returns>
     Task<string> BackupFailedDataAsync();
+
+    /// <summary>
+    /// App启动时调用
+    /// </summary>
+    public Task StartupAsync();
 }

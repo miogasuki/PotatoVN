@@ -24,6 +24,13 @@ public static class KeyValues
     public const string AuthenticationType = "authenticationType"; // AuthenticationType,身份验证类型
     public const string FontInstalled = "fontInstalled"; //bool, 是否安装了Segoe Fluent Icons字体
     public const string CustomTextFileExtensions = "CustomTextFileExtensions"; // List<string>, 用户自定义的文本文件扩展名列表
+
+    //自动导出相关
+    public const string AutoExport = "autoExport"; //bool, 是否启用自动导出
+    public const string AutoExportInterval = "autoExportInterval"; //double, 每次导出间相隔时间(小时)
+    public const string AutoExportPath = "autoExportPath"; //string, 导出路径
+    public const string LastExportTime = "lastExportTime"; //DateTime, 上次导出时间
+    public const string MaxBackupNumber = "maxBackupNumber"; //int, 最多保存备份数目
     
     //账户相关
     public const string BangumiAccount= "bangumiAccount"; //BgmAccount?, Bangumi账户, 若为null则未登录

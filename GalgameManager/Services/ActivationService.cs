@@ -189,8 +189,12 @@ public class ActivationService : IActivationService
         if (activationArgs is AppActivationArguments { Kind: ExtendedActivationKind.StartupTask })
             activateWindow = !await _localSettingsService.ReadSettingAsync<bool>(KeyValues.MinToTrayWhenAutoStart);
         if (activateWindow) App.SetWindowMode(WindowMode.Normal);
-        if (IsRestart() == false) _pvnService.Startup();
-        if (IsRestart() == false) await _updateService.UpdateSettingsBadgeAsync();
+        if (IsRestart() == false)
+        {
+            _pvnService.Startup();
+            await _localSettingsService.StartupAsync();
+            await _updateService.UpdateSettingsBadgeAsync();
+        }
         await _appCenterService.StartAsync();
         if(IsRestart() == false) await _bgmOAuthService.Init();
         await CheckFont();

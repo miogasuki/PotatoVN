@@ -174,6 +174,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         CloseMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.CloseMode).Result;
         DevelopmentMode = _localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result;
         _isBetaChannel = _localSettingsService.ReadSettingAsync<bool>(KeyValues.IsBetaChannel).Result;
+        _isAutoExportEnabled = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoExport).Result;
+        _autoExportInterval = _localSettingsService.ReadSettingAsync<double>(KeyValues.AutoExportInterval).Result;
+        _autoExportPath = _localSettingsService.ReadSettingAsync<string>(KeyValues.AutoExportPath).Result ?? Empty;
+        _lastExportTime = _localSettingsService.ReadSettingAsync<DateTime>(KeyValues.LastExportTime).Result;
+        _maxBackupNumber = _localSettingsService.ReadSettingAsync<int?>(KeyValues.MaxBackupNumber).Result ?? 999;
+        UpdateAutoExportDescriptions();
         List<string> extensionsList = _localSettingsService.ReadSettingAsync<List<string>>(KeyValues.CustomTextFileExtensions).Result ?? [];
         _customTextFileExtensionsString = Join(", ", extensionsList);
         
@@ -917,6 +923,13 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private WindowMode _closeMode;
     [ObservableProperty] private bool _developmentMode;
     [ObservableProperty] private bool _isBetaChannel;
+    [ObservableProperty] private bool _isAutoExportEnabled;
+    [ObservableProperty] private double _autoExportInterval;
+    [ObservableProperty] private string _autoExportIntervalDescription = string.Empty;
+    [ObservableProperty] private string _autoExportPathDescription = string.Empty;
+    [ObservableProperty] private int _maxBackupNumber;
+    private string _autoExportPath;
+    private DateTime _lastExportTime;
     public bool IsSideloadVersion => !App.IsStoreVersion();
     public readonly WindowMode[] WindowModes;
     
@@ -932,6 +945,59 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         _localSettingsService.SaveSettingAsync(KeyValues.IsBetaChannel, value);
         _infoService.Info(InfoBarSeverity.Success, msg: "SettingsPage_Other_BetaChannel_Success".GetLocalized());
+    }
+
+    async partial void OnIsAutoExportEnabledChanged(bool value)
+    {
+        try
+        {
+            if (!value) return;
+            if (IsNullOrEmpty(_autoExportPath) || !Directory.Exists(_autoExportPath))
+            {
+                _infoService.Info(InfoBarSeverity.Error, msg: "SettingsPage_Other_AutoExport_PathInvalid".GetLocalized());
+                IsAutoExportEnabled = false;
+                return;
+            }
+            await _localSettingsService.SaveSettingAsync(KeyValues.AutoExport, value);
+            _infoService.Info(InfoBarSeverity.Success, msg: "SettingSuccess".GetLocalized() + ", " + "RestartRequired".GetLocalized());
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
+    }
+
+    partial void OnAutoExportIntervalChanged(double value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.AutoExportInterval, value);
+        UpdateAutoExportDescriptions();
+    }
+
+    partial void OnMaxBackupNumberChanged(int value) => _localSettingsService.SaveSettingAsync(KeyValues.MaxBackupNumber, value);
+
+    private void UpdateAutoExportDescriptions()
+    {
+        AutoExportIntervalDescription = "SettingsPage_Other_AutoExport_Interval_Description".GetLocalized(_lastExportTime);
+        AutoExportPathDescription = IsNullOrEmpty(_autoExportPath)
+            ? "SettingsPage_Other_AutoExport_Path_NotSet".GetLocalized()
+            : "SettingsPage_Other_AutoExport_Path_Description".GetLocalized(_autoExportPath);
+    }
+
+    [RelayCommand]
+    private async Task SelectAutoExportPath()
+    {
+        FolderPicker openPicker = new();
+        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
+        openPicker.SuggestedStartLocation = PickerLocationId.HomeGroup;
+        openPicker.FileTypeFilter.Add("*");
+        StorageFolder? folder = await openPicker.PickSingleFolderAsync();
+        if (folder is not null)
+        {
+            _autoExportPath = folder.Path;
+            UpdateAutoExportDescriptions();
+            await _localSettingsService.SaveSettingAsync(KeyValues.AutoExportPath, _autoExportPath);
+            _infoService.Info(InfoBarSeverity.Success, "SettingSuccess".GetLocalized());
+        }
     }
 
     [RelayCommand]

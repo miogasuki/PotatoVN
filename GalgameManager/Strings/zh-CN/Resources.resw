@@ -3799,4 +3799,40 @@
   <data name="GalgameFolder_GetGalInFolder_SkippedByDontScanPaths" xml:space="preserve">
     <value>这是被忽略扫描的路径</value>
   </data>
+  <data name="SettingsPage_Other_AutoExport.Title" xml:space="preserve">
+    <value>自动导出数据</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport.Description" xml:space="preserve">
+    <value>定期自动导出数据备份包</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Interval.Title" xml:space="preserve">
+    <value>导出时间间隔</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Interval_Description" xml:space="preserve">
+    <value>每两次自动导出间相隔的小时数，上次导出时间为：{0}</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Path.Title" xml:space="preserve">
+    <value>导出路径</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Path_Description" xml:space="preserve">
+    <value>导出路径: {0}</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Path_NotSet" xml:space="preserve">
+    <value>尚未设置自动导出路径</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Path_Button.Content" xml:space="preserve">
+    <value>选择导出位置</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_PathInvalid" xml:space="preserve">
+    <value>导出路径不合法，请重新设置</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_MaxBackupNumber.Title" xml:space="preserve">
+    <value>最大备份数</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_MaxBackupNumber.Description" xml:space="preserve">
+    <value>当达到上限的时候，软件会删掉最老的备份，再新增备份</value>
+  </data>
+  <data name="RestartRequired" xml:space="preserve">
+    <value>该设置重启后生效~</value>
+  </data>
 </root>

@@ -53,6 +53,7 @@ public class ExportTask (string targetPath) : BgTaskBase
             // 压缩
             ChangeProgress(0, 1, "ExportTask_Compressing".GetLocalized());
             ZipFile.CreateFromDirectory(tmp.Path, OutputFilePath, CompressionLevel.Optimal, false);
+            await _settingService.SaveSettingAsync(KeyValues.LastExportTime, DateTime.Now);
         }
         finally
         {

@@ -4,6 +4,7 @@ using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
+using GalgameManager.ViewModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.UI.Xaml.Controls;
 using Newtonsoft.Json.Linq;
@@ -37,7 +38,26 @@ public class BgmOAuthService : IBgmOAuthService
         
         BgmAccount? account = await _localSettingsService.ReadSettingAsync<BgmAccount>(KeyValues.BangumiAccount);
         if (account is not null && DateTime.Now >= account.NextRefresh)
-            _ = Task.Run(RefreshAccountAsync);
+        {
+            // Try to refresh the token and check if it's valid
+            bool refreshSuccess = await RefreshAccountAsync();
+            
+            // If refresh failed and account has a refresh token, it means the refresh token is invalid/expired
+            if (!refreshSuccess && !string.IsNullOrEmpty(account.BangumiRefreshToken))
+            {
+                // Notify user that they need to logout and login again
+                _infoService.Event(EventType.BgmOAuthEvent, InfoBarSeverity.Warning,
+                    "BgmOAuthService_TokenExpired".GetLocalized(),
+                    msg: "BgmOAuthService_TokenExpired".GetLocalized(),
+                    callbackAction: () =>
+                    {
+                        // Navigate to account page when button is clicked
+                        var navigationService = App.GetService<INavigationService>();
+                        navigationService?.NavigateTo(typeof(AccountViewModel).FullName!);
+                    },
+                    callbackButtonText: "BgmOAuthService_TokenExpired_Action".GetLocalized());
+            }
+        }
     }
 
     /// <summary>

@@ -1597,6 +1597,12 @@
   <data name="BgmOAuthService_FetchTokenFailed" xml:space="preserve">
     <value>Bangumiトークンの取得に失敗しました</value>
   </data>
+  <data name="BgmOAuthService_TokenExpired" xml:space="preserve">
+    <value>Bangumiログインの有効期限が切れています。再度ログインしてください</value>
+  </data>
+  <data name="BgmOAuthService_TokenExpired_Action" xml:space="preserve">
+    <value>アカウントページへ</value>
+  </data>
   <data name="BgmOAuthStatus_FetchingTokenInfo" xml:space="preserve">
     <value>Bangumiトークン情報を取得中</value>
   </data>

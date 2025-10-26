@@ -1597,6 +1597,12 @@ If play time can record correctly, just cancel this popup.
   <data name="BgmOAuthService_FetchTokenFailed" xml:space="preserve">
     <value>Failed to fetch Bangumi Token.</value>
   </data>
+  <data name="BgmOAuthService_TokenExpired" xml:space="preserve">
+    <value>Bangumi login has expired, please login again</value>
+  </data>
+  <data name="BgmOAuthService_TokenExpired_Action" xml:space="preserve">
+    <value>Go to Account Page</value>
+  </data>
   <data name="BgmOAuthStatus_FetchingTokenInfo" xml:space="preserve">
     <value>Fetching Bangumi Token information.</value>
   </data>

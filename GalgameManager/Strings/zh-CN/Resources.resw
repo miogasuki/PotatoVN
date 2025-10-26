@@ -1703,6 +1703,12 @@
   <data name="BgmOAuthService_FetchTokenFailed" xml:space="preserve">
     <value>获取Bangumi Token失败</value>
   </data>
+  <data name="BgmOAuthService_TokenExpired" xml:space="preserve">
+    <value>Bangumi登录已过期，请重新登录</value>
+  </data>
+  <data name="BgmOAuthService_TokenExpired_Action" xml:space="preserve">
+    <value>前往账户页面</value>
+  </data>
   <data name="BgmOAuthStatus_FetchingTokenInfo" xml:space="preserve">
     <value>获取Bangumi Token信息中</value>
   </data>

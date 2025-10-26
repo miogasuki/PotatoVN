@@ -37,25 +37,29 @@ public class BgmOAuthService : IBgmOAuthService
         await Upgrade();
         
         BgmAccount? account = await _localSettingsService.ReadSettingAsync<BgmAccount>(KeyValues.BangumiAccount);
-        if (account is not null && DateTime.Now >= account.NextRefresh)
+        if (account is not null && !string.IsNullOrEmpty(account.BangumiRefreshToken))
         {
-            // Try to refresh the token and check if it's valid
-            bool refreshSuccess = await RefreshAccountAsync();
-            
-            // If refresh failed and account has a refresh token, it means the refresh token is invalid/expired
-            if (!refreshSuccess && !string.IsNullOrEmpty(account.BangumiRefreshToken))
+            // Check if it's time to refresh OR if the access token might be expired
+            if (DateTime.Now >= account.NextRefresh || DateTime.Now >= account.Expires)
             {
-                // Notify user that they need to logout and login again
-                _infoService.Event(EventType.BgmOAuthEvent, InfoBarSeverity.Warning,
-                    "BgmOAuthService_TokenExpired".GetLocalized(),
-                    msg: "BgmOAuthService_TokenExpired".GetLocalized(),
-                    callbackAction: () =>
-                    {
-                        // Navigate to account page when button is clicked
-                        var navigationService = App.GetService<INavigationService>();
-                        navigationService?.NavigateTo(typeof(AccountViewModel).FullName!);
-                    },
-                    callbackButtonText: "BgmOAuthService_TokenExpired_Action".GetLocalized());
+                // Try to refresh the token and check if it's valid
+                bool refreshSuccess = await RefreshAccountAsync();
+                
+                // If refresh failed, it means the refresh token is invalid/expired
+                if (!refreshSuccess)
+                {
+                    // Notify user that they need to logout and login again
+                    _infoService.Event(EventType.BgmOAuthEvent, InfoBarSeverity.Warning,
+                        "BgmOAuthService_TokenExpired".GetLocalized(),
+                        msg: "BgmOAuthService_TokenExpired".GetLocalized(),
+                        callbackAction: () =>
+                        {
+                            // Navigate to account page when button is clicked
+                            var navigationService = App.GetService<INavigationService>();
+                            navigationService?.NavigateTo(typeof(AccountViewModel).FullName!);
+                        },
+                        callbackButtonText: "BgmOAuthService_TokenExpired_Action".GetLocalized());
+                }
             }
         }
     }

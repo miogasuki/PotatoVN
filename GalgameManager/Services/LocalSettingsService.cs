@@ -436,14 +436,26 @@ public class LocalSettingsService : ILocalSettingsService
         return tmp;
     }
 
-    public async Task<string> BackupFailedDataAsync()
+    public async Task<string> BackupFailedDataAsync(bool removeAfterBackup = false)
     {
         DirectoryInfo failedFolder = TemporaryFolder.CreateSubdirectory(FailDataFolderName);
         await Task.Run(() =>
         {
             failedFolder.Delete(true);
-            // 把LocalFolder所有内容移动至FailData文件夹
-            Directory.Move(LocalFolder.FullName, failedFolder.FullName);
+            try
+            {
+                // 把LocalFolder所有内容移动至FailData文件夹
+                FolderOperations.CopyEx(LocalFolder.FullName, failedFolder.FullName, allowDecrypted: true);
+            }
+            catch (Exception e)
+            {
+                App.GetService<IInfoService>().DeveloperEvent(e: e);
+            }
+            if (removeAfterBackup)
+            {
+                LocalFolder.Delete(true);
+                LocalFolder.Create();
+            }
         });
         return failedFolder.FullName;
     }

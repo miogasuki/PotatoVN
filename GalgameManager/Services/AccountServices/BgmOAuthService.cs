@@ -40,7 +40,8 @@ public class BgmOAuthService : IBgmOAuthService
         if (account is not null && !string.IsNullOrEmpty(account.BangumiRefreshToken))
         {
             // Check if it's time to refresh OR if the access token might be expired
-            if (DateTime.Now >= account.NextRefresh || DateTime.Now >= account.Expires)
+            var now = DateTime.Now;
+            if (now >= account.NextRefresh || now >= account.Expires)
             {
                 // Try to refresh the token and check if it's valid
                 bool refreshSuccess = await RefreshAccountAsync();

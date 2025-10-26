@@ -71,9 +71,16 @@ public class LocalSettingsService : ILocalSettingsService
         await UpgradeSaveFormat();
         foreach(var path in Directory.GetFiles(_applicationDataFolder, "data.*.json"))
         {
-            var key = Path.GetFileName(path)[5..^5];
-            var content = await File.ReadAllTextAsync(path);
-            _settings[key] = content; // 第一次读取时再反序列化
+            try
+            {
+                var key = Path.GetFileName(path)[5..^5];
+                var content = await File.ReadAllTextAsync(path);
+                _settings[key] = content; // 第一次读取时再反序列化
+            }
+            catch (Exception e)
+            {
+                App.GetService<IInfoService>().DeveloperEvent(e: e);
+            }
         }
         _isInitialized = true;
     }

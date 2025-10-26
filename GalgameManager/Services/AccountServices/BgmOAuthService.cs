@@ -52,7 +52,6 @@ public class BgmOAuthService : IBgmOAuthService
                     // Notify user that they need to logout and login again
                     _infoService.Event(EventType.BgmOAuthEvent, InfoBarSeverity.Warning,
                         "BgmOAuthService_TokenExpired".GetLocalized(),
-                        msg: "BgmOAuthService_TokenExpired".GetLocalized(),
                         callbackAction: () =>
                         {
                             // Navigate to account page when button is clicked

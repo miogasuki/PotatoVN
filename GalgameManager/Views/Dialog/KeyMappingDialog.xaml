@@ -1,0 +1,114 @@
+<ContentDialog
+    x:Class="GalgameManager.Views.Dialog.KeyMappingDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:GalgameManager.Models"
+    xmlns:control="using:GalgameManager.Views.Control"
+    xmlns:converter="using:GalgameManager.Helpers.Converter"
+    mc:Ignorable="d"
+    x:Name="dialog"
+    Title="按键映射设置"
+    PrimaryButtonText="关闭"
+    DefaultButton="Primary">
+
+    <ContentDialog.Resources>
+        <converter:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </ContentDialog.Resources>
+
+    <StackPanel Spacing="10">
+        <!-- 使用ItemsControl实现真正的表格布局 -->
+        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 表头 -->
+                <Grid Grid.Row="0" Background="#FFF5F5F5" Padding="8,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" /> <!-- Remark + Global indicator -->
+                        <ColumnDefinition Width="1*" /> <!-- From -->
+                        <ColumnDefinition Width="1*" /> <!-- To -->
+                        <ColumnDefinition Width="Auto" /> <!-- IsEnabled -->
+                        <ColumnDefinition Width="Auto" /> <!-- Delete -->
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="说明" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="设置按键" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2" Text="游戏中按键" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Text="开关" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Text="删除" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Grid>
+
+                <!-- 表内容 -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300">
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.KeyMappings, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:KeyMapping">
+                                <Grid>
+                                    <!-- 全局快捷键的红色角标 -->
+                                    <Path Data="M 0,0 L 20,0 L 0,20 Z"
+                                          Fill="#FF0000"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Top"
+                                          Visibility="{x:Bind IsGlobal, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                    <!-- 内容区域 -->
+                                    <Border BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1" Padding="10,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" /> <!-- Remark + Global indicator -->
+                                                <ColumnDefinition Width="1*" /> <!-- From -->
+                                                <ColumnDefinition Width="1*" /> <!-- To -->
+                                                <ColumnDefinition Width="Auto"/> <!-- IsEnabled -->
+                                                <ColumnDefinition Width="Auto"/> <!-- Delete -->
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="5">
+                                                <TextBox Text="{x:Bind Remark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}"
+                                                         VerticalAlignment="Center" MinWidth="150" BorderThickness="1"/>
+                                            </StackPanel>
+                                        <control:FlexibleHotkeyInputBox Grid.Column="1"
+                                                                     HotkeyKeys="{x:Bind From, Mode=TwoWay}"
+                                                                     IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}"
+                                                                     Margin="5,0,0,0"/>
+                                        <control:FlexibleHotkeyInputBox Grid.Column="2"
+                                                                     HotkeyKeys="{x:Bind To, Mode=TwoWay}"
+                                                                     Margin="5,0,0,0"/>
+                                        <ToggleSwitch Grid.Column="3"
+                                                    IsOn="{x:Bind IsEnabled, Mode=TwoWay}"
+                                                    VerticalAlignment="Center"
+                                                    Margin="10,0,0,0"
+                                                    HorizontalAlignment="Center"/>
+                                        <Button Grid.Column="4"
+                                              Command="{Binding ViewModel.RemoveKeyMappingCommand, ElementName=dialog}"
+                                              CommandParameter="{x:Bind}"
+                                              VerticalAlignment="Center"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              Margin="10,0,0,0"
+                                              HorizontalAlignment="Center"
+                                              IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" />
+                                        </Button>
+                                    </Grid>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <Button Command="{x:Bind ViewModel.AddKeyMappingCommand}" HorizontalAlignment="Stretch" Margin="0,10,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <SymbolIcon Symbol="Add"/>
+                <TextBlock x:Uid="GalgameSettingPage_AddKeyMapping" Text="添加新映射"/>
+            </StackPanel>
+        </Button>
+    </StackPanel>
+</ContentDialog>

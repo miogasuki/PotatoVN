@@ -1,5 +1,6 @@
 ﻿<Page
     x:Class="GalgameManager.Views.GalgameSettingPage"
+    x:Name="page"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,6 +10,7 @@
     xmlns:cmtkControls="using:CommunityToolkit.WinUI.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:models="using:GalgameManager.Models"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -99,6 +101,18 @@
                                     <ToggleSwitch Grid.Column="2"
                                                   IsOn="{x:Bind ViewModel.Gal.MuteInBackground, Mode=TwoWay}"/>
                                 </Grid>
+                            </control:Panel>
+                            <!-- 按键映射 -->
+                            <control:Panel>
+                                <control:Setting x:Uid="GalgameSettingPage_KeyMappings">
+                                    <HyperlinkButton Command="{x:Bind ViewModel.OpenKeyMappingDialogCommand}"
+                                                     VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <SymbolIcon Symbol="Edit" />
+                                            <TextBlock x:Uid="GalgameSettingPage_KeyReMapEdit" />
+                                        </StackPanel>
+                                    </HyperlinkButton>
+                                </control:Setting>
                             </control:Panel>
                             <!-- 存档位置（尚未做完，隐藏） -->
                             <control:Panel Visibility="Collapsed">

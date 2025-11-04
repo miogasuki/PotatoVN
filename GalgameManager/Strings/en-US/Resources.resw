@@ -1711,6 +1711,15 @@ If play time can record correctly, just cancel this popup.
   <data name="RecordPlayTimeTask_Done" xml:space="preserve">
     <value>This session's play time for {0}: {1}</value>
   </data>
+  <data name="KeyMappingTask_Title" xml:space="preserve">
+    <value>Key Mapping Task</value>
+  </data>
+  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
+    <value>Applying key mapping for game {0}</value>
+  </data>
+  <data name="KeyMappingTask_Done" xml:space="preserve">
+    <value>Key mapping task finished</value>
+  </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Title" xml:space="preserve">
     <value>Copy Game Task</value>
   </data>
@@ -2991,6 +3000,15 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="Settings_Game_MuteInBackground.Text" xml:space="preserve">
     <value>Mute game when in background</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
+    <value>Key Mappings</value>
+  </data>
+  <data name="GalgameSettingPage_KeyReMapEdit.Text" xml:space="preserve">
+    <value>Key Mappings</value>
+  </data>
+  <data name="GalgameSettingPage_AddKeyMapping" xml:space="preserve">
+    <value>Add new mapping</value>
   </data>
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>Mute in background</value>

@@ -1820,6 +1820,15 @@
   <data name="RecordPlayTimeTask_Done" xml:space="preserve">
     <value>本次游玩 {0} 时长：{1}</value>
   </data>
+  <data name="KeyMappingTask_Title" xml:space="preserve">
+    <value>按键映射任务</value>
+  </data>
+  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
+    <value>正在为游戏 {0} 进行按键映射</value>
+  </data>
+  <data name="KeyMappingTask_Done" xml:space="preserve">
+    <value>按键映射任务已结束</value>
+  </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Title" xml:space="preserve">
     <value>复制游戏任务</value>
   </data>
@@ -3189,10 +3198,22 @@
     <value>日本語</value>
   </data>
   <data name="Settings_Game_MuteInBackground.Text" xml:space="preserve">
-    <value>后台时静音游戏</value>
+    <value>游戏在后台时静音</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
+    <value>编辑按键映射</value>
+  </data>
+  <data name="GalgameSettingPage_KeyReMapEdit.Text" xml:space="preserve">
+    <value>编辑按键映射</value>
+  </data>
+  <data name="GalgameSettingPage_AddKeyMapping" xml:space="preserve">
+    <value>添加新映射</value>
   </data>
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>后台静音</value>
+  </data>
+  <data name="GamePage_KeyReMap.Label" xml:space="preserve">
+    <value>快捷键映射</value>
   </data>
   <data name="GamePage_MuteInBackground.ToolTipService.ToolTip" xml:space="preserve">
     <value>在游戏处于后台运行时时静音游戏</value>
@@ -3202,6 +3223,12 @@
   </data>
   <data name="Settings_Game_AlwaysMuteInBackground.Description" xml:space="preserve">
     <value>覆盖单独的游戏设置。如果启用，所有游戏都将在后台时静音。</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>启动游戏快捷键映射</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>游戏快捷键映射总开关。</value>
   </data>
   <data name="GameMuteTask_Muted" xml:space="preserve">
     <value>已静音游戏：{0}</value>

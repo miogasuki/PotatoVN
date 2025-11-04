@@ -10,7 +10,9 @@ using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.Converter;
 using GalgameManager.Models;
+using System.Collections.ObjectModel;
 using GalgameManager.Services;
+using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -37,6 +39,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [ObservableProperty] private string _parsingMsg = string.Empty;
     [ObservableProperty] private RssType _selectedRss = RssType.None;
     [ObservableProperty] private string _galgameInfoDescription = string.Empty;
+    [ObservableProperty] private ObservableCollection<KeyMapping> _keyMappings = new();
     [ObservableProperty] private DateTimeOffset _releasedDate; //包一层的原因：CalendarDatePicker的Date为DateTimeOffset（而非datetime）
     [ObservableProperty] private double _tagWidth = 20; //没法设置Expander为Stretch，故暂直接设置宽度
     public string LocalPathMsg => Gal.LocalPath ?? "GalgameSettingPage_NotLocalGame".GetLocalized();
@@ -65,6 +68,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
     public async void OnNavigatedFrom()
     {
+        Gal.KeyMappings = new List<KeyMapping>(KeyMappings);
         if (Gal.ImagePath.Value != Galgame.DefaultImagePath && !File.Exists(Gal.ImagePath.Value))
             Gal.ImagePath.Value = Galgame.DefaultImagePath;
         await _galService.SaveGalgameAsync(Gal);
@@ -74,30 +78,37 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         _bus.Unregister<GalgameParsingEventArgs>(this);
     }
 
-    public void OnNavigatedTo(object parameter)
-    {
-        if (parameter is not Galgame galgame)
+        public async void OnNavigatedTo(object parameter)
         {
-            return;
+            if (parameter is not Galgame galgame)
+            {
+                return;
+            }
+    
+            Gal = galgame;
+            KeyMappings = new ObservableCollection<KeyMapping>(Gal.KeyMappings);
+            // 导入全局快捷键
+            var globalMappings = await GetGlobalKeyMappingsAsync();
+            foreach (var globalMapping in globalMappings)
+            {
+                AddGlobalKeyMapping(globalMapping);
+            }
+            
+            Gal.PropertyChanged += HandleGalPropertyChanged;
+            SelectedRss = Gal.RssType;
+            if (Gal.ReleaseDate.Value > DateTime.MinValue)
+                ReleasedDate = Gal.ReleaseDate.Value;
+            _galService.PhrasedEvent += Update;
+            _bus.Register(this);
+            Update();
         }
-
-        Gal = galgame;
-        Gal.PropertyChanged += HandleGalPropertyChanged;
-        SelectedRss = Gal.RssType;
-        if (Gal.ReleaseDate.Value > DateTime.MinValue)
-            ReleasedDate = Gal.ReleaseDate.Value;
-        _galService.PhrasedEvent += Update;
-        _bus.Register(this);
-        Update();
-    }
-
-    partial void OnSelectedRssChanged(RssType value)
-    {
-        Gal.RssType = value;
-        if (!string.IsNullOrEmpty(_searchUrlList[(int)value]))
-            SearchUri = _searchUrlList[(int)value] + Gal.Name.Value;
-    }
-
+    
+        partial void OnSelectedRssChanged(RssType value)
+        {
+            Gal.RssType = value;
+            if (!string.IsNullOrEmpty(_searchUrlList[(int)value]))
+                SearchUri = _searchUrlList[(int)value] + Gal.Name.Value;
+        }
     [RelayCommand]
     private void OnBack()
     {
@@ -261,5 +272,76 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     {
         if (message.Galgame.Uuid != Gal.Uuid) return;
         UiThreadInvokeHelper.Invoke(() => ParsingMsg = message.Message);
+    }
+
+    [RelayCommand]
+    private async Task OpenKeyMappingDialog()
+    {
+        KeyMappingDialog dialog = new(this)
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default
+        };
+        await dialog.ShowAsync();
+    }
+
+  
+    /// <summary>
+    /// 检查全局快捷键是否已存在于当前快捷键列表中
+    /// </summary>
+    /// <param name="globalMapping">要检查的全局快捷键</param>
+    /// <returns>如果不存在返回true，存在返回false</returns>
+    private bool IsGlobalKeyMappingNotExists(KeyMapping globalMapping)
+    {
+        return globalMapping.From != null && KeyMappings.All(k => k.From == null || !k.From.SequenceEqual(globalMapping.From));
+    }
+
+    /// <summary>
+    /// 从全局设置中获取所有全局快捷键
+    /// </summary>
+    /// <returns>全局快捷键列表</returns>
+    private async Task<List<KeyMapping>> GetGlobalKeyMappingsAsync()
+    {
+        try
+        {
+            return await _settingsService.ReadSettingAsync<List<KeyMapping>>(KeyValues.GlobalKeyMappings) ?? new();
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+            return new List<KeyMapping>();
+        }
+    }
+
+    /// <summary>
+    /// 添加全局快捷键到当前游戏
+    /// </summary>
+    /// <param name="globalMapping">要添加的全局快捷键</param>
+    private void AddGlobalKeyMapping(KeyMapping globalMapping)
+    {
+        if (IsGlobalKeyMappingNotExists(globalMapping))
+        {
+            KeyMappings.Add(new KeyMapping
+            {
+                From = new List<int>(globalMapping.From),
+                Remark = globalMapping.Remark,
+                IsGlobal = true
+            });
+        }
+    }
+
+    [RelayCommand]
+    private void AddKeyMapping()
+    {
+        KeyMappings.Add(new KeyMapping { IsGlobal = false });
+    }
+
+    [RelayCommand]
+    private void RemoveKeyMapping(KeyMapping? mapping)
+    {
+        if (mapping != null)
+        {
+            KeyMappings.Remove(mapping);
+        }
     }
 }

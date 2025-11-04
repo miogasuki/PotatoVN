@@ -121,6 +121,14 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEA8F;" /> <!-- Mute icon -->
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
+                    <!-- 快捷键映射 -->
+                    <AppBarToggleButton x:Uid="GamePage_KeyReMap"
+                                        IsChecked="{x:Bind ViewModel.Item.KeyReMap, Mode=TwoWay, FallbackValue=False}"
+                                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE765;" /> <!-- KeyBoard icon -->
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
                     <AppBarSeparator/>
                     <!-- 在BGM中打开 -->
                     <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}" 

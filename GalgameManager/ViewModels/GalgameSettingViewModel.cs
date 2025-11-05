@@ -84,16 +84,31 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             {
                 return;
             }
-    
+
             Gal = galgame;
-            KeyMappings = new ObservableCollection<KeyMapping>(Gal.KeyMappings);
-            // 导入全局快捷键
+            KeyMappings = new ObservableCollection<KeyMapping>();
+
+            // 先导入全局快捷键到最前面
             var globalMappings = await GetGlobalKeyMappingsAsync();
             foreach (var globalMapping in globalMappings)
             {
-                AddGlobalKeyMapping(globalMapping);
+                if (IsGlobalKeyMappingNotExists(globalMapping))
+                {
+                    KeyMappings.Add(new KeyMapping
+                    {
+                        From = new List<int>(globalMapping.From),
+                        Remark = globalMapping.Remark,
+                        IsGlobal = true
+                    });
+                }
             }
-            
+
+            // 再添加游戏自己的快捷键
+            foreach (var localMapping in Gal.KeyMappings.Where(k => !k.IsGlobal))
+            {
+                KeyMappings.Add(localMapping);
+            }
+
             Gal.PropertyChanged += HandleGalPropertyChanged;
             SelectedRss = Gal.RssType;
             if (Gal.ReleaseDate.Value > DateTime.MinValue)
@@ -313,23 +328,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         }
     }
 
-    /// <summary>
-    /// 添加全局快捷键到当前游戏
-    /// </summary>
-    /// <param name="globalMapping">要添加的全局快捷键</param>
-    private void AddGlobalKeyMapping(KeyMapping globalMapping)
-    {
-        if (IsGlobalKeyMappingNotExists(globalMapping))
-        {
-            KeyMappings.Add(new KeyMapping
-            {
-                From = new List<int>(globalMapping.From),
-                Remark = globalMapping.Remark,
-                IsGlobal = true
-            });
-        }
-    }
-
+    
     [RelayCommand]
     private void AddKeyMapping()
     {

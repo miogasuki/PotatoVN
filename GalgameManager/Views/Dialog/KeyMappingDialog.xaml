@@ -7,6 +7,7 @@
     xmlns:models="using:GalgameManager.Models"
     xmlns:control="using:GalgameManager.Views.Control"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
     x:Name="dialog"
     Title="按键映射设置"
@@ -19,34 +20,31 @@
     </ContentDialog.Resources>
 
     <StackPanel Spacing="10">
-        <!-- 使用ItemsControl实现真正的表格布局 -->
+        <!-- 使用DataGrid实现表格布局 -->
         <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <controls:DataGrid x:Name="KeyMappingsDataGrid"
+                      ItemsSource="{x:Bind ViewModel.KeyMappings, Mode=OneWay}"
+                      AutoGenerateColumns="False"
+                      CanUserReorderColumns="False"
+                      CanUserResizeColumns="False"
+                      CanUserSortColumns="False"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#FFE0E0E0"
+                      VerticalGridLinesBrush="Transparent"
+                      HeadersVisibility="Column"
+                      MaxHeight="400"
+                      MinHeight="200"
+                      VerticalScrollBarVisibility="Auto"
+                      Background="White"
+                      HorizontalAlignment="Stretch"
+                      BorderThickness="0"
+                      Padding="0"
+                      MinWidth="600">
 
-                <!-- 表头 -->
-                <Grid Grid.Row="0" Background="#FFF5F5F5" Padding="8,8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" /> <!-- Remark + Global indicator -->
-                        <ColumnDefinition Width="1*" /> <!-- From -->
-                        <ColumnDefinition Width="1*" /> <!-- To -->
-                        <ColumnDefinition Width="Auto" /> <!-- IsEnabled -->
-                        <ColumnDefinition Width="Auto" /> <!-- Delete -->
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="说明" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Text="设置按键" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="2" Text="游戏中按键" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="3" Text="开关" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="4" Text="删除" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                </Grid>
-
-                <!-- 表内容 -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300">
-                    <ItemsControl ItemsSource="{x:Bind ViewModel.KeyMappings, Mode=OneWay}">
-                        <ItemsControl.ItemTemplate>
+                <controls:DataGrid.Columns>
+                    <!-- 说明列 -->
+                    <controls:DataGridTemplateColumn Header="说明" Width="*" CanUserResize="True">
+                        <controls:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="models:KeyMapping">
                                 <Grid>
                                     <!-- 全局快捷键的红色角标 -->
@@ -55,53 +53,71 @@
                                           HorizontalAlignment="Left"
                                           VerticalAlignment="Top"
                                           Visibility="{x:Bind IsGlobal, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                    <!-- 内容区域 -->
-                                    <Border BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1" Padding="10,8">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" /> <!-- Remark + Global indicator -->
-                                                <ColumnDefinition Width="1*" /> <!-- From -->
-                                                <ColumnDefinition Width="1*" /> <!-- To -->
-                                                <ColumnDefinition Width="Auto"/> <!-- IsEnabled -->
-                                                <ColumnDefinition Width="Auto"/> <!-- Delete -->
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="5">
-                                                <TextBox Text="{x:Bind Remark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                         IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}"
-                                                         VerticalAlignment="Center" MinWidth="150" BorderThickness="1"/>
-                                            </StackPanel>
-                                        <control:FlexibleHotkeyInputBox Grid.Column="1"
-                                                                     HotkeyKeys="{x:Bind From, Mode=TwoWay}"
-                                                                     IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}"
-                                                                     Margin="5,0,0,0"/>
-                                        <control:FlexibleHotkeyInputBox Grid.Column="2"
-                                                                     HotkeyKeys="{x:Bind To, Mode=TwoWay}"
-                                                                     Margin="5,0,0,0"/>
-                                        <ToggleSwitch Grid.Column="3"
-                                                    IsOn="{x:Bind IsEnabled, Mode=TwoWay}"
-                                                    VerticalAlignment="Center"
-                                                    Margin="10,0,0,0"
-                                                    HorizontalAlignment="Center"/>
-                                        <Button Grid.Column="4"
-                                              Command="{Binding ViewModel.RemoveKeyMappingCommand, ElementName=dialog}"
-                                              CommandParameter="{x:Bind}"
-                                              VerticalAlignment="Center"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              Margin="10,0,0,0"
-                                              HorizontalAlignment="Center"
-                                              IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" />
-                                        </Button>
-                                    </Grid>
-                                    </Border>
+                                    <TextBox Text="{x:Bind Remark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                           IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}"
+                                           VerticalAlignment="Center" MinWidth="150" BorderThickness="1"
+                                           Margin="5"
+                                           BorderBrush="{ThemeResource TextControlBorderBrush}"
+                                           Background="{ThemeResource TextControlBackground}"/>
                                 </Grid>
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+
+                    <!-- 设置按键列 -->
+                    <controls:DataGridTemplateColumn Header="设置按键" Width="1*" CanUserResize="False">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:KeyMapping">
+                                <control:FlexibleHotkeyInputBox HotkeyKeys="{x:Bind From, Mode=TwoWay}"
+                                                               IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}"
+                                                               Margin="5"/>
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+
+                    <!-- 游戏中按键列 -->
+                    <controls:DataGridTemplateColumn Header="游戏中按键" Width="1*" CanUserResize="False">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:KeyMapping">
+                                <control:FlexibleHotkeyInputBox HotkeyKeys="{x:Bind To, Mode=TwoWay}"
+                                                               Margin="5"/>
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+
+                    <!-- 开关列 -->
+                    <controls:DataGridTemplateColumn Header="开关" Width="Auto" CanUserResize="False" MinWidth="60">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:KeyMapping">
+                                <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Margin="5,2"
+                                            MinWidth="0"/>
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+
+                    <!-- 删除列 -->
+                    <controls:DataGridTemplateColumn Header="删除" Width="Auto" CanUserResize="False" MinWidth="50">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:KeyMapping">
+                                <Button Click="DeleteButton_Click"
+                                      Tag="{x:Bind}"
+                                      VerticalAlignment="Center"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      HorizontalAlignment="Center"
+                                      Padding="3"
+                                      Width="30" Height="30"
+                                      IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}">
+                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="14"/>
+                                </Button>
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                </controls:DataGrid.Columns>
+            </controls:DataGrid>
         </Border>
 
         <Button Command="{x:Bind ViewModel.AddKeyMappingCommand}" HorizontalAlignment="Stretch" Margin="0,10,0,0">

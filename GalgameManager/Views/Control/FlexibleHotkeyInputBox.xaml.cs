@@ -15,16 +15,17 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
     private string _hotkeyDisplayText = "";
     private Visibility _showPlaceholder = Visibility.Visible;
     private Visibility _hideText = Visibility.Collapsed;
+    private Visibility _showInputButton = Visibility.Visible;
 
     public FlexibleHotkeyInputBox()
     {
         InitializeComponent();
-        UpdateButtonText();
+        UpdateDisplay();
     }
 
     public static readonly DependencyProperty PlaceholderTextProperty =
-        DependencyProperty.Register(nameof(PlaceholderText), typeof(string), typeof(FlexibleHotkeyInputBox), 
-            new PropertyMetadata("HotkeyInputBox_PlaceholderText".GetLocalized()));
+        DependencyProperty.Register(nameof(PlaceholderText), typeof(string), typeof(FlexibleHotkeyInputBox),
+            new PropertyMetadata(""));
 
     public string PlaceholderText
     {
@@ -90,6 +91,16 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
         }
     }
 
+    public Visibility ShowInputButton
+    {
+        get => _showInputButton;
+        private set
+        {
+            _showInputButton = value;
+            OnPropertyChanged();
+        }
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -132,13 +143,20 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
         }
     }
 
+    private void ClearButton_Click(object sender, RoutedEventArgs e)
+    {
+        HotkeyKeys = new List<int>();
+        OnHotkeyChanged();
+    }
+
     private void StartCapturing()
     {
         _isCapturing = true;
         _pressedKeys.Clear();
-        ButtonText = "HotkeyInputBox_StartCapturing".GetLocalized() ?? "请按下快捷键";
+        ButtonText = "请按下快捷键";
         ShowPlaceholder = Visibility.Collapsed;
         HideText = Visibility.Collapsed;
+        ShowInputButton = Visibility.Visible;
         InputButton.Focus(FocusState.Programmatic);
     }
 
@@ -172,22 +190,24 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
     {
         if (HotkeyKeys.Count == 0)
         {
-            ButtonText = "";
+            ButtonText = "点击设置";
             HotkeyDisplayText = "";
-            ShowPlaceholder = Visibility.Visible;
+            ShowPlaceholder = Visibility.Collapsed;
             HideText = Visibility.Collapsed;
+            ShowInputButton = Visibility.Visible;
         }
         else
         {
             IOrderedEnumerable<VirtualKey> keys = HotkeyKeys.Select(k => (VirtualKey)k).OrderBy(GetKeyOrder);
             var displayText = string.Join(" + ", keys.Select(GetKeyDisplayName));
-            
+
             if (_isCapturing)
             {
                 ButtonText = displayText;
                 HotkeyDisplayText = "";
                 ShowPlaceholder = Visibility.Collapsed;
                 HideText = Visibility.Collapsed;
+                ShowInputButton = Visibility.Visible;
             }
             else
             {
@@ -195,17 +215,8 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
                 HotkeyDisplayText = displayText;
                 ShowPlaceholder = Visibility.Collapsed;
                 HideText = Visibility.Visible;
+                ShowInputButton = Visibility.Collapsed;
             }
-        }
-        
-        UpdateButtonText();
-    }
-
-    private void UpdateButtonText()
-    {
-        if (!_isCapturing && (HotkeyKeys.Count == 0))
-        {
-            ButtonText = "HotkeyInputBox_ClickToSet".GetLocalized() ?? "点击设置快捷键";
         }
     }
 

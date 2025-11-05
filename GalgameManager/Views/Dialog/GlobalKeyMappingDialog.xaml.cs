@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Models;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
 
 namespace GalgameManager.Views.Dialog;
 
@@ -41,6 +42,12 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
     public GlobalKeyMappingDialog(IEnumerable<KeyMapping> mappings)
     {
         InitializeComponent();
+
+        // 设置对话框默认大小
+        this.XamlRoot = this.XamlRoot;
+        this.MinWidth = 600;
+        this.MinHeight = 300;
+
         Mappings = new ObservableCollection<KeyMapping>();
         foreach (var mapping in mappings)
         {
@@ -69,12 +76,19 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
         Mappings.Add(new KeyMapping { IsGlobal = true });
     }
 
-    [RelayCommand]
     private void RemoveMapping(KeyMapping? mapping)
     {
         if (mapping != null)
         {
             Mappings.Remove(mapping);
+        }
+    }
+
+    private void DeleteButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.Tag is KeyMapping mapping)
+        {
+            RemoveMapping(mapping);
         }
     }
     

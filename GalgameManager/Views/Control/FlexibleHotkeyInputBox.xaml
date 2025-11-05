@@ -13,20 +13,42 @@
             MinHeight="32"
             Padding="11,5,11,6">
         <Grid>
+            <!-- 占位符文本 -->
             <TextBlock x:Name="PlaceholderTextBlock"
                        Text="{x:Bind PlaceholderText, Mode=OneWay}"
                        Foreground="{ThemeResource TextControlPlaceholderForeground}"
                        Visibility="{x:Bind ShowPlaceholder, Mode=OneWay}"
                        VerticalAlignment="Center"
                        IsHitTestVisible="False" />
-                       
-            <TextBlock x:Name="HotkeyDisplayTextBlock"
-                       Text="{x:Bind HotkeyDisplayText, Mode=OneWay}"
-                       Foreground="{ThemeResource TextControlForeground}"
-                       Visibility="{x:Bind HideText, Mode=OneWay}"
-                       VerticalAlignment="Center"
-                       IsHitTestVisible="False" />
-                       
+
+            <!-- 显示按键的文本和清除按钮 -->
+            <Grid x:Name="DisplayGrid"
+                  Visibility="{x:Bind HideText, Mode=OneWay}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="HotkeyDisplayTextBlock"
+                           Grid.Column="0"
+                           Text="{x:Bind HotkeyDisplayText, Mode=OneWay}"
+                           Foreground="{ThemeResource TextControlForeground}"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False" />
+
+                <Button x:Name="ClearButton"
+                        Grid.Column="1"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="5,0"
+                        Margin="5,0,0,0"
+                        Click="ClearButton_Click"
+                        ToolTipService.ToolTip="清除快捷键">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="12" Foreground="{ThemeResource TextControlForeground}" />
+                </Button>
+            </Grid>
+
+            <!-- 输入按钮 - 在显示按键时隐藏 -->
             <Button x:Name="InputButton"
                     Background="Transparent"
                     BorderThickness="0"
@@ -38,7 +60,8 @@
                     Click="InputButton_Click"
                     KeyDown="InputButton_KeyDown"
                     LostFocus="InputButton_LostFocus"
-                    Content="{x:Bind ButtonText, Mode=OneWay}" />
+                    Content="{x:Bind ButtonText, Mode=OneWay}"
+                    Visibility="{x:Bind ShowInputButton, Mode=OneWay}" />
         </Grid>
     </Border>
 </UserControl>

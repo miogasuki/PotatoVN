@@ -18,16 +18,21 @@ public class KeyMappingTask : BgTaskBase
     public List<KeyMapping> KeyMappings { get; set; } = new();
 
     private Process? _process;
-    private nint _hookId = nint.Zero;
+    private nint _keyboardHookId = nint.Zero;
+    private nint _mouseHookId = nint.Zero;
     private readonly IInputSimulator _inputSimulator = new InputSimulator();
-    private readonly Dictionary<string, (List<VirtualKeyCode> modifiers, VirtualKeyCode key)> _lookupMap = new();
+    private readonly Dictionary<string, (List<VirtualKeyCode> modifiers, VirtualKeyCode? key, int? mouseButton)> _lookupMap = new();
 
     private delegate nint LowLevelKeyboardProc(int nCode, nint wParam, nint lParam);
-    private LowLevelKeyboardProc? _hookProc;
+    private delegate nint LowLevelMouseProc(int nCode, nint wParam, nint lParam);
+    private LowLevelKeyboardProc? _keyboardHookProc;
+    private LowLevelMouseProc? _mouseHookProc;
 
     #region P_INVOKE
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     private static extern nint SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, nint hMod, uint dwThreadId);
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern nint SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, nint hMod, uint dwThreadId);
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool UnhookWindowsHookEx(nint hhk);
@@ -41,11 +46,32 @@ public class KeyMappingTask : BgTaskBase
     private static extern uint GetWindowThreadProcessId(nint hWnd, out uint lpdwProcessId);
     [DllImport("user32.dll")]
     private static extern short GetKeyState(int nVirtKey);
+    [DllImport("user32.dll")]
+    private static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
+
+    // 鼠标事件常量
+    private const uint MOUSEEVENTF_LEFTDOWN = 0x02;
+    private const uint MOUSEEVENTF_LEFTUP = 0x04;
+    private const uint MOUSEEVENTF_RIGHTDOWN = 0x08;
+    private const uint MOUSEEVENTF_RIGHTUP = 0x10;
+    private const uint MOUSEEVENTF_MIDDLEDOWN = 0x20;
+    private const uint MOUSEEVENTF_MIDDLEUP = 0x40;
+    private const uint MOUSEEVENTF_XDOWN = 0x0080;
+    private const uint MOUSEEVENTF_XUP = 0x0100;
+    private const uint MOUSEEVENTF_WHEEL = 0x0800;
     #endregion
     
     private const int WH_KEYBOARD_LL = 13;
     private const int WM_KEYDOWN = 0x0100;
     private const int WM_SYSKEYDOWN = 0x0104;
+
+    // 鼠标常量
+    private const int WH_MOUSE_LL = 14;
+    private const int WM_LBUTTONDOWN = 0x0201;
+    private const int WM_RBUTTONDOWN = 0x0204;
+    private const int WM_MBUTTONDOWN = 0x0207;
+    private const int WM_XBUTTONDOWN = 0x020B;
+    private const int WM_MOUSEWHEEL = 0x020A;
 
     public KeyMappingTask() { }
 
@@ -70,29 +96,37 @@ public class KeyMappingTask : BgTaskBase
     }
 
     protected async override Task RunInternal()
-    { 
+    {
         if (_process is null || Galgame is null) return;
-        
+
         BuildLookupMap();
         if (_lookupMap.Count == 0) return;
 
         ChangeProgress(0, 1, "KeyMappingTask_ProgressMsg".GetLocalized(Galgame.Name.Value!));
-        
-        _hookProc = HookCallback;
-        _hookId = SetHook(_hookProc);
-        
+
+        _keyboardHookProc = KeyboardHookCallback;
+        _mouseHookProc = MouseHookCallback;
+        _keyboardHookId = SetKeyboardHook(_keyboardHookProc);
+        _mouseHookId = SetMouseHook(_mouseHookProc);
+
         try
         {
             await _process.WaitForExitAsync();
         }
         finally
         {
-            if (_hookId != nint.Zero)
+            if (_keyboardHookId != nint.Zero)
             {
-                UnhookWindowsHookEx(_hookId);
-                _hookId = nint.Zero;
+                UnhookWindowsHookEx(_keyboardHookId);
+                _keyboardHookId = nint.Zero;
             }
-            _hookProc = null;
+            if (_mouseHookId != nint.Zero)
+            {
+                UnhookWindowsHookEx(_mouseHookId);
+                _mouseHookId = nint.Zero;
+            }
+            _keyboardHookProc = null;
+            _mouseHookProc = null;
             ChangeProgress(1, 1, "KeyMappingTask_Done".GetLocalized());
         }
     }
@@ -107,41 +141,69 @@ public class KeyMappingTask : BgTaskBase
             fromKeys.Sort((a, b) => GetKeyOrder(a) - GetKeyOrder(b));
             var fromKeyString = string.Join("+", fromKeys.Select(GetKeyDisplayName));
 
-            var toKeys = mapping.To.Select(k => (VirtualKey)k).ToList();
-            var toModifiers = toKeys.Where(IsModifierKey).Select(k => (VirtualKeyCode)k).ToList();
-            var toKey = toKeys.FirstOrDefault(k => !IsModifierKey(k));
-            if (toKey == default)
+            // 检查是否包含鼠标按键
+            var mouseButton = mapping.To.FirstOrDefault(IsMouseButtonCode);
+            if (mouseButton != 0)
             {
-                toKey = toKeys.FirstOrDefault();
+                // 键盘映射到鼠标
+                _lookupMap[fromKeyString] = (new List<VirtualKeyCode>(), null, mouseButton);
             }
-
-            _lookupMap[fromKeyString] = (toModifiers, (VirtualKeyCode)toKey);
+            else
+            {
+                // 键盘映射到键盘
+                var toKeys = mapping.To.Select(k => (VirtualKey)k).ToList();
+                var toModifiers = toKeys.Where(IsModifierKey).Select(k => (VirtualKeyCode)k).ToList();
+                var toKey = toKeys.FirstOrDefault(k => !IsModifierKey(k));
+                if (toKey == default)
+                {
+                    toKey = toKeys.FirstOrDefault();
+                }
+                _lookupMap[fromKeyString] = (toModifiers, (VirtualKeyCode)toKey, null);
+            }
         }
     }
 
-    private nint SetHook(LowLevelKeyboardProc proc)
+    private static bool IsMouseButtonCode(int code) => code switch
+    {
+        1 => true, // 鼠标左键
+        2 => true, // 鼠标右键
+        3 => true, // 鼠标中键
+        4 => true, // X1按钮
+        5 => true, // X2按钮
+        6 => true, // 鼠标滚轮
+        _ => false
+    };
+
+    private nint SetKeyboardHook(LowLevelKeyboardProc proc)
     {
         using Process curProcess = Process.GetCurrentProcess();
         using ProcessModule curModule = curProcess.MainModule!;
         return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName!), 0);
     }
 
-    private nint HookCallback(int nCode, nint wParam, nint lParam)
+    private nint SetMouseHook(LowLevelMouseProc proc)
     {
-        if (nCode < 0) return CallNextHookEx(_hookId, nCode, wParam, lParam);
-        
+        using Process curProcess = Process.GetCurrentProcess();
+        using ProcessModule curModule = curProcess.MainModule!;
+        return SetWindowsHookEx(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName!), 0);
+    }
+
+    private nint KeyboardHookCallback(int nCode, nint wParam, nint lParam)
+    {
+        if (nCode < 0) return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
+
         try
         {
-            if (_process is null || _process.HasExited) return CallNextHookEx(_hookId, nCode, wParam, lParam);
+            if (_process is null || _process.HasExited) return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
 
             var foregroundWindowHandle = GetForegroundWindow();
             GetWindowThreadProcessId(foregroundWindowHandle, out var foregroundProcessId);
-            if (_process.Id != foregroundProcessId) return CallNextHookEx(_hookId, nCode, wParam, lParam);
-            
-            if (wParam != WM_KEYDOWN && wParam != WM_SYSKEYDOWN) return CallNextHookEx(_hookId, nCode, wParam, lParam);
-            
+            if (_process.Id != foregroundProcessId) return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
+
+            if (wParam != WM_KEYDOWN && wParam != WM_SYSKEYDOWN) return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
+
             var vkCode = (VirtualKey)Marshal.ReadInt32(lParam);
-            if (IsModifierKey(vkCode)) return CallNextHookEx(_hookId, nCode, wParam, lParam);
+            if (IsModifierKey(vkCode)) return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
 
             List<VirtualKey> pressedKeys = new() { vkCode };
             if (IsKeyDown(VirtualKey.Control)) pressedKeys.Add(VirtualKey.Control);
@@ -154,16 +216,92 @@ public class KeyMappingTask : BgTaskBase
 
             if (_lookupMap.TryGetValue(keyString, out var toHotkey))
             {
-                _inputSimulator.Keyboard.ModifiedKeyStroke(toHotkey.modifiers, toHotkey.key);
-                return 1; 
+                if (toHotkey.mouseButton.HasValue)
+                {
+                    // 映射到鼠标按键
+                    SimulateMouseClick(toHotkey.mouseButton.Value);
+                }
+                else if (toHotkey.key.HasValue)
+                {
+                    // 映射到键盘按键
+                    _inputSimulator.Keyboard.ModifiedKeyStroke(toHotkey.modifiers, toHotkey.key.Value);
+                }
+                return 1;
             }
         }
         catch(Exception)
         {
             // Ignored
         }
-        return CallNextHookEx(_hookId, nCode, wParam, lParam);
+        return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
     }
+
+    private nint MouseHookCallback(int nCode, nint wParam, nint lParam)
+    {
+        if (nCode < 0) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+
+        try
+        {
+            if (_process is null || _process.HasExited) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+
+            var foregroundWindowHandle = GetForegroundWindow();
+            GetWindowThreadProcessId(foregroundWindowHandle, out var foregroundProcessId);
+            if (_process.Id != foregroundProcessId) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+
+            // 检查是否是需要处理的鼠标事件
+            if (!IsMouseButtonDownEvent(wParam)) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+
+            var mouseButton = GetMouseButtonFromWParam(wParam);
+            if (mouseButton == 0) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+
+            // 这里可以处理鼠标到键盘的映射（如果需要的话）
+            // 目前我们只支持键盘到鼠标的映射
+        }
+        catch(Exception)
+        {
+            // Ignored
+        }
+        return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+    }
+
+    private void SimulateMouseClick(int mouseButton)
+    {
+        switch (mouseButton)
+        {
+            case 1: // 左键
+                mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+                break;
+            case 2: // 右键
+                mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+                break;
+            case 3: // 中键
+                mouse_event(MOUSEEVENTF_MIDDLEDOWN | MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0);
+                break;
+            case 4: // X1键
+            case 5: // X2键
+                mouse_event(MOUSEEVENTF_XDOWN, 0, 0, (uint)(mouseButton == 4 ? 1 : 2), 0);
+                mouse_event(MOUSEEVENTF_XUP, 0, 0, (uint)(mouseButton == 4 ? 1 : 2), 0);
+                break;
+            case 6: // 鼠标滚轮
+                mouse_event(MOUSEEVENTF_WHEEL, 0, 0, 120, 0); // 向上滚动
+                break;
+        }
+    }
+
+    private static bool IsMouseButtonDownEvent(nint wParam) => wParam switch
+    {
+        WM_LBUTTONDOWN or WM_RBUTTONDOWN or WM_MBUTTONDOWN or WM_XBUTTONDOWN => true,
+        _ => false
+    };
+
+    private static int GetMouseButtonFromWParam(nint wParam) => wParam switch
+    {
+        WM_LBUTTONDOWN => 1,
+        WM_RBUTTONDOWN => 2,
+        WM_MBUTTONDOWN => 3,
+        WM_XBUTTONDOWN => 4, // 默认X1，需要读取额外数据确定X1/X2
+        _ => 0
+    };
     
     private bool IsKeyDown(VirtualKey key) => (GetKeyState((int)key) & 0x8000) != 0;
 

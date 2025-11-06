@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Windows.System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Controls;
 using CommunityToolkit.WinUI;
 
 namespace GalgameManager.Views.Control;
@@ -10,7 +11,9 @@ namespace GalgameManager.Views.Control;
 public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
 {
     private readonly HashSet<VirtualKey> _pressedKeys = new();
+    private readonly HashSet<int> _mouseButtons = new();
     private bool _isCapturing;
+    private bool _isMouseOverInput;
     private string _buttonText = "";
     private string _hotkeyDisplayText = "";
     private Visibility _showPlaceholder = Visibility.Visible;
@@ -21,6 +24,10 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
     {
         InitializeComponent();
         UpdateDisplay();
+
+        // 添加键盘事件监听
+        this.KeyDown += FlexibleHotkeyInputBox_KeyDown;
+        this.LostFocus += FlexibleHotkeyInputBox_LostFocus;
     }
 
     public static readonly DependencyProperty PlaceholderTextProperty =
@@ -108,38 +115,12 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void InputButton_Click(object sender, RoutedEventArgs e)
+    
+    private void InputBorder_Tapped(object sender, TappedRoutedEventArgs e)
     {
         if (!_isCapturing)
         {
             StartCapturing();
-        }
-    }
-
-    private void InputButton_KeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        if (!_isCapturing) return;
-
-        e.Handled = true;
-        
-        if (IsModifierKey(e.Key))
-        {
-            _pressedKeys.Add(e.Key);
-        }
-        else
-        {
-            _pressedKeys.Add(e.Key);
-            CompleteCapture();
-        }
-
-        UpdateCaptureDisplay();
-    }
-
-    private void InputButton_LostFocus(object sender, RoutedEventArgs e)
-    {
-        if (_isCapturing)
-        {
-            CancelCapture();
         }
     }
 
@@ -153,20 +134,32 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
     {
         _isCapturing = true;
         _pressedKeys.Clear();
-        ButtonText = "请按下快捷键";
+        _mouseButtons.Clear();
+        ButtonText = "请按下快捷键或鼠标按键";
         ShowPlaceholder = Visibility.Collapsed;
         HideText = Visibility.Collapsed;
         ShowInputButton = Visibility.Visible;
-        InputButton.Focus(FocusState.Programmatic);
+        InputBorder.Focus(FocusState.Programmatic);
     }
 
     private void CompleteCapture()
     {
         _isCapturing = false;
-        
-        List<VirtualKey> keys = _pressedKeys.OrderBy(GetKeyOrder).ToList();
-        HotkeyKeys = keys.Select(k => (int)k).ToList();
-        
+
+        List<int> keys = new();
+
+        // 添加键盘按键
+        keys.AddRange(_pressedKeys.OrderBy(GetKeyOrder).Select(k => (int)k));
+
+        // 添加鼠标按键（如果有）
+        if (_mouseButtons.Count > 0)
+        {
+            // 如果捕获到鼠标按键，只保留第一个鼠标按键
+            keys.Add(_mouseButtons.First());
+        }
+
+        HotkeyKeys = keys;
+
         UpdateDisplay();
         OnHotkeyChanged();
     }
@@ -179,10 +172,25 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
 
     private void UpdateCaptureDisplay()
     {
-        if (_isCapturing && _pressedKeys.Count > 0)
+        if (_isCapturing)
         {
-            IOrderedEnumerable<VirtualKey> sortedKeys = _pressedKeys.OrderBy(GetKeyOrder);
-            ButtonText = string.Join(" + ", sortedKeys.Select(GetKeyDisplayName));
+            List<string> displayParts = new();
+
+            if (_pressedKeys.Count > 0)
+            {
+                IOrderedEnumerable<VirtualKey> sortedKeys = _pressedKeys.OrderBy(GetKeyOrder);
+                displayParts.AddRange(sortedKeys.Select(GetKeyDisplayName));
+            }
+
+            if (_mouseButtons.Count > 0)
+            {
+                displayParts.Add(GetMouseDisplayName(_mouseButtons.First()));
+            }
+
+            if (displayParts.Count > 0)
+            {
+                ButtonText = string.Join(" + ", displayParts);
+            }
         }
     }
 
@@ -198,8 +206,28 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
         }
         else
         {
-            IOrderedEnumerable<VirtualKey> keys = HotkeyKeys.Select(k => (VirtualKey)k).OrderBy(GetKeyOrder);
-            var displayText = string.Join(" + ", keys.Select(GetKeyDisplayName));
+            var displayParts = new List<string>();
+
+            foreach (var keyCode in HotkeyKeys)
+            {
+                if (IsMouseKeyCode(keyCode))
+                {
+                    displayParts.Add(GetMouseDisplayName(keyCode));
+                }
+                else
+                {
+                    displayParts.Add(GetKeyDisplayName((VirtualKey)keyCode));
+                }
+            }
+
+            // 排序：键盘按键在前，鼠标按键在后
+            var sortedParts = displayParts
+                .Select((part, index) => new { Part = part, Index = index, IsMouse = IsMouseKeyCode(HotkeyKeys[index]) })
+                .OrderBy(x => x.IsMouse ? 1 : 0)
+                .ThenBy(x => x.Index)
+                .Select(x => x.Part);
+
+            var displayText = string.Join(" + ", sortedParts);
 
             if (_isCapturing)
             {
@@ -280,9 +308,108 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
     }
 
     public event EventHandler? HotkeyChanged;
-    
+
     private void OnHotkeyChanged()
     {
         HotkeyChanged?.Invoke(this, EventArgs.Empty);
     }
+
+    // 鼠标事件处理
+    private void InputBorder_PointerEntered(object sender, PointerEventArgs e)
+    {
+        _isMouseOverInput = true;
+    }
+
+    private void InputBorder_PointerExited(object sender, PointerEventArgs e)
+    {
+        _isMouseOverInput = false;
+    }
+
+    private void InputBorder_PointerPressed(object sender, PointerEventArgs e)
+    {
+        if (!_isCapturing || !_isMouseOverInput) return;
+
+        e.Handled = true;
+
+        var pointerPoint = e.GetCurrentPoint(InputBorder);
+        var properties = pointerPoint.Properties;
+
+        // 检测按下的鼠标按键
+        if (properties.IsLeftButtonPressed)
+        {
+            _mouseButtons.Add(1);
+        }
+        else if (properties.IsRightButtonPressed)
+        {
+            _mouseButtons.Add(2);
+        }
+        else if (properties.IsMiddleButtonPressed)
+        {
+            _mouseButtons.Add(3);
+        }
+        else if (properties.IsXButton1Pressed)
+        {
+            _mouseButtons.Add(4);
+        }
+        else if (properties.IsXButton2Pressed)
+        {
+            _mouseButtons.Add(5);
+        }
+        else if (properties.MouseWheelDelta != 0)
+        {
+            _mouseButtons.Add(6);
+        }
+
+        // 如果捕获到鼠标按键，立即完成捕获
+        if (_mouseButtons.Count > 0)
+        {
+            CompleteCapture();
+        }
+    }
+
+    // 键盘事件处理
+    private void FlexibleHotkeyInputBox_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (!_isCapturing) return;
+
+        e.Handled = true;
+
+        if (IsModifierKey(e.Key))
+        {
+            _pressedKeys.Add(e.Key);
+        }
+        else
+        {
+            _pressedKeys.Add(e.Key);
+            CompleteCapture();
+        }
+
+        UpdateCaptureDisplay();
+    }
+
+    private void FlexibleHotkeyInputBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (_isCapturing)
+        {
+            CancelCapture();
+        }
+    }
+
+    // 辅助方法
+    private static bool IsMouseKeyCode(int keyCode) => keyCode switch
+    {
+        >= 1 and <= 6 => true, // 鼠标按键
+        _ => false
+    };
+
+    private static string GetMouseDisplayName(int mouseCode) => mouseCode switch
+    {
+        1 => "鼠标左键",
+        2 => "鼠标右键",
+        3 => "鼠标中键",
+        4 => "鼠标X1键",
+        5 => "鼠标X2键",
+        6 => "鼠标滚轮",
+        _ => $"未知鼠标键({mouseCode})"
+    };
 }

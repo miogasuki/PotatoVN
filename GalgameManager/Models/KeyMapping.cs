@@ -3,40 +3,31 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace GalgameManager.Models;
 
-public class KeyMapping : ObservableObject
+public partial class KeyMapping : ObservableObject
 {
+    [ObservableProperty]
     private List<int> _from = new();
-    public List<int> From
-    {
-        get => _from;
-        set => SetProperty(ref _from, value);
-    }
 
+    [ObservableProperty]
     private List<int> _to = new();
-    public List<int> To
-    {
-        get => _to;
-        set => SetProperty(ref _to, value);
-    }
 
+    [ObservableProperty]
     private string _remark = string.Empty;
-    public string Remark
-    {
-        get => _remark;
-        set => SetProperty(ref _remark, value);
-    }
 
+    [ObservableProperty]
     private bool _isEnabled = true;
-    public bool IsEnabled
-    {
-        get => _isEnabled;
-        set => SetProperty(ref _isEnabled, value);
-    }
 
+    [ObservableProperty]
     private bool _isGlobal;
-    public bool IsGlobal
+
+    /// <summary>
+    /// 是否包含鼠标按键映射
+    /// </summary>
+    public bool ContainsMouseKey => _to.Any(IsMouseKey);
+
+    private static bool IsMouseKey(int keyCode) => keyCode switch
     {
-        get => _isGlobal;
-        set => SetProperty(ref _isGlobal, value);
-    }
+        >= 1 and <= 6 => true, // 鼠标左键(1), 右键(2), 中键(3), X1(4), X2(5), Wheel(6)
+        _ => false
+    };
 }

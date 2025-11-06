@@ -48,20 +48,25 @@
                 </Button>
             </Grid>
 
-            <!-- 输入按钮 - 在显示按键时隐藏 -->
-            <Button x:Name="InputButton"
+            <!-- 输入区域 - 支持键盘和鼠标输入 -->
+            <Border x:Name="InputBorder"
                     Background="Transparent"
                     BorderThickness="0"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    HorizontalContentAlignment="Left"
-                    VerticalContentAlignment="Center"
                     Padding="0"
-                    Click="InputButton_Click"
-                    KeyDown="InputButton_KeyDown"
-                    LostFocus="InputButton_LostFocus"
-                    Content="{x:Bind ButtonText, Mode=OneWay}"
-                    Visibility="{x:Bind ShowInputButton, Mode=OneWay}" />
+                    Visibility="{x:Bind ShowInputButton, Mode=OneWay}"
+                    Tapped="InputBorder_Tapped"
+                    PointerEntered="InputBorder_PointerEntered"
+                    PointerExited="InputBorder_PointerExited"
+                    PointerPressed="InputBorder_PointerPressed">
+                <TextBlock x:Name="InputTextBlock"
+                           Text="{x:Bind ButtonText, Mode=OneWay}"
+                           Foreground="{ThemeResource TextControlForeground}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"
+                           Margin="0" />
+            </Border>
         </Grid>
     </Border>
 </UserControl>

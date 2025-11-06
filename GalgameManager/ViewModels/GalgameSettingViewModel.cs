@@ -88,51 +88,35 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             Gal = galgame;
             KeyMappings = new ObservableCollection<KeyMapping>();
 
-        // 先导入全局快捷键到最前面，但需要与用户自定义设置进行智能合并
-            List<KeyMapping> globalMappings = await GetGlobalKeyMappingsAsync();
+            // 用户设置优先：先导入用户的快捷键设置
             List<KeyMapping> userMappings = Gal.KeyMappings.ToList();
+            List<KeyMapping> globalMappings = await GetGlobalKeyMappingsAsync();
 
+            // 先添加用户的所有快捷键设置
+            foreach (var userMapping in userMappings)
+            {
+                KeyMappings.Add(userMapping);
+            }
+
+            // 然后处理全局快捷键，只添加用户没有定义的
             foreach (KeyMapping globalMapping in globalMappings)
             {
-                // 查找用户是否有基于这个全局快捷键的自定义映射（通过From键匹配）
-                var userMapping = userMappings.FirstOrDefault(um =>
+                // 检查用户是否已经定义了这个按键（通过From键匹配）
+                var hasUserMapping = userMappings.Any(um =>
                     um.From != null && globalMapping.From != null &&
                     um.From.SequenceEqual(globalMapping.From));
 
-                if (userMapping != null)
+                if (!hasUserMapping)
                 {
-                    // 用户有自定义映射，使用用户的设置（包含From和To），但保持IsGlobal标记
-                    KeyMappings.Add(new KeyMapping
-                    {
-                        From = new List<int>(userMapping.From),
-                        To = userMapping.To != null ? new List<int>(userMapping.To) : new List<int>(),
-                        Remark = globalMapping.Remark, // 保持全局的描述
-                        IsGlobal = true,
-                        IsEnabled = userMapping.IsEnabled
-                    });
-                }
-                else if (IsGlobalKeyMappingNotExists(globalMapping))
-                {
-                    // 用户没有自定义映射，使用全局设置
-                    KeyMappings.Add(new KeyMapping
+                    // 用户没有定义这个按键，添加全局设置到头部
+                    KeyMappings.Insert(0, new KeyMapping
                     {
                         From = new List<int>(globalMapping.From),
+                        To = globalMapping.To != null ? new List<int>(globalMapping.To) : new List<int>(),
                         Remark = globalMapping.Remark,
-                        IsGlobal = true
+                        IsGlobal = true,
+                        IsEnabled = true
                     });
-                }
-            }
-
-            // 添加独立的游戏快捷键（不基于全局快捷键的）
-            foreach (var localMapping in userMappings)
-            {
-                var hasMatchingGlobal = globalMappings.Any(gm =>
-                    gm.From != null && localMapping.From != null &&
-                    gm.From.SequenceEqual(localMapping.From));
-
-                if (!hasMatchingGlobal)
-                {
-                    KeyMappings.Add(localMapping);
                 }
             }
 

@@ -109,8 +109,7 @@
                                               BorderThickness="0"
                                               HorizontalAlignment="Center"
                                               Padding="3"
-                                              Width="30" Height="30"
-                                              IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}">
+                                              Width="30" Height="30">
                                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="14"/>
                                         </Button>
                                     </Grid>

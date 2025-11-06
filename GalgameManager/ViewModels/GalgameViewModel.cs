@@ -354,7 +354,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 _ = _bgTaskService.AddBgTask(new CallMagpieTask(Item, process));
             if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground) || Item.MuteInBackground)
                 _ = _bgTaskService.AddBgTask(new GameMuteTask(Item, process));
-            if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GlobalKeyMappings) || Item.KeyReMap) && Item.KeyMappings.Any(m => m.IsEnabled))
+            if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled) || Item.KeyReMap) && Item.KeyMappings.Any(m => m.IsEnabled))
                 _ = _bgTaskService.AddBgTask(new KeyMappingTask(Item, process));
             if(process.HasExited == false)
                 App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));

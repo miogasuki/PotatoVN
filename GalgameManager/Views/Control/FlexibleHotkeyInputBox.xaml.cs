@@ -179,7 +179,9 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
 
         if (properties.MouseWheelDelta != 0)
         {
-            _mouseButtons.Add(6);
+            // 区分滚轮方向：向上为6，向下为7
+            var wheelCode = properties.MouseWheelDelta > 0 ? 6 : 7;
+            _mouseButtons.Add(wheelCode);
             CompleteCapture();
         }
     }
@@ -393,7 +395,7 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
     // 辅助方法
     private static bool IsMouseKeyCode(int keyCode) => keyCode switch
     {
-        >= 1 and <= 6 => true, // 鼠标按键
+        >= 1 and <= 7 => true, // 鼠标按键（包括滚轮上下6,7）
         _ => false
     };
 
@@ -404,7 +406,8 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
         3 => "MOUSE_MIDDLE",
         4 => "MOUSE_X1",
         5 => "MOUSE_X2",
-        6 => "MOUSE_WHEEL",
+        6 => "WHEEL_UP",
+        7 => "WHEEL_DOWN",
         _ => "MOUSE_UNKNOWN"
     };
 }

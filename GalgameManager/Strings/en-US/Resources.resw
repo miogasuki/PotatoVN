@@ -1711,15 +1711,6 @@ If play time can record correctly, just cancel this popup.
   <data name="RecordPlayTimeTask_Done" xml:space="preserve">
     <value>This session's play time for {0}: {1}</value>
   </data>
-  <data name="KeyMappingTask_Title" xml:space="preserve">
-    <value>Key Mapping Task</value>
-  </data>
-  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
-    <value>Applying key mapping for game {0}</value>
-  </data>
-  <data name="KeyMappingTask_Done" xml:space="preserve">
-    <value>Key mapping task finished</value>
-  </data>
   <data name="LocalFolderSourceMoveTask_MoveIn_Title" xml:space="preserve">
     <value>Copy Game Task</value>
   </data>
@@ -3004,6 +2995,9 @@ If play time can record correctly, just cancel this popup.
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>Mute in background</value>
   </data>
+  <data name="GamePage_KeyReMap.Label" xml:space="preserve">
+    <value>Key Mapping</value>
+  </data>
   <data name="Settings_Game_AlwaysMuteInBackground.Title" xml:space="preserve">
     <value>Always mute game when in background</value>
   </data>
@@ -3317,6 +3311,17 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
     <value>Unknown Mouse Key({0})</value>
+  </data>
+
+  <!-- KeyMappingTask Related -->
+  <data name="KeyMappingTask_Title" xml:space="preserve">
+    <value>Key Mapping Task</value>
+  </data>
+  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
+    <value>Applying key mapping for game {0}</value>
+  </data>
+  <data name="KeyMappingTask_Done" xml:space="preserve">
+    <value>Key mapping task finished</value>
   </data>
 
 </root>

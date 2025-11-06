@@ -8,6 +8,8 @@ using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Models;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.WinUI;
 
 namespace GalgameManager.Views.Dialog;
 
@@ -43,8 +45,14 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
     {
         InitializeComponent();
 
-        // 设置对话框默认大小
-        this.XamlRoot = this.XamlRoot;
+        // 设置对话框基本信息
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
+        XamlRoot = App.MainWindow!.Content.XamlRoot;
+        DefaultButton = ContentDialogButton.Primary;
+        Title = "GlobalKeyMappingDialog_Title".GetLocalized();
+        PrimaryButtonText = "GlobalKeyMappingDialog_Button_Save".GetLocalized();
+        SecondaryButtonText = "GlobalKeyMappingDialog_Button_Clear".GetLocalized();
+        CloseButtonText = "GlobalKeyMappingDialog_Button_Cancel".GetLocalized();
 
         Mappings = new ObservableCollection<KeyMapping>();
         foreach (var mapping in mappings)

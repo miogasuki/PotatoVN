@@ -3194,31 +3194,31 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMappingDialog_Description" xml:space="preserve">
     <value>Set key mappings for games, supports keyboard-to-keyboard and keyboard-to-mouse mapping</value>
   </data>
-  <data name="KeyMappingDialog_Header_Description" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Description.Text" xml:space="preserve">
     <value>Description</value>
   </data>
-  <data name="KeyMappingDialog_Header_FromKey" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
     <value>Set Key</value>
   </data>
   <data name="KeyMappingDialog_Header_ToKey" xml:space="preserve">
     <value>In-Game Key</value>
   </data>
-  <data name="KeyMappingDialog_Header_Enabled" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
     <value>Enable</value>
   </data>
-  <data name="KeyMappingDialog_Header_Delete" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
     <value>Delete</value>
   </data>
   <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
     <value>Close</value>
   </data>
-  <data name="KeyMappingDialog_Button_AddMapping" xml:space="preserve">
+  <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
     <value>Add New Mapping</value>
   </data>
   <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
     <value>Delete this mapping</value>
   </data>
-  <data name="KeyMappingDialog_Placeholder_Description" xml:space="preserve">
+  <data name="KeyMappingDialog_Placeholder_Description.Text" xml:space="preserve">
     <value>Enter description (e.g., Jump key)</value>
   </data>
   <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
@@ -3244,7 +3244,7 @@ If play time can record correctly, just cancel this popup.
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="GlobalKeyMappingDialog_Text_NoMappings" xml:space="preserve">
+  <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>No key mappings available</value>
   </data>
 
@@ -3331,7 +3331,7 @@ If play time can record correctly, just cancel this popup.
   <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
     <value>Global switch for game key mapping.</value>
   </data>
-  <data name="Settings_Game_EditKeyMapping" xml:space="preserve">
+  <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>Edit Key Mapping</value>
   </data>
 

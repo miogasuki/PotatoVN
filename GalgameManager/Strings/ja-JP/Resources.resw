@@ -3159,31 +3159,31 @@
   <data name="KeyMappingDialog_Description" xml:space="preserve">
     <value>ゲームのキーマッピングを設定、キーボードからキーボード、キーボードからマウスへのマッピングをサポート</value>
   </data>
-  <data name="KeyMappingDialog_Header_Description" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Description.Text" xml:space="preserve">
     <value>説明</value>
   </data>
-  <data name="KeyMappingDialog_Header_FromKey" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
     <value>設定キー</value>
   </data>
   <data name="KeyMappingDialog_Header_ToKey" xml:space="preserve">
     <value>ゲーム内キー</value>
   </data>
-  <data name="KeyMappingDialog_Header_Enabled" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
     <value>有効</value>
   </data>
-  <data name="KeyMappingDialog_Header_Delete" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
     <value>削除</value>
   </data>
   <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
     <value>閉じる</value>
   </data>
-  <data name="KeyMappingDialog_Button_AddMapping" xml:space="preserve">
+  <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
     <value>新しいマッピングを追加</value>
   </data>
   <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
     <value>このマッピングを削除</value>
   </data>
-  <data name="KeyMappingDialog_Placeholder_Description" xml:space="preserve">
+  <data name="KeyMappingDialog_Placeholder_Description.Text" xml:space="preserve">
     <value>説明を入力（例：ジャンプキー）</value>
   </data>
   <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
@@ -3209,7 +3209,7 @@
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
-  <data name="GlobalKeyMappingDialog_Text_NoMappings" xml:space="preserve">
+  <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>キーマッピングがありません</value>
   </data>
 
@@ -3296,7 +3296,7 @@
   <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
     <value>ゲームキーマッピングのグローバルスイッチ。</value>
   </data>
-  <data name="Settings_Game_EditKeyMapping" xml:space="preserve">
+  <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>キーマッピング編集</value>
   </data>
 

@@ -3854,31 +3854,31 @@
   <data name="KeyMappingDialog_Description" xml:space="preserve">
     <value>设置游戏内的按键映射，支持键盘到键盘、键盘到鼠标的映射</value>
   </data>
-  <data name="KeyMappingDialog_Header_Description" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Description.Text" xml:space="preserve">
     <value>说明</value>
   </data>
-  <data name="KeyMappingDialog_Header_FromKey" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
     <value>设置按键</value>
   </data>
   <data name="KeyMappingDialog_Header_ToKey" xml:space="preserve">
     <value>游戏中按键</value>
   </data>
-  <data name="KeyMappingDialog_Header_Enabled" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
     <value>开关</value>
   </data>
-  <data name="KeyMappingDialog_Header_Delete" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
     <value>删除</value>
   </data>
   <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
     <value>关闭</value>
   </data>
-  <data name="KeyMappingDialog_Button_AddMapping" xml:space="preserve">
+  <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
     <value>添加新映射</value>
   </data>
   <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
     <value>删除此映射</value>
   </data>
-  <data name="KeyMappingDialog_Placeholder_Description" xml:space="preserve">
+  <data name="KeyMappingDialog_Placeholder_Description.Text" xml:space="preserve">
     <value>请输入描述（如：跳跃键）</value>
   </data>
   <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
@@ -3904,7 +3904,7 @@
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
-  <data name="GlobalKeyMappingDialog_Text_NoMappings" xml:space="preserve">
+  <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>暂无按键映射</value>
   </data>
 
@@ -3991,7 +3991,7 @@
   <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
     <value>游戏快捷键映射总开关。</value>
   </data>
-  <data name="Settings_Game_EditKeyMapping" xml:space="preserve">
+  <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>编辑按键映射</value>
   </data>
 

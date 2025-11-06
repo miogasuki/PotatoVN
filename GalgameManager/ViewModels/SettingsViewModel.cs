@@ -130,6 +130,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         MagpiePath = _localSettingsService.ReadSettingAsync<string>(KeyValues.MagpiePath).Result; // Initialize MagpiePath
         _alwaysEnableMagpie = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie).Result;
         _alwaysMuteInBackground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground).Result;
+        _gameReMapEnabled = _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled).Result;
         _magpieHotkeys = _localSettingsService.ReadSettingAsync<List<int>>(KeyValues.MagpieHotkeys).Result ?? [];
         UpdateMagpieHotkeysString();
         MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
@@ -396,6 +397,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public bool MagpieSettingVisible => MagpieTotalSwitch && !IsNullOrEmpty(MagpiePath);
     [ObservableProperty] private bool _alwaysEnableMagpie;
     [ObservableProperty] private bool _alwaysMuteInBackground;
+    [ObservableProperty] private bool _gameReMapEnabled;
     [ObservableProperty] private string _magpieHotkeysString = Empty;
     [ObservableProperty] private List<int> _magpieHotkeyKeys = new();
     private List<int> _magpieHotkeys;
@@ -425,6 +427,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     partial void OnAlwaysMuteInBackgroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AlwaysMuteInBackground, value);
+
+    partial void OnGameReMapEnabledChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.GameReMapEnabled, value);
 
     async partial void OnMagpieHotkeyKeysChanged(List<int> value)
     {
@@ -521,7 +525,35 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         MagpieHotkeysString = Join(" + ", _magpieHotkeys.Select(vk => ((VirtualKey)vk).ToString()));
     }
-    
+
+    [RelayCommand]
+    private async Task OpenGlobalKeyMappingDialog()
+    {
+        List<KeyMapping> globalKeyMappings;
+        try
+        {
+            globalKeyMappings = await _localSettingsService.ReadSettingAsync<List<KeyMapping>>(KeyValues.GlobalKeyMappings) ?? new();
+        }
+        catch(Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+            globalKeyMappings = new List<KeyMapping>();
+        }
+
+        GlobalKeyMappingDialog keyMappingDialog = new(globalKeyMappings)
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot
+        };
+        ContentDialogResult result = await keyMappingDialog.ShowAsync();
+
+        // 只有在用户点击保存或确认清空时才保存设置
+        if (result == ContentDialogResult.Primary || result == ContentDialogResult.Secondary)
+        {
+            await _localSettingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, keyMappingDialog.ResultMappings);
+            _infoService.Info(InfoBarSeverity.Success, msg:"KeyMapping_Info_GlobalKeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
+        }
+    }
+
     [RelayCommand]
     private async Task SelectLocalEmulatorPath()
     {

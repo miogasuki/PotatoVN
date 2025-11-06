@@ -3002,6 +3002,9 @@
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>バックグラウンドでミュート</value>
   </data>
+  <data name="GamePage_KeyReMap.Label" xml:space="preserve">
+    <value>キーマッピング</value>
+  </data>
   <data name="Settings_Game_AlwaysMuteInBackground.Title" xml:space="preserve">
     <value>常にバックグラウンド時にゲームをミュート</value>
   </data>
@@ -3146,4 +3149,158 @@
   <data name="SettingsPage_Rss_Mixed_Enable.Description" xml:space="preserve">
     <value>混合スクレイピングで有効にするスクレイパーを設定</value>
   </data>
+
+  <!-- ========== キーマッピング関連翻訳 ========== -->
+
+  <!-- KeyMappingDialog 関連 -->
+  <data name="KeyMappingDialog_Title" xml:space="preserve">
+    <value>キーマッピング設定</value>
+  </data>
+  <data name="KeyMappingDialog_Description" xml:space="preserve">
+    <value>ゲームのキーマッピングを設定、キーボードからキーボード、キーボードからマウスへのマッピングをサポート</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Description.Text" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
+    <value>設定キー</value>
+  </data>
+  <data name="KeyMappingDialog_Header_ToKey.Text" xml:space="preserve">
+    <value>ゲーム内キー</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
+    <value>有効</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
+    <value>新しいマッピングを追加</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
+    <value>このマッピングを削除</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_Description.Text" xml:space="preserve">
+    <value>説明を入力（例：ジャンプキー）</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
+    <value>クリックして設定</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
+    <value>キーまたはマウスボタンを押してください</value>
+  </data>
+
+  <!-- GlobalKeyMappingDialog 関連 -->
+  <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
+    <value>グローバルキーマッピング設定</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Description" xml:space="preserve">
+    <value>すべてのゲームで有効なグローバルキーマッピングを設定</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Clear" xml:space="preserve">
+    <value>すべてクリア</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
+    <value>キーマッピングがありません</value>
+  </data>
+
+  <!-- SettingsViewModel 関連 -->
+  <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
+    <value>グローバルキーマッピング</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Description" xml:space="preserve">
+    <value>すべてのゲームで有効なグローバルキーマッピングを設定</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
+    <value>グローバルマッピングを編集</value>
+  </data>
+
+  <!-- GalgameSettingPage 関連キーマッピング -->
+  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
+    <value>キーマッピング</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
+    <value>ゲームのキーマッピングを設定、キーボードからキーボード、キーボードからマウスへのマッピングをサポート</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
+    <value>キーマッピングを編集</value>
+  </data>
+
+  <!-- キーマッピング関連メッセージ -->
+  <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
+    <value>赤いコーナーはグローバルショートカットを示し、ここでは削除できません</value>
+  </data>
+  <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
+    <value>マウスボタンキャプチャが有効、入力ボックス内でマウスボタンをクリックしてください</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>キーマッピングが保存されました</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
+    <value>グローバルキーマッピングが保存されました</value>
+  </data>
+  <data name="KeyMapping_Info_ClearAllMappings" xml:space="preserve">
+    <value>すべてのグローバルキーマッピングをクリアしてもよろしいですか？</value>
+  </data>
+  <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
+    <value>グローバルショートカットは削除できません、グローバル設定で修正してください</value>
+  </data>
+
+  <!-- マウスボタン表示名 -->
+  <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
+    <value>マウス左ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_RightButton" xml:space="preserve">
+    <value>マウス右ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_MiddleButton" xml:space="preserve">
+    <value>マウス中央ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_X1Button" xml:space="preserve">
+    <value>マウスX1ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_X2Button" xml:space="preserve">
+    <value>マウスX2ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_Wheel" xml:space="preserve">
+    <value>マウスホイール</value>
+  </data>
+  <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
+    <value>不明なマウスキー({0})</value>
+  </data>
+
+  <!-- KeyMappingTask 関連 -->
+  <data name="KeyMappingTask_Title" xml:space="preserve">
+    <value>キーマッピングタスク</value>
+  </data>
+  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
+    <value>ゲーム {0} のキーマッピングを適用しています</value>
+  </data>
+  <data name="KeyMappingTask_Done" xml:space="preserve">
+    <value>キーマッピングタスクが終了しました</value>
+  </data>
+
+  <!-- Settingsページゲームキーマッピング関連 -->
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>ゲームキーマッピングを有効化</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>ゲームキーマッピングのグローバルスイッチ。</value>
+  </data>
+  <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
+    <value>キーマッピング編集</value>
+  </data>
+
 </root>

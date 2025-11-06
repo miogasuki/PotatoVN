@@ -45,8 +45,6 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
 
         // 设置对话框默认大小
         this.XamlRoot = this.XamlRoot;
-        this.MinWidth = 600;
-        this.MinHeight = 300;
 
         Mappings = new ObservableCollection<KeyMapping>();
         foreach (var mapping in mappings)

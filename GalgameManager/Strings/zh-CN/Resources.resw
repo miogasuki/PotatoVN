@@ -3206,12 +3206,6 @@
   <data name="Settings_Game_AlwaysMuteInBackground.Description" xml:space="preserve">
     <value>覆盖单独的游戏设置。如果启用，所有游戏都将在后台时静音。</value>
   </data>
-  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
-    <value>启动游戏快捷键映射</value>
-  </data>
-  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
-    <value>游戏快捷键映射总开关。</value>
-  </data>
   <data name="GameMuteTask_Muted" xml:space="preserve">
     <value>已静音游戏：{0}</value>
   </data>
@@ -3988,6 +3982,17 @@
   </data>
   <data name="KeyMappingTask_Done" xml:space="preserve">
     <value>按键映射任务已结束</value>
+  </data>
+
+  <!-- Settings页面游戏快捷键映射相关 -->
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>启动游戏快捷键映射</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>游戏快捷键映射总开关。</value>
+  </data>
+  <data name="Settings_Game_EditKeyMapping" xml:space="preserve">
+    <value>编辑按键映射</value>
   </data>
 
 </root>

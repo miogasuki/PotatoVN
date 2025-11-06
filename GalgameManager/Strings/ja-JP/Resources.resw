@@ -3289,4 +3289,15 @@
     <value>キーマッピングタスクが終了しました</value>
   </data>
 
+  <!-- Settingsページゲームキーマッピング関連 -->
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>ゲームキーマッピングを有効化</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>ゲームキーマッピングのグローバルスイッチ。</value>
+  </data>
+  <data name="Settings_Game_EditKeyMapping" xml:space="preserve">
+    <value>キーマッピング編集</value>
+  </data>
+
 </root>

@@ -14,10 +14,6 @@ public sealed partial class KeyMappingDialog : ContentDialog
     {
         ViewModel = viewModel;
         InitializeComponent();
-
-        // 设置对话框默认大小
-        this.MinWidth = 600;
-        this.MinHeight = 300;
     }
 
     private void RemoveKeyMapping(KeyMapping? mapping)

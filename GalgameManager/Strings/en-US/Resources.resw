@@ -3324,4 +3324,15 @@ If play time can record correctly, just cancel this popup.
     <value>Key mapping task finished</value>
   </data>
 
+  <!-- Settings Page Game Key Mapping Related -->
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>Enable Game Key Mapping</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>Global switch for game key mapping.</value>
+  </data>
+  <data name="Settings_Game_EditKeyMapping" xml:space="preserve">
+    <value>Edit Key Mapping</value>
+  </data>
+
 </root>

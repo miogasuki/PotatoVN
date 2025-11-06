@@ -366,7 +366,7 @@
                                         <Button Command="{x:Bind ViewModel.OpenGlobalKeyMappingDialogCommand}" HorizontalAlignment="Stretch">
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <SymbolIcon Symbol="Edit"/>
-                                                <TextBlock Text="编辑按键映射"/>
+                                                <TextBlock x:Uid="Settings_Game_EditKeyMapping"/>
                                             </StackPanel>
                                         </Button>
                                     </StackPanel>

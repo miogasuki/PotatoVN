@@ -3165,7 +3165,7 @@
   <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
     <value>設定キー</value>
   </data>
-  <data name="KeyMappingDialog_Header_ToKey" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_ToKey.Text" xml:space="preserve">
     <value>ゲーム内キー</value>
   </data>
   <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
@@ -3176,6 +3176,9 @@
   </data>
   <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
     <value>閉じる</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
   </data>
   <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
     <value>新しいマッピングを追加</value>
@@ -3231,7 +3234,7 @@
   <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
     <value>ゲームのキーマッピングを設定、キーボードからキーボード、キーボードからマウスへのマッピングをサポート</value>
   </data>
-  <data name="GalgameSettingPage_KeyMappings_Edit" xml:space="preserve">
+  <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
     <value>キーマッピングを編集</value>
   </data>
 

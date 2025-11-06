@@ -3200,7 +3200,7 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
     <value>Set Key</value>
   </data>
-  <data name="KeyMappingDialog_Header_ToKey" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_ToKey.Text" xml:space="preserve">
     <value>In-Game Key</value>
   </data>
   <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
@@ -3208,6 +3208,9 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
     <value>Delete</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>Save</value>
   </data>
   <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
     <value>Close</value>
@@ -3266,7 +3269,7 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
     <value>Set key mappings for games, supports keyboard-to-keyboard and keyboard-to-mouse mapping</value>
   </data>
-  <data name="GalgameSettingPage_KeyMappings_Edit" xml:space="preserve">
+  <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
     <value>Edit Key Mapping</value>
   </data>
 

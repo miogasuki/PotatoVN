@@ -8,14 +8,12 @@
     xmlns:control="using:GalgameManager.Views.Control"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
     mc:Ignorable="d"
-    x:Name="dialog"
-    Title="{x:Bind KeyMappingDialog_Title, Mode=OneWay}"
-    PrimaryButtonText="{x:Bind KeyMappingDialog_Button_Close, Mode=OneWay}"
     DefaultButton="Primary">
 
     <ContentDialog.Resources>
         <converter:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <x:Double x:Key="ContentDialogMinWidth">600</x:Double>
     </ContentDialog.Resources>
 
     <StackPanel Spacing="10">
@@ -34,25 +32,25 @@
                             <ColumnDefinition Width="*" MinWidth="150" />
                             <ColumnDefinition Width="150" />
                             <ColumnDefinition Width="150" />
-                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="50" />
                             <ColumnDefinition Width="50" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="{x:Bind KeyMappingDialog_Header_Description, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="0" x:Uid="KeyMappingDialog_Header_Description" HorizontalAlignment="Left" VerticalAlignment="Center"
                                    FontWeight="SemiBold" Margin="10,8" />
-                        <TextBlock Grid.Column="1" Text="{x:Bind KeyMappingDialog_Header_FromKey, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="1" x:Uid="KeyMappingDialog_Header_FromKey" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="2" Text="{x:Bind KeyMappingDialog_Header_ToKey, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="2" x:Uid="KeyMappingDialog_Header_ToKey" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="3" Text="{x:Bind KeyMappingDialog_Header_Enabled, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="3" x:Uid="KeyMappingDialog_Header_Enabled" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="4" Text="{x:Bind KeyMappingDialog_Header_Delete, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="4" x:Uid="KeyMappingDialog_Header_Delete" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    FontWeight="SemiBold" />
                     </Grid>
                 </Border>
 
                 <!-- 数据行容器 -->
-                <ScrollViewer Grid.Row="1" MaxHeight="400" MinHeight="200" VerticalScrollBarVisibility="Auto"
+                <ScrollViewer Grid.Row="1" MaxHeight="400" MinHeight="200" MinWidth="800" VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl ItemsSource="{x:Bind ViewModel.KeyMappings, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>
@@ -60,10 +58,10 @@
                                 <Border BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1" Padding="0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" MinWidth="150" />
                                             <ColumnDefinition Width="150" />
                                             <ColumnDefinition Width="150" />
-                                            <ColumnDefinition Width="60" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="50" />
                                             <ColumnDefinition Width="50" />
                                         </Grid.ColumnDefinitions>
 

@@ -88,12 +88,32 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             Gal = galgame;
             KeyMappings = new ObservableCollection<KeyMapping>();
 
-            // 先导入全局快捷键到最前面
-            var globalMappings = await GetGlobalKeyMappingsAsync();
-            foreach (var globalMapping in globalMappings)
+        // 先导入全局快捷键到最前面，但需要与用户自定义设置进行智能合并
+            List<KeyMapping> globalMappings = await GetGlobalKeyMappingsAsync();
+            List<KeyMapping> userMappings = Gal.KeyMappings.ToList();
+
+            foreach (KeyMapping globalMapping in globalMappings)
             {
-                if (IsGlobalKeyMappingNotExists(globalMapping))
+                // 查找用户是否有基于这个全局快捷键的自定义映射（通过From键匹配）
+                var userMapping = userMappings.FirstOrDefault(um =>
+                    um.From != null && globalMapping.From != null &&
+                    um.From.SequenceEqual(globalMapping.From));
+
+                if (userMapping != null)
                 {
+                    // 用户有自定义映射，使用用户的设置（包含From和To），但保持IsGlobal标记
+                    KeyMappings.Add(new KeyMapping
+                    {
+                        From = new List<int>(userMapping.From),
+                        To = userMapping.To != null ? new List<int>(userMapping.To) : new List<int>(),
+                        Remark = globalMapping.Remark, // 保持全局的描述
+                        IsGlobal = true,
+                        IsEnabled = userMapping.IsEnabled
+                    });
+                }
+                else if (IsGlobalKeyMappingNotExists(globalMapping))
+                {
+                    // 用户没有自定义映射，使用全局设置
                     KeyMappings.Add(new KeyMapping
                     {
                         From = new List<int>(globalMapping.From),
@@ -103,10 +123,17 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
                 }
             }
 
-            // 再添加游戏自己的快捷键
-            foreach (var localMapping in Gal.KeyMappings.Where(k => !k.IsGlobal))
+            // 添加独立的游戏快捷键（不基于全局快捷键的）
+            foreach (var localMapping in userMappings)
             {
-                KeyMappings.Add(localMapping);
+                var hasMatchingGlobal = globalMappings.Any(gm =>
+                    gm.From != null && localMapping.From != null &&
+                    gm.From.SequenceEqual(localMapping.From));
+
+                if (!hasMatchingGlobal)
+                {
+                    KeyMappings.Add(localMapping);
+                }
             }
 
             Gal.PropertyChanged += HandleGalPropertyChanged;
@@ -342,5 +369,18 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         {
             KeyMappings.Remove(mapping);
         }
+    }
+
+    /// <summary>
+    /// 保存当前游戏的快捷键映射设置
+    /// </summary>
+    public async Task SaveKeyMappingsAsync()
+    {
+        // 保存所有映射，包括用户修改过的全局快捷键设置
+        // 这样用户对全局快捷键的自定义设置会被保留
+        Gal.KeyMappings = new List<KeyMapping>(KeyMappings);
+
+        // 立即保存游戏数据
+        await _galService.SaveGalgameAsync(Gal);
     }
 }

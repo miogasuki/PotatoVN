@@ -3860,7 +3860,7 @@
   <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
     <value>设置按键</value>
   </data>
-  <data name="KeyMappingDialog_Header_ToKey" xml:space="preserve">
+  <data name="KeyMappingDialog_Header_ToKey.Text" xml:space="preserve">
     <value>游戏中按键</value>
   </data>
   <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
@@ -3871,6 +3871,9 @@
   </data>
   <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
     <value>关闭</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
   </data>
   <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
     <value>添加新映射</value>
@@ -3926,7 +3929,7 @@
   <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
     <value>设置游戏的按键映射，支持键盘到键盘、键盘到鼠标的映射</value>
   </data>
-  <data name="GalgameSettingPage_KeyMappings_Edit" xml:space="preserve">
+  <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
     <value>编辑按键映射</value>
   </data>
 

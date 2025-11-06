@@ -3,6 +3,8 @@ using Microsoft.UI.Xaml.Controls;
 using GalgameManager.Models;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
+using CommunityToolkit.WinUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace GalgameManager.Views.Dialog;
 
@@ -10,22 +12,19 @@ public sealed partial class KeyMappingDialog : ContentDialog
 {
     public GalgameSettingViewModel ViewModel { get; }
 
-    // Localization properties
-    public string KeyMappingDialog_Title => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Title") ?? string.Empty;
-    public string KeyMappingDialog_Button_Close => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Button_Close") ?? string.Empty;
-    public string KeyMappingDialog_Header_Description => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Header_Description") ?? string.Empty;
-    public string KeyMappingDialog_Header_FromKey => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Header_FromKey") ?? string.Empty;
-    public string KeyMappingDialog_Header_ToKey => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Header_ToKey") ?? string.Empty;
-    public string KeyMappingDialog_Header_Enabled => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Header_Enabled") ?? string.Empty;
-    public string KeyMappingDialog_Header_Delete => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Header_Delete") ?? string.Empty;
-    public string KeyMappingDialog_Placeholder_Description => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Placeholder_Description") ?? string.Empty;
-    public string KeyMappingDialog_Button_Delete_ToolTip => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Button_Delete_ToolTip") ?? string.Empty;
-    public string KeyMappingDialog_Button_AddMapping => GalgameManager.Helpers.ResourceExtensions.GetLocalized("KeyMappingDialog_Button_AddMapping") ?? string.Empty;
-
     public KeyMappingDialog(GalgameSettingViewModel viewModel)
     {
         ViewModel = viewModel;
         InitializeComponent();
+        RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
+        XamlRoot = App.MainWindow!.Content.XamlRoot;
+        DefaultButton = ContentDialogButton.Primary;
+        Title = "KeyMappingDialog_Title".GetLocalized();
+        PrimaryButtonText = "KeyMappingDialog_Button_Save".GetLocalized();
+        CloseButtonText = "KeyMappingDialog_Button_Close".GetLocalized();
+
+        // 添加PrimaryButtonClick事件处理
+        PrimaryButtonClick += OnSaveButtonClick;
     }
 
     private void RemoveKeyMapping(KeyMapping? mapping)
@@ -42,5 +41,11 @@ public sealed partial class KeyMappingDialog : ContentDialog
         {
             RemoveKeyMapping(mapping);
         }
+    }
+
+    private async void OnSaveButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        // 调用ViewModel的保存方法
+        await ViewModel.SaveKeyMappingsAsync();
     }
 }

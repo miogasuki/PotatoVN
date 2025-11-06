@@ -404,12 +404,12 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
 
     private static string GetMouseDisplayName(int mouseCode) => mouseCode switch
     {
-        1 => "鼠标左键",
-        2 => "鼠标右键",
-        3 => "鼠标中键",
-        4 => "鼠标X1键",
-        5 => "鼠标X2键",
-        6 => "鼠标滚轮",
-        _ => $"未知鼠标键({mouseCode})"
+        1 => "KeyMapping_Mouse_LeftButton".GetLocalized(),
+        2 => "KeyMapping_Mouse_RightButton".GetLocalized(),
+        3 => "KeyMapping_Mouse_MiddleButton".GetLocalized(),
+        4 => "KeyMapping_Mouse_X1Button".GetLocalized(),
+        5 => "KeyMapping_Mouse_X2Button".GetLocalized(),
+        6 => "KeyMapping_Mouse_Wheel".GetLocalized(),
+        _ => "KeyMapping_Unknown_MouseKey".GetLocalized(mouseCode)
     };
 }

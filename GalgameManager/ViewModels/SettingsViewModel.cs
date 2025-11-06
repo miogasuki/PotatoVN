@@ -549,7 +549,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         if (result == ContentDialogResult.Primary)
         {
             await _localSettingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, keyMappingDialog.ResultMappings);
-            _infoService.Info(InfoBarSeverity.Success, msg:"SettingSuccess".GetLocalized(), displayTimeMs: 2000);
+            _infoService.Info(InfoBarSeverity.Success, msg:"KeyMapping_Info_GlobalKeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
         }
     }
 

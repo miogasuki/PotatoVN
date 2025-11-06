@@ -10,10 +10,10 @@
     xmlns:converter="using:GalgameManager.Helpers.Converter"
     mc:Ignorable="d"
     x:Name="dialog"
-    Title="全局按键映射设置"
-    PrimaryButtonText="保存"
-    SecondaryButtonText="清空"
-    CloseButtonText="取消"
+    Title="{x:Uid GlobalKeyMappingDialog_Title}"
+    PrimaryButtonText="{x:Uid GlobalKeyMappingDialog_Button_Save}"
+    SecondaryButtonText="{x:Uid GlobalKeyMappingDialog_Button_Clear}"
+    CloseButtonText="{x:Uid GlobalKeyMappingDialog_Button_Cancel}"
     DefaultButton="Primary">
 
     <ContentDialog.Resources>
@@ -40,13 +40,13 @@
                             <ColumnDefinition Width="50" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="说明" HorizontalAlignment="Left" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="0" Text="{x:Uid KeyMappingDialog_Header_Description}" HorizontalAlignment="Left" VerticalAlignment="Center"
                                    FontWeight="SemiBold" Margin="10,8" />
-                        <TextBlock Grid.Column="1" Text="设置按键" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="1" Text="{x:Uid KeyMappingDialog_Header_FromKey}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="2" Text="开关" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="2" Text="{x:Uid KeyMappingDialog_Header_Enabled}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    FontWeight="SemiBold" />
-                        <TextBlock Grid.Column="3" Text="删除" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Grid.Column="3" Text="{x:Uid KeyMappingDialog_Header_Delete}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    FontWeight="SemiBold" />
                     </Grid>
                 </Border>
@@ -68,6 +68,7 @@
 
                                         <!-- 说明列 -->
                                         <TextBox Grid.Column="0" Text="{x:Bind Remark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PlaceholderText="{x:Uid KeyMappingDialog_Placeholder_Description}"
                                                  VerticalAlignment="Center" MinWidth="150" BorderThickness="1"
                                                  Margin="5"
                                                  BorderBrush="{ThemeResource TextControlBorderBrush}"
@@ -105,13 +106,13 @@
             </Grid>
         </Border>
 
-        <TextBlock Text="暂无按键映射" HorizontalAlignment="Center" Margin="0,10,0,0"
+        <TextBlock Text="{x:Uid GlobalKeyMappingDialog_Text_NoMappings}" HorizontalAlignment="Center" Margin="0,10,0,0"
                    Visibility="{x:Bind HasMappings, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}" />
 
         <Button Command="{x:Bind AddMappingCommand}" HorizontalAlignment="Stretch" Margin="0,10,0,0">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <SymbolIcon Symbol="Add" />
-                <TextBlock Text="添加新映射" />
+                <TextBlock Text="{x:Uid KeyMappingDialog_Button_AddMapping}" />
             </StackPanel>
         </Button>
     </StackPanel>

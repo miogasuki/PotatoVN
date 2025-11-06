@@ -3001,15 +3001,6 @@ If play time can record correctly, just cancel this popup.
   <data name="Settings_Game_MuteInBackground.Text" xml:space="preserve">
     <value>Mute game when in background</value>
   </data>
-  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
-    <value>Key Mappings</value>
-  </data>
-  <data name="GalgameSettingPage_KeyReMapEdit.Text" xml:space="preserve">
-    <value>Key Mappings</value>
-  </data>
-  <data name="GalgameSettingPage_AddKeyMapping" xml:space="preserve">
-    <value>Add new mapping</value>
-  </data>
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>Mute in background</value>
   </data>
@@ -3199,4 +3190,133 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Other_AutoExport_MaxBackupNumber.Description" xml:space="preserve">
     <value>When the limit is reached, the oldest backup will be deleted before creating a new one.</value>
   </data>
+
+  <!-- ========== Key Mapping Related Translations ========== -->
+
+  <!-- KeyMappingDialog Related -->
+  <data name="KeyMappingDialog_Title" xml:space="preserve">
+    <value>Key Mapping Settings</value>
+  </data>
+  <data name="KeyMappingDialog_Description" xml:space="preserve">
+    <value>Set key mappings for games, supports keyboard-to-keyboard and keyboard-to-mouse mapping</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="KeyMappingDialog_Header_FromKey" xml:space="preserve">
+    <value>Set Key</value>
+  </data>
+  <data name="KeyMappingDialog_Header_ToKey" xml:space="preserve">
+    <value>In-Game Key</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Enabled" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="KeyMappingDialog_Button_AddMapping" xml:space="preserve">
+    <value>Add New Mapping</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
+    <value>Delete this mapping</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_Description" xml:space="preserve">
+    <value>Enter description (e.g., Jump key)</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
+    <value>Click to set</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
+    <value>Press a key or mouse button</value>
+  </data>
+
+  <!-- GlobalKeyMappingDialog Related -->
+  <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
+    <value>Global Key Mapping Settings</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Description" xml:space="preserve">
+    <value>Set global key mappings that will work in all games</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Clear" xml:space="preserve">
+    <value>Clear All</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Text_NoMappings" xml:space="preserve">
+    <value>No key mappings available</value>
+  </data>
+
+  <!-- SettingsViewModel Related -->
+  <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
+    <value>Global Key Mapping</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Description" xml:space="preserve">
+    <value>Set global key mappings that will work in all games</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
+    <value>Edit Global Mappings</value>
+  </data>
+
+  <!-- GalgameSettingPage Related Key Mappings -->
+  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
+    <value>Key Mapping</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
+    <value>Set key mappings for games, supports keyboard-to-keyboard and keyboard-to-mouse mapping</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings_Edit" xml:space="preserve">
+    <value>Edit Key Mapping</value>
+  </data>
+
+  <!-- Key Mapping Messages -->
+  <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
+    <value>Red corner indicates global shortcut, cannot be deleted here</value>
+  </data>
+  <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
+    <value>Mouse button capture is enabled, click mouse button in input box</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>Key mapping saved</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
+    <value>Global key mapping saved</value>
+  </data>
+  <data name="KeyMapping_Info_ClearAllMappings" xml:space="preserve">
+    <value>Are you sure you want to clear all global key mappings?</value>
+  </data>
+  <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
+    <value>Cannot delete global shortcut, please modify in global settings</value>
+  </data>
+
+  <!-- Mouse Button Display Names -->
+  <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
+    <value>Mouse Left Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_RightButton" xml:space="preserve">
+    <value>Mouse Right Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_MiddleButton" xml:space="preserve">
+    <value>Mouse Middle Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_X1Button" xml:space="preserve">
+    <value>Mouse X1 Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_X2Button" xml:space="preserve">
+    <value>Mouse X2 Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_Wheel" xml:space="preserve">
+    <value>Mouse Wheel</value>
+  </data>
+  <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
+    <value>Unknown Mouse Key({0})</value>
+  </data>
+
 </root>

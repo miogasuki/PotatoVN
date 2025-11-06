@@ -8,7 +8,6 @@
     xmlns:models="using:GalgameManager.Models"
     xmlns:control="using:GalgameManager.Views.Control"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
     x:Name="dialog"
     Title="全局按键映射设置"
@@ -22,85 +21,88 @@
     </ContentDialog.Resources>
 
     <StackPanel Spacing="10">
-        <!-- 使用DataGrid实现表格布局 -->
-        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4"
+        <!-- 表格容器 -->
+        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White"
                 Visibility="{x:Bind HasMappings, Mode=OneWay}">
-            <controls:DataGrid x:Name="MappingsDataGrid"
-                      ItemsSource="{x:Bind Mappings, Mode=OneWay}"
-                      AutoGenerateColumns="False"
-                      CanUserReorderColumns="False"
-                      CanUserResizeColumns="False"
-                      CanUserSortColumns="False"
-                      GridLinesVisibility="Horizontal"
-                      HorizontalGridLinesBrush="#FFE0E0E0"
-                      VerticalGridLinesBrush="Transparent"
-                      HeadersVisibility="Column"
-                      MaxHeight="400"
-                      MinHeight="200"
-                      VerticalScrollBarVisibility="Auto"
-                      Background="White"
-                      HorizontalAlignment="Stretch"
-                      MinWidth="500"
-                      BorderThickness="0"
-                      Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                <controls:DataGrid.Columns>
-                    <!-- 说明列 -->
-                    <controls:DataGridTemplateColumn Header="说明" Width="2*" CanUserResize="True">
-                        <controls:DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate x:DataType="models:KeyMapping">
-                                <TextBox Text="{x:Bind Remark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       VerticalAlignment="Center"
-                                       BorderThickness="1"
-                                       Margin="5"
-                                       BorderBrush="{ThemeResource TextControlBorderBrush}"
-                                       Background="{ThemeResource TextControlBackground}"/>
-                            </DataTemplate>
-                        </controls:DataGridTemplateColumn.CellTemplate>
-                    </controls:DataGridTemplateColumn>
+                <!-- 表头 -->
+                <Border Grid.Row="0" Background="#FFF8F8F8" BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" MinWidth="200" />
+                            <ColumnDefinition Width="*" MinWidth="150" />
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="50" />
+                        </Grid.ColumnDefinitions>
 
-                    <!-- 设置按键列 -->
-                    <controls:DataGridTemplateColumn Header="设置按键" Width="*" CanUserResize="False">
-                        <controls:DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate x:DataType="models:KeyMapping">
-                                <control:FlexibleHotkeyInputBox HotkeyKeys="{x:Bind From, Mode=TwoWay}"
-                                                               Margin="5"/>
-                            </DataTemplate>
-                        </controls:DataGridTemplateColumn.CellTemplate>
-                    </controls:DataGridTemplateColumn>
+                        <TextBlock Grid.Column="0" Text="说明" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                   FontWeight="SemiBold" Margin="10,8" />
+                        <TextBlock Grid.Column="1" Text="设置按键" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="2" Text="开关" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="3" Text="删除" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   FontWeight="SemiBold" />
+                    </Grid>
+                </Border>
 
-                    <!-- 开关列 -->
-                    <controls:DataGridTemplateColumn Header="开关" Width="Auto" CanUserResize="False" MinWidth="60">
-                        <controls:DataGridTemplateColumn.CellTemplate>
+                <!-- 数据行容器 -->
+                <ScrollViewer Grid.Row="1" MaxHeight="400" MinHeight="200" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{x:Bind Mappings, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="models:KeyMapping">
-                                <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Center"
-                                            Margin="5,2"
-                                            MinWidth="0"/>
-                            </DataTemplate>
-                        </controls:DataGridTemplateColumn.CellTemplate>
-                    </controls:DataGridTemplateColumn>
+                                <Border BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1" Padding="0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" MinWidth="200" />
+                                            <ColumnDefinition Width="*" MinWidth="150" />
+                                            <ColumnDefinition Width="60" />
+                                            <ColumnDefinition Width="50" />
+                                        </Grid.ColumnDefinitions>
 
-                    <!-- 删除列 -->
-                    <controls:DataGridTemplateColumn Header="删除" Width="Auto" CanUserResize="False" MinWidth="50">
-                        <controls:DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate x:DataType="models:KeyMapping">
-                                <Button Click="DeleteButton_Click"
-                                      Tag="{x:Bind}"
-                                      VerticalAlignment="Center"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      HorizontalAlignment="Center"
-                                      Padding="3"
-                                      Width="30" Height="30">
-                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="14"/>
-                                </Button>
+                                        <!-- 说明列 -->
+                                        <TextBox Grid.Column="0" Text="{x:Bind Remark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 VerticalAlignment="Center" MinWidth="150" BorderThickness="1"
+                                                 Margin="5"
+                                                 BorderBrush="{ThemeResource TextControlBorderBrush}"
+                                                 Background="{ThemeResource TextControlBackground}"/>
+
+                                        <!-- 设置按键列 -->
+                                        <control:FlexibleHotkeyInputBox Grid.Column="1"
+                                                                       HotkeyKeys="{x:Bind From, Mode=TwoWay}"
+                                                                       Margin="5"/>
+
+                                        <!-- 开关列 -->
+                                        <ToggleSwitch Grid.Column="2" IsOn="{x:Bind IsEnabled, Mode=TwoWay}"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="5,2"
+                                                    MinWidth="0"/>
+
+                                        <!-- 删除列 -->
+                                        <Button Grid.Column="3" Click="DeleteButton_Click"
+                                              Tag="{x:Bind}"
+                                              VerticalAlignment="Center"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              HorizontalAlignment="Center"
+                                              Padding="3"
+                                              Width="30" Height="30">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" FontSize="14"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
-                        </controls:DataGridTemplateColumn.CellTemplate>
-                    </controls:DataGridTemplateColumn>
-                </controls:DataGrid.Columns>
-            </controls:DataGrid>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
         </Border>
 
         <TextBlock Text="暂无按键映射" HorizontalAlignment="Center" Margin="0,10,0,0"

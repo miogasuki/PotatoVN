@@ -68,6 +68,8 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
 
         UpdateHasMappings();
         Mappings.CollectionChanged += (_, _) => UpdateHasMappings();
+
+        // 清空按钮逻辑：直接清空并返回Secondary结果，让ViewModel处理保存
         SecondaryButtonClick += (_, _) => Mappings.Clear();
     }
 

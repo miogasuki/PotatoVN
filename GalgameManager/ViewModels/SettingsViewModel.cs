@@ -546,7 +546,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         };
         ContentDialogResult result = await keyMappingDialog.ShowAsync();
 
-        if (result == ContentDialogResult.Primary)
+        // 只有在用户点击保存或确认清空时才保存设置
+        if (result == ContentDialogResult.Primary || result == ContentDialogResult.Secondary)
         {
             await _localSettingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, keyMappingDialog.ResultMappings);
             _infoService.Info(InfoBarSeverity.Success, msg:"KeyMapping_Info_GlobalKeyMappingSaved".GetLocalized(), displayTimeMs: 2000);

@@ -691,6 +691,11 @@
                                 <local:SettingToggleSwitch x:Uid="SettingsPage_Other_AppCenter"
                                                            IsOn="{x:Bind ViewModel.UploadToAppCenter, Mode=TwoWay}"/>
                             </control:Panel>
+                            <!-- 指纹共享计划 -->
+                            <control:Panel>
+                                <local:SettingToggleSwitch x:Uid="SettingsPage_Other_FingerprintPlan"
+                                                           IsOn="{x:Bind ViewModel.FingerprintPlanEnabled, Mode=TwoWay}"/>
+                            </control:Panel>
                             <!-- 开发者模式 -->
                             <control:Panel>
                                 <RelativePanel HorizontalAlignment="Stretch">

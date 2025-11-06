@@ -3835,4 +3835,28 @@
   <data name="RestartRequired" xml:space="preserve">
     <value>该设置重启后生效~</value>
   </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Title" xml:space="preserve">
+    <value>加入指纹共享计划</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Description" xml:space="preserve">
+    <value>共享本地可执行文件的哈希以完善指纹识别。</value>
+  </data>
+  <data name="FingerprintUploadTask_Title" xml:space="preserve">
+    <value>上传游戏指纹</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Title" xml:space="preserve">
+    <value>正在上传指纹（处理中 {0} 个游戏）</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Waiting" xml:space="preserve">
+    <value>等待队列中还有 {0} 个游戏</value>
+  </data>
+  <data name="FingerprintUploadTask_EnumerateFailed" xml:space="preserve">
+    <value>遍历 {1} 的可执行文件时访问路径 {0} 失败。</value>
+  </data>
+  <data name="FingerprintUploadTask_HashFailed" xml:space="preserve">
+    <value>为 {1} 计算 {0} 的哈希值失败。</value>
+  </data>
+  <data name="FingerprintUploadTask_GameFailed" xml:space="preserve">
+    <value>{0} 的指纹上传失败。</value>
+  </data>
 </root>

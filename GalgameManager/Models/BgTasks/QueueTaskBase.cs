@@ -16,6 +16,7 @@ public abstract class QueueTaskBase<TQueueItem> : BgTaskBase where TQueueItem : 
     {
         return Task.Run((async Task () =>
         {
+            await InitializeAsync();
             await Task.Delay(500); //防止创建任务时立即结束
             while (true)
             {
@@ -67,4 +68,6 @@ public abstract class QueueTaskBase<TQueueItem> : BgTaskBase where TQueueItem : 
     
     /// 应该返回一个“xxxx {0}”，其中{0}将会被填入当等待前队列长度
     protected abstract string ProgressWaitingMsg();
+
+    protected virtual Task InitializeAsync() => Task.CompletedTask;
 }

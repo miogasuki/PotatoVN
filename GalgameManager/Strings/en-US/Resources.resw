@@ -3175,4 +3175,28 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Other_AutoExport_MaxBackupNumber.Description" xml:space="preserve">
     <value>When the limit is reached, the oldest backup will be deleted before creating a new one.</value>
   </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Title" xml:space="preserve">
+    <value>Enable Fingerprint Sharing Plan</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Description" xml:space="preserve">
+    <value>Share hashes of local executables to improve fingerprint recognition.</value>
+  </data>
+  <data name="FingerprintUploadTask_Title" xml:space="preserve">
+    <value>Fingerprint Upload</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Title" xml:space="preserve">
+    <value>Uploading fingerprints ({0} games running)</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Waiting" xml:space="preserve">
+    <value>Queue pending: {0} game(s)</value>
+  </data>
+  <data name="FingerprintUploadTask_EnumerateFailed" xml:space="preserve">
+    <value>Failed to enumerate executables under {0} for {1}.</value>
+  </data>
+  <data name="FingerprintUploadTask_HashFailed" xml:space="preserve">
+    <value>Failed to hash {0} for {1}.</value>
+  </data>
+  <data name="FingerprintUploadTask_GameFailed" xml:space="preserve">
+    <value>Fingerprint upload for {0} failed.</value>
+  </data>
 </root>

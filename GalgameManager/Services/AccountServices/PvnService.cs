@@ -105,6 +105,11 @@ public class PvnService : IPvnService
                 }
             }
             SyncGames();
+            if (await _settingsService.ReadSettingAsync<bool>(KeyValues.FingerprintPlanEnabled))
+            {
+                if (_bgTaskService.GetBgTask<FingerprintUploadTask>(string.Empty) is null)
+                    await _bgTaskService.AddBgTask(new FingerprintUploadTask());
+            }
         });
     }
 

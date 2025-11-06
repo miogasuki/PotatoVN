@@ -170,6 +170,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         //Other
         UploadToAppCenter = _localSettingsService.ReadSettingAsync<bool>(KeyValues.UploadData).Result;
         MemoryImprove = _localSettingsService.ReadSettingAsync<bool>(KeyValues.MemoryImprove).Result;
+        _fingerprintPlanEnabled = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FingerprintPlanEnabled).Result;
         WindowModes = new[] { WindowMode.Normal, WindowMode.Close, WindowMode.SystemTray };
         CloseMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.CloseMode).Result;
         DevelopmentMode = _localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result;
@@ -919,6 +920,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region Other
 
     [ObservableProperty] private bool _uploadToAppCenter;
+    [ObservableProperty] private bool _fingerprintPlanEnabled;
     [ObservableProperty] private bool _memoryImprove;
     [ObservableProperty] private WindowMode _closeMode;
     [ObservableProperty] private bool _developmentMode;
@@ -934,6 +936,21 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public readonly WindowMode[] WindowModes;
     
     partial void OnUploadToAppCenterChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.UploadData, value);
+
+    async partial void OnFingerprintPlanEnabledChanged(bool value)
+    {
+        try
+        {
+            await _localSettingsService.SaveSettingAsync(KeyValues.FingerprintPlanEnabled, value);
+            if (!value) return;
+            if (_bgTaskService.GetBgTask<FingerprintUploadTask>(Empty) is not null) return;
+            await _bgTaskService.AddBgTask(new FingerprintUploadTask());
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
+    }
     
     partial void OnMemoryImproveChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.MemoryImprove, value);
 

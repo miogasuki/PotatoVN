@@ -3140,4 +3140,28 @@
   <data name="SettingsPage_Rss_Mixed_Enable.Description" xml:space="preserve">
     <value>混合スクレイピングで有効にするスクレイパーを設定</value>
   </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Title" xml:space="preserve">
+    <value>指紋共有プランに参加する</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Description" xml:space="preserve">
+    <value>ローカル実行ファイルのハッシュを共有して指紋識別を改善します。</value>
+  </data>
+  <data name="FingerprintUploadTask_Title" xml:space="preserve">
+    <value>指紋アップロード</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Title" xml:space="preserve">
+    <value>指紋をアップロード中（処理中 {0} 件）</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Waiting" xml:space="preserve">
+    <value>待機キュー: 残り {0} 件のゲーム</value>
+  </data>
+  <data name="FingerprintUploadTask_EnumerateFailed" xml:space="preserve">
+    <value>{1} の実行ファイルを列挙中に {0} へのアクセスに失敗しました。</value>
+  </data>
+  <data name="FingerprintUploadTask_HashFailed" xml:space="preserve">
+    <value>{1} の {0} のハッシュ計算に失敗しました。</value>
+  </data>
+  <data name="FingerprintUploadTask_GameFailed" xml:space="preserve">
+    <value>{0} の指紋アップロードに失敗しました。</value>
+  </data>
 </root>

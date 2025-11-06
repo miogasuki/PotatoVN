@@ -149,6 +149,8 @@ public static class KeyValues
     public const string UpdateType = "UpdateType";
     public const string UpdateUrl = "UpdateUrl";
     public const string IsBetaChannel = "isBetaChannel";
+    public const string FingerprintPlanEnabled = "fingerprintPlanEnabled"; //bool, 是否加入指纹共享计划
+    public const string FingerprintUploadedMap = "fingerprintUploadedMap"; //Dictionary<string,bool>, 指纹上传状态
 
 
     //是否执行过某种升级, bool

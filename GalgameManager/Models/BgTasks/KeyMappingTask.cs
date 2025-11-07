@@ -137,20 +137,11 @@ public class KeyMappingTask : BgTaskBase
         {
             if (!mapping.IsEnabled || mapping.From.Count == 0 || mapping.To.Count == 0) continue;
 
-            var fromKeys = mapping.From.Select(k => (VirtualKey)k).ToList();
-            fromKeys.Sort((a, b) => GetKeyOrder(a) - GetKeyOrder(b));
-            var fromKeyString = string.Join("+", fromKeys.Select(GetKeyDisplayName));
-
-            // 检查是否包含鼠标按键
-            var mouseButton = mapping.To.FirstOrDefault(IsMouseButtonCode);
-            if (mouseButton != 0)
+            // 检查是否是鼠标到键盘的映射
+            var fromMouseButton = mapping.From.FirstOrDefault(IsMouseButtonCode);
+            if (fromMouseButton != 0)
             {
-                // 键盘映射到鼠标
-                _lookupMap[fromKeyString] = (new List<VirtualKeyCode>(), null, mouseButton);
-            }
-            else
-            {
-                // 键盘映射到键盘
+                // 鼠标映射到键盘
                 var toKeys = mapping.To.Select(k => (VirtualKey)k).ToList();
                 var toModifiers = toKeys.Where(IsModifierKey).Select(k => (VirtualKeyCode)k).ToList();
                 var toKey = toKeys.FirstOrDefault(k => !IsModifierKey(k));
@@ -158,7 +149,36 @@ public class KeyMappingTask : BgTaskBase
                 {
                     toKey = toKeys.FirstOrDefault();
                 }
+
+                var fromKeyString = $"Mouse{fromMouseButton}";
                 _lookupMap[fromKeyString] = (toModifiers, (VirtualKeyCode)toKey, null);
+            }
+            else
+            {
+                // 键盘映射（到键盘或鼠标）
+                var fromKeys = mapping.From.Select(k => (VirtualKey)k).ToList();
+                fromKeys.Sort((a, b) => GetKeyOrder(a) - GetKeyOrder(b));
+                var fromKeyString = string.Join("+", fromKeys.Select(GetKeyDisplayName));
+
+                // 检查是否包含鼠标按键
+                var mouseButton = mapping.To.FirstOrDefault(IsMouseButtonCode);
+                if (mouseButton != 0)
+                {
+                    // 键盘映射到鼠标
+                    _lookupMap[fromKeyString] = (new List<VirtualKeyCode>(), null, mouseButton);
+                }
+                else
+                {
+                    // 键盘映射到键盘
+                    var toKeys = mapping.To.Select(k => (VirtualKey)k).ToList();
+                    var toModifiers = toKeys.Where(IsModifierKey).Select(k => (VirtualKeyCode)k).ToList();
+                    var toKey = toKeys.FirstOrDefault(k => !IsModifierKey(k));
+                    if (toKey == default)
+                    {
+                        toKey = toKeys.FirstOrDefault();
+                    }
+                    _lookupMap[fromKeyString] = (toModifiers, (VirtualKeyCode)toKey, null);
+                }
             }
         }
     }
@@ -170,7 +190,8 @@ public class KeyMappingTask : BgTaskBase
         3 => true, // 鼠标中键
         4 => true, // X1按钮
         5 => true, // X2按钮
-        6 => true, // 鼠标滚轮
+        6 => true, // 鼠标滚轮向上
+        7 => true, // 鼠标滚轮向下
         _ => false
     };
 
@@ -249,13 +270,22 @@ public class KeyMappingTask : BgTaskBase
             if (_process.Id != foregroundProcessId) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
 
             // 检查是否是需要处理的鼠标事件
-            if (!IsMouseButtonDownEvent(wParam)) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+            if (!IsMouseEvent(wParam)) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
 
-            var mouseButton = GetMouseButtonFromWParam(wParam);
+            var mouseButton = GetMouseButtonFromWParam(wParam, lParam);
             if (mouseButton == 0) return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
 
-            // 这里可以处理鼠标到键盘的映射（如果需要的话）
-            // 目前我们只支持键盘到鼠标的映射
+            // 处理鼠标到键盘的映射
+            var fromKeyString = $"Mouse{mouseButton}";
+            if (_lookupMap.TryGetValue(fromKeyString, out var toHotkey))
+            {
+                if (toHotkey.key.HasValue)
+                {
+                    // 鼠标映射到键盘按键
+                    _inputSimulator.Keyboard.ModifiedKeyStroke(toHotkey.modifiers, toHotkey.key.Value);
+                }
+                return 1; // 阻止原始鼠标事件
+            }
         }
         catch(Exception)
         {
@@ -282,26 +312,44 @@ public class KeyMappingTask : BgTaskBase
                 mouse_event(MOUSEEVENTF_XDOWN, 0, 0, (uint)(mouseButton == 4 ? 1 : 2), 0);
                 mouse_event(MOUSEEVENTF_XUP, 0, 0, (uint)(mouseButton == 4 ? 1 : 2), 0);
                 break;
-            case 6: // 鼠标滚轮
-                mouse_event(MOUSEEVENTF_WHEEL, 0, 0, 120, 0); // 向上滚动
+            case 6: // 鼠标滚轮向上
+                mouse_event(MOUSEEVENTF_WHEEL, 0, 0, 120, 0);
+                break;
+            case 7: // 鼠标滚轮向下
+                mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-120), 0);
                 break;
         }
     }
 
-    private static bool IsMouseButtonDownEvent(nint wParam) => wParam switch
+    private static bool IsMouseEvent(nint wParam) => wParam switch
     {
-        WM_LBUTTONDOWN or WM_RBUTTONDOWN or WM_MBUTTONDOWN or WM_XBUTTONDOWN => true,
+        WM_LBUTTONDOWN or WM_RBUTTONDOWN or WM_MBUTTONDOWN or WM_XBUTTONDOWN or WM_MOUSEWHEEL => true,
         _ => false
     };
 
-    private static int GetMouseButtonFromWParam(nint wParam) => wParam switch
+    private static int GetMouseButtonFromWParam(nint wParam, nint lParam) => wParam switch
     {
         WM_LBUTTONDOWN => 1,
         WM_RBUTTONDOWN => 2,
         WM_MBUTTONDOWN => 3,
-        WM_XBUTTONDOWN => 4, // 默认X1，需要读取额外数据确定X1/X2
+        WM_XBUTTONDOWN => GetXButtonFromLParam(lParam), // 读取额外数据确定X1/X2
+        WM_MOUSEWHEEL => GetWheelDirectionFromLParam(lParam), // 确定滚轮方向
         _ => 0
     };
+
+    private static int GetXButtonFromLParam(nint lParam)
+    {
+        // 高位字表示X按钮编号
+        var hiWord = (ushort)((uint)Marshal.ReadInt32(lParam) >> 16);
+        return hiWord == 1 ? 4 : 5; // X1=4, X2=5
+    }
+
+    private static int GetWheelDirectionFromLParam(nint lParam)
+    {
+        // 高位字表示滚轮方向
+        var hiWord = (short)((uint)Marshal.ReadInt32(lParam) >> 16);
+        return hiWord > 0 ? 6 : 7; // 向上=6, 向下=7
+    }
     
     private bool IsKeyDown(VirtualKey key) => (GetKeyState((int)key) & 0x8000) != 0;
 

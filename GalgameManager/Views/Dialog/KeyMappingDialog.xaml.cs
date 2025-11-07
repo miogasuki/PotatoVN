@@ -29,7 +29,7 @@ public sealed partial class KeyMappingDialog : ContentDialog
 
     private void RemoveKeyMapping(KeyMapping? mapping)
     {
-        if (mapping != null && !mapping.IsGlobal) // 只允许删除非全局快捷键
+        if (mapping != null) // 允许删除所有快捷键，包括全局快捷键
         {
             ViewModel.KeyMappings.Remove(mapping);
         }

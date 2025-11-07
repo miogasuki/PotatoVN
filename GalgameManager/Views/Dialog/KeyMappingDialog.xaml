@@ -7,6 +7,7 @@
     xmlns:models="using:GalgameManager.Models"
     xmlns:control="using:GalgameManager.Views.Control"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
+    Style="{ThemeResource DefaultContentDialogStyle}"
     mc:Ignorable="d"
     DefaultButton="Primary">
 

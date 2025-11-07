@@ -51,6 +51,9 @@ public static class KeyValues
     public const string AlwaysEnableMagpie = "AlwaysEnableMagpie"; //bool, 是否无视各个游戏设置总是启用Magpie
     public const string MinPlayTimeRecordThreshold = "minPlayTimeRecordThreshold"; //int, 记录一次游玩的最小游玩时长 (分钟)
     public const string GameMuteEnabled = "gameMuteEnabled"; //bool, 是否启用游戏静音功能
+    public const string GameReMapEnabled = "gameReMapEnabled";
+    public const string GlobalKeyMappings = "GlobalKeyMappings";
+
     public const string AlwaysMuteInBackground = "AlwaysMuteInBackground"; //bool, 是否无视各个游戏设置总是在后台时静音游戏
     
     //启动与跳转相关

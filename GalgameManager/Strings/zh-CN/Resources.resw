@@ -1703,6 +1703,12 @@
   <data name="BgmOAuthService_FetchTokenFailed" xml:space="preserve">
     <value>获取Bangumi Token失败</value>
   </data>
+  <data name="BgmOAuthService_TokenExpired" xml:space="preserve">
+    <value>Bangumi登录已过期，请重新登录</value>
+  </data>
+  <data name="BgmOAuthService_TokenExpired_Action" xml:space="preserve">
+    <value>前往账户页面</value>
+  </data>
   <data name="BgmOAuthStatus_FetchingTokenInfo" xml:space="preserve">
     <value>获取Bangumi Token信息中</value>
   </data>
@@ -3188,6 +3194,9 @@
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>后台静音</value>
   </data>
+  <data name="GamePage_KeyReMap.Label" xml:space="preserve">
+    <value>快捷键映射</value>
+  </data>
   <data name="GamePage_MuteInBackground.ToolTipService.ToolTip" xml:space="preserve">
     <value>在游戏处于后台运行时时静音游戏</value>
   </data>
@@ -3868,4 +3877,158 @@
   <data name="SettingsPage_Rss_VNDB_TranslateTags.Description" xml:space="preserve">
     <value>是否把英文的VNDB标签翻译为中文</value>
   </data>
+
+  <!-- ========== 快捷键映射相关翻译 ========== -->
+
+  <!-- KeyMappingDialog 相关 -->
+  <data name="KeyMappingDialog_Title" xml:space="preserve">
+    <value>按键映射设置</value>
+  </data>
+  <data name="KeyMappingDialog_Description" xml:space="preserve">
+    <value>设置游戏内的按键映射，支持键盘到键盘、键盘到鼠标的映射</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Description.Text" xml:space="preserve">
+    <value>说明</value>
+  </data>
+  <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
+    <value>设置按键</value>
+  </data>
+  <data name="KeyMappingDialog_Header_ToKey.Text" xml:space="preserve">
+    <value>游戏中按键</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
+    <value>开关</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
+    <value>添加新映射</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
+    <value>删除此映射</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_Description.Text" xml:space="preserve">
+    <value>请输入描述（如：跳跃键）</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
+    <value>点击设置</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
+    <value>请按下快捷键或鼠标按键</value>
+  </data>
+
+  <!-- GlobalKeyMappingDialog 相关 -->
+  <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
+    <value>全局按键映射设置</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Description" xml:space="preserve">
+    <value>设置全局按键映射，这些映射将在所有游戏中生效</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Clear" xml:space="preserve">
+    <value>清空</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
+    <value>暂无按键映射</value>
+  </data>
+
+  <!-- SettingsViewModel 相关 -->
+  <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
+    <value>全局按键映射</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Description" xml:space="preserve">
+    <value>设置全局按键映射，这些映射将在所有游戏中生效</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
+    <value>编辑全局映射</value>
+  </data>
+
+  <!-- GalgameSettingPage 相关快捷键映射 -->
+  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
+    <value>按键映射</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
+    <value>设置游戏的按键映射，支持键盘到键盘、键盘到鼠标的映射</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
+    <value>编辑按键映射</value>
+  </data>
+
+  <!-- 快捷键提示信息 -->
+  <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
+    <value>红色角标表示全局快捷键，无法在此界面删除</value>
+  </data>
+  <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
+    <value>鼠标按键捕获已启用，请在输入框内点击鼠标按键</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>按键映射已保存</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
+    <value>全局按键映射已保存</value>
+  </data>
+  <data name="KeyMapping_Info_ClearAllMappings" xml:space="preserve">
+    <value>确定要清空所有全局按键映射吗？</value>
+  </data>
+  <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
+    <value>无法删除全局快捷键，请在全局设置中修改</value>
+  </data>
+
+  <!-- 快捷键显示名称 -->
+  <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
+    <value>鼠标左键</value>
+  </data>
+  <data name="KeyMapping_Mouse_RightButton" xml:space="preserve">
+    <value>鼠标右键</value>
+  </data>
+  <data name="KeyMapping_Mouse_MiddleButton" xml:space="preserve">
+    <value>鼠标中键</value>
+  </data>
+  <data name="KeyMapping_Mouse_X1Button" xml:space="preserve">
+    <value>鼠标X1键</value>
+  </data>
+  <data name="KeyMapping_Mouse_X2Button" xml:space="preserve">
+    <value>鼠标X2键</value>
+  </data>
+  <data name="KeyMapping_Mouse_Wheel" xml:space="preserve">
+    <value>鼠标滚轮</value>
+  </data>
+  <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
+    <value>未知鼠标键({0})</value>
+  </data>
+
+  <!-- KeyMappingTask 相关 -->
+  <data name="KeyMappingTask_Title" xml:space="preserve">
+    <value>按键映射任务</value>
+  </data>
+  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
+    <value>正在为游戏 {0} 进行按键映射</value>
+  </data>
+  <data name="KeyMappingTask_Done" xml:space="preserve">
+    <value>按键映射任务已结束</value>
+  </data>
+
+  <!-- Settings页面游戏快捷键映射相关 -->
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>启动游戏快捷键映射</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>游戏快捷键映射总开关。</value>
+  </data>
+  <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
+    <value>编辑按键映射</value>
+  </data>
+
 </root>

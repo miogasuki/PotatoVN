@@ -23,7 +23,7 @@ public partial class KeyMapping : ObservableObject
     /// <summary>
     /// 是否包含鼠标按键映射
     /// </summary>
-    public bool ContainsMouseKey => _to.Any(IsMouseKey);
+    public bool ContainsMouseKey => To.Any(IsMouseKey);
 
     private static bool IsMouseKey(int keyCode) => keyCode switch
     {

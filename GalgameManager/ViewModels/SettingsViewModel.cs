@@ -136,6 +136,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         PlayingWindowModes = new[] {WindowMode.Minimize, WindowMode.SystemTray, WindowMode.None };
         //RSS
         RssType = _localSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType).Result;
+        _vndbTranslateTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbTranslateTags).Result;
         //DOWNLOAD_BEHAVIOR
         // _overrideLocalName = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalName).Result;
         // _overrideLocalNameWithChinese = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalNameWithChinese).Result;
@@ -265,6 +266,14 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     ];
     [ObservableProperty] private LanguageEnum _language;
 
+    /// <summary>
+    /// 当前视图模型是否为中文环境（用于控制仅中文可见的设置）
+    /// </summary>
+    public bool IsChineseCulture =>
+        Language == LanguageEnum.ChineseSimplified ||
+        (Language == LanguageEnum.Auto &&
+         System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase));
+
     public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic };
     [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;
 
@@ -291,12 +300,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     partial void OnLanguageChanged(LanguageEnum value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.Language, value);
-
+ 
         try
         {
             string languageTag = GetLanguageTag(value);
             ApplicationLanguages.PrimaryLanguageOverride = languageTag;
-
+ 
             // 提醒用户完全应用新语言还需要重启应用
             _infoService.Info(InfoBarSeverity.Informational,
                 "SettingsPage_Language_RestartRequired".GetLocalized(),
@@ -308,6 +317,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 "SettingsPage_Language_ChangeError".GetLocalized(),
                 ex.Message);
         }
+        // 通知依赖语言环境的绑定项更新（例如仅在中文环境显示的选项）
+        OnPropertyChanged(nameof(IsChineseCulture));
     }
 
     // 根据语言枚举获取对应的语言标记
@@ -593,6 +604,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private RssType _rssType;
     // ReSharper disable once CollectionNeverQueried.Global
     public readonly RssType[] RssTypes = { RssType.Mixed , RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal};
+    [ObservableProperty] private bool _vndbTranslateTags;
     
     partial void OnRssTypeChanged(RssType value)
     {
@@ -641,6 +653,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     partial void OnDownloadPlayStatusWhenPhrasingChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SyncPlayStatusWhenPhrasing, value);
     
     partial void OnDownloadCharactersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.DownloadCharacters, value);
+    
+    partial void OnVndbTranslateTagsChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.VndbTranslateTags, value);
 
     [RelayCommand]
     private async Task CategoryNow()

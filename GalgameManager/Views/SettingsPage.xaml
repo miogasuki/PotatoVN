@@ -17,6 +17,7 @@
         <converter:RssTypeToVisibilityConverter x:Key="RssTypeToVisibilityConverter"/>
         <converter:AuthenticationTypeToStringConverter x:Key="AuthenticationTypeToStringConverter"/>
         <converter:WindowModeToStringConverter x:Key="WindowModeToStringConverter"/>
+        <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converter:EnumToStringConverter x:Key="EnumToStringConverter"/>
         <cmtkConverters:StringVisibilityConverter x:Key="StringVisibilityConverter"/>
         <Style x:Key="SettingStackPanelStyle" TargetType="StackPanel">
@@ -183,6 +184,10 @@
                                             TextWrapping="Wrap"
                                                Style="{StaticResource DescriptionTextStyle}"
                                                Margin="{StaticResource XSmallBottomMargin}"/>
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
+                                                               IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"
+                                                               Visibility="{x:Bind ViewModel.IsChineseCulture, Mode=OneWay, 
+                                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                             </control:Panel>
                             <!-- Mixed -->
@@ -205,6 +210,10 @@
                                                 MinWidth="{StaticResource ButtonMinWidth}"
                                                 Command="{x:Bind ViewModel.SetMixedPhraserEnabledCommand}"/>
                                     </control:Setting>
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
+                                                               IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"
+                                                               Visibility="{x:Bind ViewModel.IsChineseCulture, Mode=OneWay, 
+                                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                             </control:Panel>
 

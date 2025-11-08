@@ -18,6 +18,27 @@
     </ContentDialog.Resources>
 
     <StackPanel Spacing="10">
+        <!-- 输入模式切换 -->
+        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White" Padding="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           x:Uid="KeyMappingDialog_InputMode"
+                           VerticalAlignment="Center"                         
+                           Margin="10,0,0,0" />
+
+                <ToggleSwitch Grid.Column="1"
+                             x:Name="InputModeToggle"
+                             x:Uid="KeyMappingDialog_InputModeToggle"
+                             Toggled="InputModeToggle_Toggled"
+                             Margin="0" />
+            </Grid>
+        </Border>
+
         <!-- 表格容器 -->
         <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White">
             <Grid>

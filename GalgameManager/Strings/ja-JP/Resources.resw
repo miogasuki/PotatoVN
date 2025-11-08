@@ -3221,6 +3221,15 @@
   <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
     <value>キーまたはマウスボタンを押してください</value>
   </data>
+  <data name="KeyMappingDialog_InputMode.Text" xml:space="preserve">
+    <value>入力モード:</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OffContent" xml:space="preserve">
+    <value>キャプチャモード</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
+    <value>選択モード</value>
+  </data>
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
     <value>グローバルキーマッピング設定</value>
   </data>

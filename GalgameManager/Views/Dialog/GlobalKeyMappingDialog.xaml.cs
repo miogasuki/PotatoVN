@@ -6,8 +6,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Models;
+using GalgameManager.Views.Control;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 
@@ -97,6 +99,45 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
         if (sender is Button button && button.Tag is KeyMapping mapping)
         {
             RemoveMapping(mapping);
+        }
+    }
+
+    private void InputModeToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (sender is ToggleSwitch toggleSwitch)
+        {
+            var newMode = toggleSwitch.IsOn ? InputMode.Dropdown : InputMode.Capture;
+            UpdateAllInputBoxes(newMode);
+        }
+    }
+
+    private void UpdateAllInputBoxes(InputMode mode)
+    {
+        // 遍历所有FlexibleHotkeyInputBox并更新它们的模式
+        var inputBoxes = FindVisualChildren<FlexibleHotkeyInputBox>(this);
+        foreach (var inputBox in inputBoxes)
+        {
+            inputBox.InputMode = mode;
+        }
+    }
+
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject? depObj) where T : DependencyObject
+    {
+        if (depObj != null)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                DependencyObject? child = VisualTreeHelper.GetChild(depObj, i);
+                if (child != null && child is T)
+                {
+                    yield return (T)child;
+                }
+
+                foreach (T childOfChild in FindVisualChildren<T>(child))
+                {
+                    yield return childOfChild;
+                }
+            }
         }
     }
     

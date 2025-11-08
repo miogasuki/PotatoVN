@@ -3265,7 +3265,6 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
     <value>Selection Mode</value>
   </data>
-
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
     <value>Global Key Mapping Settings</value>
   </data>
@@ -3392,8 +3391,6 @@ If play time can record correctly, just cancel this popup.
   <data name="UploadAllPlayStatusTask_Progress_Waiting" xml:space="preserve">
     <value>Waiting to upload {0} items</value>
   </data>
-
-  <!-- ========== SearchableTextBox 常用热键建议 ========== -->
   <data name="Galgame_hotkey_common_QuickSave" xml:space="preserve">
     <value>Quick Save</value>
   </data>

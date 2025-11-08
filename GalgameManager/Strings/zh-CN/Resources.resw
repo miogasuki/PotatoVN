@@ -3877,10 +3877,6 @@
   <data name="SettingsPage_Rss_VNDB_TranslateTags.Description" xml:space="preserve">
     <value>是否把英文的VNDB标签翻译为中文</value>
   </data>
-
-  <!-- ========== 快捷键映射相关翻译 ========== -->
-
-  <!-- KeyMappingDialog 相关 -->
   <data name="KeyMappingDialog_Title" xml:space="preserve">
     <value>按键映射设置</value>
   </data>
@@ -3923,8 +3919,6 @@
   <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
     <value>请按下快捷键或鼠标按键</value>
   </data>
-
-  <!-- GlobalKeyMappingDialog 相关 -->
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
     <value>全局按键映射设置</value>
   </data>
@@ -3943,8 +3937,6 @@
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>暂无按键映射</value>
   </data>
-
-  <!-- SettingsViewModel 相关 -->
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>全局按键映射</value>
   </data>
@@ -3954,8 +3946,6 @@
   <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
     <value>编辑全局映射</value>
   </data>
-
-  <!-- GalgameSettingPage 相关快捷键映射 -->
   <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
     <value>按键映射</value>
   </data>
@@ -3965,8 +3955,6 @@
   <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
     <value>编辑按键映射</value>
   </data>
-
-  <!-- 快捷键提示信息 -->
   <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
     <value>红色角标表示全局快捷键，无法在此界面删除</value>
   </data>
@@ -3985,8 +3973,6 @@
   <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
     <value>无法删除全局快捷键，请在全局设置中修改</value>
   </data>
-
-  <!-- 快捷键显示名称 -->
   <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
     <value>鼠标左键</value>
   </data>
@@ -4008,8 +3994,6 @@
   <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
     <value>未知鼠标键({0})</value>
   </data>
-
-  <!-- KeyMappingTask 相关 -->
   <data name="KeyMappingTask_Title" xml:space="preserve">
     <value>按键映射任务</value>
   </data>
@@ -4019,8 +4003,6 @@
   <data name="KeyMappingTask_Done" xml:space="preserve">
     <value>按键映射任务已结束</value>
   </data>
-
-  <!-- Settings页面游戏快捷键映射相关 -->
   <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
     <value>启动游戏快捷键映射</value>
   </data>
@@ -4030,5 +4012,34 @@
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>编辑按键映射</value>
   </data>
-
+  <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
+    <value>上传所有游戏游玩状态</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Description.Text" xml:space="preserve">
+    <value>选择要上传游玩状态的服务。</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Bangumi.Content" xml:space="preserve">
+    <value>上传到 Bangumi</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Vndb.Content" xml:space="preserve">
+    <value>上传到 VNDB</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_NoTargetSelected" xml:space="preserve">
+    <value>请至少选择一个目标服务。</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_AlreadyRunning" xml:space="preserve">
+    <value>上传任务已经在运行中。</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Started" xml:space="preserve">
+    <value>已启动上传所有游戏游玩状态的任务</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Title" xml:space="preserve">
+    <value>上传所有游玩状态任务</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Progress_Title" xml:space="preserve">
+    <value>上传游玩状态 ({0})</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Progress_Waiting" xml:space="preserve">
+    <value>等待上传 {0} 条记录</value>
+  </data>
 </root>

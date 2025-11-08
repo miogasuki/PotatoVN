@@ -3149,10 +3149,36 @@
   <data name="SettingsPage_Rss_Mixed_Enable.Description" xml:space="preserve">
     <value>混合スクレイピングで有効にするスクレイパーを設定</value>
   </data>
-
-  <!-- ========== キーマッピング関連翻訳 ========== -->
-
-  <!-- KeyMappingDialog 関連 -->
+  <data name="SettingsPage_Other_FingerprintPlan.Title" xml:space="preserve">
+    <value>指紋共有プランに参加する</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Description" xml:space="preserve">
+    <value>ローカル実行ファイルのハッシュを共有して指紋識別を改善します。</value>
+  </data>
+  <data name="FingerprintUploadTask_Title" xml:space="preserve">
+    <value>指紋アップロード</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Title" xml:space="preserve">
+    <value>指紋をアップロード中（処理中 {0} 件）</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Waiting" xml:space="preserve">
+    <value>待機キュー: 残り {0} 件のゲーム</value>
+  </data>
+  <data name="FingerprintUploadTask_EnumerateFailed" xml:space="preserve">
+    <value>{1} の実行ファイルを列挙中に {0} へのアクセスに失敗しました。</value>
+  </data>
+  <data name="FingerprintUploadTask_HashFailed" xml:space="preserve">
+    <value>{1} の {0} のハッシュ計算に失敗しました。</value>
+  </data>
+  <data name="FingerprintUploadTask_GameFailed" xml:space="preserve">
+    <value>{0} の指紋アップロードに失敗しました。</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_TranslateTags.Title" xml:space="preserve">
+    <value>VNDBのタグを翻訳</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_TranslateVndbTags.Title" xml:space="preserve">
+    <value>VNDBのタグを翻訳</value>
+  </data>
   <data name="KeyMappingDialog_Title" xml:space="preserve">
     <value>キーマッピング設定</value>
   </data>
@@ -3195,8 +3221,6 @@
   <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
     <value>キーまたはマウスボタンを押してください</value>
   </data>
-
-  <!-- GlobalKeyMappingDialog 関連 -->
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
     <value>グローバルキーマッピング設定</value>
   </data>
@@ -3215,8 +3239,6 @@
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>キーマッピングがありません</value>
   </data>
-
-  <!-- SettingsViewModel 関連 -->
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>グローバルキーマッピング</value>
   </data>
@@ -3226,8 +3248,6 @@
   <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
     <value>グローバルマッピングを編集</value>
   </data>
-
-  <!-- GalgameSettingPage 関連キーマッピング -->
   <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
     <value>キーマッピング</value>
   </data>
@@ -3237,8 +3257,6 @@
   <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
     <value>キーマッピングを編集</value>
   </data>
-
-  <!-- キーマッピング関連メッセージ -->
   <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
     <value>赤いコーナーはグローバルショートカットを示し、ここでは削除できません</value>
   </data>
@@ -3257,8 +3275,6 @@
   <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
     <value>グローバルショートカットは削除できません、グローバル設定で修正してください</value>
   </data>
-
-  <!-- マウスボタン表示名 -->
   <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
     <value>マウス左ボタン</value>
   </data>
@@ -3280,8 +3296,6 @@
   <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
     <value>不明なマウスキー({0})</value>
   </data>
-
-  <!-- KeyMappingTask 関連 -->
   <data name="KeyMappingTask_Title" xml:space="preserve">
     <value>キーマッピングタスク</value>
   </data>
@@ -3291,8 +3305,6 @@
   <data name="KeyMappingTask_Done" xml:space="preserve">
     <value>キーマッピングタスクが終了しました</value>
   </data>
-
-  <!-- Settingsページゲームキーマッピング関連 -->
   <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
     <value>ゲームキーマッピングを有効化</value>
   </data>
@@ -3301,36 +3313,5 @@
   </data>
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>キーマッピング編集</value>
-  </data>
-
-  <data name="SettingsPage_Other_FingerprintPlan.Title" xml:space="preserve">
-    <value>指紋共有プランに参加する</value>
-  </data>
-  <data name="SettingsPage_Other_FingerprintPlan.Description" xml:space="preserve">
-    <value>ローカル実行ファイルのハッシュを共有して指紋識別を改善します。</value>
-  </data>
-  <data name="FingerprintUploadTask_Title" xml:space="preserve">
-    <value>指紋アップロード</value>
-  </data>
-  <data name="FingerprintUploadTask_Progress_Title" xml:space="preserve">
-    <value>指紋をアップロード中（処理中 {0} 件）</value>
-  </data>
-  <data name="FingerprintUploadTask_Progress_Waiting" xml:space="preserve">
-    <value>待機キュー: 残り {0} 件のゲーム</value>
-  </data>
-  <data name="FingerprintUploadTask_EnumerateFailed" xml:space="preserve">
-    <value>{1} の実行ファイルを列挙中に {0} へのアクセスに失敗しました。</value>
-  </data>
-  <data name="FingerprintUploadTask_HashFailed" xml:space="preserve">
-    <value>{1} の {0} のハッシュ計算に失敗しました。</value>
-  </data>
-  <data name="FingerprintUploadTask_GameFailed" xml:space="preserve">
-    <value>{0} の指紋アップロードに失敗しました。</value>
-  </data>
-  <data name="SettingsPage_Rss_VNDB_TranslateTags.Title" xml:space="preserve">
-    <value>VNDBのタグを翻訳</value>
-  </data>
-  <data name="SettingsPage_Rss_Mixed_TranslateVndbTags.Title" xml:space="preserve">
-    <value>VNDBのタグを翻訳</value>
   </data>
 </root>

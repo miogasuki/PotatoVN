@@ -710,6 +710,40 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         await DisplayMsgAsync(result.Item1.ToInfoBarSeverity(), result.Item2);
     }
 
+    [RelayCommand]
+    private async Task UploadAllPlayStatus()
+    {
+        try
+        {
+            UploadAllPlayStatusDialog dialog = new();
+            ContentDialogResult dlgResult = await dialog.ShowAsync();
+            if (dlgResult != ContentDialogResult.Primary || dialog.Canceled) return;
+
+            bool uploadBangumi = dialog.SelectedBangumi;
+            bool uploadVndb = dialog.SelectedVndb;
+
+            if (!uploadBangumi && !uploadVndb)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, msg: "UploadAllPlayStatusDialog_NoTargetSelected".GetLocalized());
+                return;
+            }
+
+            if (_bgTaskService.GetBgTask<UploadAllPlayStatusTask>(Empty) is not null)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, msg: "UploadAllPlayStatusTask_AlreadyRunning".GetLocalized());
+                return;
+            }
+
+            UploadAllPlayStatusTask task = new(uploadBangumi, uploadVndb);
+            await _bgTaskService.AddBgTask(task);
+            _infoService.Info(InfoBarSeverity.Success, msg: "UploadAllPlayStatusTask_Started".GetLocalized());
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
+    }
+
     #endregion
 
     #region LIBRARY

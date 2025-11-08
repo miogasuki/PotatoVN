@@ -267,6 +267,10 @@
                                     <control:Setting x:Uid="SettingsPage_Download_SyncVndbPlayStatusNow">
                                         <Button Content="Go" Width="75" Command="{x:Bind ViewModel.DownloadPlayStatusFormVndbNowCommand}"/>
                                     </control:Setting>
+                                    <control:Setting Title="上传所有游戏游玩状态"
+                                                     Description="一键上传所有游戏的游玩状态到bangumi和vndb">
+                                        <Button Content="Go" Width="75" Command="{x:Bind ViewModel.UploadAllPlayStatusCommand}"/>
+                                    </control:Setting>
                                 </StackPanel>
                             </control:Panel>                            
                         </StackPanel>

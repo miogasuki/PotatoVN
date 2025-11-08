@@ -3214,10 +3214,6 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Rss_Mixed_TranslateVndbTags.Title" xml:space="preserve">
     <value>Translate VNDB tags</value>
   </data>
-
-  <!-- ========== Key Mapping Related Translations ========== -->
-
-  <!-- KeyMappingDialog Related -->
   <data name="KeyMappingDialog_Title" xml:space="preserve">
     <value>Key Mapping Settings</value>
   </data>
@@ -3239,11 +3235,11 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
-    <value>Save</value>
-  </data>
   <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
     <value>Close</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>Save</value>
   </data>
   <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
     <value>Add New Mapping</value>
@@ -3260,8 +3256,6 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
     <value>Press a key or mouse button</value>
   </data>
-
-  <!-- GlobalKeyMappingDialog Related -->
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
     <value>Global Key Mapping Settings</value>
   </data>
@@ -3280,8 +3274,6 @@ If play time can record correctly, just cancel this popup.
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>No key mappings available</value>
   </data>
-
-  <!-- SettingsViewModel Related -->
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>Global Key Mapping</value>
   </data>
@@ -3291,8 +3283,6 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
     <value>Edit Global Mappings</value>
   </data>
-
-  <!-- GalgameSettingPage Related Key Mappings -->
   <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
     <value>Key Mapping</value>
   </data>
@@ -3302,8 +3292,6 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
     <value>Edit Key Mapping</value>
   </data>
-
-  <!-- Key Mapping Messages -->
   <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
     <value>Red corner indicates global shortcut, cannot be deleted here</value>
   </data>
@@ -3322,8 +3310,6 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
     <value>Cannot delete global shortcut, please modify in global settings</value>
   </data>
-
-  <!-- Mouse Button Display Names -->
   <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
     <value>Mouse Left Button</value>
   </data>
@@ -3345,8 +3331,6 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
     <value>Unknown Mouse Key({0})</value>
   </data>
-
-  <!-- KeyMappingTask Related -->
   <data name="KeyMappingTask_Title" xml:space="preserve">
     <value>Key Mapping Task</value>
   </data>
@@ -3356,8 +3340,6 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMappingTask_Done" xml:space="preserve">
     <value>Key mapping task finished</value>
   </data>
-
-  <!-- Settings Page Game Key Mapping Related -->
   <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
     <value>Enable Game Key Mapping</value>
   </data>
@@ -3367,5 +3349,34 @@ If play time can record correctly, just cancel this popup.
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>Edit Key Mapping</value>
   </data>
-
+  <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
+    <value>Upload All Play Statuses</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Description.Text" xml:space="preserve">
+    <value>Select which services to upload play status to.</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Bangumi.Content" xml:space="preserve">
+    <value>Upload to Bangumi</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Vndb.Content" xml:space="preserve">
+    <value>Upload to VNDB</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_NoTargetSelected" xml:space="preserve">
+    <value>Please select at least one target service.</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_AlreadyRunning" xml:space="preserve">
+    <value>Upload task is already running.</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Started" xml:space="preserve">
+    <value>Upload-all play status task started.</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Title" xml:space="preserve">
+    <value>Upload all play statuses</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Progress_Title" xml:space="preserve">
+    <value>Uploading play status ({0})</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Progress_Waiting" xml:space="preserve">
+    <value>Waiting to upload {0} items</value>
+  </data>
 </root>

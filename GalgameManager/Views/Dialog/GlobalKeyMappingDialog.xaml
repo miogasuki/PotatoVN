@@ -18,7 +18,7 @@
 
     <StackPanel Spacing="10">
         <!-- 输入模式切换 -->
-        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White" Padding="2" Visibility="{x:Bind HasMappings, Mode=OneWay}">
+        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White" Padding="2">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -34,13 +34,13 @@
                              x:Name="InputModeToggle"
                              x:Uid="KeyMappingDialog_InputModeToggle"
                              Toggled="InputModeToggle_Toggled"
-                             Margin="0" />
+                             Margin="0" 
+                             IsEnabled="{x:Bind HasMappings, Mode=OneWay}"/>
             </Grid>
         </Border>
 
         <!-- 表格容器 -->
-        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White"
-                Visibility="{x:Bind HasMappings, Mode=OneWay}">
+        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -69,7 +69,7 @@
                 </Border>
 
                 <!-- 数据行容器 -->
-                <ScrollViewer Grid.Row="1" MaxHeight="400" MinHeight="200" VerticalScrollBarVisibility="Auto"
+                <ScrollViewer Grid.Row="1" MaxHeight="400" MinHeight="200" MinWidth="500" VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl ItemsSource="{x:Bind Mappings, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>

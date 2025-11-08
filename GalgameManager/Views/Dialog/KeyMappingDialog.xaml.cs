@@ -5,7 +5,6 @@ using GalgameManager.Views.Control;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using CommunityToolkit.WinUI;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 
 namespace GalgameManager.Views.Dialog;
@@ -15,6 +14,32 @@ public sealed partial class KeyMappingDialog : ContentDialog
     public GalgameSettingViewModel ViewModel { get; }
     public ObservableCollection<KeyMapping> DialogKeyMappings { get; private set; } = null!;
     private readonly ObservableCollection<KeyMapping> _originalKeyMappings;
+
+    public static readonly DependencyProperty HasMappingsProperty =
+        DependencyProperty.Register(nameof(HasMappings), typeof(bool), typeof(KeyMappingDialog), new PropertyMetadata(false));
+
+    public bool HasMappings
+    {
+        get => (bool)GetValue(HasMappingsProperty);
+        private set => SetValue(HasMappingsProperty, value);
+    }
+
+    public static readonly DependencyProperty InputModeProperty =
+        DependencyProperty.Register(nameof(InputMode), typeof(InputMode), typeof(KeyMappingDialog), new PropertyMetadata(InputMode.Capture, OnInputModeChanged));
+
+    public InputMode InputMode
+    {
+        get => (InputMode)GetValue(InputModeProperty);
+        set => SetValue(InputModeProperty, value);
+    }
+
+    private static void OnInputModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is KeyMappingDialog dialog)
+        {
+            dialog.UpdateAllInputBoxes((InputMode)e.NewValue);
+        }
+    }
 
     public KeyMappingDialog(GalgameSettingViewModel viewModel)
     {
@@ -30,6 +55,9 @@ public sealed partial class KeyMappingDialog : ContentDialog
         // 创建原始数据的深拷贝，完全不修改 ViewModel 的数据
         _originalKeyMappings = new ObservableCollection<KeyMapping>(ViewModel.KeyMappings);
         DialogKeyMappings = CreateDeepCopy(_originalKeyMappings);
+
+        // 初始化 HasMappings 状态
+        UpdateHasMappings();
 
         // 添加PrimaryButtonClick事件处理
         PrimaryButtonClick += OnSaveButtonClick;
@@ -57,6 +85,7 @@ public sealed partial class KeyMappingDialog : ContentDialog
         if (mapping != null) // 允许删除所有快捷键，包括全局快捷键
         {
             DialogKeyMappings.Remove(mapping);
+            UpdateHasMappings();
         }
     }
 
@@ -77,6 +106,7 @@ public sealed partial class KeyMappingDialog : ContentDialog
     private void AddKeyMapping()
     {
         DialogKeyMappings.Add(new KeyMapping { IsGlobal = false });
+        UpdateHasMappings();
     }
 
     private void AddKeyMappingButton_Click(object sender, RoutedEventArgs e)
@@ -84,12 +114,27 @@ public sealed partial class KeyMappingDialog : ContentDialog
         AddKeyMapping();
     }
 
+    private void UpdateHasMappings()
+    {
+        HasMappings = DialogKeyMappings.Count > 0;
+
+        // 如果没有映射了，自动切换回捕获模式（关闭模式）
+        if (!HasMappings && InputMode == InputMode.Dropdown)
+        {
+            InputMode = InputMode.Capture;
+            // 同步 ToggleSwitch 状态
+            if (InputModeToggle != null)
+            {
+                InputModeToggle.IsOn = false;
+            }
+        }
+    }
+
     private void InputModeToggle_Toggled(object sender, RoutedEventArgs e)
     {
         if (sender is ToggleSwitch toggleSwitch)
         {
-            var newMode = toggleSwitch.IsOn ? InputMode.Dropdown : InputMode.Capture;
-            UpdateAllInputBoxes(newMode);
+            InputMode = toggleSwitch.IsOn ? InputMode.Dropdown : InputMode.Capture;
         }
     }
 

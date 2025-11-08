@@ -20,6 +20,23 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
     private ObservableCollection<KeyMapping> _mappings = null!;
     private bool _hasMappings;
 
+    public static readonly DependencyProperty InputModeProperty =
+        DependencyProperty.Register(nameof(InputMode), typeof(InputMode), typeof(GlobalKeyMappingDialog), new PropertyMetadata(InputMode.Capture, OnInputModeChanged));
+
+    public InputMode InputMode
+    {
+        get => (InputMode)GetValue(InputModeProperty);
+        set => SetValue(InputModeProperty, value);
+    }
+
+    private static void OnInputModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is GlobalKeyMappingDialog dialog)
+        {
+            dialog.UpdateAllInputBoxes((InputMode)e.NewValue);
+        }
+    }
+
     public ObservableCollection<KeyMapping> Mappings
     {
         get => _mappings;
@@ -69,7 +86,21 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
         }
 
         UpdateHasMappings();
-        Mappings.CollectionChanged += (_, _) => UpdateHasMappings();
+        Mappings.CollectionChanged += (_, _) =>
+        {
+            UpdateHasMappings();
+
+            // 如果没有映射了，自动切换回捕获模式（关闭模式）
+            if (!HasMappings && InputMode == InputMode.Dropdown)
+            {
+                InputMode = InputMode.Capture;
+                // 同步 ToggleSwitch 状态
+                if (InputModeToggle != null)
+                {
+                    InputModeToggle.IsOn = false;
+                }
+            }
+        };
 
         // 清空按钮逻辑：直接清空并返回Secondary结果，让ViewModel处理保存
         SecondaryButtonClick += (_, _) => Mappings.Clear();
@@ -106,8 +137,7 @@ public sealed partial class GlobalKeyMappingDialog : ContentDialog, INotifyPrope
     {
         if (sender is ToggleSwitch toggleSwitch)
         {
-            var newMode = toggleSwitch.IsOn ? InputMode.Dropdown : InputMode.Capture;
-            UpdateAllInputBoxes(newMode);
+            InputMode = toggleSwitch.IsOn ? InputMode.Dropdown : InputMode.Capture;
         }
     }
 

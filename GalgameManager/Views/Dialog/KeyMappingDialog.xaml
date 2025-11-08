@@ -35,7 +35,8 @@
                              x:Name="InputModeToggle"
                              x:Uid="KeyMappingDialog_InputModeToggle"
                              Toggled="InputModeToggle_Toggled"
-                             Margin="0" />
+                             Margin="0"
+                             IsEnabled="{x:Bind HasMappings, Mode=OneWay}"/>
             </Grid>
         </Border>
 
@@ -146,7 +147,7 @@
         <Button Click="AddKeyMappingButton_Click" HorizontalAlignment="Stretch" Margin="0,10,0,0">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <SymbolIcon Symbol="Add"/>
-                <TextBlock Text="{Binding KeyMappingDialog_Button_AddMapping, ElementName=dialog}"/>
+                <TextBlock x:Uid="KeyMappingDialog_Button_AddMapping"/>
             </StackPanel>
         </Button>
     </StackPanel>

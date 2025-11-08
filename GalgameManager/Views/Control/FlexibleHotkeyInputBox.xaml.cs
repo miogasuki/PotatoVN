@@ -4,6 +4,7 @@ using Windows.System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using CommunityToolkit.WinUI;
 
 namespace GalgameManager.Views.Control;
@@ -35,8 +36,15 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
         // 延迟初始化模式显示，确保控件完全加载
         Loaded += (sender, e) =>
         {
-            // 初始时默认为捕获模式
-            InputMode = InputMode.Capture;
+            // 如果没有通过 XAML 绑定设置 InputMode，尝试自动查找父级的 InputMode
+            if (InputMode == InputMode.Capture)
+            {
+                var parentInputMode = FindParentInputMode(this);
+                if (parentInputMode.HasValue)
+                {
+                    InputMode = parentInputMode.Value;
+                }
+            }
             UpdateDisplay();
         };
     }
@@ -773,6 +781,22 @@ public sealed partial class FlexibleHotkeyInputBox : INotifyPropertyChanged
         >= 1 and <= 7 => true, // 鼠标按键（包括滚轮上下6,7）
         _ => false
     };
+
+    private static InputMode? FindParentInputMode(DependencyObject child)
+    {
+        var parent = VisualTreeHelper.GetParent(child);
+        while (parent != null)
+        {
+            // 使用反射查找 InputMode 属性
+            var inputModeProp = parent.GetType().GetProperty("InputMode");
+            if (inputModeProp?.PropertyType == typeof(InputMode))
+            {
+                return (InputMode?)inputModeProp.GetValue(parent);
+            }
+            parent = VisualTreeHelper.GetParent(parent);
+        }
+        return null;
+    }
 
     private static string GetMouseDisplayName(int mouseCode) => mouseCode switch
     {

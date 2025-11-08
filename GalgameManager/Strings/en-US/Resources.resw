@@ -3281,6 +3281,9 @@ If play time can record correctly, just cancel this popup.
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>Key mapping saved</value>
+  </data>
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>No key mappings available</value>
   </data>

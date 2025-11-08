@@ -13,12 +13,12 @@
     DefaultButton="Primary">
 
     <ContentDialog.Resources>
-        <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <x:Double x:Key="ContentDialogMinWidth">500</x:Double>
     </ContentDialog.Resources>
 
     <StackPanel Spacing="10">
         <!-- 输入模式切换 -->
-        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White" Padding="2">
+        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White" Padding="2" Visibility="{x:Bind HasMappings, Mode=OneWay}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -122,9 +122,6 @@
                 </ScrollViewer>
             </Grid>
         </Border>
-
-        <TextBlock x:Uid="GlobalKeyMappingDialog_Text_NoMappings" HorizontalAlignment="Center" Margin="0,10,0,0"
-                   Visibility="{x:Bind HasMappings, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}" />
 
         <Button Command="{x:Bind AddMappingCommand}" HorizontalAlignment="Stretch" Margin="0,10,0,0">
             <StackPanel Orientation="Horizontal" Spacing="8">

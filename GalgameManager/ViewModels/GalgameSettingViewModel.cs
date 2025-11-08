@@ -308,7 +308,15 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             XamlRoot = App.MainWindow!.Content.XamlRoot,
             RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default
         };
-        await dialog.ShowAsync();
+
+        ContentDialogResult result = await dialog.ShowAsync();
+
+        // 只有在用户点击保存时才保存设置并显示通知
+        if (result == ContentDialogResult.Primary)
+        {
+            await SaveKeyMappingsAsync();
+            _infoService.Info(InfoBarSeverity.Success, msg:"KeyMapping_Info_KeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
+        }
     }
 
   

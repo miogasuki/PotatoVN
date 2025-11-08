@@ -96,13 +96,9 @@
                                                   HorizontalAlignment="Left"
                                                   VerticalAlignment="Top"
                                                   Visibility="{x:Bind IsGlobal, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                            <TextBox Text="{x:Bind Remark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                   PlaceholderText="{Binding KeyMappingDialog_Placeholder_Description, ElementName=dialog}"
+                                            <control:SearchableTextBox Text="{x:Bind Remark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                    IsEnabled="{x:Bind IsGlobal, Converter={StaticResource InverseBooleanConverter}}"
-                                                   VerticalAlignment="Center" MinWidth="120" BorderThickness="1"
-                                                   Margin="5"
-                                                   BorderBrush="{ThemeResource TextControlBorderBrush}"
-                                                   Background="{ThemeResource TextControlBackground}"/>
+                                                   VerticalAlignment="Center" MinWidth="120" Margin="5"/>
                                         </Grid>
 
                                         <!-- 设置按键列 -->

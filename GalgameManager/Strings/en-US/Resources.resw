@@ -3392,4 +3392,55 @@ If play time can record correctly, just cancel this popup.
   <data name="UploadAllPlayStatusTask_Progress_Waiting" xml:space="preserve">
     <value>Waiting to upload {0} items</value>
   </data>
+
+  <!-- ========== SearchableTextBox 常用热键建议 ========== -->
+  <data name="Galgame_hotkey_common_QuickSave" xml:space="preserve">
+    <value>Quick Save</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickLoad" xml:space="preserve">
+    <value>Quick Load</value>
+  </data>
+  <data name="Galgame_hotkey_common_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Galgame_hotkey_common_Load" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="Galgame_hotkey_common_AutoSave" xml:space="preserve">
+    <value>Auto Save</value>
+  </data>
+  <data name="Galgame_hotkey_common_Fullscreen" xml:space="preserve">
+    <value>Fullscreen</value>
+  </data>
+  <data name="Galgame_hotkey_common_Windowed" xml:space="preserve">
+    <value>Windowed</value>
+  </data>
+  <data name="Galgame_hotkey_common_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Galgame_hotkey_common_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Galgame_hotkey_common_Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="Galgame_hotkey_common_Skip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="Galgame_hotkey_common_FastForward" xml:space="preserve">
+    <value>Fast Forward</value>
+  </data>
+  <data name="Galgame_hotkey_common_Rewind" xml:space="preserve">
+    <value>Rewind</value>
+  </data>
+  <data name="Galgame_hotkey_common_Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Galgame_hotkey_common_Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+
 </root>

@@ -303,7 +303,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             }
 
             // 检查是否已有检测到的存档位置
-            bool hasDetectedSavePosition = !string.IsNullOrEmpty(Gal.DetectedSavePosition);
+            var hasDetectedSavePosition = !string.IsNullOrEmpty(Gal.DetectedSavePosition);
 
             // 尝试打开资源管理器到指定路径，然后让用户选择
             await ShowFolderPickerWithPath(initialPath, hasDetectedSavePosition);

@@ -82,7 +82,7 @@ public class GameSaveDetectorTask : BgTaskBase
 
         if (!string.IsNullOrEmpty(Galgame.ChineseName))
         {
-            keywords.Add(Galgame.ChineseName);
+            keywords.Add(Galgame.ChineseName!);
         }
 
         if (Galgame.OriginalName?.Value is { } originalNameValue)

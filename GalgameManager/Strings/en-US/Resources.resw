@@ -3442,44 +3442,14 @@ If play time can record correctly, just cancel this popup.
   <data name="GameSaveDetectorTask_Title" xml:space="preserve">
     <value>Game Save Location Detection Task</value>
   </data>
-  <data name="GameSaveDetectorTask_Starting" xml:space="preserve">
-    <value>Starting save location detection for game {0}</value>
-  </data>
-  <data name="GameSaveDetectorTask_GuideUser" xml:space="preserve">
-    <value>Please follow these steps to help detect save location</value>
-  </data>
-  <data name="GameSaveDetectorTask_Monitoring" xml:space="preserve">
-    <value>Monitoring file system changes</value>
-  </data>
-  <data name="GameSaveDetectorTask_Completed" xml:space="preserve">
-    <value>Save location detection completed, found {0} possible save locations</value>
-  </data>
-  <data name="GameSaveDetectorTask_UserGuidance" xml:space="preserve">
-    <value>To accurately detect game save locations, please perform the following actions in the game:</value>
-  </data>
-  <data name="GameSaveDetectorTask_Guidance1" xml:space="preserve">
-    <value>Enter the game main menu and save the first save file</value>
-  </data>
-  <data name="GameSaveDetectorTask_Guidance2" xml:space="preserve">
-    <value>Continue playing for a few minutes, then save the second save file</value>
-  </data>
-  <data name="GameSaveDetectorTask_Guidance3" xml:space="preserve">
-    <value>Perform some actions in the game, then save the third save file</value>
-  </data>
   <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>Edit Path</value>
   </data>
   <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
     <value>Please perform some save operations in the game</value>
   </data>
-    <data name="GalgameSettingPage_DetectSavePosition" xml:space="preserve">
-    <value>Detect</value>
-  </data>
   <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
     <value>Save position updated</value>
-  </data>
-  <data name="GameSaveDetectorTask_NoSaveDetected" xml:space="preserve">
-    <value>No save location detected</value>
   </data>
   <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
     <value>Failed to set save position</value>

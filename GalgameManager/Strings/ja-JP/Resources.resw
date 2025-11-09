@@ -3377,44 +3377,14 @@
   <data name="GameSaveDetectorTask_Title" xml:space="preserve">
     <value>ゲームセーブ位置検出タスク</value>
   </data>
-  <data name="GameSaveDetectorTask_Starting" xml:space="preserve">
-    <value>ゲーム {0} のセーブ位置検出を開始しています</value>
-  </data>
-  <data name="GameSaveDetectorTask_GuideUser" xml:space="preserve">
-    <value>セーブ位置の検出を支援するため、以下の手順に従ってください</value>
-  </data>
-  <data name="GameSaveDetectorTask_Monitoring" xml:space="preserve">
-    <value>ファイルシステムの変更を監視中</value>
-  </data>
-  <data name="GameSaveDetectorTask_Completed" xml:space="preserve">
-    <value>セーブ位置検出完了、{0}個の可能なセーブ位置が見つかりました</value>
-  </data>
-  <data name="GameSaveDetectorTask_UserGuidance" xml:space="preserve">
-    <value>ゲームのセーブ位置を正確に検出するため、ゲーム内で以下の操作を実行してください：</value>
-  </data>
-  <data name="GameSaveDetectorTask_Guidance1" xml:space="preserve">
-    <value>ゲームのメインメニューに入り、最初のセーブデータを保存してください</value>
-  </data>
-  <data name="GameSaveDetectorTask_Guidance2" xml:space="preserve">
-    <value>数分間ゲームを続け、2番目のセーブデータを保存してください</value>
-  </data>
-  <data name="GameSaveDetectorTask_Guidance3" xml:space="preserve">
-    <value>ゲーム内でいくつかの操作を行い、3番目のセーブデータを保存してください</value>
-  </data>
   <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>パスを編集</value>
   </data>
   <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
     <value>ゲーム内でいくつかの保存操作を実行してください</value>
   </data>
-    <data name="GalgameSettingPage_DetectSavePosition" xml:space="preserve">
-    <value>検出</value>
-  </data>
   <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
     <value>セーブ位置が更新されました</value>
-  </data>
-  <data name="GameSaveDetectorTask_NoSaveDetected" xml:space="preserve">
-    <value>セーブ位置が検出されませんでした</value>
   </data>
   <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
     <value>セーブ位置の設定に失敗しました</value>
@@ -3476,7 +3446,7 @@
   <data name="GalgamePage_Open.Label" xml:space="preserve">
     <value>開く</value>
   </data>
-	<data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
     <value>ゲームまたはセーブディレクトリを開く</value>
   </data>
 </root>

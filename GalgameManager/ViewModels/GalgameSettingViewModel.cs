@@ -417,6 +417,34 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     }
 
     [RelayCommand]
+    private async Task ReDetectSavePosition()
+    {
+        try
+        {
+            // 清空检测到的存档位置
+            Gal.DetectedSavePosition = null;
+
+            // 保存游戏设置
+            await _galService.SaveGalgameAsync(Gal);
+
+            // 显示成功信息
+            _infoService.Info(InfoBarSeverity.Success,
+                "GalgameSettingPage_ReDetectSuccess".GetLocalized(),
+                displayTimeMs: 3000);
+
+            // 刷新UI显示
+            OnPropertyChanged(nameof(SavePositionDescription));
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error,
+                "GalgameSettingPage_ReDetectFailed".GetLocalized(),
+                e.Message);
+            _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
+        }
+    }
+
+    [RelayCommand]
     private async Task OpenKeyMappingDialog()
     {
         KeyMappingDialog dialog = new(this)

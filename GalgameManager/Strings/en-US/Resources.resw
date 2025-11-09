@@ -3454,6 +3454,15 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
     <value>Failed to set save position</value>
   </data>
+	<data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>ReDetect Path</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>Save position cleared. System will re-detect on next game launch or manual save</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>Failed to re-detect save position</value>
+  </data>
   <data name="SavePositionDialog_Title" xml:space="preserve">
     <value>Open Folder Location</value>
   </data>

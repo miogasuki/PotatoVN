@@ -3389,6 +3389,15 @@
   <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
     <value>セーブ位置の設定に失敗しました</value>
   </data>
+  <data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>再検出</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>セーブ位置をクリアしました。システムは次回のゲーム起動時または手動保存時に再検出します</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>セーブ位置の再検出に失敗しました</value>
+  </data>
   <data name="SavePositionDialog_Title" xml:space="preserve">
     <value>フォルダーの場所を開く</value>
   </data>

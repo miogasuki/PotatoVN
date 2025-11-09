@@ -4117,6 +4117,15 @@
   <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
     <value>设置存档位置失败</value>
   </data>
+  <data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>重新检测</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>已清空存档位置，系统将在下次启动游戏或手动保存时重新检测</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>重新检测存档位置失败</value>
+  </data>
   <data name="SavePositionDialog_Title" xml:space="preserve">
     <value>打开文件夹位置</value>
   </data>

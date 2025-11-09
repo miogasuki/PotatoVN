@@ -3919,6 +3919,15 @@
   <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
     <value>请按下快捷键或鼠标按键</value>
   </data>
+  <data name="KeyMappingDialog_InputMode.Text" xml:space="preserve">
+    <value>输入模式:</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OffContent" xml:space="preserve">
+    <value>捕获模式</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
+    <value>选择模式</value>
+  </data>
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
     <value>全局按键映射设置</value>
   </data>
@@ -3936,6 +3945,9 @@
   </data>
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>暂无按键映射</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>按键映射已保存</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>全局按键映射</value>
@@ -4042,4 +4054,53 @@
   <data name="UploadAllPlayStatusTask_Progress_Waiting" xml:space="preserve">
     <value>等待上传 {0} 条记录</value>
   </data>
+  <data name="Galgame_hotkey_common_QuickSave" xml:space="preserve">
+    <value>快速保存</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickLoad" xml:space="preserve">
+    <value>快速加载</value>
+  </data>
+  <data name="Galgame_hotkey_common_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Galgame_hotkey_common_Load" xml:space="preserve">
+    <value>加载</value>
+  </data>
+  <data name="Galgame_hotkey_common_AutoSave" xml:space="preserve">
+    <value>自动保存</value>
+  </data>
+  <data name="Galgame_hotkey_common_Fullscreen" xml:space="preserve">
+    <value>全屏</value>
+  </data>
+  <data name="Galgame_hotkey_common_Windowed" xml:space="preserve">
+    <value>窗口化</value>
+  </data>
+  <data name="Galgame_hotkey_common_Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Galgame_hotkey_common_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="Galgame_hotkey_common_Menu" xml:space="preserve">
+    <value>菜单</value>
+  </data>
+  <data name="Galgame_hotkey_common_Skip" xml:space="preserve">
+    <value>跳过</value>
+  </data>
+  <data name="Galgame_hotkey_common_FastForward" xml:space="preserve">
+    <value>快进</value>
+  </data>
+  <data name="Galgame_hotkey_common_Rewind" xml:space="preserve">
+    <value>回退</value>
+  </data>
+  <data name="Galgame_hotkey_common_Select" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="Galgame_hotkey_common_Confirm" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+
 </root>

@@ -3221,6 +3221,15 @@
   <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
     <value>キーまたはマウスボタンを押してください</value>
   </data>
+  <data name="KeyMappingDialog_InputMode.Text" xml:space="preserve">
+    <value>入力モード:</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OffContent" xml:space="preserve">
+    <value>キャプチャモード</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
+    <value>選択モード</value>
+  </data>
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
     <value>グローバルキーマッピング設定</value>
   </data>
@@ -3235,6 +3244,9 @@
   </data>
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>キャンセル</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>キーマッピングが保存されました</value>
   </data>
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>キーマッピングがありません</value>
@@ -3314,4 +3326,53 @@
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>キーマッピング編集</value>
   </data>
+  <data name="Galgame_hotkey_common_QuickSave" xml:space="preserve">
+    <value>クイックセーブ</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickLoad" xml:space="preserve">
+    <value>クイックロード</value>
+  </data>
+  <data name="Galgame_hotkey_common_Save" xml:space="preserve">
+    <value>セーブ</value>
+  </data>
+  <data name="Galgame_hotkey_common_Load" xml:space="preserve">
+    <value>ロード</value>
+  </data>
+  <data name="Galgame_hotkey_common_AutoSave" xml:space="preserve">
+    <value>オートセーブ</value>
+  </data>
+  <data name="Galgame_hotkey_common_Fullscreen" xml:space="preserve">
+    <value>フルスクリーン</value>
+  </data>
+  <data name="Galgame_hotkey_common_Windowed" xml:space="preserve">
+    <value>ウィンドウモード</value>
+  </data>
+  <data name="Galgame_hotkey_common_Settings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Galgame_hotkey_common_Exit" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="Galgame_hotkey_common_Menu" xml:space="preserve">
+    <value>メニュー</value>
+  </data>
+  <data name="Galgame_hotkey_common_Skip" xml:space="preserve">
+    <value>スキップ</value>
+  </data>
+  <data name="Galgame_hotkey_common_FastForward" xml:space="preserve">
+    <value>早送り</value>
+  </data>
+  <data name="Galgame_hotkey_common_Rewind" xml:space="preserve">
+    <value>巻き戻し</value>
+  </data>
+  <data name="Galgame_hotkey_common_Select" xml:space="preserve">
+    <value>選択</value>
+  </data>
+  <data name="Galgame_hotkey_common_Confirm" xml:space="preserve">
+    <value>決定</value>
+  </data>
+  <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+
 </root>

@@ -190,7 +190,10 @@ public static class SaveDetectionConstants
         "kaspersky", "norton", "mcafee", "avast", "avg",
 
         // 其他系统工具
-        "powershell", "cmd", "sysnative", "tasks", "startup", "start menu", "desktop", "wallpaper", "TrafficMonitor"
+        "powershell", "cmd", "sysnative", "tasks", "startup", "start menu", "desktop", "wallpaper",
+
+        // 其他软件
+        "scoop", "chocolatey", "winget", "TrafficMonitor", "ditto"
     };
 
     /// <summary>

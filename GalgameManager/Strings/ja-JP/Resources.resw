@@ -3461,5 +3461,22 @@
   <data name="FolderPickerConfirmationDialog_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
-
+  <data name="GalgamePage_OpenGameDirectory.Text" xml:space="preserve">
+    <value>ゲームディレクトリを開く</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectory.Text" xml:space="preserve">
+    <value>セーブディレクトリを開く</value>
+  </data>
+  <data name="GalgamePage_NoSaveDirectoryDetected" xml:space="preserve">
+    <value>セーブディレクトリが検出されませんでした。まずセーブ位置を設定してください</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectoryFailed" xml:space="preserve">
+    <value>セーブディレクトリのオープンに失敗しました</value>
+  </data>
+  <data name="GalgamePage_Open.Label" xml:space="preserve">
+    <value>開く</value>
+  </data>
+	<data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+    <value>ゲームまたはセーブディレクトリを開く</value>
+  </data>
 </root>

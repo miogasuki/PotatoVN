@@ -3526,5 +3526,22 @@ If play time can record correctly, just cancel this popup.
   <data name="FolderPickerConfirmationDialog_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-
+  <data name="GalgamePage_OpenGameDirectory.Text" xml:space="preserve">
+    <value>Open Game Directory</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectory.Text" xml:space="preserve">
+    <value>Open Save Directory</value>
+  </data>
+  <data name="GalgamePage_NoSaveDirectoryDetected" xml:space="preserve">
+    <value>No save directory detected, please set save location first</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectoryFailed" xml:space="preserve">
+    <value>Failed to open save directory</value>
+  </data>
+  <data name="GalgamePage_Open.Label" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open game or save directory</value>
+  </data>
 </root>

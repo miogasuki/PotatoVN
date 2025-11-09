@@ -50,6 +50,9 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [NotifyCanExecuteChangedFor(nameof(ResetPathCommand))]
     [ObservableProperty] private bool _isLocalGame; //是否是本地游戏（而非云端同步过来/本地已删除的虚拟游戏）
     [ObservableProperty] private bool _isPhrasing;
+    [ObservableProperty] private bool _hasSaveDirectory; //是否有检测到或设置的存档目录
+    [ObservableProperty] private Visibility _showSingleExplorerButton = Visibility.Visible; //是否显示单个打开按钮
+    [ObservableProperty] private Visibility _showExplorerMenu = Visibility.Collapsed; //是否显示打开菜单
 
     [ObservableProperty] private Visibility _isRemoveSelectedThreadVisible = Visibility.Collapsed;
     [ObservableProperty] private Visibility _isSelectProcessVisible = Visibility.Collapsed;
@@ -209,6 +212,20 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         IsRemoveSelectedThreadVisible = Item?.ProcessName is not null ? Visibility.Visible : Visibility.Collapsed;
         IsSelectProcessVisible = Item?.ProcessName is null ? Visibility.Visible : Visibility.Collapsed;
         IsResetPathVisible = Item?.ExePath is not null || Item?.TextPath is not null ? Visibility.Visible : Visibility.Collapsed;
+        HasSaveDirectory = !string.IsNullOrEmpty(Item?.DetectedSavePosition);
+
+        // 根据是否有存档目录来设置打开按钮的显示
+        if (HasSaveDirectory)
+        {
+            ShowSingleExplorerButton = Visibility.Collapsed;
+            ShowExplorerMenu = Visibility.Visible;
+        }
+        else
+        {
+            ShowSingleExplorerButton = Visibility.Visible;
+            ShowExplorerMenu = Visibility.Collapsed;
+        }
+
         OnPropertyChanged(nameof(Item));
     }
 
@@ -531,7 +548,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         };
         await dialog.ShowAsync();
     }
-    
+
     [RelayCommand]
     private async Task OpenInExplorer()
     {
@@ -545,6 +562,26 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             return;
         }
         await Launcher.LaunchUriAsync(new Uri(path));
+    }
+
+    [RelayCommand]
+    private async Task OpenSaveDirectory()
+    {
+        if (Item == null) return;
+        if (string.IsNullOrEmpty(Item.DetectedSavePosition))
+        {
+            _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_NoSaveDirectoryDetected".GetLocalized(), displayTimeMs: 3000);
+            return;
+        }
+
+        try
+        {
+            await Launcher.LaunchUriAsync(new Uri(Item.DetectedSavePosition));
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgamePage_OpenSaveDirectoryFailed".GetLocalized(), e.Message);
+        }
     }
 
     [RelayCommand]

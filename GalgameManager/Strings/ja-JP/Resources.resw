@@ -3401,8 +3401,11 @@
   <data name="GameSaveDetectorTask_Guidance3" xml:space="preserve">
     <value>ゲーム内でいくつかの操作を行い、3番目のセーブデータを保存してください</value>
   </data>
-  <data name="GalgameSettingPage_EditSavePosition" xml:space="preserve">
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>パスを編集</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>ゲーム内でいくつかの保存操作を実行してください</value>
   </data>
   <data name="GalgameSettingPage_DetectSavePosition" xml:space="preserve">
     <value>検出</value>

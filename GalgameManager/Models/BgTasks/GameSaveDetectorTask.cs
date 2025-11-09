@@ -14,7 +14,7 @@ public class GameSaveDetectorTask : BgTaskBase
     public bool IsMonitoring { get; set; }
     public int SaveOperationCount { get; set; }
 
-    private List<FileSystemWatcher> _watchers = new();
+    private readonly List<FileSystemWatcher> _watchers = new();
     private readonly List<string> _candidatePaths = new();
     private DateTime _monitorStartTime;
 
@@ -57,9 +57,13 @@ public class GameSaveDetectorTask : BgTaskBase
         {
             if (!string.IsNullOrEmpty(keyword))
             {
-                _candidatePaths.Add(Path.Combine(appDataPath, keyword));
-                _candidatePaths.Add(Path.Combine(localAppDataPath, keyword));
-                _candidatePaths.Add(Path.Combine(documentsPath, keyword));
+                var combinedAppDataPath = Path.Combine(appDataPath, keyword);
+                var combinedLocalAppDataPath = Path.Combine(localAppDataPath, keyword);
+                var combinedDocumentsPath = Path.Combine(documentsPath, keyword);
+
+                _candidatePaths.Add(combinedAppDataPath);
+                _candidatePaths.Add(combinedLocalAppDataPath);
+                _candidatePaths.Add(combinedDocumentsPath);
             }
         }
     }
@@ -71,9 +75,9 @@ public class GameSaveDetectorTask : BgTaskBase
         if (Galgame == null) return keywords;
 
         // 从游戏名称提取关键字
-        if (Galgame.Name?.Value != null)
+        if (Galgame.Name?.Value is { } gameNameValue)
         {
-            keywords.Add(Galgame.Name.Value);
+            keywords.Add(gameNameValue);
         }
 
         if (!string.IsNullOrEmpty(Galgame.ChineseName))
@@ -81,15 +85,15 @@ public class GameSaveDetectorTask : BgTaskBase
             keywords.Add(Galgame.ChineseName);
         }
 
-        if (!string.IsNullOrEmpty(Galgame.OriginalName?.Value))
+        if (Galgame.OriginalName?.Value is { } originalNameValue)
         {
-            keywords.Add(Galgame.OriginalName.Value);
+            keywords.Add(originalNameValue);
         }
 
         // 从开发者名称提取关键字
-        if (!string.IsNullOrEmpty(Galgame.Developer))
+        if (!string.IsNullOrEmpty(Galgame.Developer?.Value))
         {
-            keywords.Add(Galgame.Developer);
+            keywords.Add(Galgame.Developer.Value);
         }
 
         // 从分类中提取关键字
@@ -97,7 +101,10 @@ public class GameSaveDetectorTask : BgTaskBase
         {
             foreach (var category in Galgame.Categories)
             {
-                keywords.Add(category.Name);
+                if (category.Name != null)
+                {
+                    keywords.Add(category.Name);
+                }
             }
         }
 
@@ -115,92 +122,43 @@ public class GameSaveDetectorTask : BgTaskBase
     {
         if (Galgame == null) return;
 
-        ChangeProgress(0, 1, "GameSaveDetectorTask_Starting".GetLocalized(Galgame.Name.Value!));
-
-        // 启动文件系统监听
         StartFileSystemMonitoring();
 
-        // 指导用户进行存档操作
-        ChangeProgress(0, 1, "GameSaveDetectorTask_GuideUser".GetLocalized());
-        await Task.Delay(2000); // 给用户时间阅读提示
+        // 监听最多1分钟
+        var maxMonitorTime = TimeSpan.FromMinutes(1);
+        var earlyStopThreshold = 3;
+        var confidenceThreshold = 2;
 
-        // 监听指定时间或直到检测到足够的存档操作
         _monitorStartTime = DateTime.Now;
-        var maxMonitorTime = TimeSpan.FromMinutes(5); // 最多监听5分钟
-
         while (IsMonitoring && (DateTime.Now - _monitorStartTime) < maxMonitorTime)
         {
-            ChangeProgress((int)(DateTime.Now - _monitorStartTime).TotalSeconds,
-                          (int)maxMonitorTime.TotalSeconds,
-                          $"GameSaveDetectorTask_Monitoring".GetLocalized() + $" ({DetectedSavePaths.Count} paths found)");
-
-            await Task.Delay(1000);
+            if (ShouldStopEarly(DetectedSavePaths, earlyStopThreshold, confidenceThreshold))
+            {
+                break;
+            }
+            await Task.Delay(500);
         }
 
-        // 停止监听
         StopFileSystemMonitoring();
 
-        // 过滤和验证检测到的路径
+        // 设置存档目录
         var finalPaths = FilterDetectedPaths();
-
         if (finalPaths.Count > 0 && Galgame != null)
         {
             var saveDirectory = FindBestSaveDirectory(finalPaths);
-
             if (!string.IsNullOrEmpty(saveDirectory))
             {
-                Galgame.SavePosition = saveDirectory;
-
-                // 开发状态：使用 ChangeProgress 显示所有可能的存档目录
-                #if DEBUG
-                try
-                {
-                    // 获取所有候选文件的目录并去重
-                    var allDirectories = finalPaths.Select(Path.GetDirectoryName)
-                                                  .Where(dir => !string.IsNullOrEmpty(dir))
-                                                  .Distinct()
-                                                  .ToList();
-
-                    var dirList = allDirectories.Select((dir, index) => $"{index + 1}.{dir}").ToList();
-                    var finalMsg = $"All save dirs ({allDirectories.Count}): {string.Join(" | ", dirList)} | Final: {saveDirectory}";
-
-                    ChangeProgress(1, 1, finalMsg, false);
-
-                    // 也输出最终结果单独一行，方便复制
-                    ChangeProgress(1, 1, $"FINAL SAVE DIRECTORY: {saveDirectory}", false);
-                }
-                catch
-                {
-                    // 备用方案
-                    ChangeProgress(1, 1, $"Save Directory: {saveDirectory}", false);
-                }
-                #endif
+                Galgame.DetectedSavePosition = saveDirectory;
             }
             else
             {
-                // 如果没有找到一致的父级目录，使用最高评分文件的目录
-                var bestSavePath = finalPaths[0];
-                var fallbackDirectory = Path.GetDirectoryName(bestSavePath);
+                var fallbackDirectory = Path.GetDirectoryName(finalPaths[0]);
                 if (!string.IsNullOrEmpty(fallbackDirectory))
                 {
-                    Galgame.SavePosition = fallbackDirectory;
-
-                    #if DEBUG
-                try
-                {
-                    ChangeProgress(1, 1, $"FALLBACK SAVE DIRECTORY: {fallbackDirectory}", false);
-                }
-                catch
-                {
-                    // 备用方案
-                    ChangeProgress(1, 1, $"Save Directory: {fallbackDirectory}", false);
-                }
-                #endif
+                    Galgame.DetectedSavePosition = fallbackDirectory;
                 }
             }
         }
-
-        ChangeProgress(1, 1, $"GameSaveDetectorTask_Completed".GetLocalized() + $" ({finalPaths.Count} save paths detected)", false);
     }
 
     private void StartFileSystemMonitoring()
@@ -216,12 +174,20 @@ public class GameSaveDetectorTask : BgTaskBase
                     var watcher = new FileSystemWatcher(path)
                     {
                         IncludeSubdirectories = true,
-                        EnableRaisingEvents = true
+                        EnableRaisingEvents = true,
+                        // 减少缓冲区大小以提高响应速度
+                        InternalBufferSize = 4096,
+                        // 通知所有变化
+                        NotifyFilter = NotifyFilters.FileName |
+                                      NotifyFilters.LastWrite |
+                                      NotifyFilters.Size |
+                                      NotifyFilters.Attributes
                     };
 
-                    // 只监听创建和修改事件
+                    // 监听所有相关事件
                     watcher.Created += OnFileSystemChanged;
                     watcher.Changed += OnFileSystemChanged;
+                    watcher.Renamed += OnFileSystemChanged;
 
                     _watchers.Add(watcher);
                     MonitoredPaths.Add(path);
@@ -262,15 +228,33 @@ public class GameSaveDetectorTask : BgTaskBase
 
         try
         {
-            // 检查文件是否可能是存档文件
-            if (IsPotentialSaveFile(e.FullPath))
+            // 处理重命名事件
+            if (e is RenamedEventArgs renamedArgs)
             {
-                lock (DetectedSavePaths)
+                if (IsPotentialSaveFile(renamedArgs.FullPath))
                 {
-                    if (!DetectedSavePaths.Contains(e.FullPath))
+                    lock (DetectedSavePaths)
                     {
-                        DetectedSavePaths.Add(e.FullPath);
-                        SaveOperationCount++;
+                        if (!DetectedSavePaths.Contains(renamedArgs.FullPath))
+                        {
+                            DetectedSavePaths.Add(renamedArgs.FullPath);
+                            SaveOperationCount++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // 检查文件是否可能是存档文件
+                if (IsPotentialSaveFile(e.FullPath))
+                {
+                    lock (DetectedSavePaths)
+                    {
+                        if (!DetectedSavePaths.Contains(e.FullPath))
+                        {
+                            DetectedSavePaths.Add(e.FullPath);
+                            SaveOperationCount++;
+                        }
                     }
                 }
             }
@@ -329,6 +313,29 @@ public class GameSaveDetectorTask : BgTaskBase
         return false;
     }
 
+    private bool ShouldStopEarly(List<string> detectedPaths, int fileThreshold, int confidenceThreshold)
+    {
+        if (detectedPaths.Count < fileThreshold) return false;
+
+        // 统计每个目录的文件数量
+        var directoryCounts = new Dictionary<string, int>();
+        foreach (var path in detectedPaths)
+        {
+            var directory = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                var normalizedDir = directory.ToLowerInvariant().TrimEnd('\\', '/');
+                if (directoryCounts.ContainsKey(normalizedDir))
+                    directoryCounts[normalizedDir]++;
+                else
+                    directoryCounts[normalizedDir] = 1;
+            }
+        }
+
+        // 如果有目录包含足够的文件，可以早停
+        return directoryCounts.Any(kvp => kvp.Value >= confidenceThreshold);
+    }
+
     private List<string> FilterDetectedPaths()
     {
         var filteredPaths = new List<string>();
@@ -337,24 +344,6 @@ public class GameSaveDetectorTask : BgTaskBase
         {
             // 去重和排序
             var uniquePaths = DetectedSavePaths.Distinct().ToList();
-
-            // 开发状态：打印所有检测到的文件
-            #if DEBUG
-            try
-            {
-                Console.WriteLine($"=== Detected {uniquePaths.Count} potential save files ===");
-                foreach (var path in uniquePaths)
-                {
-                    Console.WriteLine($"Detected: {path}");
-                }
-            }
-            catch (Exception ex)
-            {
-                // 尝试使用 Trace.WriteLine 作为备选
-                System.Diagnostics.Trace.WriteLine($"[SAVE DETECTOR ERROR] Failed to write debug output: {ex.Message}");
-                System.Diagnostics.Trace.WriteLine($"[SAVE DETECTOR INFO] Found {uniquePaths.Count} potential save files");
-            }
-            #endif
 
             // 按文件大小和修改时间排序（最新的和较大的文件更可能是存档）
             var fileInfoList = uniquePaths.Select(path => new
@@ -368,23 +357,6 @@ public class GameSaveDetectorTask : BgTaskBase
             .ToList();
 
             filteredPaths.AddRange(fileInfoList.Select(x => x.Path));
-
-            // 开发状态：使用 ChangeProgress 显示候选文件信息
-            #if DEBUG
-            try
-            {
-                // 将文件信息转换为进度消息
-                var fileInfo = fileInfoList.Take(5).Select((item, index) =>
-                    $"{index + 1}. Score:{item.Score} Dir:{System.IO.Path.GetDirectoryName(item.Path)}").ToList();
-
-                if (fileInfo.Count > 0)
-                {
-                    var message = $"Found {fileInfoList.Count} candidates: " + string.Join(" | ", fileInfo);
-                    ChangeProgress(0, 1, message, false);
-                }
-            }
-            catch { }
-            #endif
         }
 
         return filteredPaths;
@@ -394,47 +366,50 @@ public class GameSaveDetectorTask : BgTaskBase
     {
         if (paths.Count == 0) return string.Empty;
 
-        // 获取所有路径的父级目录
-        var parentDirectories = paths.Select(Path.GetDirectoryName).Where(dir => !string.IsNullOrEmpty(dir)).ToList();
+        // 计算每个目录的综合评分
+        var directoryScores = new Dictionary<string, double>();
 
-        if (parentDirectories.Count == 0) return string.Empty;
-
-        // 统计每个父级目录出现的次数
-        var directoryCount = new Dictionary<string, int>();
-        foreach (var dir in parentDirectories)
+        foreach (var path in paths)
         {
-            var normalizedDir = dir!.ToLowerInvariant().TrimEnd('\\', '/');
-            if (directoryCount.ContainsKey(normalizedDir))
-                directoryCount[normalizedDir]++;
-            else
-                directoryCount[normalizedDir] = 1;
+            var directory = Path.GetDirectoryName(path);
+            if (string.IsNullOrEmpty(directory)) continue;
+
+            var normalizedDir = directory.ToLowerInvariant().TrimEnd('\\', '/');
+
+            if (!directoryScores.ContainsKey(normalizedDir))
+                directoryScores[normalizedDir] = 0;
+
+            // 基础分数：文件数量
+            directoryScores[normalizedDir] += 10;
+
+            // 额外分数：文件质量评分
+            directoryScores[normalizedDir] += CalculateSaveFileScore(path) * 0.1;
+
+            // 额外分数：启发式匹配
+            if (MatchesHeuristicKeywords(directory))
+                directoryScores[normalizedDir] += 20;
+
+            // 额外分数：路径深度（更具体的路径更可能是存档目录）
+            var depth = directory.Count(c => c == '\\' || c == '/');
+            if (depth >= 3 && depth <= 6)
+                directoryScores[normalizedDir] += 15 * (depth / 6.0);
         }
 
-        // 找出出现次数最多的父级目录
-        var mostCommonDirectory = directoryCount.OrderByDescending(kvp => kvp.Value).First();
-        var maxCount = mostCommonDirectory.Value;
-        var bestDirectory = mostCommonDirectory.Key;
+        if (directoryScores.Count == 0) return string.Empty;
 
-        // 开发状态：使用 ChangeProgress 显示目录分析
-        #if DEBUG
-        try
-        {
-            var sortedDirs = directoryCount.OrderByDescending(kvp => kvp.Value).Take(3).ToList();
-            var dirInfo = sortedDirs.Select((kvp, index) =>
-                $"{index + 1}.({kvp.Value}files){kvp.Key}").ToList();
+        // 按评分排序，获取最佳目录
+        var bestDirectoryEntry = directoryScores.OrderByDescending(kvp => kvp.Value).First();
+        var bestDirectory = bestDirectoryEntry.Key;
+        var bestScore = bestDirectoryEntry.Value;
 
-            var analysisMsg = $"Directory analysis: {string.Join(" | ", dirInfo)} | Most common: {bestDirectory} ({maxCount}/{paths.Count})";
-            ChangeProgress(0, 1, analysisMsg, false);
-        }
-        catch { }
-        #endif
-
-        // 如果超过一半的文件都在同一个目录中，认为这是存档目录
-        if (maxCount >= Math.Ceiling(paths.Count * 0.5))
+        // 如果最佳目录评分足够高，直接返回
+        if (bestScore >= 25) // 降低阈值，更快锁定目录
         {
             return bestDirectory;
         }
-        return string.Empty;
+
+        // 如果没有明显的最佳目录，返回评分最高的目录
+        return bestDirectory;
     }
 
     private double CalculateSaveFileScore(string filePath)
@@ -472,13 +447,4 @@ public class GameSaveDetectorTask : BgTaskBase
     }
 
     public override string Title => "GameSaveDetectorTask_Title".GetLocalized();
-
-    // 提供获取用户指导信息的方法
-    public string GetUserGuidance()
-    {
-        return "GameSaveDetectorTask_UserGuidance".GetLocalized() +
-               "\n1. " + "GameSaveDetectorTask_Guidance1".GetLocalized() +
-               "\n2. " + "GameSaveDetectorTask_Guidance2".GetLocalized() +
-               "\n3. " + "GameSaveDetectorTask_Guidance3".GetLocalized();
-    }
 }

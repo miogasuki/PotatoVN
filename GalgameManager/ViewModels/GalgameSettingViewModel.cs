@@ -47,7 +47,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     public bool IsLocalGame => Gal.IsLocalGame;
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
-        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService, 
+        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService,
         ILocalSettingsService settingsService, IMessenger bus)
     {
         Gal = new Galgame();
@@ -296,7 +296,8 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
             if (folder is not null)
             {
-                Gal.SavePosition = folder.Path;
+                Gal.DetectedSavePosition = folder.Path;
+                await _galService.SaveGalgameAsync(Gal);
                 _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_SavePositionUpdated".GetLocalized(), displayTimeMs: 2000);
             }
         }

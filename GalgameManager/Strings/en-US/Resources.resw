@@ -3466,8 +3466,11 @@ If play time can record correctly, just cancel this popup.
   <data name="GameSaveDetectorTask_Guidance3" xml:space="preserve">
     <value>Perform some actions in the game, then save the third save file</value>
   </data>
-  <data name="GalgameSettingPage_EditSavePosition" xml:space="preserve">
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>Edit Path</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>Please perform some save operations in the game</value>
   </data>
   <data name="GalgameSettingPage_DetectSavePosition" xml:space="preserve">
     <value>Detect</value>

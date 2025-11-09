@@ -4120,17 +4120,11 @@
   <data name="GameSaveDetectorTask_UserGuidance" xml:space="preserve">
     <value>为了准确检测游戏存档位置，请在游戏中执行以下操作：</value>
   </data>
-  <data name="GameSaveDetectorTask_Guidance1" xml:space="preserve">
-    <value>进入游戏主菜单，保存第一个存档</value>
-  </data>
-  <data name="GameSaveDetectorTask_Guidance2" xml:space="preserve">
-    <value>继续游戏几分钟，然后保存第二个存档</value>
-  </data>
-  <data name="GameSaveDetectorTask_Guidance3" xml:space="preserve">
-    <value>在游戏中进行一些操作，然后保存第三个存档</value>
-  </data>
-  <data name="GalgameSettingPage_EditSavePosition" xml:space="preserve">
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>编辑路径</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>请在游戏中进行一些保存操作</value>
   </data>
   <data name="GalgameSettingPage_DetectSavePosition" xml:space="preserve">
     <value>检测</value>

@@ -100,6 +100,21 @@
                                                   IsOn="{x:Bind ViewModel.Gal.MuteInBackground, Mode=TwoWay}"/>
                                 </Grid>
                             </control:Panel>
+                            <!-- 存档位置 -->
+                            <control:Panel>
+                                <control:Setting x:Uid="GalgameSettingPage_GameSetting_SavePosition"
+                                                 Description="{x:Bind ViewModel.Gal.SavePosition}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <HyperlinkButton Command="{x:Bind ViewModel.SetSavePositionCommand}"
+                                                         VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <SymbolIcon Symbol="Edit" />
+                                                <TextBlock x:Uid="GalgameSettingPage_EditSavePosition" />
+                                            </StackPanel>
+                                        </HyperlinkButton>
+                                    </StackPanel>
+                                </control:Setting>
+                            </control:Panel>
                             <!-- 按键映射 -->
                             <control:Panel>
                                 <control:Setting x:Uid="GalgameSettingPage_KeyMappings">
@@ -110,13 +125,6 @@
                                             <TextBlock x:Uid="GalgameSettingPage_KeyMappings_Edit" />
                                         </StackPanel>
                                     </HyperlinkButton>
-                                </control:Setting>
-                            </control:Panel>
-                            <!-- 存档位置（尚未做完，隐藏） -->
-                            <control:Panel Visibility="Collapsed">
-                                <control:Setting x:Uid="GalgameSettingPage_GameSetting_SavePosition"
-                                                 Description="{x:Bind ViewModel.Gal.SavePosition}">
-                                    <Button IsEnabled="False"/>
                                 </control:Setting>
                             </control:Panel>
                         </StackPanel>

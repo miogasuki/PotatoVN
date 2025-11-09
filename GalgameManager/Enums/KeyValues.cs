@@ -53,6 +53,7 @@ public static class KeyValues
     public const string GameMuteEnabled = "gameMuteEnabled"; //bool, 是否启用游戏静音功能
     public const string GameReMapEnabled = "gameReMapEnabled";
     public const string GlobalKeyMappings = "GlobalKeyMappings";
+    public const string GameSaveDetector = "gameSaveDetector";
 
     public const string AlwaysMuteInBackground = "AlwaysMuteInBackground"; //bool, 是否无视各个游戏设置总是在后台时静音游戏
     

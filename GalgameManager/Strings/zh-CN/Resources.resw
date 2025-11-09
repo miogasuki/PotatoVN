@@ -4102,5 +4102,47 @@
   <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
+  <data name="GameSaveDetectorTask_Title" xml:space="preserve">
+    <value>游戏存档位置探测任务</value>
+  </data>
+  <data name="GameSaveDetectorTask_Starting" xml:space="preserve">
+    <value>正在为游戏 {0} 启动存档位置探测</value>
+  </data>
+  <data name="GameSaveDetectorTask_GuideUser" xml:space="preserve">
+    <value>请按照以下步骤操作以帮助探测存档位置</value>
+  </data>
+  <data name="GameSaveDetectorTask_Monitoring" xml:space="preserve">
+    <value>正在监听文件系统变化</value>
+  </data>
+  <data name="GameSaveDetectorTask_Completed" xml:space="preserve">
+    <value>存档位置探测完成，共发现 {0} 个可能的存档位置</value>
+  </data>
+  <data name="GameSaveDetectorTask_UserGuidance" xml:space="preserve">
+    <value>为了准确检测游戏存档位置，请在游戏中执行以下操作：</value>
+  </data>
+  <data name="GameSaveDetectorTask_Guidance1" xml:space="preserve">
+    <value>进入游戏主菜单，保存第一个存档</value>
+  </data>
+  <data name="GameSaveDetectorTask_Guidance2" xml:space="preserve">
+    <value>继续游戏几分钟，然后保存第二个存档</value>
+  </data>
+  <data name="GameSaveDetectorTask_Guidance3" xml:space="preserve">
+    <value>在游戏中进行一些操作，然后保存第三个存档</value>
+  </data>
+  <data name="GalgameSettingPage_EditSavePosition" xml:space="preserve">
+    <value>编辑路径</value>
+  </data>
+  <data name="GalgameSettingPage_DetectSavePosition" xml:space="preserve">
+    <value>检测</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
+    <value>存档位置已更新</value>
+  </data>
+  <data name="GameSaveDetectorTask_NoSaveDetected" xml:space="preserve">
+    <value>未检测到存档位置</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
+    <value>设置存档位置失败</value>
+  </data>
 
 </root>

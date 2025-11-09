@@ -281,6 +281,32 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         }
     }
 
+    [RelayCommand]
+    private async Task SetSavePositionAsync()
+    {
+        try
+        {
+            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindow!.GetWindowHandle());
+            folderPicker.FileTypeFilter.Add("*");
+
+            // 设置起始位置为 DocumentsLibrary
+            folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+
+            StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
+            if (folder is not null)
+            {
+                Gal.SavePosition = folder.Path;
+                _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_SavePositionUpdated".GetLocalized(), displayTimeMs: 2000);
+            }
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgameSettingPage_SavePositionSetFailed".GetLocalized(), e.Message);
+            _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
+        }
+    }
+
     partial void OnReleasedDateChanged(DateTimeOffset value)
     {
         if (value.LocalDateTime == Gal.ReleaseDate.Value) return;

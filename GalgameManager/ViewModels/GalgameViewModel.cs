@@ -813,9 +813,40 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         ManageGalgamePageLayoutDialog dialog = new();
         _ = dialog.ShowAsync();
-        
-
     }
+
+    #region Character Management
+
+    [RelayCommand]
+    private async Task AddCharacter(GalgameCharacter? character)
+    {
+        if (Item == null) return;
+
+        var newCharacter = new GalgameCharacter
+        {
+            Name = "GameCharacterPanel_NewCharacter".GetLocalized(),
+            PreviewImagePath = Galgame.DefaultCharacterImagePath,
+            ImagePath = Galgame.DefaultCharacterImagePath
+        };
+
+        var insertIndex = character != null ? Item.Characters.IndexOf(character) + 1 : Item.Characters.Count;
+        Item.Characters.Insert(insertIndex, newCharacter);
+
+        await SaveAsync();
+        _infoService.Info(InfoBarSeverity.Success, "GameCharacterPanel_AddCharacter_Success".GetLocalized());
+    }
+
+    [RelayCommand]
+    private async Task DeleteCharacter(GalgameCharacter? character)
+    {
+        if (Item == null || character == null) return;
+
+        Item.Characters.Remove(character);
+        await SaveAsync();
+        _infoService.Info(InfoBarSeverity.Success, "GameCharacterPanel_DeleteCharacter_Success".GetLocalized());
+    }
+
+    #endregion
 }
 
 public class GalgamePageParameter

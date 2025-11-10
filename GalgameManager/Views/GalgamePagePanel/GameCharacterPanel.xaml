@@ -10,9 +10,14 @@
     xmlns:models="using:GalgameManager.Models"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
     mc:Ignorable="d">
-    
+
     <UserControl.Resources>
         <converter:ImagePathConverter x:Key="ImagePathConverter" />
+        <MenuFlyout x:Name="CharacterFlyout">
+            <MenuFlyoutItem Icon="Add" x:Uid="GameCharacterPanel_AddCharacter" Click="AddCharacter_Click"/>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Icon="Delete" x:Uid="GameCharacterPanel_DeleteCharacter" Click="DeleteCharacter_Click"/>
+        </MenuFlyout>
     </UserControl.Resources>
 
     <StackPanel x:Name="Panel">
@@ -26,7 +31,9 @@
                     <Button Style="{ThemeResource TransparentButtonWithHover}"
                             DataContext="{x:Bind}"
                             Height="130"
-                            Click="ButtonBase_OnClick">
+                            Click="ButtonBase_OnClick"
+                            RightTapped="ButtonBase_OnRightTapped"
+                            FlyoutBase.AttachedFlyout="{StaticResource CharacterFlyout}">
                         <Grid
                             Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
                             <StackPanel HorizontalAlignment="Center">

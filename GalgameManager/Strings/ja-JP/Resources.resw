@@ -3374,5 +3374,20 @@
   <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
+  <data name="GameCharacterPanel_AddCharacter.Text" xml:space="preserve">
+    <value>キャラクター追加</value>
+  </data>
+  <data name="GameCharacterPanel_NewCharacter" xml:space="preserve">
+    <value>新しいキャラクター</value>
+  </data>
+  <data name="GameCharacterPanel_DeleteCharacter.Text" xml:space="preserve">
+    <value>キャラクター削除</value>
+  </data>
+  <data name="GameCharacterPanel_AddCharacter_Success" xml:space="preserve">
+    <value>キャラクターを追加しました</value>
+  </data>
+  <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
+    <value>キャラクターを削除しました</value>
+  </data>
 
 </root>

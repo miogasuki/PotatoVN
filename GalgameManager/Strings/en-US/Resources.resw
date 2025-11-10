@@ -3523,4 +3523,20 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
     <value>Open game or save directory</value>
   </data>
+  <data name="GameCharacterPanel_AddCharacter.Text" xml:space="preserve">
+    <value>Add Character</value>
+  </data>
+  <data name="GameCharacterPanel_NewCharacter" xml:space="preserve">
+    <value>New Character</value>
+  </data>
+  <data name="GameCharacterPanel_DeleteCharacter.Text" xml:space="preserve">
+    <value>Delete Character</value>
+  </data>
+  <data name="GameCharacterPanel_AddCharacter_Success" xml:space="preserve">
+    <value>Character added successfully</value>
+  </data>
+  <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
+    <value>Character deleted successfully</value>
+  </data>
+
 </root>

@@ -1703,6 +1703,12 @@
   <data name="BgmOAuthService_FetchTokenFailed" xml:space="preserve">
     <value>获取Bangumi Token失败</value>
   </data>
+  <data name="BgmOAuthService_TokenExpired" xml:space="preserve">
+    <value>Bangumi登录已过期，请重新登录</value>
+  </data>
+  <data name="BgmOAuthService_TokenExpired_Action" xml:space="preserve">
+    <value>前往账户页面</value>
+  </data>
   <data name="BgmOAuthStatus_FetchingTokenInfo" xml:space="preserve">
     <value>获取Bangumi Token信息中</value>
   </data>
@@ -3188,6 +3194,9 @@
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>后台静音</value>
   </data>
+  <data name="GamePage_KeyReMap.Label" xml:space="preserve">
+    <value>快捷键映射</value>
+  </data>
   <data name="GamePage_MuteInBackground.ToolTipService.ToolTip" xml:space="preserve">
     <value>在游戏处于后台运行时时静音游戏</value>
   </data>
@@ -3798,6 +3807,384 @@
   </data>
   <data name="GalgameFolder_GetGalInFolder_SkippedByDontScanPaths" xml:space="preserve">
     <value>这是被忽略扫描的路径</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport.Title" xml:space="preserve">
+    <value>自动导出数据</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport.Description" xml:space="preserve">
+    <value>定期自动导出数据备份包</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Interval.Title" xml:space="preserve">
+    <value>导出时间间隔</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Interval_Description" xml:space="preserve">
+    <value>每两次自动导出间相隔的小时数，上次导出时间为：{0}</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Path.Title" xml:space="preserve">
+    <value>导出路径</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Path_Description" xml:space="preserve">
+    <value>导出路径: {0}</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Path_NotSet" xml:space="preserve">
+    <value>尚未设置自动导出路径</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_Path_Button.Content" xml:space="preserve">
+    <value>选择导出位置</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_PathInvalid" xml:space="preserve">
+    <value>导出路径不合法，请重新设置</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_MaxBackupNumber.Title" xml:space="preserve">
+    <value>最大备份数</value>
+  </data>
+  <data name="SettingsPage_Other_AutoExport_MaxBackupNumber.Description" xml:space="preserve">
+    <value>当达到上限的时候，软件会删掉最老的备份，再新增备份</value>
+  </data>
+  <data name="RestartRequired" xml:space="preserve">
+    <value>该设置重启后生效~</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Title" xml:space="preserve">
+    <value>加入指纹共享计划</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Description" xml:space="preserve">
+    <value>共享本地可执行文件的哈希以完善指纹识别。</value>
+  </data>
+  <data name="FingerprintUploadTask_Title" xml:space="preserve">
+    <value>上传游戏指纹</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Title" xml:space="preserve">
+    <value>正在上传指纹（处理中 {0} 个游戏）</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Waiting" xml:space="preserve">
+    <value>等待队列中还有 {0} 个游戏</value>
+  </data>
+  <data name="FingerprintUploadTask_EnumerateFailed" xml:space="preserve">
+    <value>遍历 {1} 的可执行文件时访问路径 {0} 失败。</value>
+  </data>
+  <data name="FingerprintUploadTask_HashFailed" xml:space="preserve">
+    <value>为 {1} 计算 {0} 的哈希值失败。</value>
+  </data>
+  <data name="FingerprintUploadTask_GameFailed" xml:space="preserve">
+    <value>{0} 的指纹上传失败。</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_TranslateTags.Title" xml:space="preserve">
+    <value>翻译VNDB标签</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_TranslateVndbTags.Title" xml:space="preserve">
+    <value>翻译VNDB标签</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_TranslateTags.Description" xml:space="preserve">
+    <value>是否把英文的VNDB标签翻译为中文</value>
+  </data>
+  <data name="KeyMappingDialog_Title" xml:space="preserve">
+    <value>按键映射设置</value>
+  </data>
+  <data name="KeyMappingDialog_Description" xml:space="preserve">
+    <value>设置游戏内的按键映射，支持键盘到键盘、键盘到鼠标的映射</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Description.Text" xml:space="preserve">
+    <value>说明</value>
+  </data>
+  <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
+    <value>设置按键</value>
+  </data>
+  <data name="KeyMappingDialog_Header_ToKey.Text" xml:space="preserve">
+    <value>游戏中按键</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
+    <value>开关</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
+    <value>添加新映射</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
+    <value>删除此映射</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_Description.Text" xml:space="preserve">
+    <value>请输入描述（如：跳跃键）</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
+    <value>点击设置</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
+    <value>请按下快捷键或鼠标按键</value>
+  </data>
+  <data name="KeyMappingDialog_InputMode.Text" xml:space="preserve">
+    <value>输入模式:</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OffContent" xml:space="preserve">
+    <value>捕获模式</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
+    <value>选择模式</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
+    <value>全局按键映射设置</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Description" xml:space="preserve">
+    <value>设置全局按键映射，这些映射将在所有游戏中生效</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Clear" xml:space="preserve">
+    <value>清空</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
+    <value>暂无按键映射</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>按键映射已保存</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
+    <value>全局按键映射</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Description" xml:space="preserve">
+    <value>设置全局按键映射，这些映射将在所有游戏中生效</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
+    <value>编辑全局映射</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
+    <value>按键映射</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
+    <value>设置游戏的按键映射，支持键盘到键盘、键盘到鼠标的映射</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
+    <value>编辑按键映射</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
+    <value>红色角标表示全局快捷键，无法在此界面删除</value>
+  </data>
+  <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
+    <value>鼠标按键捕获已启用，请在输入框内点击鼠标按键</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>按键映射已保存</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
+    <value>全局按键映射已保存</value>
+  </data>
+  <data name="KeyMapping_Info_ClearAllMappings" xml:space="preserve">
+    <value>确定要清空所有全局按键映射吗？</value>
+  </data>
+  <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
+    <value>无法删除全局快捷键，请在全局设置中修改</value>
+  </data>
+  <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
+    <value>鼠标左键</value>
+  </data>
+  <data name="KeyMapping_Mouse_RightButton" xml:space="preserve">
+    <value>鼠标右键</value>
+  </data>
+  <data name="KeyMapping_Mouse_MiddleButton" xml:space="preserve">
+    <value>鼠标中键</value>
+  </data>
+  <data name="KeyMapping_Mouse_X1Button" xml:space="preserve">
+    <value>鼠标X1键</value>
+  </data>
+  <data name="KeyMapping_Mouse_X2Button" xml:space="preserve">
+    <value>鼠标X2键</value>
+  </data>
+  <data name="KeyMapping_Mouse_Wheel" xml:space="preserve">
+    <value>鼠标滚轮</value>
+  </data>
+  <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
+    <value>未知鼠标键({0})</value>
+  </data>
+  <data name="KeyMappingTask_Title" xml:space="preserve">
+    <value>按键映射任务</value>
+  </data>
+  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
+    <value>正在为游戏 {0} 进行按键映射</value>
+  </data>
+  <data name="KeyMappingTask_Done" xml:space="preserve">
+    <value>按键映射任务已结束</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>启动游戏快捷键映射</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>游戏快捷键映射总开关。</value>
+  </data>
+  <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
+    <value>编辑按键映射</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
+    <value>上传所有游戏游玩状态</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Description.Text" xml:space="preserve">
+    <value>选择要上传游玩状态的服务。</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Bangumi.Content" xml:space="preserve">
+    <value>上传到 Bangumi</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Vndb.Content" xml:space="preserve">
+    <value>上传到 VNDB</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_NoTargetSelected" xml:space="preserve">
+    <value>请至少选择一个目标服务。</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_AlreadyRunning" xml:space="preserve">
+    <value>上传任务已经在运行中。</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Started" xml:space="preserve">
+    <value>已启动上传所有游戏游玩状态的任务</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Title" xml:space="preserve">
+    <value>上传所有游玩状态任务</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Progress_Title" xml:space="preserve">
+    <value>上传游玩状态 ({0})</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Progress_Waiting" xml:space="preserve">
+    <value>等待上传 {0} 条记录</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickSave" xml:space="preserve">
+    <value>快速保存</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickLoad" xml:space="preserve">
+    <value>快速加载</value>
+  </data>
+  <data name="Galgame_hotkey_common_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Galgame_hotkey_common_Load" xml:space="preserve">
+    <value>加载</value>
+  </data>
+  <data name="Galgame_hotkey_common_AutoSave" xml:space="preserve">
+    <value>自动保存</value>
+  </data>
+  <data name="Galgame_hotkey_common_Fullscreen" xml:space="preserve">
+    <value>全屏</value>
+  </data>
+  <data name="Galgame_hotkey_common_Windowed" xml:space="preserve">
+    <value>窗口化</value>
+  </data>
+  <data name="Galgame_hotkey_common_Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Galgame_hotkey_common_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="Galgame_hotkey_common_Menu" xml:space="preserve">
+    <value>菜单</value>
+  </data>
+  <data name="Galgame_hotkey_common_Skip" xml:space="preserve">
+    <value>跳过</value>
+  </data>
+  <data name="Galgame_hotkey_common_FastForward" xml:space="preserve">
+    <value>快进</value>
+  </data>
+  <data name="Galgame_hotkey_common_Rewind" xml:space="preserve">
+    <value>回退</value>
+  </data>
+  <data name="Galgame_hotkey_common_Select" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="Galgame_hotkey_common_Confirm" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="GameSaveDetectorTask_Title" xml:space="preserve">
+    <value>游戏存档位置探测任务</value>
+  </data>
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
+    <value>编辑路径</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>请在游戏中进行一些保存操作</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
+    <value>存档位置已更新</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
+    <value>设置存档位置失败</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>重新检测</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>已清空存档位置，系统将在下次启动游戏或手动保存时重新检测</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>重新检测存档位置失败</value>
+  </data>
+  <data name="SavePositionDialog_Title" xml:space="preserve">
+    <value>打开文件夹位置</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Title" xml:space="preserve">
+    <value>是否打开资源管理器到以下路径进行浏览？</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Helper" xml:space="preserve">
+    <value>提示：如果您想浏览到具体的存档文件夹，可以选择打开资源管理器，然后手动导航到目标位置</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Title" xml:space="preserve">
+    <value>是否打开资源管理器来寻找存档位置？</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Helper" xml:space="preserve">
+    <value>提示：某些游戏的存档位置可能位于游戏目录、Documents、AppData 等位置。您可以使用标准选择器来指定存档位置。</value>
+  </data>
+  <data name="SavePositionDialog_OpenExplorer" xml:space="preserve">
+    <value>打开资源管理器</value>
+  </data>
+  <data name="SavePositionDialog_UseStandardPicker" xml:space="preserve">
+    <value>使用标准选择器</value>
+  </data>
+  <data name="SavePositionDialog_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Title" xml:space="preserve">
+    <value>选择存档位置</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Instruction.Text" xml:space="preserve">
+    <value>是否需要使用文件夹选择器来设置新的存档位置？</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Description.Text" xml:space="preserve">
+    <value>如果您已经在资源管理器中找到了理想的存档位置，可以使用文件夹选择器快速定位到该位置。如果您暂时不需要设置，可以选择不需要。</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_ShowPicker" xml:space="preserve">
+    <value>是的，打开选择器</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Skip" xml:space="preserve">
+    <value>不需要</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="GalgamePage_OpenGameDirectory.Text" xml:space="preserve">
+    <value>打开游戏目录</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectory.Text" xml:space="preserve">
+    <value>打开存档目录</value>
+  </data>
+  <data name="GalgamePage_NoSaveDirectoryDetected" xml:space="preserve">
+    <value>未检测到存档目录，请先设置存档位置</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectoryFailed" xml:space="preserve">
+    <value>打开存档目录失败</value>
+  </data>
+  <data name="GalgamePage_Open.Label" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+    <value>打开游戏或存档目录</value>
   </data>
   <data name="Shell_Plugin.Text" xml:space="preserve">
     <value>插件</value>

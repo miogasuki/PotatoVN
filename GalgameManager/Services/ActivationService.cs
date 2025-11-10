@@ -5,6 +5,7 @@ using GalgameManager.Activation;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
+using GalgameManager.Models;
 using GalgameManager.Views;
 using H.NotifyIcon;
 using Microsoft.UI.Xaml;
@@ -118,15 +119,26 @@ public class ActivationService : IActivationService
         }
         catch (Exception e)
         {
+            var backup = string.Empty;
             if (importWindow is not null)
                 await importWindow.Restore(e);
             else
             {
-                var backup = await _localSettingsService.BackupFailedDataAsync();
-                await _localSettingsService.SaveSettingAsync(KeyValues.LastError,
-                    $"{"ActivationService_LoadDataError".GetLocalized(backup)} {e.Message}");
+                try
+                {
+                    await _localSettingsService.BackupFailedDataAsync(removeAfterBackup: IsSafeMode());
+                }
+                catch (Exception exception)
+                {
+                    _infoService.DeveloperEvent(e: exception);
+                }
+                _localSettingsService.Database.Rebuild();
+                _localSettingsService.Database.Dispose();
             }
-            AppInstance.Restart("/safemode"); //safemode并没有实现，只是为了和正常的启动参数区分开
+            if (IsSafeMode())
+                _infoService.Event(EventType.AppError, InfoBarSeverity.Error, title: "Oops",
+                    msg: $"{"ActivationService_LoadDataError".GetLocalized(backup)} {e.Message}");
+            AppInstance.Restart(IsSafeMode() ? string.Empty : "/safemode");
             return;
         }
 
@@ -192,8 +204,12 @@ public class ActivationService : IActivationService
             activateWindow = !await _localSettingsService.ReadSettingAsync<bool>(KeyValues.MinToTrayWhenAutoStart);
         if (activateWindow) App.SetWindowMode(WindowMode.Normal);
         await _pluginService.InitAsync();
-        if (IsRestart() == false) _pvnService.Startup();
-        if (IsRestart() == false) await _updateService.UpdateSettingsBadgeAsync();
+        if (IsRestart() == false)
+        {
+            _pvnService.Startup();
+            await _localSettingsService.StartupAsync();
+            await _updateService.UpdateSettingsBadgeAsync();
+        }
         await _appCenterService.StartAsync();
         if(IsRestart() == false) await _bgmOAuthService.Init();
         await CheckFont();
@@ -278,6 +294,26 @@ public class ActivationService : IActivationService
         }
         return false;
     }
+    
+    private static bool IsSafeMode()
+    {
+        AppActivationArguments activatedArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
+        ExtendedActivationKind kind = activatedArgs.Kind;
+
+        if (kind == ExtendedActivationKind.Launch)
+        {
+            if (activatedArgs.Data is ILaunchActivatedEventArgs launchArgs)
+            {
+                var argStrings = launchArgs.Arguments.Split();
+                if (argStrings.Length > 1)
+                    argStrings = argStrings.Skip(1).ToArray();
+
+                return Array.Exists(argStrings, str => str.Contains("safemode"));
+            }
+        }
+        return false;
+    }
+
 
     /// <summary>
     /// 检查数据根目录下是否有导入压缩包

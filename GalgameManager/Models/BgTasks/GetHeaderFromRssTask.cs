@@ -26,6 +26,7 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
     
     protected async override Task ProcessItemAsync(Galgame item)
     {
+        if (item.HeaderImagePath.IsLock) return;
         item.AutoFetchStatus.HeaderImage = true;
         await GameService.SaveGalgameAsync(item);
         var fromSteam = !string.IsNullOrEmpty(item.Ids[(int)RssType.Steam]) && item.Ids[(int)RssType.Steam] != "-1";

@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reflection;
 using GalgameManager.Contracts.Phrase;
-using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers.API;
 using GalgameManager.Models;
@@ -31,6 +30,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
 
     private bool _authed;
     private bool _isChineseCulture = true;
+    private bool _translateTags = true;
     private Task? _checkAuthTask;
 
     public VndbPhraser()
@@ -43,7 +43,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         _vndbApi = new VndbApi();
         UpdateData(data);
     }
-    
+
     public void UpdateData(IGalInfoPhraserData data)
     {
         if (data is VndbPhraserData vndbData)
@@ -69,6 +69,8 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
 
             // 更新语言
             _isChineseCulture = vndbData.IsChineseCulture;
+            _translateTags = vndbData.TranslateTags;
+            _init = false;
         }
     }
 
@@ -86,12 +88,13 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         var file = Path.Combine(Path.GetDirectoryName(assembly.Location)!, TagDbFile);
         if (!File.Exists(file)) return;
     
+        _tagDb.Clear();
         JToken json = JToken.Parse(await File.ReadAllTextAsync(file));
         List<JToken>? tags = json.ToObject<List<JToken>>();
         tags!.ForEach(tag => _tagDb.Add(int.Parse(tag["id"]!.ToString()), tag));
 
-         // 如果是中文，则应用翻译
-        if (_isChineseCulture)
+         // 如果是中文，并且开启了翻译，则应用翻译
+        if (_isChineseCulture && _translateTags)
         {
             // 加载翻译文件
             var translationFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, TagTranslationFile);
@@ -646,12 +649,14 @@ public class VndbPhraserData : IGalInfoPhraserData
 {
     public string? Token;
     public bool IsChineseCulture;
-
+    public bool TranslateTags;
+ 
     public VndbPhraserData() { }
     
-    public VndbPhraserData(string? token, bool isChineseCulture = true)
+    public VndbPhraserData(string? token, bool isChineseCulture = true, bool translateTags = true)
     {
         Token = token;
         IsChineseCulture = isChineseCulture;
+        TranslateTags = translateTags;
     }
 }

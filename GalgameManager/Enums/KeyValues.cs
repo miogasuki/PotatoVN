@@ -24,6 +24,13 @@ public static class KeyValues
     public const string AuthenticationType = "authenticationType"; // AuthenticationType,身份验证类型
     public const string FontInstalled = "fontInstalled"; //bool, 是否安装了Segoe Fluent Icons字体
     public const string CustomTextFileExtensions = "CustomTextFileExtensions"; // List<string>, 用户自定义的文本文件扩展名列表
+
+    //自动导出相关
+    public const string AutoExport = "autoExport"; //bool, 是否启用自动导出
+    public const string AutoExportInterval = "autoExportInterval"; //double, 每次导出间相隔时间(小时)
+    public const string AutoExportPath = "autoExportPath"; //string, 导出路径
+    public const string LastExportTime = "lastExportTime"; //DateTime, 上次导出时间
+    public const string MaxBackupNumber = "maxBackupNumber"; //int, 最多保存备份数目
     
     //账户相关
     public const string BangumiAccount= "bangumiAccount"; //BgmAccount?, Bangumi账户, 若为null则未登录
@@ -44,6 +51,10 @@ public static class KeyValues
     public const string AlwaysEnableMagpie = "AlwaysEnableMagpie"; //bool, 是否无视各个游戏设置总是启用Magpie
     public const string MinPlayTimeRecordThreshold = "minPlayTimeRecordThreshold"; //int, 记录一次游玩的最小游玩时长 (分钟)
     public const string GameMuteEnabled = "gameMuteEnabled"; //bool, 是否启用游戏静音功能
+    public const string GameReMapEnabled = "gameReMapEnabled";
+    public const string GlobalKeyMappings = "GlobalKeyMappings";
+    public const string GameSaveDetector = "gameSaveDetector";
+
     public const string AlwaysMuteInBackground = "AlwaysMuteInBackground"; //bool, 是否无视各个游戏设置总是在后台时静音游戏
     
     //启动与跳转相关
@@ -81,6 +92,7 @@ public static class KeyValues
     public const string DownloadCharacters = "fetchCharacters"; //bool, 搜刮时是否获取角色信息
     public const string MixedPhraserOrder = "mixedPhraserOrder"; //MixedPhraserOrder,混合搜刮器的顺序
     public const string MixedPhraserEnabled = "mixedPhraserEnabled"; //MixedPhraserEnabled,混合搜刮器各个搜刮器的启用状态
+    public const string VndbTranslateTags = "vndbTranslateTags"; //bool, 是否翻译VNDB标签
     
     //显示相关
     public const string DisplayPlayTypePolygon = "displayPlayTypePolygon"; //bool, 游戏页是否显示游玩状态的小三角形
@@ -143,6 +155,8 @@ public static class KeyValues
     public const string UpdateType = "UpdateType";
     public const string UpdateUrl = "UpdateUrl";
     public const string IsBetaChannel = "isBetaChannel";
+    public const string FingerprintPlanEnabled = "fingerprintPlanEnabled"; //bool, 是否加入指纹共享计划
+    public const string FingerprintUploadedMap = "fingerprintUploadedMap"; //Dictionary<string,bool>, 指纹上传状态
 
 
     //是否执行过某种升级, bool

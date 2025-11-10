@@ -1597,6 +1597,12 @@
   <data name="BgmOAuthService_FetchTokenFailed" xml:space="preserve">
     <value>Bangumiトークンの取得に失敗しました</value>
   </data>
+  <data name="BgmOAuthService_TokenExpired" xml:space="preserve">
+    <value>Bangumiログインの有効期限が切れています。再度ログインしてください</value>
+  </data>
+  <data name="BgmOAuthService_TokenExpired_Action" xml:space="preserve">
+    <value>アカウントページへ</value>
+  </data>
   <data name="BgmOAuthStatus_FetchingTokenInfo" xml:space="preserve">
     <value>Bangumiトークン情報を取得中</value>
   </data>
@@ -2996,6 +3002,9 @@
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>バックグラウンドでミュート</value>
   </data>
+  <data name="GamePage_KeyReMap.Label" xml:space="preserve">
+    <value>キーマッピング</value>
+  </data>
   <data name="Settings_Game_AlwaysMuteInBackground.Title" xml:space="preserve">
     <value>常にバックグラウンド時にゲームをミュート</value>
   </data>
@@ -3139,5 +3148,314 @@
   </data>
   <data name="SettingsPage_Rss_Mixed_Enable.Description" xml:space="preserve">
     <value>混合スクレイピングで有効にするスクレイパーを設定</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Title" xml:space="preserve">
+    <value>指紋共有プランに参加する</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Description" xml:space="preserve">
+    <value>ローカル実行ファイルのハッシュを共有して指紋識別を改善します。</value>
+  </data>
+  <data name="FingerprintUploadTask_Title" xml:space="preserve">
+    <value>指紋アップロード</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Title" xml:space="preserve">
+    <value>指紋をアップロード中（処理中 {0} 件）</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Waiting" xml:space="preserve">
+    <value>待機キュー: 残り {0} 件のゲーム</value>
+  </data>
+  <data name="FingerprintUploadTask_EnumerateFailed" xml:space="preserve">
+    <value>{1} の実行ファイルを列挙中に {0} へのアクセスに失敗しました。</value>
+  </data>
+  <data name="FingerprintUploadTask_HashFailed" xml:space="preserve">
+    <value>{1} の {0} のハッシュ計算に失敗しました。</value>
+  </data>
+  <data name="FingerprintUploadTask_GameFailed" xml:space="preserve">
+    <value>{0} の指紋アップロードに失敗しました。</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_TranslateTags.Title" xml:space="preserve">
+    <value>VNDBのタグを翻訳</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_TranslateVndbTags.Title" xml:space="preserve">
+    <value>VNDBのタグを翻訳</value>
+  </data>
+  <data name="KeyMappingDialog_Title" xml:space="preserve">
+    <value>キーマッピング設定</value>
+  </data>
+  <data name="KeyMappingDialog_Description" xml:space="preserve">
+    <value>ゲームのキーマッピングを設定、キーボードからキーボード、キーボードからマウスへのマッピングをサポート</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Description.Text" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
+    <value>設定キー</value>
+  </data>
+  <data name="KeyMappingDialog_Header_ToKey.Text" xml:space="preserve">
+    <value>ゲーム内キー</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
+    <value>有効</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
+    <value>新しいマッピングを追加</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
+    <value>このマッピングを削除</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_Description.Text" xml:space="preserve">
+    <value>説明を入力（例：ジャンプキー）</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
+    <value>クリックして設定</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
+    <value>キーまたはマウスボタンを押してください</value>
+  </data>
+  <data name="KeyMappingDialog_InputMode.Text" xml:space="preserve">
+    <value>入力モード:</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OffContent" xml:space="preserve">
+    <value>キャプチャモード</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
+    <value>選択モード</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
+    <value>グローバルキーマッピング設定</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Description" xml:space="preserve">
+    <value>すべてのゲームで有効なグローバルキーマッピングを設定</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Clear" xml:space="preserve">
+    <value>すべてクリア</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>キーマッピングが保存されました</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
+    <value>キーマッピングがありません</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
+    <value>グローバルキーマッピング</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Description" xml:space="preserve">
+    <value>すべてのゲームで有効なグローバルキーマッピングを設定</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
+    <value>グローバルマッピングを編集</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
+    <value>キーマッピング</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
+    <value>ゲームのキーマッピングを設定、キーボードからキーボード、キーボードからマウスへのマッピングをサポート</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
+    <value>キーマッピングを編集</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
+    <value>赤いコーナーはグローバルショートカットを示し、ここでは削除できません</value>
+  </data>
+  <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
+    <value>マウスボタンキャプチャが有効、入力ボックス内でマウスボタンをクリックしてください</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>キーマッピングが保存されました</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
+    <value>グローバルキーマッピングが保存されました</value>
+  </data>
+  <data name="KeyMapping_Info_ClearAllMappings" xml:space="preserve">
+    <value>すべてのグローバルキーマッピングをクリアしてもよろしいですか？</value>
+  </data>
+  <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
+    <value>グローバルショートカットは削除できません、グローバル設定で修正してください</value>
+  </data>
+  <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
+    <value>マウス左ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_RightButton" xml:space="preserve">
+    <value>マウス右ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_MiddleButton" xml:space="preserve">
+    <value>マウス中央ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_X1Button" xml:space="preserve">
+    <value>マウスX1ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_X2Button" xml:space="preserve">
+    <value>マウスX2ボタン</value>
+  </data>
+  <data name="KeyMapping_Mouse_Wheel" xml:space="preserve">
+    <value>マウスホイール</value>
+  </data>
+  <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
+    <value>不明なマウスキー({0})</value>
+  </data>
+  <data name="KeyMappingTask_Title" xml:space="preserve">
+    <value>キーマッピングタスク</value>
+  </data>
+  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
+    <value>ゲーム {0} のキーマッピングを適用しています</value>
+  </data>
+  <data name="KeyMappingTask_Done" xml:space="preserve">
+    <value>キーマッピングタスクが終了しました</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>ゲームキーマッピングを有効化</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>ゲームキーマッピングのグローバルスイッチ。</value>
+  </data>
+  <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
+    <value>キーマッピング編集</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickSave" xml:space="preserve">
+    <value>クイックセーブ</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickLoad" xml:space="preserve">
+    <value>クイックロード</value>
+  </data>
+  <data name="Galgame_hotkey_common_Save" xml:space="preserve">
+    <value>セーブ</value>
+  </data>
+  <data name="Galgame_hotkey_common_Load" xml:space="preserve">
+    <value>ロード</value>
+  </data>
+  <data name="Galgame_hotkey_common_AutoSave" xml:space="preserve">
+    <value>オートセーブ</value>
+  </data>
+  <data name="Galgame_hotkey_common_Fullscreen" xml:space="preserve">
+    <value>フルスクリーン</value>
+  </data>
+  <data name="Galgame_hotkey_common_Windowed" xml:space="preserve">
+    <value>ウィンドウモード</value>
+  </data>
+  <data name="Galgame_hotkey_common_Settings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Galgame_hotkey_common_Exit" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="Galgame_hotkey_common_Menu" xml:space="preserve">
+    <value>メニュー</value>
+  </data>
+  <data name="Galgame_hotkey_common_Skip" xml:space="preserve">
+    <value>スキップ</value>
+  </data>
+  <data name="Galgame_hotkey_common_FastForward" xml:space="preserve">
+    <value>早送り</value>
+  </data>
+  <data name="Galgame_hotkey_common_Rewind" xml:space="preserve">
+    <value>巻き戻し</value>
+  </data>
+  <data name="Galgame_hotkey_common_Select" xml:space="preserve">
+    <value>選択</value>
+  </data>
+  <data name="Galgame_hotkey_common_Confirm" xml:space="preserve">
+    <value>決定</value>
+  </data>
+  <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="GameSaveDetectorTask_Title" xml:space="preserve">
+    <value>ゲームセーブ位置検出タスク</value>
+  </data>
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
+    <value>パスを編集</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>ゲーム内でいくつかの保存操作を実行してください</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
+    <value>セーブ位置が更新されました</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
+    <value>セーブ位置の設定に失敗しました</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>再検出</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>セーブ位置をクリアしました。システムは次回のゲーム起動時または手動保存時に再検出します</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>セーブ位置の再検出に失敗しました</value>
+  </data>
+  <data name="SavePositionDialog_Title" xml:space="preserve">
+    <value>フォルダーの場所を開く</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Title" xml:space="preserve">
+    <value>エクスプローラーで以下のパスを参照しますか？</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Helper" xml:space="preserve">
+    <value>ヒント：特定のセーブフォルダーを参照したい場合、エクスプローラーを開いて手動で目的の場所に移動できます</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Title" xml:space="preserve">
+    <value>エクスプローラーでセーブ場所を探しますか？</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Helper" xml:space="preserve">
+    <value>ヒント：ゲームのセーブ場所はゲームディレクトリ、ドキュメント、AppDataなどの場所にある場合があります。標準ピッカーを使用してセーブ場所を指定できます。</value>
+  </data>
+  <data name="SavePositionDialog_OpenExplorer" xml:space="preserve">
+    <value>エクスプローラーを開く</value>
+  </data>
+  <data name="SavePositionDialog_UseStandardPicker" xml:space="preserve">
+    <value>標準ピッカーを使用</value>
+  </data>
+  <data name="SavePositionDialog_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Title" xml:space="preserve">
+    <value>セーブ場所を選択</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Instruction.Text" xml:space="preserve">
+    <value>新しいセーブ場所を設定するためにフォルダーピッカーを使用しますか？</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Description.Text" xml:space="preserve">
+    <value>エクスプローラーで理想的なセーブ場所が既に見つかっている場合、フォルダーピッカーを使用してその場所にすばやく移動できます。今すぐ設定する必要がない場合は、設定しないことを選択できます。</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_ShowPicker" xml:space="preserve">
+    <value>はい、ピッカーを開く</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Skip" xml:space="preserve">
+    <value>不要</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="GalgamePage_OpenGameDirectory.Text" xml:space="preserve">
+    <value>ゲームディレクトリを開く</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectory.Text" xml:space="preserve">
+    <value>セーブディレクトリを開く</value>
+  </data>
+  <data name="GalgamePage_NoSaveDirectoryDetected" xml:space="preserve">
+    <value>セーブディレクトリが検出されませんでした。まずセーブ位置を設定してください</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectoryFailed" xml:space="preserve">
+    <value>セーブディレクトリのオープンに失敗しました</value>
+  </data>
+  <data name="GalgamePage_Open.Label" xml:space="preserve">
+    <value>開く</value>
+  </data>
+  <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+    <value>ゲームまたはセーブディレクトリを開く</value>
   </data>
 </root>

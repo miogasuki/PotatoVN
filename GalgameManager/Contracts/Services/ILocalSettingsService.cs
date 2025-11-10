@@ -88,5 +88,10 @@ public interface ILocalSettingsService
     /// 将当前无法读取的数据备份至："$LocalFolder/FailData"
     /// </summary>
     /// <returns></returns>
-    Task<string> BackupFailedDataAsync();
+    Task<string> BackupFailedDataAsync(bool removeAfterBackup = true);
+
+    /// <summary>
+    /// App启动时调用
+    /// </summary>
+    public Task StartupAsync();
 }

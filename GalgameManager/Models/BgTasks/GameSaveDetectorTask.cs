@@ -29,7 +29,6 @@ public class GameSaveDetectorTask : BgTaskBase
     public GameSaveDetectorTask(Galgame game)
     {
         Galgame = game;
-        InitializeCandidatePaths();
     }
 
     private void InitializeCandidatePaths()
@@ -380,6 +379,7 @@ public class GameSaveDetectorTask : BgTaskBase
     protected async override Task RunInternal()
     {
         if (Galgame == null) return;
+        InitializeCandidatePaths();
 
         Debug.WriteLine($"[GameSaveDetector] 开始为游戏 '{Galgame.Name?.Value}' 检测存档路径");
         Debug.WriteLine($"[GameSaveDetector] 候选路径数量: {_candidatePaths.Count}");

@@ -45,9 +45,13 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     public string LocalPathMsg => Gal.LocalPath ?? "GalgameSettingPage_NotLocalGame".GetLocalized();
     public string ExePathMsg => Gal.ExePath ?? "GalgameSettingPage_NoExe".GetLocalized();
     public bool IsLocalGame => Gal.IsLocalGame;
+    public string SavePositionDescription =>
+        string.IsNullOrEmpty(Gal?.DetectedSavePosition)
+            ? "GalgameSettingPage_DetectedSavePosition".GetLocalized()!
+            : Gal.DetectedSavePosition;
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
-        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService, 
+        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService,
         ILocalSettingsService settingsService, IMessenger bus)
     {
         Gal = new Galgame();
@@ -187,6 +191,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         OnPropertyChanged(nameof(LocalPathMsg));
         OnPropertyChanged(nameof(ExePathMsg));
         OnPropertyChanged(nameof(IsLocalGame));
+        OnPropertyChanged(nameof(SavePositionDescription));
     }
     
     [RelayCommand]
@@ -281,6 +286,117 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         }
     }
 
+    [RelayCommand]
+    private async Task SetSavePositionAsync()
+    {
+        try
+        {
+            // 确定起始路径：如果已检测到存档位置则使用它，否则使用 AppData
+            string initialPath;
+            if (!string.IsNullOrEmpty(Gal.DetectedSavePosition) && Directory.Exists(Gal.DetectedSavePosition))
+            {
+                initialPath = Gal.DetectedSavePosition;
+            }
+            else
+            {
+                initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            }
+
+            // 检查是否已有检测到的存档位置
+            var hasDetectedSavePosition = !string.IsNullOrEmpty(Gal.DetectedSavePosition);
+
+            // 尝试打开资源管理器到指定路径，然后让用户选择
+            await ShowFolderPickerWithPath(initialPath, hasDetectedSavePosition);
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgameSettingPage_SavePositionSetFailed".GetLocalized(), e.Message);
+            _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
+        }
+    }
+
+    /// <summary>
+    /// 显示文件夹选择器，并打开资源管理器到指定路径
+    /// </summary>
+    private async Task ShowFolderPickerWithPath(string initialPath, bool hasDetectedSavePosition)
+    {
+        try
+        {
+            // 使用自定义的存档位置对话框
+            var dialog = new SavePositionDialog(Gal, initialPath, hasDetectedSavePosition);
+            await dialog.ShowAsync();
+
+            switch (dialog.Result)
+            {
+                case SavePositionDialogResult.OpenExplorer:
+                    _infoService.Info(InfoBarSeverity.Informational,
+                        "已在资源管理器中打开路径，您可以浏览后使用文件夹选择器选择具体位置", displayTimeMs: 3000);
+
+                    // 询问用户是否需要使用文件夹选择器
+                    await AskForFolderPickerAfterExplorer();
+                    break;
+
+                case SavePositionDialogResult.UseStandardPicker:
+                    // 用户选择使用标准选择器
+                    await ShowStandardFolderPicker();
+                    break;
+
+                case SavePositionDialogResult.Cancel:
+                    // 用户取消，什么都不做
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            _infoService.Info(InfoBarSeverity.Warning, "OpenExplorer failed", ex.Message);
+            // 回退到标准选择器
+            await ShowStandardFolderPicker();
+        }
+    }
+
+    /// <summary>
+    /// 打开资源管理器后询问用户是否需要文件夹选择器
+    /// </summary>
+    private async Task AskForFolderPickerAfterExplorer()
+    {
+        var dialog = new FolderPickerConfirmationDialog();
+        await dialog.ShowAsync();
+
+        switch (dialog.Result)
+        {
+            case FolderPickerConfirmationResult.ShowPicker:
+                await ShowStandardFolderPicker();
+                break;
+
+            case FolderPickerConfirmationResult.Skip:
+                // 用户选择不需要，什么都不做
+                break;
+
+            case FolderPickerConfirmationResult.Cancel:
+                // 用户取消，什么都不做
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 显示标准文件夹选择器
+    /// </summary>
+    private async Task ShowStandardFolderPicker()
+    {
+        var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindow!.GetWindowHandle());
+        folderPicker.FileTypeFilter.Add("*");
+        folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+
+        StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
+        if (folder is not null)
+        {
+            Gal.DetectedSavePosition = folder.Path;
+            await _galService.SaveGalgameAsync(Gal);
+            _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_SavePositionUpdated".GetLocalized(), displayTimeMs: 2000);
+        }
+    }
+
     partial void OnReleasedDateChanged(DateTimeOffset value)
     {
         if (value.LocalDateTime == Gal.ReleaseDate.Value) return;
@@ -298,6 +414,34 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     {
         if (message.Galgame.Uuid != Gal.Uuid) return;
         UiThreadInvokeHelper.Invoke(() => ParsingMsg = message.Message);
+    }
+
+    [RelayCommand]
+    private async Task ReDetectSavePosition()
+    {
+        try
+        {
+            // 清空检测到的存档位置
+            Gal.DetectedSavePosition = null;
+
+            // 保存游戏设置
+            await _galService.SaveGalgameAsync(Gal);
+
+            // 显示成功信息
+            _infoService.Info(InfoBarSeverity.Success,
+                "GalgameSettingPage_ReDetectSuccess".GetLocalized(),
+                displayTimeMs: 3000);
+
+            // 刷新UI显示
+            OnPropertyChanged(nameof(SavePositionDescription));
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error,
+                "GalgameSettingPage_ReDetectFailed".GetLocalized(),
+                e.Message);
+            _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
+        }
     }
 
     [RelayCommand]

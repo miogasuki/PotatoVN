@@ -4102,5 +4102,88 @@
   <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
-
+  <data name="GameSaveDetectorTask_Title" xml:space="preserve">
+    <value>游戏存档位置探测任务</value>
+  </data>
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
+    <value>编辑路径</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>请在游戏中进行一些保存操作</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
+    <value>存档位置已更新</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
+    <value>设置存档位置失败</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>重新检测</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>已清空存档位置，系统将在下次启动游戏或手动保存时重新检测</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>重新检测存档位置失败</value>
+  </data>
+  <data name="SavePositionDialog_Title" xml:space="preserve">
+    <value>打开文件夹位置</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Title" xml:space="preserve">
+    <value>是否打开资源管理器到以下路径进行浏览？</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Helper" xml:space="preserve">
+    <value>提示：如果您想浏览到具体的存档文件夹，可以选择打开资源管理器，然后手动导航到目标位置</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Title" xml:space="preserve">
+    <value>是否打开资源管理器来寻找存档位置？</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Helper" xml:space="preserve">
+    <value>提示：某些游戏的存档位置可能位于游戏目录、Documents、AppData 等位置。您可以使用标准选择器来指定存档位置。</value>
+  </data>
+  <data name="SavePositionDialog_OpenExplorer" xml:space="preserve">
+    <value>打开资源管理器</value>
+  </data>
+  <data name="SavePositionDialog_UseStandardPicker" xml:space="preserve">
+    <value>使用标准选择器</value>
+  </data>
+  <data name="SavePositionDialog_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Title" xml:space="preserve">
+    <value>选择存档位置</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Instruction.Text" xml:space="preserve">
+    <value>是否需要使用文件夹选择器来设置新的存档位置？</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Description.Text" xml:space="preserve">
+    <value>如果您已经在资源管理器中找到了理想的存档位置，可以使用文件夹选择器快速定位到该位置。如果您暂时不需要设置，可以选择不需要。</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_ShowPicker" xml:space="preserve">
+    <value>是的，打开选择器</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Skip" xml:space="preserve">
+    <value>不需要</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="GalgamePage_OpenGameDirectory.Text" xml:space="preserve">
+    <value>打开游戏目录</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectory.Text" xml:space="preserve">
+    <value>打开存档目录</value>
+  </data>
+  <data name="GalgamePage_NoSaveDirectoryDetected" xml:space="preserve">
+    <value>未检测到存档目录，请先设置存档位置</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectoryFailed" xml:space="preserve">
+    <value>打开存档目录失败</value>
+  </data>
+  <data name="GalgamePage_Open.Label" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+    <value>打开游戏或存档目录</value>
+  </data>
 </root>

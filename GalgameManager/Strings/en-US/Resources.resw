@@ -3439,5 +3439,88 @@ If play time can record correctly, just cancel this popup.
   <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-
+  <data name="GameSaveDetectorTask_Title" xml:space="preserve">
+    <value>Game Save Location Detection Task</value>
+  </data>
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
+    <value>Edit Path</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>Please perform some save operations in the game</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
+    <value>Save position updated</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
+    <value>Failed to set save position</value>
+  </data>
+	<data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>ReDetect Path</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>Save position cleared. System will re-detect on next game launch or manual save</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>Failed to re-detect save position</value>
+  </data>
+  <data name="SavePositionDialog_Title" xml:space="preserve">
+    <value>Open Folder Location</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Title" xml:space="preserve">
+    <value>Would you like to open File Explorer to browse the following path?</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Helper" xml:space="preserve">
+    <value>Tip: If you want to browse to a specific save folder, you can open File Explorer and manually navigate to the target location</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Title" xml:space="preserve">
+    <value>Would you like to open File Explorer to find a save location?</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Helper" xml:space="preserve">
+    <value>Tip: Game save locations may be in the game directory, Documents, AppData, or other locations. You can use the standard picker to specify a save location.</value>
+  </data>
+  <data name="SavePositionDialog_OpenExplorer" xml:space="preserve">
+    <value>Open Explorer</value>
+  </data>
+  <data name="SavePositionDialog_UseStandardPicker" xml:space="preserve">
+    <value>Use Standard Picker</value>
+  </data>
+  <data name="SavePositionDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Title" xml:space="preserve">
+    <value>Select Save Location</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Instruction.Text" xml:space="preserve">
+    <value>Do you need to use the folder picker to set a new save location?</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Description.Text" xml:space="preserve">
+    <value>If you have already found the ideal save location in File Explorer, you can use the folder picker to quickly navigate to that location. If you don't need to set it for now, you can choose not to.</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_ShowPicker" xml:space="preserve">
+    <value>Yes, Open Picker</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Skip" xml:space="preserve">
+    <value>Don't Need</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="GalgamePage_OpenGameDirectory.Text" xml:space="preserve">
+    <value>Open Game Directory</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectory.Text" xml:space="preserve">
+    <value>Open Save Directory</value>
+  </data>
+  <data name="GalgamePage_NoSaveDirectoryDetected" xml:space="preserve">
+    <value>No save directory detected, please set save location first</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectoryFailed" xml:space="preserve">
+    <value>Failed to open save directory</value>
+  </data>
+  <data name="GalgamePage_Open.Label" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open game or save directory</value>
+  </data>
 </root>

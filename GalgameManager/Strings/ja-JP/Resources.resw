@@ -3374,5 +3374,88 @@
   <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
-
+  <data name="GameSaveDetectorTask_Title" xml:space="preserve">
+    <value>ゲームセーブ位置検出タスク</value>
+  </data>
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
+    <value>パスを編集</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>ゲーム内でいくつかの保存操作を実行してください</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
+    <value>セーブ位置が更新されました</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
+    <value>セーブ位置の設定に失敗しました</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>再検出</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>セーブ位置をクリアしました。システムは次回のゲーム起動時または手動保存時に再検出します</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>セーブ位置の再検出に失敗しました</value>
+  </data>
+  <data name="SavePositionDialog_Title" xml:space="preserve">
+    <value>フォルダーの場所を開く</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Title" xml:space="preserve">
+    <value>エクスプローラーで以下のパスを参照しますか？</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Helper" xml:space="preserve">
+    <value>ヒント：特定のセーブフォルダーを参照したい場合、エクスプローラーを開いて手動で目的の場所に移動できます</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Title" xml:space="preserve">
+    <value>エクスプローラーでセーブ場所を探しますか？</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Helper" xml:space="preserve">
+    <value>ヒント：ゲームのセーブ場所はゲームディレクトリ、ドキュメント、AppDataなどの場所にある場合があります。標準ピッカーを使用してセーブ場所を指定できます。</value>
+  </data>
+  <data name="SavePositionDialog_OpenExplorer" xml:space="preserve">
+    <value>エクスプローラーを開く</value>
+  </data>
+  <data name="SavePositionDialog_UseStandardPicker" xml:space="preserve">
+    <value>標準ピッカーを使用</value>
+  </data>
+  <data name="SavePositionDialog_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Title" xml:space="preserve">
+    <value>セーブ場所を選択</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Instruction.Text" xml:space="preserve">
+    <value>新しいセーブ場所を設定するためにフォルダーピッカーを使用しますか？</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Description.Text" xml:space="preserve">
+    <value>エクスプローラーで理想的なセーブ場所が既に見つかっている場合、フォルダーピッカーを使用してその場所にすばやく移動できます。今すぐ設定する必要がない場合は、設定しないことを選択できます。</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_ShowPicker" xml:space="preserve">
+    <value>はい、ピッカーを開く</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Skip" xml:space="preserve">
+    <value>不要</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="GalgamePage_OpenGameDirectory.Text" xml:space="preserve">
+    <value>ゲームディレクトリを開く</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectory.Text" xml:space="preserve">
+    <value>セーブディレクトリを開く</value>
+  </data>
+  <data name="GalgamePage_NoSaveDirectoryDetected" xml:space="preserve">
+    <value>セーブディレクトリが検出されませんでした。まずセーブ位置を設定してください</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectoryFailed" xml:space="preserve">
+    <value>セーブディレクトリのオープンに失敗しました</value>
+  </data>
+  <data name="GalgamePage_Open.Label" xml:space="preserve">
+    <value>開く</value>
+  </data>
+  <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+    <value>ゲームまたはセーブディレクトリを開く</value>
+  </data>
 </root>

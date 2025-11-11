@@ -155,4 +155,6 @@ public interface IGalgameCollectionService
         RssType rssType = RssType.None);
 
     public Task ExportAsync(Action<string, int, int>? progress);
+
+    public Task<(GalStatusSyncResult, string)> UploadPlayStatusAsync(Galgame galgame, RssType rssType);
 }

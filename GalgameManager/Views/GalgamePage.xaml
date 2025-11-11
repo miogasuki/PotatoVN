@@ -82,8 +82,22 @@
                 <!-- 在文件资源管理器中打开 -->
                 <AppBarButton Icon="OpenLocal"
                         x:Uid="GalgamePage_OpenInExplorer"
+                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"
                         Command="{x:Bind ViewModel.OpenInExplorerCommand}"
-                              IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
+                        Visibility="{x:Bind ViewModel.ShowSingleExplorerButton, Mode=OneWay}"/>
+                <AppBarButton Icon="OpenLocal"
+                        x:Uid="GalgamePage_Open"
+                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.ShowExplorerMenu, Mode=OneWay}">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+                            <MenuFlyoutItem x:Uid="GalgamePage_OpenGameDirectory"
+                                            Command="{x:Bind ViewModel.OpenInExplorerCommand}"/>
+                            <MenuFlyoutItem x:Uid="GalgamePage_OpenSaveDirectory"
+                                            Command="{x:Bind ViewModel.OpenSaveDirectoryCommand}"/>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
                 <CommandBar.SecondaryCommands>
                     <!-- 转区运行游戏 -->
                     <AppBarToggleButton Icon="Character"
@@ -119,6 +133,14 @@
                                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}">
                         <AppBarToggleButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEA8F;" /> <!-- Mute icon -->
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
+                    <!-- 快捷键映射 -->
+                    <AppBarToggleButton x:Uid="GamePage_KeyReMap"
+                                        IsChecked="{x:Bind ViewModel.Item.KeyReMap, Mode=TwoWay, FallbackValue=False}"
+                                        IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE765;" /> <!-- KeyBoard icon -->
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
                     <AppBarSeparator/>
@@ -254,7 +276,10 @@
                         <galgamePagePanel:GameHeaderOldPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
                         <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
                         <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                        <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                        <galgamePagePanel:GameCharacterPanel
+                            Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                            AddCharacterCommand="{x:Bind ViewModel.AddCharacterCommand}"
+                            DeleteCharacterCommand="{x:Bind ViewModel.DeleteCharacterCommand}" />
                         <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
                     </StackPanel>
                 </ScrollViewer>
@@ -286,8 +311,11 @@
                             </Grid>
                             <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
                                     Visibility="{x:Bind ViewModel.ShowTagPanel, Mode=OneWay}"/>
-                            <galgamePagePanel:GameCharacterPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                                    Visibility="{x:Bind ViewModel.ShowCharacterPanel, Mode=OneWay}"/>
+                            <galgamePagePanel:GameCharacterPanel
+                                Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                                AddCharacterCommand="{x:Bind ViewModel.AddCharacterCommand}"
+                                DeleteCharacterCommand="{x:Bind ViewModel.DeleteCharacterCommand}"
+                                Visibility="{x:Bind ViewModel.ShowCharacterPanel, Mode=OneWay}"/>
                             <interactivity:Interaction.Behaviors>
                                 <behaviors:ResponsivePaddingBehavior OrinWidth="1000" OrinPadding="100 0 100 0"/>
                             </interactivity:Interaction.Behaviors>

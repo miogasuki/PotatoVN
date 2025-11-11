@@ -462,8 +462,11 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private void UpdateGalgame(Galgame game)
     {
         //通过Remove和Add来刷新某个具体的Item
-        Source.Remove(game);
-        Source.Add(game);
+        UiThreadInvokeHelper.Invoke(() =>
+        {
+            Source.Remove(game);
+            Source.Add(game);
+        });
     }
 
     [RelayCommand]

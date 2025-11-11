@@ -100,11 +100,38 @@
                                                   IsOn="{x:Bind ViewModel.Gal.MuteInBackground, Mode=TwoWay}"/>
                                 </Grid>
                             </control:Panel>
-                            <!-- 存档位置（尚未做完，隐藏） -->
-                            <control:Panel Visibility="Collapsed">
+                            <!-- 存档位置 -->
+                            <control:Panel>
                                 <control:Setting x:Uid="GalgameSettingPage_GameSetting_SavePosition"
-                                                 Description="{x:Bind ViewModel.Gal.SavePosition}">
-                                    <Button IsEnabled="False"/>
+                                                 Description="{x:Bind ViewModel.SavePositionDescription, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center">
+                                        <HyperlinkButton Command="{x:Bind ViewModel.SetSavePositionCommand}"
+                                                         VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <SymbolIcon Symbol="Edit" />
+                                                <TextBlock x:Uid="GalgameSettingPage_EditSavePosition" />
+                                            </StackPanel>
+                                        </HyperlinkButton>
+                                        <Button Command="{x:Bind ViewModel.ReDetectSavePositionCommand}"
+                                                VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <SymbolIcon Symbol="Refresh" />
+                                                <TextBlock x:Uid="GalgameSettingPage_ReDetect" />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </control:Setting>
+                            </control:Panel>
+                            <!-- 按键映射 -->
+                            <control:Panel>
+                                <control:Setting x:Uid="GalgameSettingPage_KeyMappings">
+                                    <HyperlinkButton Command="{x:Bind ViewModel.OpenKeyMappingDialogCommand}"
+                                                     VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <SymbolIcon Symbol="Edit" />
+                                            <TextBlock x:Uid="GalgameSettingPage_KeyMappings_Edit" />
+                                        </StackPanel>
+                                    </HyperlinkButton>
                                 </control:Setting>
                             </control:Panel>
                         </StackPanel>

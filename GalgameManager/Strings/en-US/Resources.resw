@@ -1597,6 +1597,12 @@ If play time can record correctly, just cancel this popup.
   <data name="BgmOAuthService_FetchTokenFailed" xml:space="preserve">
     <value>Failed to fetch Bangumi Token.</value>
   </data>
+  <data name="BgmOAuthService_TokenExpired" xml:space="preserve">
+    <value>Bangumi login has expired, please login again</value>
+  </data>
+  <data name="BgmOAuthService_TokenExpired_Action" xml:space="preserve">
+    <value>Go to Account Page</value>
+  </data>
   <data name="BgmOAuthStatus_FetchingTokenInfo" xml:space="preserve">
     <value>Fetching Bangumi Token information.</value>
   </data>
@@ -2989,6 +2995,9 @@ If play time can record correctly, just cancel this popup.
   <data name="GamePage_MuteInBackground.Label" xml:space="preserve">
     <value>Mute in background</value>
   </data>
+  <data name="GamePage_KeyReMap.Label" xml:space="preserve">
+    <value>Key Mapping</value>
+  </data>
   <data name="Settings_Game_AlwaysMuteInBackground.Title" xml:space="preserve">
     <value>Always mute game when in background</value>
   </data>
@@ -3175,4 +3184,359 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Other_AutoExport_MaxBackupNumber.Description" xml:space="preserve">
     <value>When the limit is reached, the oldest backup will be deleted before creating a new one.</value>
   </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Title" xml:space="preserve">
+    <value>Enable Fingerprint Sharing Plan</value>
+  </data>
+  <data name="SettingsPage_Other_FingerprintPlan.Description" xml:space="preserve">
+    <value>Share hashes of local executables to improve fingerprint recognition.</value>
+  </data>
+  <data name="FingerprintUploadTask_Title" xml:space="preserve">
+    <value>Fingerprint Upload</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Title" xml:space="preserve">
+    <value>Uploading fingerprints ({0} games running)</value>
+  </data>
+  <data name="FingerprintUploadTask_Progress_Waiting" xml:space="preserve">
+    <value>Queue pending: {0} game(s)</value>
+  </data>
+  <data name="FingerprintUploadTask_EnumerateFailed" xml:space="preserve">
+    <value>Failed to enumerate executables under {0} for {1}.</value>
+  </data>
+  <data name="FingerprintUploadTask_HashFailed" xml:space="preserve">
+    <value>Failed to hash {0} for {1}.</value>
+  </data>
+  <data name="FingerprintUploadTask_GameFailed" xml:space="preserve">
+    <value>Fingerprint upload for {0} failed.</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_TranslateTags.Title" xml:space="preserve">
+    <value>Translate VNDB tags</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_TranslateVndbTags.Title" xml:space="preserve">
+    <value>Translate VNDB tags</value>
+  </data>
+  <data name="KeyMappingDialog_Title" xml:space="preserve">
+    <value>Key Mapping Settings</value>
+  </data>
+  <data name="KeyMappingDialog_Description" xml:space="preserve">
+    <value>Set key mappings for games, supports keyboard-to-keyboard and keyboard-to-mouse mapping</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Description.Text" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="KeyMappingDialog_Header_FromKey.Text" xml:space="preserve">
+    <value>Set Key</value>
+  </data>
+  <data name="KeyMappingDialog_Header_ToKey.Text" xml:space="preserve">
+    <value>In-Game Key</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Enabled.Text" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="KeyMappingDialog_Header_Delete.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="KeyMappingDialog_Button_AddMapping.Text" xml:space="preserve">
+    <value>Add New Mapping</value>
+  </data>
+  <data name="KeyMappingDialog_Button_Delete_ToolTip" xml:space="preserve">
+    <value>Delete this mapping</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_Description.Text" xml:space="preserve">
+    <value>Enter description (e.g., Jump key)</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_ClickToSet" xml:space="preserve">
+    <value>Click to set</value>
+  </data>
+  <data name="KeyMappingDialog_Placeholder_PressKey" xml:space="preserve">
+    <value>Press a key or mouse button</value>
+  </data>
+  <data name="KeyMappingDialog_InputMode.Text" xml:space="preserve">
+    <value>Input Mode:</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OffContent" xml:space="preserve">
+    <value>Capture Mode</value>
+  </data>
+  <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
+    <value>Selection Mode</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
+    <value>Global Key Mapping Settings</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Description" xml:space="preserve">
+    <value>Set global key mappings that will work in all games</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Clear" xml:space="preserve">
+    <value>Clear All</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>Key mapping saved</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
+    <value>No key mappings available</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
+    <value>Global Key Mapping</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping.Description" xml:space="preserve">
+    <value>Set global key mappings that will work in all games</value>
+  </data>
+  <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
+    <value>Edit Global Mappings</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
+    <value>Key Mapping</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings.Description" xml:space="preserve">
+    <value>Set key mappings for games, supports keyboard-to-keyboard and keyboard-to-mouse mapping</value>
+  </data>
+  <data name="GalgameSettingPage_KeyMappings_Edit.Text" xml:space="preserve">
+    <value>Edit Key Mapping</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
+    <value>Red corner indicates global shortcut, cannot be deleted here</value>
+  </data>
+  <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
+    <value>Mouse button capture is enabled, click mouse button in input box</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>Key mapping saved</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
+    <value>Global key mapping saved</value>
+  </data>
+  <data name="KeyMapping_Info_ClearAllMappings" xml:space="preserve">
+    <value>Are you sure you want to clear all global key mappings?</value>
+  </data>
+  <data name="KeyMapping_Error_GlobalMappingCannotDelete" xml:space="preserve">
+    <value>Cannot delete global shortcut, please modify in global settings</value>
+  </data>
+  <data name="KeyMapping_Mouse_LeftButton" xml:space="preserve">
+    <value>Mouse Left Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_RightButton" xml:space="preserve">
+    <value>Mouse Right Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_MiddleButton" xml:space="preserve">
+    <value>Mouse Middle Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_X1Button" xml:space="preserve">
+    <value>Mouse X1 Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_X2Button" xml:space="preserve">
+    <value>Mouse X2 Button</value>
+  </data>
+  <data name="KeyMapping_Mouse_Wheel" xml:space="preserve">
+    <value>Mouse Wheel</value>
+  </data>
+  <data name="KeyMapping_Unknown_MouseKey" xml:space="preserve">
+    <value>Unknown Mouse Key({0})</value>
+  </data>
+  <data name="KeyMappingTask_Title" xml:space="preserve">
+    <value>Key Mapping Task</value>
+  </data>
+  <data name="KeyMappingTask_ProgressMsg" xml:space="preserve">
+    <value>Applying key mapping for game {0}</value>
+  </data>
+  <data name="KeyMappingTask_Done" xml:space="preserve">
+    <value>Key mapping task finished</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
+    <value>Enable Game Key Mapping</value>
+  </data>
+  <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
+    <value>Global switch for game key mapping.</value>
+  </data>
+  <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
+    <value>Edit Key Mapping</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
+    <value>Upload All Play Statuses</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Description.Text" xml:space="preserve">
+    <value>Select which services to upload play status to.</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Bangumi.Content" xml:space="preserve">
+    <value>Upload to Bangumi</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_Vndb.Content" xml:space="preserve">
+    <value>Upload to VNDB</value>
+  </data>
+  <data name="UploadAllPlayStatusDialog_NoTargetSelected" xml:space="preserve">
+    <value>Please select at least one target service.</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_AlreadyRunning" xml:space="preserve">
+    <value>Upload task is already running.</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Started" xml:space="preserve">
+    <value>Upload-all play status task started.</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Title" xml:space="preserve">
+    <value>Upload all play statuses</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Progress_Title" xml:space="preserve">
+    <value>Uploading play status ({0})</value>
+  </data>
+  <data name="UploadAllPlayStatusTask_Progress_Waiting" xml:space="preserve">
+    <value>Waiting to upload {0} items</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickSave" xml:space="preserve">
+    <value>Quick Save</value>
+  </data>
+  <data name="Galgame_hotkey_common_QuickLoad" xml:space="preserve">
+    <value>Quick Load</value>
+  </data>
+  <data name="Galgame_hotkey_common_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Galgame_hotkey_common_Load" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="Galgame_hotkey_common_AutoSave" xml:space="preserve">
+    <value>Auto Save</value>
+  </data>
+  <data name="Galgame_hotkey_common_Fullscreen" xml:space="preserve">
+    <value>Fullscreen</value>
+  </data>
+  <data name="Galgame_hotkey_common_Windowed" xml:space="preserve">
+    <value>Windowed</value>
+  </data>
+  <data name="Galgame_hotkey_common_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Galgame_hotkey_common_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Galgame_hotkey_common_Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="Galgame_hotkey_common_Skip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="Galgame_hotkey_common_FastForward" xml:space="preserve">
+    <value>Fast Forward</value>
+  </data>
+  <data name="Galgame_hotkey_common_Rewind" xml:space="preserve">
+    <value>Rewind</value>
+  </data>
+  <data name="Galgame_hotkey_common_Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Galgame_hotkey_common_Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Galgame_hotkey_common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="GameSaveDetectorTask_Title" xml:space="preserve">
+    <value>Game Save Location Detection Task</value>
+  </data>
+  <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
+    <value>Edit Path</value>
+  </data>
+  <data name="GalgameSettingPage_DetectedSavePosition" xml:space="preserve">
+    <value>Please perform some save operations in the game</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionUpdated" xml:space="preserve">
+    <value>Save position updated</value>
+  </data>
+  <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
+    <value>Failed to set save position</value>
+  </data>
+	<data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+    <value>ReDetect Path</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
+    <value>Save position cleared. System will re-detect on next game launch or manual save</value>
+  </data>
+  <data name="GalgameSettingPage_ReDetectFailed" xml:space="preserve">
+    <value>Failed to re-detect save position</value>
+  </data>
+  <data name="SavePositionDialog_Title" xml:space="preserve">
+    <value>Open Folder Location</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Title" xml:space="preserve">
+    <value>Would you like to open File Explorer to browse the following path?</value>
+  </data>
+  <data name="SavePositionDialog_BrowseExistingPath_Helper" xml:space="preserve">
+    <value>Tip: If you want to browse to a specific save folder, you can open File Explorer and manually navigate to the target location</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Title" xml:space="preserve">
+    <value>Would you like to open File Explorer to find a save location?</value>
+  </data>
+  <data name="SavePositionDialog_FindNewPath_Helper" xml:space="preserve">
+    <value>Tip: Game save locations may be in the game directory, Documents, AppData, or other locations. You can use the standard picker to specify a save location.</value>
+  </data>
+  <data name="SavePositionDialog_OpenExplorer" xml:space="preserve">
+    <value>Open Explorer</value>
+  </data>
+  <data name="SavePositionDialog_UseStandardPicker" xml:space="preserve">
+    <value>Use Standard Picker</value>
+  </data>
+  <data name="SavePositionDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Title" xml:space="preserve">
+    <value>Select Save Location</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Instruction.Text" xml:space="preserve">
+    <value>Do you need to use the folder picker to set a new save location?</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Description.Text" xml:space="preserve">
+    <value>If you have already found the ideal save location in File Explorer, you can use the folder picker to quickly navigate to that location. If you don't need to set it for now, you can choose not to.</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_ShowPicker" xml:space="preserve">
+    <value>Yes, Open Picker</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Skip" xml:space="preserve">
+    <value>Don't Need</value>
+  </data>
+  <data name="FolderPickerConfirmationDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="GalgamePage_OpenGameDirectory.Text" xml:space="preserve">
+    <value>Open Game Directory</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectory.Text" xml:space="preserve">
+    <value>Open Save Directory</value>
+  </data>
+  <data name="GalgamePage_NoSaveDirectoryDetected" xml:space="preserve">
+    <value>No save directory detected, please set save location first</value>
+  </data>
+  <data name="GalgamePage_OpenSaveDirectoryFailed" xml:space="preserve">
+    <value>Failed to open save directory</value>
+  </data>
+  <data name="GalgamePage_Open.Label" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open game or save directory</value>
+  </data>
+  <data name="GameCharacterPanel_AddCharacter.Text" xml:space="preserve">
+    <value>Add Character</value>
+  </data>
+  <data name="GameCharacterPanel_NewCharacter" xml:space="preserve">
+    <value>New Character</value>
+  </data>
+  <data name="GameCharacterPanel_DeleteCharacter.Text" xml:space="preserve">
+    <value>Delete Character</value>
+  </data>
+  <data name="GameCharacterPanel_AddCharacter_Success" xml:space="preserve">
+    <value>Character added successfully</value>
+  </data>
+  <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
+    <value>Character deleted successfully</value>
+  </data>
+
 </root>

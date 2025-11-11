@@ -746,11 +746,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                                 (language == LanguageEnum.Auto &&
                                  System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
 
+        bool translateTags = await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.VndbTranslateTags);
+
         VndbPhraserData data = new()
         {
             Token = (await LocalSettingsService.ReadSettingAsync<VndbAccount>(KeyValues.VndbAccount))?.Token,
-            IsChineseCulture = _isChineseCulture
-
+            IsChineseCulture = _isChineseCulture,
+            TranslateTags = translateTags
         };
         return data;
     }
@@ -772,6 +774,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 PhraserList[(int)RssType.Bangumi].UpdateData(await GetBgmData());
                 break;
             case KeyValues.VndbAccount:
+                PhraserList[(int)RssType.Vndb].UpdateData(await GetVndbData());
+                break;
+            case KeyValues.VndbTranslateTags:
                 PhraserList[(int)RssType.Vndb].UpdateData(await GetVndbData());
                 break;
             case KeyValues.MixedPhraserOrder:

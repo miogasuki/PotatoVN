@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="GalgameManager.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,6 +17,7 @@
         <converter:RssTypeToVisibilityConverter x:Key="RssTypeToVisibilityConverter"/>
         <converter:AuthenticationTypeToStringConverter x:Key="AuthenticationTypeToStringConverter"/>
         <converter:WindowModeToStringConverter x:Key="WindowModeToStringConverter"/>
+        <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converter:EnumToStringConverter x:Key="EnumToStringConverter"/>
         <cmtkConverters:StringVisibilityConverter x:Key="StringVisibilityConverter"/>
         <Style x:Key="SettingStackPanelStyle" TargetType="StackPanel">
@@ -183,6 +184,10 @@
                                             TextWrapping="Wrap"
                                                Style="{StaticResource DescriptionTextStyle}"
                                                Margin="{StaticResource XSmallBottomMargin}"/>
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
+                                                               IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"
+                                                               Visibility="{x:Bind ViewModel.IsChineseCulture, Mode=OneWay, 
+                                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                             </control:Panel>
                             <!-- Mixed -->
@@ -205,6 +210,10 @@
                                                 MinWidth="{StaticResource ButtonMinWidth}"
                                                 Command="{x:Bind ViewModel.SetMixedPhraserEnabledCommand}"/>
                                     </control:Setting>
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
+                                                               IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"
+                                                               Visibility="{x:Bind ViewModel.IsChineseCulture, Mode=OneWay, 
+                                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </StackPanel>
                             </control:Panel>
 
@@ -257,6 +266,10 @@
                                     
                                     <control:Setting x:Uid="SettingsPage_Download_SyncVndbPlayStatusNow">
                                         <Button Content="Go" Width="75" Command="{x:Bind ViewModel.DownloadPlayStatusFormVndbNowCommand}"/>
+                                    </control:Setting>
+                                    <control:Setting Title="上传所有游戏游玩状态"
+                                                     Description="一键上传所有游戏的游玩状态到bangumi和vndb">
+                                        <Button Content="Go" Width="75" Command="{x:Bind ViewModel.UploadAllPlayStatusCommand}"/>
                                     </control:Setting>
                                 </StackPanel>
                             </control:Panel>                            
@@ -355,6 +368,22 @@
                                 <local:SettingToggleSwitch
                                     x:Uid="Settings_Game_AlwaysMuteInBackground"
                                     IsOn="{x:Bind ViewModel.AlwaysMuteInBackground, Mode=TwoWay}"/>
+                            </control:Panel>
+                            <!-- 游戏快捷键映射 -->
+                            <control:Panel>
+                                <StackPanel Style="{StaticResource SettingStackPanelStyle}">
+                                    <local:SettingToggleSwitch
+                                        x:Uid="Settings_Game_ReMapEnabled"
+                                        IsOn="{x:Bind ViewModel.GameReMapEnabled, Mode=TwoWay}"/>
+                                    <StackPanel Style="{StaticResource SettingStackPanelStyle}" Visibility="{x:Bind ViewModel.GameReMapEnabled, Mode=OneWay}">
+                                        <Button Command="{x:Bind ViewModel.OpenGlobalKeyMappingDialogCommand}" HorizontalAlignment="Stretch">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <SymbolIcon Symbol="Edit"/>
+                                                <TextBlock x:Uid="Settings_Game_EditKeyMapping"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
                             </control:Panel>
                             <!-- 记录游玩次数的最小游玩时长 -->
                             <control:Panel>
@@ -690,6 +719,11 @@
                             <control:Panel>
                                 <local:SettingToggleSwitch x:Uid="SettingsPage_Other_AppCenter"
                                                            IsOn="{x:Bind ViewModel.UploadToAppCenter, Mode=TwoWay}"/>
+                            </control:Panel>
+                            <!-- 指纹共享计划 -->
+                            <control:Panel>
+                                <local:SettingToggleSwitch x:Uid="SettingsPage_Other_FingerprintPlan"
+                                                           IsOn="{x:Bind ViewModel.FingerprintPlanEnabled, Mode=TwoWay}"/>
                             </control:Panel>
                             <!-- 开发者模式 -->
                             <control:Panel>

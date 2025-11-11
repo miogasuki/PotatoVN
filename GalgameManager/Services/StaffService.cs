@@ -42,17 +42,34 @@ public class StaffService : IStaffService
         await ImportAsync(status);
         await Task.Run(() =>
         {
-            foreach (Staff staff in _dbSet.Include(x => x.Games).FindAll())
+            foreach (Staff staff in _dbSet.FindAll())
             {
                 _staffs[staff.Id] = staff;
                 List<StaffGame> toRemove = [];
+                var containNullGame = false;
                 foreach (StaffGame game in staff.Games)
                 {
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                    if (game is null) 
+                    {
+                        containNullGame = true;
+                        continue; //按理来说应该绝对不应该出现，但是数据库里就有这种脏数据
+                    }
                     Galgame? tmp = _galgameService.GetGalgameFromUuid(game.LoadedGameId);
                     if (tmp is not null) game.Game = tmp;
                     else toRemove.Add(game);
                 }
                 foreach (StaffGame game in toRemove) staff.Games.Remove(game);
+                if (containNullGame)
+                {
+                    for(var i = staff.Games.Count - 1; i >= 0; i--)
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                        if (staff.Games[i] is null) 
+                            staff.Games.RemoveAt(i);
+                    _infoService.Log(InfoBarSeverity.Warning,
+                        $"Found null game in staff {staff.Name}({staff.Id}), it has been removed.");
+                }
+                if (containNullGame || toRemove.Count > 0) Save(staff, false);
             }
         });
     }

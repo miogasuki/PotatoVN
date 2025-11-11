@@ -305,6 +305,8 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)new List<string> { ".doc", ".docx", ".pdf", ".txt", ".md" };
             case KeyValues.AutoExportInterval:
                 return (T?)(object)168.0;
+            case KeyValues.VndbTranslateTags:
+                return (T?)(object)true;
             default:
                 return default;
         }

@@ -130,12 +130,14 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         MagpiePath = _localSettingsService.ReadSettingAsync<string>(KeyValues.MagpiePath).Result; // Initialize MagpiePath
         _alwaysEnableMagpie = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie).Result;
         _alwaysMuteInBackground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground).Result;
+        _gameReMapEnabled = _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled).Result;
         _magpieHotkeys = _localSettingsService.ReadSettingAsync<List<int>>(KeyValues.MagpieHotkeys).Result ?? [];
         UpdateMagpieHotkeysString();
         MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
         PlayingWindowModes = new[] {WindowMode.Minimize, WindowMode.SystemTray, WindowMode.None };
         //RSS
         RssType = _localSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType).Result;
+        _vndbTranslateTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbTranslateTags).Result;
         //DOWNLOAD_BEHAVIOR
         // _overrideLocalName = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalName).Result;
         // _overrideLocalNameWithChinese = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalNameWithChinese).Result;
@@ -170,6 +172,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         //Other
         UploadToAppCenter = _localSettingsService.ReadSettingAsync<bool>(KeyValues.UploadData).Result;
         MemoryImprove = _localSettingsService.ReadSettingAsync<bool>(KeyValues.MemoryImprove).Result;
+        _fingerprintPlanEnabled = _localSettingsService.ReadSettingAsync<bool>(KeyValues.FingerprintPlanEnabled).Result;
         WindowModes = new[] { WindowMode.Normal, WindowMode.Close, WindowMode.SystemTray };
         CloseMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.CloseMode).Result;
         DevelopmentMode = _localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result;
@@ -264,6 +267,14 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     ];
     [ObservableProperty] private LanguageEnum _language;
 
+    /// <summary>
+    /// 当前视图模型是否为中文环境（用于控制仅中文可见的设置）
+    /// </summary>
+    public bool IsChineseCulture =>
+        Language == LanguageEnum.ChineseSimplified ||
+        (Language == LanguageEnum.Auto &&
+         System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase));
+
     public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic };
     [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;
 
@@ -290,12 +301,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     partial void OnLanguageChanged(LanguageEnum value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.Language, value);
-
+ 
         try
         {
             string languageTag = GetLanguageTag(value);
             ApplicationLanguages.PrimaryLanguageOverride = languageTag;
-
+ 
             // 提醒用户完全应用新语言还需要重启应用
             _infoService.Info(InfoBarSeverity.Informational,
                 "SettingsPage_Language_RestartRequired".GetLocalized(),
@@ -307,6 +318,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 "SettingsPage_Language_ChangeError".GetLocalized(),
                 ex.Message);
         }
+        // 通知依赖语言环境的绑定项更新（例如仅在中文环境显示的选项）
+        OnPropertyChanged(nameof(IsChineseCulture));
     }
 
     // 根据语言枚举获取对应的语言标记
@@ -396,6 +409,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public bool MagpieSettingVisible => MagpieTotalSwitch && !IsNullOrEmpty(MagpiePath);
     [ObservableProperty] private bool _alwaysEnableMagpie;
     [ObservableProperty] private bool _alwaysMuteInBackground;
+    [ObservableProperty] private bool _gameReMapEnabled;
     [ObservableProperty] private string _magpieHotkeysString = Empty;
     [ObservableProperty] private List<int> _magpieHotkeyKeys = new();
     private List<int> _magpieHotkeys;
@@ -425,6 +439,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     partial void OnAlwaysMuteInBackgroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AlwaysMuteInBackground, value);
+
+    partial void OnGameReMapEnabledChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.GameReMapEnabled, value);
 
     async partial void OnMagpieHotkeyKeysChanged(List<int> value)
     {
@@ -521,7 +537,35 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         MagpieHotkeysString = Join(" + ", _magpieHotkeys.Select(vk => ((VirtualKey)vk).ToString()));
     }
-    
+
+    [RelayCommand]
+    private async Task OpenGlobalKeyMappingDialog()
+    {
+        List<KeyMapping> globalKeyMappings;
+        try
+        {
+            globalKeyMappings = await _localSettingsService.ReadSettingAsync<List<KeyMapping>>(KeyValues.GlobalKeyMappings) ?? new();
+        }
+        catch(Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+            globalKeyMappings = new List<KeyMapping>();
+        }
+
+        GlobalKeyMappingDialog keyMappingDialog = new(globalKeyMappings)
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot
+        };
+        ContentDialogResult result = await keyMappingDialog.ShowAsync();
+
+        // 只有在用户点击保存或确认清空时才保存设置
+        if (result == ContentDialogResult.Primary || result == ContentDialogResult.Secondary)
+        {
+            await _localSettingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, keyMappingDialog.ResultMappings);
+            _infoService.Info(InfoBarSeverity.Success, msg:"KeyMapping_Info_GlobalKeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
+        }
+    }
+
     [RelayCommand]
     private async Task SelectLocalEmulatorPath()
     {
@@ -592,6 +636,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private RssType _rssType;
     // ReSharper disable once CollectionNeverQueried.Global
     public readonly RssType[] RssTypes = { RssType.Mixed , RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal};
+    [ObservableProperty] private bool _vndbTranslateTags;
     
     partial void OnRssTypeChanged(RssType value)
     {
@@ -640,6 +685,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     partial void OnDownloadPlayStatusWhenPhrasingChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SyncPlayStatusWhenPhrasing, value);
     
     partial void OnDownloadCharactersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.DownloadCharacters, value);
+    
+    partial void OnVndbTranslateTagsChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.VndbTranslateTags, value);
 
     [RelayCommand]
     private async Task CategoryNow()
@@ -661,6 +708,40 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _ = DisplayMsgAsync(InfoBarSeverity.Informational, "HomePage_Downloading".GetLocalized(), 1000 * 120);
         (GalStatusSyncResult, string) result = await _galgameCollectionService.DownloadAllPlayStatus(RssType.Vndb);
         await DisplayMsgAsync(result.Item1.ToInfoBarSeverity(), result.Item2);
+    }
+
+    [RelayCommand]
+    private async Task UploadAllPlayStatus()
+    {
+        try
+        {
+            UploadAllPlayStatusDialog dialog = new();
+            ContentDialogResult dlgResult = await dialog.ShowAsync();
+            if (dlgResult != ContentDialogResult.Primary || dialog.Canceled) return;
+
+            bool uploadBangumi = dialog.SelectedBangumi;
+            bool uploadVndb = dialog.SelectedVndb;
+
+            if (!uploadBangumi && !uploadVndb)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, msg: "UploadAllPlayStatusDialog_NoTargetSelected".GetLocalized());
+                return;
+            }
+
+            if (_bgTaskService.GetBgTask<UploadAllPlayStatusTask>(Empty) is not null)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, msg: "UploadAllPlayStatusTask_AlreadyRunning".GetLocalized());
+                return;
+            }
+
+            UploadAllPlayStatusTask task = new(uploadBangumi, uploadVndb);
+            await _bgTaskService.AddBgTask(task);
+            _infoService.Info(InfoBarSeverity.Success, msg: "UploadAllPlayStatusTask_Started".GetLocalized());
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
     }
 
     #endregion
@@ -919,6 +1000,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region Other
 
     [ObservableProperty] private bool _uploadToAppCenter;
+    [ObservableProperty] private bool _fingerprintPlanEnabled;
     [ObservableProperty] private bool _memoryImprove;
     [ObservableProperty] private WindowMode _closeMode;
     [ObservableProperty] private bool _developmentMode;
@@ -934,6 +1016,21 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public readonly WindowMode[] WindowModes;
     
     partial void OnUploadToAppCenterChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.UploadData, value);
+
+    async partial void OnFingerprintPlanEnabledChanged(bool value)
+    {
+        try
+        {
+            await _localSettingsService.SaveSettingAsync(KeyValues.FingerprintPlanEnabled, value);
+            if (!value) return;
+            if (_bgTaskService.GetBgTask<FingerprintUploadTask>(Empty) is not null) return;
+            await _bgTaskService.AddBgTask(new FingerprintUploadTask());
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
+    }
     
     partial void OnMemoryImproveChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.MemoryImprove, value);
 

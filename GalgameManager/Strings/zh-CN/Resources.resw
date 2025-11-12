@@ -4270,4 +4270,20 @@
   <data name="PluginX_UiSlow_Msg" xml:space="preserve">
     <value>插件 {0} 生成界面较为缓慢，可能会导致软件速度下降，建议和插件作者反馈这个问题~</value>
   </data>
+  <data name="GameCharacterPanel_AddCharacter.Text" xml:space="preserve">
+    <value>添加角色</value>
+  </data>
+  <data name="GameCharacterPanel_NewCharacter" xml:space="preserve">
+    <value>新角色</value>
+  </data>
+  <data name="GameCharacterPanel_DeleteCharacter.Text" xml:space="preserve">
+    <value>删除角色</value>
+  </data>
+  <data name="GameCharacterPanel_AddCharacter_Success" xml:space="preserve">
+    <value>成功添加角色</value>
+  </data>
+  <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
+    <value>成功删除角色</value>
+  </data>
+
 </root>

@@ -29,8 +29,17 @@ public partial class GalgameCollectionService
         }
 
         // 尝试从数据源获取游戏信息
-        meta ??= await ParseGalInfoOnlyAsync(new Galgame(await GetNameFromPath(sourceType, path)),
-            requireConfirm: requireConfirm);
+        try
+        {
+            meta ??= await ParseGalInfoOnlyAsync(new Galgame(await GetNameFromPath(sourceType, path)),
+                requireConfirm: requireConfirm);
+        }
+        catch (Exception e)
+        {
+            meta ??= new Galgame(await GetNameFromPath(sourceType, path));
+            _infoService.Log(msg:$"Failed on parsing galgame info for {e}");
+        }
+        
         // 检查该游戏是否已经存在
         if (GetGalgameFromUid(meta.Uid) is { } existGame)
         {

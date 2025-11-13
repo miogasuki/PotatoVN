@@ -30,14 +30,13 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
 
     public async Task<Galgame?> GetGalgameInfo(Galgame galgame)
     {
-        // 确保先初始化API
-        await EnsureApiInitialized();
-
-        var name = galgame.Name.Value ?? "";
-        var id = await GetId(galgame); 
-
         try
         {
+            // 确保先初始化API
+            await EnsureApiInitialized();
+
+            var name = galgame.Name.Value ?? "";
+            var id = await GetId(galgame); 
             var gameResponse = await ExecuteWithTokenRefreshAsync(async api => 
                 await api.GetGameAsync(id ?? throw new InvalidOperationException("ID cannot be null")));
                 

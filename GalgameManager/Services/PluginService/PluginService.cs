@@ -95,8 +95,15 @@ public partial class PluginService(
     {
         await Task.CompletedTask; //预留异步
         if (!Directory.Exists(path)) throw new PvnPathNotExist(path);
-        var pluginFile = Directory.GetFiles(path, "PotatoVN.App.PluginBase.dll").FirstOrDefault();
-        if (pluginFile == null) throw new PvnException($"plugin dll of {path} not found");
+        
+        // 查找与目录同名的 DLL
+        var directoryName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        var pluginFile = Path.Combine(path, $"{directoryName}.dll");
+        if (!File.Exists(pluginFile))
+            pluginFile = Directory.GetFiles(path, "PotatoVN.App.PluginBase.dll").FirstOrDefault();
+        if (pluginFile == null || !File.Exists(pluginFile)) 
+            throw new PvnException($"plugin dll of {path} not found");
+        
         PluginLoadContext loadContext = new(pluginFile);
         Assembly pluginAssembly = loadContext.LoadFromAssemblyPath(pluginFile);
         Type? pluginType = pluginAssembly.GetTypes()

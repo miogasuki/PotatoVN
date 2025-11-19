@@ -19,7 +19,7 @@
 
     <StackPanel Spacing="10">
         <!-- 输入模式切换 -->
-        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White" Padding="2">
+        <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="2">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -41,7 +41,7 @@
         </Border>
 
         <!-- 表格容器 -->
-        <Border BorderBrush="#FFE0E0E0" BorderThickness="1" CornerRadius="4" Background="White">
+        <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -49,7 +49,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- 表头 -->
-                <Border Grid.Row="0" Background="#FFF8F8F8" BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1">
+                <Border Grid.Row="0" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" MinWidth="150" />
@@ -78,7 +78,7 @@
                     <ItemsControl ItemsSource="{x:Bind DialogKeyMappings, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="models:KeyMapping">
-                                <Border BorderBrush="#FFE0E0E0" BorderThickness="0,0,0,1" Padding="0">
+                                <Border BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Padding="0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150" />

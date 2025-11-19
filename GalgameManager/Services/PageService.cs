@@ -33,6 +33,7 @@ public class PageService : IPageService
         Configure<AnnualReportViewModel, AnnualReportPage>();
         Configure<StaffViewModel, StaffPage>();
         Configure<ScanResultViewModel, ScanResultPage>();
+        Configure<PluginStoreViewModel, PluginStorePage>();
         Configure<PluginViewModel, PluginPage>();
     }
     

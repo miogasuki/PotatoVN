@@ -21,6 +21,11 @@
                     <control:ConditionalFontIcon Symbol="Add" FluentGlyph="&#xE710;"/>
                 </AppBarButton.Icon>
             </AppBarButton>
+            <AppBarButton x:Uid="PluginPage_Add_Dev" Command="{x:Bind ViewModel.AddPluginDevCommand}">
+                <AppBarButton.Icon>
+                    <control:ConditionalFontIcon Symbol="Add" FluentGlyph="&#xE710;"/>
+                </AppBarButton.Icon>
+            </AppBarButton>
         </CommandBar>
 
         <ScrollView Grid.Row="1">

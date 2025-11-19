@@ -96,6 +96,7 @@ This section highlights important files and directories specific to the client a
 *   **`Views/`**: Contains XAML files defining the user interface pages and controls. Each View typically corresponds to a ViewModel.
     *   `SettingsPage.xaml`: Contains the UI for application settings, including the "Magpie executable path" setting in the "Game" section.
     *   `GalgameSourcePage.xaml`: Contains the UI for individual game library configuration, including settings for auto-scan, auto-add/remove games, and per-library SaveMetaBackup toggle.
+    *   `PluginStorePage.xaml`: Displays the list of available plugins. It uses `StorePlugin` as the data model and inlines the plugin item template (previously `PluginPrefab`) to display plugin details like name, short description, and logo.
     *   `ShellPage.xaml`: The main shell of the application. Its `ItemsRepeater` for displaying event notifications now includes a `HyperlinkButton` that is visible when `CallbackButtonText` is provided in the `ShellEventViewModel`. This button is bound to the `ExecuteCallbackCommand` and uses `VisibilityHelper.Convert` for its visibility.
 *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
         *   `AddSourceDialog.xaml`: Dialog for adding new game library sources. Uses a ComboBox to select library type (currently supports "本地库" for local folders). The SelectedIndex is bound to the SelectItem property which determines the library type in LibraryViewModel.AddLibrary method.
@@ -124,6 +125,9 @@ This section highlights important files and directories specific to the client a
         *   `PvnUpdate` (bool): A flag indicating if the game's data needs to be synced with the server.
         *   `PvnUploadProperties` (enum `PvnUploadProperties`): A flags enum specifying which particular properties of the game need to be uploaded to the server. The `PlayTime` flag is used to indicate that `PlayedTime`, `TotalPlayTime`, and `PlayCount` should be synced.
         *   `Ids` (string?[]): An array storing IDs from different data sources (Bangumi, VNDB, etc.). The array size is defined by `PhraserNumber` constant. All methods accessing this array include bounds checking to prevent `IndexOutOfRangeException` for legacy data with smaller arrays.
+    *   **Plugin Models**:
+        *   **`PluginX.cs`**: Represents a loaded plugin at runtime. It wraps the `IPlugin` instance and contains metadata like `Info`, `LoadContext`, and enabled status. It handles UI retrieval with timeout protection.
+        *   **`StorePlugin.cs`**: Represents a plugin as displayed in the plugin store. It is a lightweight model used specifically for the store UI to avoid confusion with active plugins (`PluginX`). It includes properties like `DescriptionShort` for concise display in the store list.
 *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.

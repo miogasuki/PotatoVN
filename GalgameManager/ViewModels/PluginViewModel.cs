@@ -13,7 +13,8 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.ViewModels;
 
-public partial class PluginViewModel(IPluginService pluginService, IInfoService infoService)
+public partial class PluginViewModel(IPluginService pluginService, IInfoService infoService, 
+    INavigationService navService)
     : ObservableRecipient, INavigationAware
 {
     public ObservableCollection<PluginSettingViewModel> Plugins = [];
@@ -32,10 +33,12 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
         }
     }
 
-    public void OnNavigatedFrom() { }
+    public void OnNavigatedFrom()
+    {
+    }
 
     [RelayCommand]
-    private async Task AddPlugin()
+    private async Task AddPluginDev()
     {
         try
         {
@@ -52,6 +55,13 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
                 e is PvnException pvnE ? pvnE.FullMsg : e.ToString());
         }
     }
+
+    [RelayCommand]
+    private void AddPlugin()
+    {
+        navService.NavigateTo(typeof(PluginStoreViewModel).FullName!);
+    }
+
 }
 
 public partial class PluginSettingViewModel (PluginX plugin) : ObservableRecipient

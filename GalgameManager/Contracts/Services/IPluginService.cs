@@ -6,6 +6,11 @@ namespace GalgameManager.Contracts.Services;
 public interface IPluginService
 {
     /// <summary>
+    /// 是否有正在等待取消加载/删除的插件
+    /// </summary>
+    public bool PluginOffloadInProgress { get; }
+    
+    /// <summary>
     /// 新增插件，注意捕获异常
     /// </summary>
     /// <param name="path"></param>

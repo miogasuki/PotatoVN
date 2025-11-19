@@ -14,9 +14,14 @@ namespace GalgameManager.Models;
 public partial class PluginX : ObservableObject
 {
     [BsonId] public Guid Id { get; set; }
-    [BsonIgnore] public IPlugin Plugin { get; set; }
+    [BsonIgnore] public IPlugin? Plugin { get; set; }
     public PluginInfo Info { get; set; } 
     [ObservableProperty] private string _path;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(Logo))] private string? _logoUrl;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(Logo))] private string? _logoPath;
+    public string? Logo => !string.IsNullOrEmpty(LogoPath) ? LogoPath : LogoUrl;
+    [ObservableProperty] private DateTime _releaseDate;
+
     /// 是否启用，注意，设置为false只会让下次启动不加载该插件，不会在当前卸载
     [ObservableProperty] private bool _enable = false;
     /// 是否已经加载

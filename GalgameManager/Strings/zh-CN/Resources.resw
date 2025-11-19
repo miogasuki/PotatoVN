@@ -4201,8 +4201,8 @@
   <data name="PathNotExist" xml:space="preserve">
     <value>路径 {0} 不存在</value>
   </data>
-  <data name="PluginPage_Add.Label" xml:space="preserve">
-    <value>添加插件</value>
+  <data name="PluginPage_Add_Dev.Label" xml:space="preserve">
+    <value>添加插件（开发者）</value>
   </data>
   <data name="PluginPage_Add_Failed" xml:space="preserve">
     <value>添加插件失败</value>
@@ -4285,5 +4285,34 @@
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>成功删除角色</value>
   </data>
-
+  <data name="Shell_PluginStore.Content" xml:space="preserve">
+    <value>插件商店</value>
+  </data>
+  <data name="PluginPage_Add.Label" xml:space="preserve">
+    <value>添加插件</value>
+  </data>
+  <data name="GetStorePluginTask_Title" xml:space="preserve">
+    <value>获取插件列表任务</value>
+  </data>
+  <data name="GetStorePluginTask_ProgressTitle" xml:space="preserve">
+    <value>正在获取{0}个插件信息</value>
+  </data>
+  <data name="GetStorePluginTask_ProgressWaitingMsg" xml:space="preserve">
+    <value>还有{0}个插件等待获取信息中</value>
+  </data>
+  <data name="StorePluginDialog_DownloadLatest" xml:space="preserve">
+    <value>安装最新版本</value>
+  </data>
+  <data name="StorePluginDialog_DownloadSelected" xml:space="preserve">
+    <value>安装v{0}版本</value>
+  </data>
+  <data name="StorePluginDialog_PluginVersion.Text" xml:space="preserve">
+    <value>插件版本</value>
+  </data>
+  <data name="StorePluginDialog_LatestVersionDate" xml:space="preserve">
+    <value>最新版日期：</value>
+  </data>
+  <data name="StorePluginDialog_WaitingOffload" xml:space="preserve">
+    <value>请重启软件后再添加插件</value>
+  </data>
 </root>

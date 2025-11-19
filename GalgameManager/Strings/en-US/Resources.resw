@@ -3541,4 +3541,7 @@ If play time can record correctly, just cancel this popup.
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>Character deleted successfully</value>
   </data>
+  <data name="Shell_PluginStore.Content" xml:space="preserve">
+    <value>PluginStore</value>
+  </data>
 </root>

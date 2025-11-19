@@ -23,7 +23,9 @@ public partial class PluginService(
 {
     private ObservableCollection<PluginX> _plugins = [];
     private ILiteCollection<PluginX> _pluginsDb = null!;
-    
+
+    public bool PluginOffloadInProgress { get; private set; }
+
     public async Task AddPluginAsync(string path)
     {
         if (_plugins.Any(p => Utils.ArePathsEqual(path, p.Path)))   
@@ -62,7 +64,7 @@ public partial class PluginService(
             await UiThreadInvokeHelper.InvokeAsync(() => { _plugins.Add(plugin); });
         plugin.PropertyChanged -= OnPluginOnPropertyChanged;
         plugin.PropertyChanged += OnPluginOnPropertyChanged;
-        if (load) bus.Send(new PluginLoadArgs { Plugin = plugin.Plugin });
+        if (load) bus.Send(new PluginLoadArgs { Plugin = plugin.Plugin! });
         return;
 
         async void OnPluginOnPropertyChanged(object? sender, PropertyChangedEventArgs args)
@@ -73,7 +75,10 @@ public partial class PluginService(
                 if (plugin.Enable)
                     await LoadPluginAsync(plugin, true);
                 else
+                {
                     infoService.Info(InfoBarSeverity.Success, msg: "PluginService_PluginUnloaded".GetLocalized());
+                    PluginOffloadInProgress = true;
+                }
                 _pluginsDb.Update(plugin);
             }
             catch (Exception e)

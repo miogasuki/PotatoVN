@@ -341,7 +341,7 @@
   <data name="GalgamePage_Description.Text" xml:space="preserve">
     <value>概要</value>
   </data>
-  <data name="GalgameCollectionService_SelectSavePosition" xml:space="preserve">
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
     <value>セーブフォルダを選択</value>
   </data>
   <data name="GalgameCollectionService_NotExeFounded" xml:space="preserve">
@@ -3245,11 +3245,11 @@
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>キーマッピングが保存されました</value>
-  </data>
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>キーマッピングがありません</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>キーマッピングが保存されました</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>グローバルキーマッピング</value>
@@ -3274,9 +3274,6 @@
   </data>
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>マウスボタンキャプチャが有効、入力ボックス内でマウスボタンをクリックしてください</value>
-  </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>キーマッピングが保存されました</value>
   </data>
   <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
     <value>グローバルキーマッピングが保存されました</value>
@@ -3473,5 +3470,4 @@
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>キャラクターを削除しました</value>
   </data>
-
 </root>

@@ -233,6 +233,23 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         List<string> result = Directory.GetDirectories(LocalPath).ToList();
         return result;
     }
+    
+    /// <summary>
+    /// 获取游戏文件夹根目录下的所有文件
+    /// </summary>
+    /// <returns>子文件夹地址</returns>
+    public List<string> GetRootFiles()
+    {
+        if (LocalPath is null) return [];
+        HashSet<string> commonExtensions = new (StringComparer.OrdinalIgnoreCase)
+        {
+            ".exe", ".xp3", ".lnk", ".txt", ".ico", ".sig", ".dll",
+        };
+        List<string> result = Directory.GetFiles(LocalPath)
+            .Where(el => !commonExtensions.Contains(System.IO.Path.GetExtension(el)))
+            .ToList();
+        return result;
+    }
 
     /// <summary>
     /// 尝试获取游戏的id，以int形式返回 <br/>

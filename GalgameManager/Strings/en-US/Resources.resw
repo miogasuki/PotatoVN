@@ -341,7 +341,7 @@ If you would like to use cloud saves, dropping local saves, pls chose Cloud.</va
   <data name="GalgamePage_Description.Text" xml:space="preserve">
     <value>Description</value>
   </data>
-  <data name="GalgameCollectionService_SelectSavePosition" xml:space="preserve">
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
     <value>Select game save folder</value>
   </data>
   <data name="GalgameCollectionService_NotExeFounded" xml:space="preserve">
@@ -3280,11 +3280,11 @@ If play time can record correctly, just cancel this popup.
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>Key mapping saved</value>
-  </data>
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>No key mappings available</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>Key mapping saved</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>Global Key Mapping</value>
@@ -3309,9 +3309,6 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>Mouse button capture is enabled, click mouse button in input box</value>
-  </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>Key mapping saved</value>
   </data>
   <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
     <value>Global key mapping saved</value>
@@ -3454,7 +3451,7 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
     <value>Failed to set save position</value>
   </data>
-	<data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+  <data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
     <value>ReDetect Path</value>
   </data>
   <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
@@ -3538,5 +3535,7 @@ If play time can record correctly, just cancel this popup.
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>Character deleted successfully</value>
   </data>
-
+  <data name="GalgameCollectionService_SelectSavePosition_File" xml:space="preserve">
+    <value>Select game save file</value>
+  </data>
 </root>

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -50,28 +50,47 @@ public static class FolderOperations
     /// <summary>
     /// 将文件夹转换为符号链接
     /// </summary>
-    /// <param name="sourceFolderPath">原文件夹地址</param>
-    /// <param name="targetFolderPath">映射目标地址</param>
+    /// <param name="sourcePath">原文件/文件夹地址</param>
+    /// <param name="targetPath">映射目标地址</param>
     /// <exception cref="ArgumentException">原地址/目标地址为空或null</exception>
     /// <exception cref="DirectoryNotFoundException">原地址不存在</exception>
-    public static void ConvertFolderToSymbolicLink(string sourceFolderPath, string targetFolderPath)
+    public static void ConvertFolderOrFileToSymbolicLink(string sourcePath, string targetPath)
     {
-        if (string.IsNullOrEmpty(sourceFolderPath) || string.IsNullOrEmpty(targetFolderPath))
+        var isSrcFolder = File.GetAttributes(sourcePath).HasFlag(FileAttributes.Directory);
+        
+        if (string.IsNullOrEmpty(sourcePath) || string.IsNullOrEmpty(targetPath))
         {
             throw new ArgumentException("Source and target folder paths cannot be null or empty.");
         }
-        if (!Directory.Exists(sourceFolderPath))
+        if (isSrcFolder && !Directory.Exists(sourcePath))
         {
-            throw new DirectoryNotFoundException($"Source folder not found: {sourceFolderPath}");
+            throw new DirectoryNotFoundException($"Source folder not found: {sourcePath}");
         }
-        // 创建目标文件夹（如果不存在）
-        Directory.CreateDirectory(targetFolderPath);
-        // 将源文件夹内容移动到目标文件夹
-        Copy(sourceFolderPath, targetFolderPath);
-        // 删除原始文件夹
-        Directory.Delete(sourceFolderPath, true);
-        // 创建符号链接
-        CreateSymbolicLink(sourceFolderPath, targetFolderPath);
+        if (!isSrcFolder && !File.Exists(sourcePath))
+        {
+            throw new FileNotFoundException($"Source file not found: {sourcePath}");
+        }
+        // 1. 创建目标文件夹（如果不存在）        
+        // 2. 将源文件夹内容移动到目标文件夹
+        // 3. 删除原始文件夹
+        if (isSrcFolder)
+        {
+            Directory.CreateDirectory(targetPath);
+            Copy(sourcePath, targetPath);
+            Directory.Delete(sourcePath, true);
+        } 
+        else
+        {
+            var targetFolder = Path.GetDirectoryName(targetPath);
+            if (targetFolder is null)
+            {
+                throw new ArgumentException($"Invalid path: {targetPath}");
+            }
+            Directory.CreateDirectory(targetFolder);
+            File.Move(sourcePath, targetPath, true);
+        }
+        // 4. 创建符号链接
+        CreateSymbolicLink(sourcePath, targetPath);
     }
 
     /// <summary>
@@ -81,17 +100,27 @@ public static class FolderOperations
     /// <param name="targetFolderPath">引用地址</param>
     public static void CreateSymbolicLink(string sourceFolderPath, string targetFolderPath)
     {
+        var isTargetFolder = File.GetAttributes(targetFolderPath).HasFlag(FileAttributes.Directory);
+
+        var linkPath = sourceFolderPath;
+        var realPath = targetFolderPath;
+
+        var args = $"/c mklink {(isTargetFolder ? "/D" : "")} \"{linkPath}\" \"{realPath}\"";
+
         ProcessStartInfo processInfo = new()
         {
             Verb = "runas",
             FileName = "cmd.exe",
-            Arguments = $"/c mklink /D \"{sourceFolderPath}\" \"{targetFolderPath}\"",
+            Arguments = args,
             UseShellExecute = true,
         };
         Process? process = Process.Start(processInfo);
         if (process is null) throw new Exception("Failed to start cmd.exe");
         process.WaitForExit();
-        if (Directory.Exists(sourceFolderPath) == false)
+
+        if (isTargetFolder && Directory.Exists(sourceFolderPath) == false)
+            throw new Exception("Failed to create symbolic link.");
+        if (!isTargetFolder && Path.Exists(sourceFolderPath) == false)
             throw new Exception("Failed to create symbolic link.");
     }
 

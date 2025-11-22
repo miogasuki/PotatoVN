@@ -353,7 +353,7 @@
   <data name="GalgamePage_Description.Text" xml:space="preserve">
     <value>简介</value>
   </data>
-  <data name="GalgameCollectionService_SelectSavePosition" xml:space="preserve">
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
     <value>选择存档文件夹</value>
   </data>
   <data name="GalgameCollectionService_NotExeFounded" xml:space="preserve">
@@ -3973,9 +3973,6 @@
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>鼠标按键捕获已启用，请在输入框内点击鼠标按键</value>
   </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>按键映射已保存</value>
-  </data>
   <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
     <value>全局按键映射已保存</value>
   </data>
@@ -4201,5 +4198,22 @@
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>成功删除角色</value>
   </data>
-
+  <data name="GalgameCollectionService_SelectSaveType" xml:space="preserve">
+    <value>请选择存档类型</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_Folder" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_File" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSavePosition_File" xml:space="preserve">
+    <value>选择存档文件</value>
+  </data>
+  <data name="GalgameCollectionService_FolderOrFilePickerDialog_Other" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="GalgameCollectionService_SavePathIsGameRoot" xml:space="preserve">
+    <value>你选错目录啦，这里应该选择这个游戏的存档文件夹，而不是游戏文件的根目录~</value>
+  </data>
 </root>

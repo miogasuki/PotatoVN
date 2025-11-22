@@ -59,15 +59,15 @@ public sealed partial class MixedPhraserEnabledDialog
         Result.SteamEnabled = SteamCheckBox.IsChecked ?? false;
         
         // Update information types
-        Result.NameEnabled = NameCheckBox.IsChecked ?? true;
-        Result.DescriptionEnabled = DescriptionCheckBox.IsChecked ?? true;
-        Result.DeveloperEnabled = DeveloperCheckBox.IsChecked ?? true;
-        Result.TagsEnabled = TagsCheckBox.IsChecked ?? true;
-        Result.RatingEnabled = RatingCheckBox.IsChecked ?? true;
-        Result.ExpectedPlayTimeEnabled = ExpectedPlayTimeCheckBox.IsChecked ?? true;
-        Result.ReleaseDateEnabled = ReleaseDateCheckBox.IsChecked ?? true;
-        Result.CnNameEnabled = CnNameCheckBox.IsChecked ?? true;
-        Result.ImageUrlEnabled = ImageUrlCheckBox.IsChecked ?? true;
-        Result.CharactersEnabled = CharactersCheckBox.IsChecked ?? true;
+        Result.NameEnabled = NameCheckBox.IsChecked ?? false;
+        Result.DescriptionEnabled = DescriptionCheckBox.IsChecked ?? false;
+        Result.DeveloperEnabled = DeveloperCheckBox.IsChecked ?? false;
+        Result.TagsEnabled = TagsCheckBox.IsChecked ?? false;
+        Result.RatingEnabled = RatingCheckBox.IsChecked ?? false;
+        Result.ExpectedPlayTimeEnabled = ExpectedPlayTimeCheckBox.IsChecked ?? false;
+        Result.ReleaseDateEnabled = ReleaseDateCheckBox.IsChecked ?? false;
+        Result.CnNameEnabled = CnNameCheckBox.IsChecked ?? false;
+        Result.ImageUrlEnabled = ImageUrlCheckBox.IsChecked ?? false;
+        Result.CharactersEnabled = CharactersCheckBox.IsChecked ?? false;
     }
 }

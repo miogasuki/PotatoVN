@@ -224,6 +224,11 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         if (_data.Enabled.CnNameEnabled)
             result.CnName = GetValue(metas, nameof(Galgame.CnName),
                 meta => CheckStr(meta.CnName), string.Empty);
+        // tags (must be scraped before developer extraction from tags)
+        if (_data.Enabled.TagsEnabled)
+            result.Tags = GetValue(metas, nameof(Galgame.Tags),
+                meta => meta.Tags.Value?.Count > 0,
+                new LockableProperty<ObservableCollection<string>>(new ObservableCollection<string>()));
         // developer
         if (_data.Enabled.DeveloperEnabled)
         {
@@ -238,11 +243,6 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
                     result.Developer = tmp;
             }
         }
-        // tags
-        if (_data.Enabled.TagsEnabled)
-            result.Tags = GetValue(metas, nameof(Galgame.Tags),
-                meta => meta.Tags.Value?.Count > 0,
-                new LockableProperty<ObservableCollection<string>>(new ObservableCollection<string>()));
 
         _bus?.Send(new GalgameParsingEventArgs(galgame, "done!"));
         return result;

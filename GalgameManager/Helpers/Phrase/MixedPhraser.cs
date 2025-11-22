@@ -185,50 +185,63 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         result.RssType = RssType.Mixed;
         result.UpdateMixedId();
         // name
-        result.Name = GetValue(metas, nameof(Galgame.Name), _ => true,
-            new LockableProperty<string>(string.Empty));
+        if (_data.Enabled.NameEnabled)
+            result.Name = GetValue(metas, nameof(Galgame.Name), _ => true,
+                new LockableProperty<string>(string.Empty));
         // description
-        result.Description = GetValue(metas, nameof(Galgame.Description),
-            _ => true, new LockableProperty<string>(string.Empty));
+        if (_data.Enabled.DescriptionEnabled)
+            result.Description = GetValue(metas, nameof(Galgame.Description),
+                _ => true, new LockableProperty<string>(string.Empty));
         // expectedPlayTime
-        result.ExpectedPlayTime = GetValue(metas, nameof(Galgame.ExpectedPlayTime),
-            meta => CheckStr(meta.ExpectedPlayTime.Value),
-            new LockableProperty<string>(Galgame.DefaultString));
+        if (_data.Enabled.ExpectedPlayTimeEnabled)
+            result.ExpectedPlayTime = GetValue(metas, nameof(Galgame.ExpectedPlayTime),
+                meta => CheckStr(meta.ExpectedPlayTime.Value),
+                new LockableProperty<string>(Galgame.DefaultString));
         // rating
-        result.Rating = GetValue(metas, nameof(Galgame.Rating),
-            _ => true, new LockableProperty<float>(0));
+        if (_data.Enabled.RatingEnabled)
+            result.Rating = GetValue(metas, nameof(Galgame.Rating),
+                _ => true, new LockableProperty<float>(0));
         // imageUrl
-        result.ImageUrl = GetValue<string>(metas, nameof(Galgame.ImageUrl),
-            meta => CheckStr(meta.ImageUrl), null!);
-        foreach (RssType type in _data.Order.ImageUrlOrder)
-            if (metas.TryGetValue(type, out Galgame? tmp) && !string.IsNullOrEmpty(tmp?.ImageUrl))
-                result.AlternateImageUrls.Add(tmp.ImageUrl);
-        result.AlternateImageUrls.Remove(result.ImageUrl);
-        // release date
-        result.ReleaseDate = GetValue(metas, nameof(Galgame.ReleaseDate),
-            meta => meta.ReleaseDate.Value != DateTime.MinValue,
-            new LockableProperty<DateTime>(DateTime.MinValue));
-        // characters
-        result.Characters = GetValue(metas, nameof(Galgame.Characters),
-            meta => meta.Characters.Count > 0, new ObservableCollection<GalgameCharacter>());
-        // Chinese name
-        result.CnName = GetValue(metas, nameof(Galgame.CnName),
-            meta => CheckStr(meta.CnName), string.Empty);
-        // developer
-        result.Developer = GetValue(metas, nameof(Galgame.Developer),
-            meta => CheckStr(meta.Developer),
-            new LockableProperty<string>(Galgame.DefaultString));
-        // tags
-        result.Tags = GetValue(metas, nameof(Galgame.Tags),
-            meta => meta.Tags.Value?.Count > 0,
-            new LockableProperty<ObservableCollection<string>>(new ObservableCollection<string>()));
-
-        // developer from tag
-        if (result.Developer == Galgame.DefaultString)
+        if (_data.Enabled.ImageUrlEnabled)
         {
-            var tmp = GetDeveloperFromTags(result);
-            if (tmp != null)
-                result.Developer = tmp;
+            result.ImageUrl = GetValue<string>(metas, nameof(Galgame.ImageUrl),
+                meta => CheckStr(meta.ImageUrl), null!);
+            foreach (RssType type in _data.Order.ImageUrlOrder)
+                if (metas.TryGetValue(type, out Galgame? tmp) && !string.IsNullOrEmpty(tmp?.ImageUrl))
+                    result.AlternateImageUrls.Add(tmp.ImageUrl);
+            result.AlternateImageUrls.Remove(result.ImageUrl);
+        }
+        // release date
+        if (_data.Enabled.ReleaseDateEnabled)
+            result.ReleaseDate = GetValue(metas, nameof(Galgame.ReleaseDate),
+                meta => meta.ReleaseDate.Value != DateTime.MinValue,
+                new LockableProperty<DateTime>(DateTime.MinValue));
+        // characters
+        if (_data.Enabled.CharactersEnabled)
+            result.Characters = GetValue(metas, nameof(Galgame.Characters),
+                meta => meta.Characters.Count > 0, new ObservableCollection<GalgameCharacter>());
+        // Chinese name
+        if (_data.Enabled.CnNameEnabled)
+            result.CnName = GetValue(metas, nameof(Galgame.CnName),
+                meta => CheckStr(meta.CnName), string.Empty);
+        // tags (must be scraped before developer extraction from tags)
+        if (_data.Enabled.TagsEnabled)
+            result.Tags = GetValue(metas, nameof(Galgame.Tags),
+                meta => meta.Tags.Value?.Count > 0,
+                new LockableProperty<ObservableCollection<string>>(new ObservableCollection<string>()));
+        // developer
+        if (_data.Enabled.DeveloperEnabled)
+        {
+            result.Developer = GetValue(metas, nameof(Galgame.Developer),
+                meta => CheckStr(meta.Developer),
+                new LockableProperty<string>(Galgame.DefaultString));
+            // developer from tag
+            if (_data.Enabled.TagsEnabled && result.Developer == Galgame.DefaultString)
+            {
+                var tmp = GetDeveloperFromTags(result);
+                if (tmp != null)
+                    result.Developer = tmp;
+            }
         }
 
         _bus?.Send(new GalgameParsingEventArgs(galgame, "done!"));
@@ -402,4 +415,16 @@ public class MixedPhraserEnabled
     public bool VndbEnabled { get; set; } = true;
     public bool YmgalEnabled { get; set; } = true;
     public bool SteamEnabled { get; set; } = true;
+    
+    // Information type scraping toggles
+    public bool NameEnabled { get; set; } = true;
+    public bool DescriptionEnabled { get; set; } = true;
+    public bool DeveloperEnabled { get; set; } = true;
+    public bool TagsEnabled { get; set; } = true;
+    public bool RatingEnabled { get; set; } = true;
+    public bool ExpectedPlayTimeEnabled { get; set; } = true;
+    public bool ReleaseDateEnabled { get; set; } = true;
+    public bool CnNameEnabled { get; set; } = true;
+    public bool ImageUrlEnabled { get; set; } = true;
+    public bool CharactersEnabled { get; set; } = true;
 }

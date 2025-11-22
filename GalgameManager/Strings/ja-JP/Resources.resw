@@ -3143,6 +3143,42 @@
   <data name="MixedPhraserEnabledDialog_SteamCheckBox.Content" xml:space="preserve">
     <value>Steamスクレイパーを有効にする</value>
   </data>
+  <data name="MixedPhraserEnabledDialog_ScraperSourcesHeader.Text" xml:space="preserve">
+    <value>スクレイパーソース</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_InfoTypesHeader.Text" xml:space="preserve">
+    <value>情報タイプ</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_NameCheckBox.Content" xml:space="preserve">
+    <value>ゲーム名を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_DescriptionCheckBox.Content" xml:space="preserve">
+    <value>説明を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_DeveloperCheckBox.Content" xml:space="preserve">
+    <value>開発者を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_TagsCheckBox.Content" xml:space="preserve">
+    <value>タグを取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_RatingCheckBox.Content" xml:space="preserve">
+    <value>評価を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ExpectedPlayTimeCheckBox.Content" xml:space="preserve">
+    <value>予想プレイ時間を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ReleaseDateCheckBox.Content" xml:space="preserve">
+    <value>発売日を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_CnNameCheckBox.Content" xml:space="preserve">
+    <value>中国語名を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ImageUrlCheckBox.Content" xml:space="preserve">
+    <value>カバー画像を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_CharactersCheckBox.Content" xml:space="preserve">
+    <value>キャラクター情報を取得</value>
+  </data>
   <data name="SettingsPage_Rss_Mixed_Enable.Title" xml:space="preserve">
     <value>混合スクレイパー有効設定</value>
   </data>

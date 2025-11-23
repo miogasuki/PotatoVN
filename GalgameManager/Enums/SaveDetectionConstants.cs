@@ -166,7 +166,7 @@ public static class SaveDetectionConstants
         "battle.net", "blizzard", "riot games", "discord",
 
         // 开发工具目录
-        "visual studio", "msbuild", "nuget", "dotnet", "sdk",
+        "visual studio", "msbuild", "nuget", "dotnet", "sdk", "code", "vscode", "android", "android sdk",
 
         // 浏览器目录
         "google", "chrome", "mozilla", "firefox", "edge", "opera",
@@ -395,7 +395,8 @@ public static class SaveDetectionConstants
         // 检查是否包含排除关键词
         foreach (var keyword in ExcludePathKeywords)
         {
-            if (targetLower.Contains(keyword))
+            // 修复：必须将 keyword 也转为小写，否则类似 "TrafficMonitor" 无法匹配 "trafficmonitor"
+            if (targetLower.Contains(keyword.ToLowerInvariant()))
             {
                 return true;
             }

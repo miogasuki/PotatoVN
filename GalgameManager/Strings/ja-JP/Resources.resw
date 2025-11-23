@@ -3413,6 +3413,21 @@
   <data name="GameSaveDetectorTask_Title" xml:space="preserve">
     <value>ゲームセーブ位置検出タスク</value>
   </data>
+  <data name="GameSaveDetector_Initializing" xml:space="preserve">
+    <value>セーブデータ検出を初期化中...</value>
+  </data>
+  <data name="GameSaveDetector_Monitoring" xml:space="preserve">
+    <value>ファイル変更を監視中... 検出された候補: {0}</value>
+  </data>
+  <data name="GameSaveDetector_Success" xml:space="preserve">
+    <value>セーブデータ検出完了: {0}</value>
+  </data>
+  <data name="GameSaveDetector_NotFound" xml:space="preserve">
+    <value>有効なセーブデータパスが見つかりませんでした。ゲームを手動で起動して保存してみてください。</value>
+  </data>
+  <data name="GameSaveDetector_Failed" xml:space="preserve">
+    <value>ファイルの変更は検出されましたが、最適なセーブデータディレクトリを特定できませんでした。</value>
+  </data>
   <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>パスを編集</value>
   </data>

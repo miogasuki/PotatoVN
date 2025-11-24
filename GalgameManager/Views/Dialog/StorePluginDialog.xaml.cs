@@ -30,6 +30,11 @@ public sealed partial class StorePluginDialog
 
     private void Update()
     {
+        DeveloperLink.Visibility = _storePlugin.Developer.IsNullOrEmpty().ToVisibility().Reverse();
+        DeveloperLink.Content = _storePlugin.Developer;
+        if (!_storePlugin.DeveloperUrl.IsNullOrEmpty()) DeveloperLink.NavigateUri = new Uri(_storePlugin.DeveloperUrl!);
+        ProjectLink.Visibility = _storePlugin.ProjectUrl.IsNullOrEmpty().ToVisibility().Reverse();
+        if (!_storePlugin.ProjectUrl.IsNullOrEmpty()) ProjectLink.NavigateUri = new Uri(_storePlugin.ProjectUrl!);
         if (_pluginOffloadInProgress)
         {
             PrimaryButtonText = "StorePluginDialog_WaitingOffload".GetLocalized();

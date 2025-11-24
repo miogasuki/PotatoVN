@@ -81,6 +81,9 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
             plugin.DescriptionDetailed = info.DescriptionDetailed;
             plugin.LogoUrl = RepoFlowApi.GetDownloadUrl(plugin.RepoName, DocPackageName,
                 docVer.ToString(), info.IconFileName);
+            plugin.Developer = info.Developer;
+            plugin.DeveloperUrl = info.DeveloperUrl;
+            plugin.ProjectUrl = info.ProjectUrl;
         });
     }
 
@@ -104,9 +107,14 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
 
     private class PluginInfo
     {
+#pragma warning disable CS0649 // 忽略未赋值警告，JsonProperty会赋值
         [JsonProperty("name")] public string Name = string.Empty;
         [JsonProperty("description_short")] public string DescriptionShort = string.Empty;
         [JsonProperty("description_detailed")] public string DescriptionDetailed = string.Empty;
         [JsonProperty("icon")] public string IconFileName = string.Empty;
+        [JsonProperty("developer")] public string? Developer;
+        [JsonProperty("developer_url")] public string? DeveloperUrl;
+        [JsonProperty("project_url")] public string? ProjectUrl;
+#pragma warning restore CS0649
     }
 }

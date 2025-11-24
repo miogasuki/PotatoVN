@@ -17,6 +17,9 @@ public partial class StorePlugin : ObservableObject
     [ObservableProperty] private string _descriptionShort = string.Empty;
     /// 插件详细描述
     [ObservableProperty] private string _descriptionDetailed = string.Empty;
+    [ObservableProperty] private string? _developer;
+    [ObservableProperty] private string? _developerUrl;
+    [ObservableProperty] private string? _projectUrl;
     /// 插件图标URL
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(Logo))] private string? _logoUrl;
     /// 插件图标本地路径

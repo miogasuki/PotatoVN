@@ -4351,4 +4351,7 @@
   <data name="StorePluginDialog_WaitingOffload" xml:space="preserve">
     <value>请重启软件后再添加插件</value>
   </data>
+  <data name="StorePluginDialog_ProjectLink.Content" xml:space="preserve">
+    <value>项目主页</value>
+  </data>
 </root>

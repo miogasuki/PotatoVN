@@ -24,10 +24,12 @@
         </Grid.ColumnDefinitions>
         
         <StackPanel Grid.Column="0">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock x:Uid="StorePluginDialog_LatestVersionDate" Style="{StaticResource DescriptionTextStyle}"/>
+            <StackPanel Orientation="Horizontal" Spacing="10">
                 <TextBlock Text="{x:Bind _storePlugin.ReleaseDate, Converter={StaticResource DateToStr}}"
-                           Style="{StaticResource DescriptionTextStyle}"/>
+                           Style="{StaticResource DescriptionTextStyle}"
+                           VerticalAlignment="Center" Margin="0 0 5 0"/>
+                <HyperlinkButton x:Name="DeveloperLink" Padding="5 0"/>
+                <HyperlinkButton x:Name="ProjectLink" x:Uid="StorePluginDialog_ProjectLink" Padding="5 0"/>
             </StackPanel>
             
             <TextBlock Text="{x:Bind _storePlugin.DescriptionDetailed}" TextWrapping="Wrap"

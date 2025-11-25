@@ -3358,6 +3358,12 @@ If play time can record correctly, just cancel this popup.
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>Edit Key Mapping</value>
   </data>
+  <data name="Settings_Game_AutoDetectSavePath.Title" xml:space="preserve">
+    <value>Auto-detect game save locations</value>
+  </data>
+  <data name="Settings_Game_AutoDetectSavePath.Description" xml:space="preserve">
+    <value>Attempts to identify save file locations by monitoring file changes. (This is an experimental feature and detection is not guaranteed)</value>
+  </data>
   <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
     <value>Upload All Play Statuses</value>
   </data>
@@ -3438,6 +3444,21 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="GameSaveDetectorTask_Title" xml:space="preserve">
     <value>Game Save Location Detection Task</value>
+  </data>
+  <data name="GameSaveDetector_Initializing" xml:space="preserve">
+    <value>Initializing save detector...</value>
+  </data>
+  <data name="GameSaveDetector_Monitoring" xml:space="preserve">
+    <value>Monitoring file changes... Potential targets found: {0}</value>
+  </data>
+  <data name="GameSaveDetector_Success" xml:space="preserve">
+    <value>Save detection complete: {0}</value>
+  </data>
+  <data name="GameSaveDetector_NotFound" xml:space="preserve">
+    <value>No valid save path detected. Please try running the game and saving manually.</value>
+  </data>
+  <data name="GameSaveDetector_Failed" xml:space="preserve">
+    <value>File changes detected, but unable to determine the best save directory.</value>
   </data>
   <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>Edit Path</value>

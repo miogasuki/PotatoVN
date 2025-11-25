@@ -3397,6 +3397,12 @@ If play time can record correctly, just cancel this popup.
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>Edit Key Mapping</value>
   </data>
+  <data name="Settings_Game_AutoDetectSavePath.Title" xml:space="preserve">
+    <value>Auto-detect game save locations</value>
+  </data>
+  <data name="Settings_Game_AutoDetectSavePath.Description" xml:space="preserve">
+    <value>Attempts to identify save file locations by monitoring file changes. (This is an experimental feature and detection is not guaranteed)</value>
+  </data>
   <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
     <value>Upload All Play Statuses</value>
   </data>

@@ -4060,6 +4060,12 @@
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>编辑按键映射</value>
   </data>
+  <data name="Settings_Game_AutoDetectSavePath.Title" xml:space="preserve">
+    <value>自动探测游戏存档位置</value>
+  </data>
+  <data name="Settings_Game_AutoDetectSavePath.Description" xml:space="preserve">
+    <value>通过监控文件变更，尝试自动定位游戏的存档路径。(这是一项实验性功能，无法保证识别所有存档)</value>
+  </data>
   <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
     <value>上传所有游戏游玩状态</value>
   </data>

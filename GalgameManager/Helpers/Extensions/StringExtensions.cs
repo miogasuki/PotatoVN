@@ -1,4 +1,6 @@
-﻿namespace GalgameManager.Helpers;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace GalgameManager.Helpers;
 
 public static class StringExtensions
 {
@@ -64,8 +66,9 @@ public static class StringExtensions
         return dp[n, m];
     }
     
-    public static bool IsNullOrEmpty(this string? str) => string.IsNullOrEmpty(str);
-    
+    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str) => string.IsNullOrEmpty(str);
+    public static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? str) => string.IsNullOrWhiteSpace(str);
+
     /// <summary>
     /// 移除字符串中的非法字符
     /// </summary>

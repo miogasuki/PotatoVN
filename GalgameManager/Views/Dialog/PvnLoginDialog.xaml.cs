@@ -19,7 +19,7 @@ public sealed partial class PvnLoginDialog
 
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         CloseButtonText = "Cancel".GetLocalized();
-        DefaultButton = ContentDialogButton.Close;
+        DefaultButton = ContentDialogButton.Primary;
         UserName = UserNameBox.Text = accountName;
 
         Loaded += async (_, _) =>

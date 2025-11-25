@@ -1,4 +1,5 @@
 using System.Configuration;
+using System.Diagnostics;
 using Windows.Storage;
 using Windows.System;
 using GalgameManager.Contracts.Services;
@@ -10,6 +11,7 @@ using GalgameManager.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using LiteDB;
+using FileAttributes = System.IO.FileAttributes;
 
 namespace GalgameManager.Services;
 
@@ -60,7 +62,7 @@ public class LocalSettingsService : ILocalSettingsService
         App.OnAppClosing += OnAppClosing;
         Upgrade().Wait();
     }
-    
+
     /// <summary>
     /// 仅在读大文件时调用
     /// </summary>
@@ -102,7 +104,7 @@ public class LocalSettingsService : ILocalSettingsService
             _fileService.SaveNow(_applicationDataFolder, _localsettingsFile, tmp);
             await SaveSettingAsync(KeyValues.SaveFormatUpgraded, true);
         }
-        
+
         // 以上的配置均在可导出数据版本前，不需要特殊处理迁移问题
 
         LocalSettingStatus status = _fileService.Read<LocalSettingStatus>
@@ -216,9 +218,44 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.RssType:
                 return (T?)(object?)RssType.Mixed;
             case KeyValues.RemoteFolder:
-                var result = Environment.GetEnvironmentVariable("OneDrive");
-                result = result==null ? null : result + "\\GameSaves";
-                return (T?)(object?)result;
+                var saveFolderName = "GameSaves";
+                // NOTE(kuriko): 优先使用个人版 OneDrive，其次使用任意可行的 OneDrive 路径
+                //      防止默认值为 SharePoint 等 OneDrive 路径
+                var root = Environment.GetEnvironmentVariable("OneDriveConsumer")
+                           ?? Environment.GetEnvironmentVariable("OneDrive");
+                if (root.IsNullOrWhiteSpace()) return (T?)(object?)null;;
+
+                root = root.Trim();
+                var finalPath = Path.Combine(root, saveFolderName);
+                if (Path.Exists(finalPath)) return (T?)(object?)finalPath;
+
+                // Note(kuriko): 进行一次快速的搜索
+                try
+                {
+                    var maxSearchDepth = 2;
+                    var maxSearchTimeout = 500;
+
+                    Stopwatch sw = Stopwatch.StartNew();
+                    EnumerationOptions options = new()
+                    {
+                        IgnoreInaccessible = true,
+                        RecurseSubdirectories = true,
+                        MaxRecursionDepth = maxSearchDepth,
+                        AttributesToSkip = FileAttributes.ReparsePoint
+                                           | FileAttributes.System | FileAttributes.Hidden,
+                    };
+                    IEnumerable<string> dirs = Directory.EnumerateDirectories(root, "*", options);
+                    foreach (var dir in dirs)
+                    {
+                        if (sw.ElapsedMilliseconds > maxSearchTimeout) break;
+                        if (string.Equals(Path.GetFileName(dir), saveFolderName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            finalPath = dir;
+                            break;
+                        }
+                    }
+                } catch (Exception) { /* ignroed */ }
+                return (T?)(object?)finalPath;
             case KeyValues.SortKeys:
                 return (T?)(object?)new [] { SortKeys.LastPlay , SortKeys.Developer};
             case KeyValues.PrimarySortKey:
@@ -236,7 +273,7 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object?)new [] { false , false};
             case KeyValues.SearchChildFolder:
                 return (T?)(object?)true;
-            case KeyValues.SearchChildFolderDepth: 
+            case KeyValues.SearchChildFolderDepth:
                 return (T?)(object?)1;  // 现在这个设置已被废弃
             case KeyValues.RegexPattern:
                 return (T?)(object?)@".+";
@@ -349,7 +386,7 @@ public class LocalSettingsService : ILocalSettingsService
         if (value != null || triggerEventWhenNull)
             await UiThreadInvokeHelper.InvokeAsync(() => OnSettingChanged?.Invoke(key, value));
     }
-    
+
     public async Task RemoveSettingAsync(string key, bool isLarge = false)
     {
         if (RuntimeHelper.IsMSIX && !isLarge)
@@ -474,13 +511,13 @@ public class LocalSettingsService : ILocalSettingsService
                 {
                     var path = await ReadSettingAsync<string>(KeyValues.AutoExportPath);
                     if (string.IsNullOrEmpty(path) || !Directory.Exists(path)) return;
-                
+
                     // 滚动备份
                     var maxBackupNumber = await ReadSettingAsync<int?>(KeyValues.MaxBackupNumber) ?? 999;
                     List<string> files = Directory.GetFiles(path, "*.pvnExport.zip").ToList();
                     if (files.Count >= maxBackupNumber)
                     {
-                        files.Sort((x, y) => 
+                        files.Sort((x, y) =>
                             File.GetCreationTime(x).CompareTo(File.GetCreationTime(y)));
                         for (var i = 0; i <= files.Count - maxBackupNumber; i++)
                         {
@@ -494,7 +531,7 @@ public class LocalSettingsService : ILocalSettingsService
                             }
                         }
                     }
-                
+
                     IBgTaskService bgTaskService = App.GetService<IBgTaskService>();
                     if (bgTaskService.GetBgTask<Models.BgTasks.ExportTask>(string.Empty) is not null) return;
                     await bgTaskService.AddBgTask(new Models.BgTasks.ExportTask(path));
@@ -505,6 +542,6 @@ public class LocalSettingsService : ILocalSettingsService
         {
             App.GetService<IInfoService>().DeveloperEvent(e: e);
         }
-        
+
     }
 }

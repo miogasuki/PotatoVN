@@ -821,8 +821,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task SelectRemoteFolder()
     {
+        // NOTE(kuriko): 很遗憾 WinUI 限定了文件选择器的默认路径，除非使用 IFileDialog 使用原生 API。
         FolderPicker openPicker = new();
         WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
+        openPicker.SettingsIdentifier = "PVNRemoteFolderLocation";
         openPicker.SuggestedStartLocation = PickerLocationId.HomeGroup;
         openPicker.FileTypeFilter.Add("*");
         StorageFolder? folder = await openPicker.PickSingleFolderAsync();

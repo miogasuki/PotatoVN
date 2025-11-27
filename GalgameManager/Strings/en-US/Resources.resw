@@ -3121,6 +3121,10 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSourceType_Steam" xml:space="preserve">
     <value>Steam游戏库</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="SteamSource_ScanAllGalgames_InvalidPath" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
     <value>Open in Steam</value>
   </data>
@@ -3316,11 +3320,11 @@ If play time can record correctly, just cancel this popup.
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>Key mapping saved</value>
-  </data>
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>No key mappings available</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>Key mapping saved</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>Global Key Mapping</value>
@@ -3345,9 +3349,6 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>Mouse button capture is enabled, click mouse button in input box</value>
-  </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>Key mapping saved</value>
   </data>
   <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
     <value>Global key mapping saved</value>
@@ -3511,7 +3512,7 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSettingPage_SavePositionSetFailed" xml:space="preserve">
     <value>Failed to set save position</value>
   </data>
-	<data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
+  <data name="GalgameSettingPage_ReDetect.Text" xml:space="preserve">
     <value>ReDetect Path</value>
   </data>
   <data name="GalgameSettingPage_ReDetectSuccess" xml:space="preserve">
@@ -3600,5 +3601,17 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="Shell_PluginStore.Content" xml:space="preserve">
     <value>PluginStore</value>
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Title" xml:space="preserve">
+    <value>Choose cloud save root folder</value>
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Choose" xml:space="preserve">
+    <value>Choose</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSavePosition_File" xml:space="preserve">
+    <value>Select game save file</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
+    <value>Choose save folder</value>
   </data>
 </root>

@@ -1,3 +1,5 @@
+using GalgameManager.Helpers;
+
 namespace GalgameManager.Enums;
 
 /// <summary>
@@ -413,18 +415,13 @@ public static class SaveDetectionConstants
 
     /// <summary>
     /// 获取便携式路径（使用环境变量或相对路径）
+    /// ALERT: localPath 应该永远为游戏的根目录
     /// </summary>
     public static string GetPortablePath(string path, string? localPath)
     {
         if (string.IsNullOrEmpty(path)) return path;
 
-        // 1. Local Path (Relative)
-        if (!string.IsNullOrEmpty(localPath) && path.StartsWith(localPath, StringComparison.OrdinalIgnoreCase))
-        {
-            return Path.GetRelativePath(localPath, path);
-        }
-
-        // 2. Special Folders
+        // 1. Special Folders
         var mappings = new Dictionary<string, string>
         {
             { Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "%AppData%" },
@@ -433,7 +430,11 @@ public static class SaveDetectionConstants
             { Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%UserProfile%" },
             { Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).Replace("Local", "LocalLow"), "%LocalLow%" }
         };
-
+        if (!localPath.IsNullOrWhiteSpace())
+        {
+            mappings.Add(localPath, "%GameRoot%");
+        }
+        
         foreach (var mapping in mappings.OrderByDescending(m => m.Key.Length))
         {
             if (path.StartsWith(mapping.Key, StringComparison.OrdinalIgnoreCase))
@@ -443,7 +444,7 @@ public static class SaveDetectionConstants
                 if (path[mapping.Key.Length] == Path.DirectorySeparatorChar || path[mapping.Key.Length] == Path.AltDirectorySeparatorChar)
                 {
                      var relative = path.Substring(mapping.Key.Length + 1);
-                     return $"{mapping.Value}/{relative}".Replace('\\', '/');
+                     return Path.Join(mapping.Value, relative);
                 }
             }
         }
@@ -461,11 +462,23 @@ public static class SaveDetectionConstants
         var result = path;
         
         // 1. Special Folders
-        result = result.Replace("%AppData%", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), StringComparison.OrdinalIgnoreCase)
-                       .Replace("%LocalAppData%", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), StringComparison.OrdinalIgnoreCase)
-                       .Replace("%Documents%", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), StringComparison.OrdinalIgnoreCase)
-                       .Replace("%UserProfile%", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), StringComparison.OrdinalIgnoreCase)
-                       .Replace("%LocalLow%", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).Replace("Local", "LocalLow"), StringComparison.OrdinalIgnoreCase);
+        var mappings = new Dictionary<string, string>
+        {
+            { Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "%AppData%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "%LocalAppData%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "%Documents%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%UserProfile%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).Replace("Local", "LocalLow"), "%LocalLow%" }
+        };
+        if (!localPath.IsNullOrWhiteSpace())
+        {
+            mappings.Add(localPath, "%GameRoot%");
+        }
+
+        foreach (var mapping in mappings)
+        {
+            result = result.Replace(mapping.Value, mapping.Key, StringComparison.OrdinalIgnoreCase);
+        }
 
         // 2. Relative Path
         if (!Path.IsPathRooted(result) && !string.IsNullOrEmpty(localPath))

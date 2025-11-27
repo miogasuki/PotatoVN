@@ -24,6 +24,7 @@ using Windows.Globalization;
 using Windows.System;
 using Windows.ApplicationModel.Store.Preview;
 using GalgameManager.Helpers.EnumHelpers;
+using GalgameManager.Core.Helpers;
 using static System.String;
 
 namespace GalgameManager.ViewModels;
@@ -826,12 +827,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task SelectRemoteFolder()
     {
-        FolderPicker openPicker = new();
-        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
-        openPicker.SuggestedStartLocation = PickerLocationId.HomeGroup;
-        openPicker.FileTypeFilter.Add("*");
-        StorageFolder? folder = await openPicker.PickSingleFolderAsync();
-        RemoteFolder = folder?.Path ?? RemoteFolder;
+        var suggestedPath = RemoteFolder ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        PvnFolderPicker picker = new()
+        {
+            Title = "SettingsViewModel_SelectRemoteFolder_Title".GetLocalized(),
+            OkButtonLabel = "SettingsViewModel_SelectRemoteFolder_Choose".GetLocalized(),
+            InitialDirectory = suggestedPath,
+        };
+        PickerResult result = picker.ShowDialog();
+        RemoteFolder = result == PickerResult.OK ? picker.SelectedPath : suggestedPath;
     }
 
     #endregion

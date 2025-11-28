@@ -51,6 +51,12 @@
                                 <Expander.Content>
                                     <StackPanel Orientation="Vertical">
                                         <ContentPresenter Content="{x:Bind Ui, Mode=OneWay}" />
+                                        <control:Panel>
+                                            <control:Setting x:Uid="PluginPage_UninstallPlugin">
+                                                <Button x:Uid="PluginPage_UninstallPlugin_Button" 
+                                                        Command="{x:Bind DeletePluginCommand}"/>
+                                            </control:Setting>
+                                        </control:Panel>
                                     </StackPanel>
                                 </Expander.Content>
                             </Expander>

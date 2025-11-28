@@ -30,7 +30,12 @@ public partial class PluginStoreViewModel(IInfoService infoService, IBgTaskServi
             if (clickedItem == null) return;
             infoService.Info(InfoBarSeverity.Success, clickedItem.Name);
             StorePluginDialog dialog = new(clickedItem, pluginService.PluginOffloadInProgress);
-            await dialog.ShowAsync();
+            ContentDialogResult result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                StorePluginVersion version = dialog.SelectedVersion;
+                await bgTaskService.AddBgTask(new InstallStorePluginTask(clickedItem, version));
+            }
         }
         catch (Exception e)
         {

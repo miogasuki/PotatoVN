@@ -28,6 +28,8 @@ public partial class PluginService(
 
     public async Task AddPluginAsync(string path)
     {
+        if (PluginOffloadInProgress) 
+            throw new PvnException("PluginService_PluginOffloadInProgress".GetLocalized());
         if (_plugins.Any(p => Utils.ArePathsEqual(path, p.Path)))   
             throw new PvnException($"plugin in {path} already initialized");
         (IPlugin plugin, PluginLoadContext contex) tmp = await LoadPluginInternalAsync(path);
@@ -39,12 +41,24 @@ public partial class PluginService(
         _pluginsDb.Insert(plugin);
     }
 
+    public async Task DeletePluginAsync(PluginX plugin, bool deleteData)
+    {
+        await Task.CompletedTask;
+        PluginOffloadInProgress = true;
+        plugin.ToDelete = true;
+        plugin.ToDeleteData = deleteData;
+        await UiThreadInvokeHelper.InvokeAsync(() => _plugins.Remove(plugin));
+        SavePlugin(plugin);
+    }
+
     public Task<ObservableCollection<PluginX>> GetAllPluginsAsync() => Task.FromResult(_plugins);
 
     public async Task InitAsync()
     {
         await Task.CompletedTask; //预留异步
         _pluginsDb = settingService.Database.GetCollection<PluginX>("plugin");
+        PluginDir = new DirectoryInfo((await FileHelper.GetFolderAsync(FileHelper.FolderType.Plugins)).Path);
+        if (!PluginDir.Exists) PluginDir.Create();
         _ = bgTaskService.AddBgTask(new LoadPluginTask());
     }
 
@@ -89,6 +103,8 @@ public partial class PluginService(
         }
     }
 
+    public DirectoryInfo PluginDir { get; private set; } = null!;
+
     public void ThrowPluginExceptionEvent(PluginX plugin, Exception e, string msgHeader)
     {
         infoService.Event(EventType.PluginError, InfoBarSeverity.Warning,
@@ -116,7 +132,9 @@ public partial class PluginService(
         if (pluginType == null) throw new PvnException($"no valid plugin found in {path}");
         return ((IPlugin)Activator.CreateInstance(pluginType)!, loadContext);
     }
-    
+
+    private void SavePlugin(PluginX plugin) => _pluginsDb.Update(plugin);
+
     public class PluginData
     {
         [BsonId] public Guid PluginId { get; set; }

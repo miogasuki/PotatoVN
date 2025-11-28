@@ -4354,4 +4354,43 @@
   <data name="StorePluginDialog_ProjectLink.Content" xml:space="preserve">
     <value>项目主页</value>
   </data>
+  <data name="PluginPage_UninstallPlugin.Title" xml:space="preserve">
+    <value>卸载插件</value>
+  </data>
+  <data name="PluginPage_UninstallPlugin.Description" xml:space="preserve">
+    <value>点击卸载按钮后你可以选择是否保留插件数据</value>
+  </data>
+  <data name="PluginPage_UninstallPlugin_Button.Content" xml:space="preserve">
+    <value>卸载</value>
+  </data>
+  <data name="LoadPluginTask_ErrorDeleting" xml:space="preserve">
+    <value>插件{0}卸载失败</value>
+  </data>
+  <data name="LoadPluginTask_ErrorDeleting_Msg" xml:space="preserve">
+    <value>插件卸载失败，请手动删除路径：{0}的所有文件（包括该路径的文件夹本身），并重启软件</value>
+  </data>
+  <data name="PluginPage_DeleteDialog_Title" xml:space="preserve">
+    <value>删除插件</value>
+  </data>
+  <data name="PluginPage_DeleteDialog_DeleteData" xml:space="preserve">
+    <value>同时删除插件数据</value>
+  </data>
+  <data name="PluginPage_DeleteDialog_Yes" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="PluginService_PluginOffloadInProgress" xml:space="preserve">
+    <value>有插件正在被关闭/卸载，请重启软件后再添加插件</value>
+  </data>
+  <data name="InstallStorePluginTask_Title" xml:space="preserve">
+    <value>安装插件{0}任务</value>
+  </data>
+  <data name="InstallStorePluginTask_Downloading" xml:space="preserve">
+    <value>正在下载插件 {0}...</value>
+  </data>
+  <data name="InstallStorePluginTask_Downloading_NoLength" xml:space="preserve">
+    <value>正在下载插件，{0} kB/s</value>
+  </data>
+  <data name="InstallStorePluginTask_Installed" xml:space="preserve">
+    <value>插件{0}已完成安装并启用</value>
+  </data>
 </root>

@@ -17,12 +17,20 @@ public interface IPluginService
     /// <exception cref="PvnException">已知错误</exception>
     /// <returns></returns>
     public Task AddPluginAsync(string path);
+
+    /// <summary>
+    /// 标记一个插件要卸载，下次启动时会卸载插件。 <br/>
+    /// 对于开发者的插件不会删除文件，只会取消加载并从插件列表移除
+    /// </summary>
+    /// <param name="plugin"></param>
+    /// <param name="deleteData">是否删除插件数据</param>
+    /// <returns></returns>
+    public Task DeletePluginAsync(PluginX plugin, bool deleteData);
     
     public Task<ObservableCollection<PluginX>> GetAllPluginsAsync();
     
     public Task InitAsync();
-
-
+    
     /// <summary>
     /// 加载某个插件，如果已经加载则不操作，注意捕获异常
     /// </summary>
@@ -30,6 +38,11 @@ public interface IPluginService
     /// <param name="load">是否要加载插件，若设置为false则只把插件加到插件列表里而不加载（初始化插件表时用）</param>
     /// <returns></returns>
     public Task LoadPluginAsync(PluginX plugin, bool load);
+
+    /// <summary>
+    /// 插件存放目录
+    /// </summary>
+    public DirectoryInfo PluginDir { get; }
     
     /// <summary>
     /// 当调用插件功能抛出异常时可以调用此方法提醒用户（内部会调用infoService发送一个Event）

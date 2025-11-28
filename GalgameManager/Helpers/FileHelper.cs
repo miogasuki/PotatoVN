@@ -10,7 +10,8 @@ namespace GalgameManager.Helpers;
 //再给FileService包一层，避免appDataPath满天飞
 public static class FileHelper
 {
-    private static string _appDataPath = string.Empty;
+    public static string AppDataPath { get; private set; } = string.Empty;
+
     private static IFileService? _fileService;
 
     private static IFileService FileService
@@ -19,7 +20,7 @@ public static class FileHelper
         {
             if (_fileService is null)
             {
-                _appDataPath = ApplicationData.Current.LocalFolder.Path;
+                AppDataPath = ApplicationData.Current.LocalFolder.Path;
                 _fileService = App.GetService<IFileService>();
             }
 
@@ -35,7 +36,7 @@ public static class FileHelper
     public static void Save(string fileName, object content, string? subFolder = null, 
         JsonSerializerSettings? settings = null)
     {
-        FileService.Save(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName, content, settings);
+        FileService.Save(Path.Combine(AppDataPath, subFolder ?? string.Empty), fileName, content, settings);
     }
     
     /// <summary>
@@ -43,12 +44,12 @@ public static class FileHelper
     /// </summary>
     public static void SaveWithoutJson(string fileName, string content, string? subFolder = null)
     {
-        FileService.SaveWithoutJson(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName, content);
+        FileService.SaveWithoutJson(Path.Combine(AppDataPath, subFolder ?? string.Empty), fileName, content);
     }
     
     public static void SaveNow<T> (string fileName, T content, string? subFolder = null, bool json = true)
     {
-        FileService.SaveNow(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName, content, json);
+        FileService.SaveNow(Path.Combine(AppDataPath, subFolder ?? string.Empty), fileName, content, json);
     }
     
     /// <summary>
@@ -56,30 +57,30 @@ public static class FileHelper
     /// </summary>
     public static T? Load<T>(string fileName, string? subFolder = null, JsonSerializerSettings? settings = null)
     {
-        return FileService.Read<T>(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName, settings);
+        return FileService.Read<T>(Path.Combine(AppDataPath, subFolder ?? string.Empty), fileName, settings);
     }
     
     /// 读取纯文本
     public static string LoadWithoutJson(string fileName, string? subFolder = null)
     {
-        return FileService.ReadWithoutJson(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName);
+        return FileService.ReadWithoutJson(Path.Combine(AppDataPath, subFolder ?? string.Empty), fileName);
     }
     
     public static void Delete(string fileName, string? subFolder = null)
     {
-        FileService.Delete(Path.Combine(_appDataPath, subFolder ?? string.Empty), fileName);
+        FileService.Delete(Path.Combine(AppDataPath, subFolder ?? string.Empty), fileName);
     }
     
     public static string GetFullPath(string fileName, string? subFolder = null)
     {
         _ = FileService; //确保初始化
-        return Path.Combine(_appDataPath, subFolder ?? string.Empty, fileName);
+        return Path.Combine(AppDataPath, subFolder ?? string.Empty, fileName);
     }
     
     public static bool Exists(string fileName, string? subFolder = null)
     {
         _ = FileService; //确保初始化
-        return File.Exists(Path.Combine(_appDataPath, subFolder ?? string.Empty, fileName));
+        return File.Exists(Path.Combine(AppDataPath, subFolder ?? string.Empty, fileName));
     }
     
     public static async Task<StorageFolder> GetFolderAsync(FolderType folderType)
@@ -138,5 +139,6 @@ public static class FileHelper
     {
         Root,
         Images,
+        Plugins,
     }
 }

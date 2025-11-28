@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -7,6 +8,7 @@ using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
+using GalgameManager.Views.Dialog;
 using GalgameManager.WinApp.Base.Contracts.PluginUi;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -18,23 +20,25 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
     : ObservableRecipient, INavigationAware
 {
     public ObservableCollection<PluginSettingViewModel> Plugins = [];
+    private ObservableCollection<PluginX> _plugins = null!;
 
     public async void OnNavigatedTo(object parameter)
     {
         try
         {
-            ObservableCollection<PluginX> tmp = await pluginService.GetAllPluginsAsync();
-            foreach (PluginX plugin in tmp)
-                Plugins.Add(new PluginSettingViewModel(plugin));
+            _plugins = await pluginService.GetAllPluginsAsync();
+            PluginsOnCollectionChanged(null!, null!);
+            _plugins.CollectionChanged += PluginsOnCollectionChanged;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            infoService.DeveloperEvent(e: e);
+            //ignore
         }
     }
 
     public void OnNavigatedFrom()
     {
+        _plugins.CollectionChanged -= PluginsOnCollectionChanged;
     }
 
     [RelayCommand]
@@ -62,9 +66,23 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
         navService.NavigateTo(typeof(PluginStoreViewModel).FullName!);
     }
 
+    private async void PluginsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        try
+        {
+            Plugins.Clear();
+            ObservableCollection<PluginX> tmp = await pluginService.GetAllPluginsAsync();
+            foreach (PluginX plugin in tmp)
+                Plugins.Add(new PluginSettingViewModel(plugin, pluginService));
+        }
+        catch (Exception ex)
+        {
+            infoService.DeveloperEvent(e: ex);
+        }
+    }
 }
 
-public partial class PluginSettingViewModel (PluginX plugin) : ObservableRecipient
+public partial class PluginSettingViewModel (PluginX plugin, IPluginService pluginService) : ObservableRecipient
 {
     public PluginX Plugin { get; } = plugin;
     [ObservableProperty] private FrameworkElement? _ui;
@@ -86,5 +104,16 @@ public partial class PluginSettingViewModel (PluginX plugin) : ObservableRecipie
             App.GetService<IPluginService>().ThrowPluginExceptionEvent(Plugin, ex, 
                 "PluginSettingViewModel_CreateUiFailed".GetLocalized());
         }
+    }
+    
+    [RelayCommand]
+    private async Task DeletePlugin()
+    {
+        BasicDialog dialog = new("PluginPage_DeleteDialog_Title".GetLocalized(),
+            checkBoxText: "PluginPage_DeleteDialog_DeleteData".GetLocalized(),
+            primaryButton: "PluginPage_DeleteDialog_Yes".GetLocalized());
+        await dialog.ShowAsync();
+        if (!dialog.PrimaryButtonClicked) return;
+        await pluginService.DeletePluginAsync(Plugin, dialog.CheckBoxChecked);
     }
 }

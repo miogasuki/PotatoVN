@@ -24,6 +24,10 @@ public partial class PluginX : ObservableObject
 
     /// 是否启用，注意，设置为false只会让下次启动不加载该插件，不会在当前卸载
     [ObservableProperty] private bool _enable = false;
+    /// 如果设置为true，该插件会在下次启动时被删除
+    public bool ToDelete { get; set; }
+    /// 删除插件时是否连同数据一起删除
+    public bool ToDeleteData { get; set; }
     /// 是否已经加载
     [BsonIgnore] public bool IsLoaded { get; set; } = false;
     [BsonIgnore] public PluginLoadContext LoadContext { get; set; }

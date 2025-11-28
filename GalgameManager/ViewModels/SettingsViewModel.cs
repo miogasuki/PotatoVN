@@ -24,6 +24,7 @@ using Windows.Globalization;
 using Windows.System;
 using Windows.ApplicationModel.Store.Preview;
 using GalgameManager.Helpers.EnumHelpers;
+using GalgameManager.Core.Helpers;
 using static System.String;
 
 namespace GalgameManager.ViewModels;
@@ -132,6 +133,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _alwaysEnableMagpie = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie).Result;
         _alwaysMuteInBackground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground).Result;
         _gameReMapEnabled = _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled).Result;
+        _autoDetectSavePath = _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath).Result;
         _magpieHotkeys = _localSettingsService.ReadSettingAsync<List<int>>(KeyValues.MagpieHotkeys).Result ?? [];
         UpdateMagpieHotkeysString();
         MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
@@ -411,6 +413,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _alwaysEnableMagpie;
     [ObservableProperty] private bool _alwaysMuteInBackground;
     [ObservableProperty] private bool _gameReMapEnabled;
+    [ObservableProperty] private bool _autoDetectSavePath;
     [ObservableProperty] private string _magpieHotkeysString = Empty;
     [ObservableProperty] private List<int> _magpieHotkeyKeys = new();
     private List<int> _magpieHotkeys;
@@ -442,6 +445,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     partial void OnAlwaysMuteInBackgroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AlwaysMuteInBackground, value);
 
     partial void OnGameReMapEnabledChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.GameReMapEnabled, value);
+
+    partial void OnAutoDetectSavePathChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AutoDetectSavePath, value);
 
     async partial void OnMagpieHotkeyKeysChanged(List<int> value)
     {
@@ -822,12 +827,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task SelectRemoteFolder()
     {
-        FolderPicker openPicker = new();
-        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
-        openPicker.SuggestedStartLocation = PickerLocationId.HomeGroup;
-        openPicker.FileTypeFilter.Add("*");
-        StorageFolder? folder = await openPicker.PickSingleFolderAsync();
-        RemoteFolder = folder?.Path ?? RemoteFolder;
+        var suggestedPath = RemoteFolder ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        PvnFolderPicker picker = new()
+        {
+            Title = "SettingsViewModel_SelectRemoteFolder_Title".GetLocalized(),
+            OkButtonLabel = "SettingsViewModel_SelectRemoteFolder_Choose".GetLocalized(),
+            InitialDirectory = suggestedPath,
+        };
+        PickerResult result = picker.ShowDialog();
+        RemoteFolder = result == PickerResult.OK ? picker.SelectedPath : suggestedPath;
     }
 
     #endregion

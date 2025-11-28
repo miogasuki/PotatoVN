@@ -1,3 +1,5 @@
+using GalgameManager.Helpers;
+
 namespace GalgameManager.Enums;
 
 /// <summary>
@@ -166,7 +168,7 @@ public static class SaveDetectionConstants
         "battle.net", "blizzard", "riot games", "discord",
 
         // 开发工具目录
-        "visual studio", "msbuild", "nuget", "dotnet", "sdk",
+        "visual studio", "msbuild", "nuget", "dotnet", "sdk", "code", "vscode", "android", "android sdk",
 
         // 浏览器目录
         "google", "chrome", "mozilla", "firefox", "edge", "opera",
@@ -395,7 +397,8 @@ public static class SaveDetectionConstants
         // 检查是否包含排除关键词
         foreach (var keyword in ExcludePathKeywords)
         {
-            if (targetLower.Contains(keyword))
+            // 修复：必须将 keyword 也转为小写，否则类似 "TrafficMonitor" 无法匹配 "trafficmonitor"
+            if (targetLower.Contains(keyword.ToLowerInvariant()))
             {
                 return true;
             }
@@ -408,5 +411,88 @@ public static class SaveDetectionConstants
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 获取便携式路径（使用环境变量或相对路径）
+    /// ALERT: localPath 应该永远为游戏的根目录
+    /// </summary>
+    public static string GetPortablePath(string path, string? localPath)
+    {
+        if (string.IsNullOrEmpty(path)) return path;
+
+        // 1. Special Folders
+        var mappings = new Dictionary<string, string>
+        {
+            { Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "%AppData%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "%LocalAppData%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "%Documents%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%UserProfile%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).Replace("Local", "LocalLow"), "%LocalLow%" }
+        };
+        if (!localPath.IsNullOrWhiteSpace())
+        {
+            mappings.Add(localPath, "%GameRoot%");
+        }
+        
+        foreach (var mapping in mappings.OrderByDescending(m => m.Key.Length))
+        {
+            if (path.StartsWith(mapping.Key, StringComparison.OrdinalIgnoreCase))
+            {
+                if (path.Length == mapping.Key.Length) return mapping.Value;
+                
+                if (path[mapping.Key.Length] == Path.DirectorySeparatorChar || path[mapping.Key.Length] == Path.AltDirectorySeparatorChar)
+                {
+                     var relative = path.Substring(mapping.Key.Length + 1);
+                     return Path.Join(mapping.Value, relative);
+                }
+            }
+        }
+
+        return path;
+    }
+
+    /// <summary>
+    /// 获取绝对路径（解析环境变量和相对路径）
+    /// </summary>
+    public static string GetAbsolutePath(string? path, string? localPath)
+    {
+        if (string.IsNullOrEmpty(path)) return string.Empty;
+        
+        var result = path;
+        
+        // 1. Special Folders
+        var mappings = new Dictionary<string, string>
+        {
+            { Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "%AppData%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "%LocalAppData%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "%Documents%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%UserProfile%" },
+            { Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).Replace("Local", "LocalLow"), "%LocalLow%" }
+        };
+        if (!localPath.IsNullOrWhiteSpace())
+        {
+            mappings.Add(localPath, "%GameRoot%");
+        }
+
+        foreach (var mapping in mappings)
+        {
+            result = result.Replace(mapping.Value, mapping.Key, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 2. Relative Path
+        if (!Path.IsPathRooted(result) && !string.IsNullOrEmpty(localPath))
+        {
+            try 
+            {
+                result = Path.GetFullPath(Path.Combine(localPath, result));
+            }
+            catch
+            {
+                // ignore invalid path combination
+            }
+        }
+        
+        return result;
     }
 }

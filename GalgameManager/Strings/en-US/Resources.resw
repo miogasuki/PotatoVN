@@ -3121,6 +3121,10 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSourceType_Steam" xml:space="preserve">
     <value>Steam游戏库</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="SteamSource_ScanAllGalgames_InvalidPath" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
     <value>Open in Steam</value>
   </data>
@@ -3394,6 +3398,12 @@ If play time can record correctly, just cancel this popup.
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>Edit Key Mapping</value>
   </data>
+  <data name="Settings_Game_AutoDetectSavePath.Title" xml:space="preserve">
+    <value>Auto-detect game save locations</value>
+  </data>
+  <data name="Settings_Game_AutoDetectSavePath.Description" xml:space="preserve">
+    <value>Attempts to identify save file locations by monitoring file changes. (This is an experimental feature and detection is not guaranteed)</value>
+  </data>
   <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
     <value>Upload All Play Statuses</value>
   </data>
@@ -3474,6 +3484,21 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="GameSaveDetectorTask_Title" xml:space="preserve">
     <value>Game Save Location Detection Task</value>
+  </data>
+  <data name="GameSaveDetector_Initializing" xml:space="preserve">
+    <value>Initializing save detector...</value>
+  </data>
+  <data name="GameSaveDetector_Monitoring" xml:space="preserve">
+    <value>Monitoring file changes... Potential targets found: {0}</value>
+  </data>
+  <data name="GameSaveDetector_Success" xml:space="preserve">
+    <value>Save detection complete: {0}</value>
+  </data>
+  <data name="GameSaveDetector_NotFound" xml:space="preserve">
+    <value>No valid save path detected. Please try running the game and saving manually.</value>
+  </data>
+  <data name="GameSaveDetector_Failed" xml:space="preserve">
+    <value>File changes detected, but unable to determine the best save directory.</value>
   </data>
   <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>Edit Path</value>
@@ -3577,16 +3602,16 @@ If play time can record correctly, just cancel this popup.
   <data name="Shell_PluginStore.Content" xml:space="preserve">
     <value>PluginStore</value>
   </data>
-  <data name="InstallStorePluginTask_Title" xml:space="preserve">
-    <value>Install plugin {0}</value>
+  <data name="SettingsViewModel_SelectRemoteFolder_Title" xml:space="preserve">
+    <value>Choose cloud save root folder</value>
   </data>
-  <data name="InstallStorePluginTask_Downloading" xml:space="preserve">
-    <value>Downloading plugin {0}...</value>
+  <data name="SettingsViewModel_SelectRemoteFolder_Choose" xml:space="preserve">
+    <value>Choose</value>
   </data>
-  <data name="InstallStorePluginTask_Downloading_NoLength" xml:space="preserve">
-    <value>Downloading plugin, {0} kB/s</value>
+  <data name="GalgameCollectionService_SelectSavePosition_File" xml:space="preserve">
+    <value>Select game save file</value>
   </data>
-  <data name="InstallStorePluginTask_Installed" xml:space="preserve">
-    <value>Plugin {0} has been installed and enabled</value>
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
+    <value>Choose save folder</value>
   </data>
 </root>

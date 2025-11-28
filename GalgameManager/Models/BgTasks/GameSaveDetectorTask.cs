@@ -354,21 +354,6 @@ public class GameSaveDetectorTask : BgTaskBase
         }
     }
 
-    private void AddGameNameVariants(List<string> keywords, string gameName)
-    {
-        // 保持向后兼容性，但内部使用新系统
-        var variants = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        GenerateNameVariants(gameName, variants);
-
-        foreach (var variant in variants)
-        {
-            if (!keywords.Contains(variant))
-            {
-                keywords.Add(variant);
-            }
-        }
-    }
-
     protected override Task RecoverFromJsonInternal()
     {
         // 重新初始化候选路径
@@ -379,6 +364,10 @@ public class GameSaveDetectorTask : BgTaskBase
     protected async override Task RunInternal()
     {
         if (Galgame == null) return;
+
+        // 1. 初始化阶段更新进度消息
+        ChangeProgress(0, 1, "GameSaveDetector_Initializing".GetLocalized()); // "正在初始化存档检测..."
+
         InitializeCandidatePaths();
 
         Debug.WriteLine($"[GameSaveDetector] 开始为游戏 '{Galgame.Name?.Value}' 检测存档路径");
@@ -398,21 +387,31 @@ public class GameSaveDetectorTask : BgTaskBase
 
             if (!string.IsNullOrEmpty(saveDirectory))
             {
-                Galgame.DetectedSavePosition = saveDirectory;
+                Galgame.DetectedSavePosition = SaveDetectionConstants.GetPortablePath(saveDirectory, Galgame.LocalPath);
+                // 4. 【关键】成功后，将进度设为 1/1，并将消息设置为最终路径
+                ChangeProgress(1, 1, "GameSaveDetector_Success".GetLocalized(saveDirectory)); // "成功检测到存档：{0}"
             }
             else
             {
                 var fallbackDirectory = Path.GetDirectoryName(finalPaths[0]);
                 if (!string.IsNullOrEmpty(fallbackDirectory))
                 {
-                    Galgame.DetectedSavePosition = fallbackDirectory;
+                    Galgame.DetectedSavePosition = SaveDetectionConstants.GetPortablePath(fallbackDirectory, Galgame.LocalPath);
                     Debug.WriteLine($"[GameSaveDetector] 使用回退目录: {fallbackDirectory}");
+                    ChangeProgress(1, 1, "GameSaveDetector_Success".GetLocalized(fallbackDirectory));
+                }
+                else
+                {
+                    // 虽然有文件但没确定目录（罕见）
+                    ChangeProgress(1, 1, "GameSaveDetector_Failed".GetLocalized());
                 }
             }
         }
         else
         {
             Debug.WriteLine("[GameSaveDetector] 未找到合适的存档目录");
+            // 5. 失败处理
+            ChangeProgress(1, 1, "GameSaveDetector_NotFound".GetLocalized()); // "未检测到存档变动"
         }
     }
 
@@ -436,6 +435,10 @@ public class GameSaveDetectorTask : BgTaskBase
         while (IsMonitoring && (DateTime.Now - _monitorStartTime) < maxMonitorTime)
         {
             Debug.WriteLine($"[GameSaveDetector] 当前检测到 {DetectedSavePaths.Count} 个潜在存档文件");
+
+            // 6.任务进行中（不确定的进度），Message 显示当前捕获数量
+            var count = DetectedSavePaths.Count;
+            ChangeProgress(0, 1, "GameSaveDetector_Monitoring".GetLocalized(count));
 
             // 检查是否有路径可以开始监听
             CheckAndStartPendingMonitors();
@@ -836,26 +839,23 @@ public class GameSaveDetectorTask : BgTaskBase
 
         Debug.WriteLine($"[GameSaveDetector] 开始分析 {paths.Count} 个路径以找到最佳存档目录");
 
-        // 获取所有变体用于评分
         var allVariants = GenerateAllVariants(Galgame!);
-        Debug.WriteLine($"[GameSaveDetector] 使用 {allVariants.Count} 个变体进行目录评分");
-
-        // 计算每个目录的综合评分
         var directoryScores = new Dictionary<string, DirectoryScoreInfo>();
-
         var currentAppPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
 
         foreach (var path in paths)
         {
             var directory = Path.GetDirectoryName(path);
+            // 如果路径本身就是目录（例如匹配到了游戏名的文件夹），则直接使用该路径，而不是取父级
+            // 这是一个关键修复：防止像 "...\Roaming\妄想complete！" 这种正确路径被切成 "...\Roaming"
+            if (Directory.Exists(path) && !File.Exists(path))
+            {
+                directory = path;
+            }
+
             if (string.IsNullOrEmpty(directory)) continue;
 
-            // 早期排除：跳过系统目录和不相关路径
-            if (SaveDetectionConstants.ShouldExcludePath(directory, currentAppPath))
-            {
-                Debug.WriteLine($"[GameSaveDetector] 跳过排除路径的评分: {directory}");
-                continue;
-            }
+            if (SaveDetectionConstants.ShouldExcludePath(directory, currentAppPath)) continue;
 
             var normalizedDir = directory.ToLowerInvariant().TrimEnd('\\', '/');
 
@@ -864,65 +864,42 @@ public class GameSaveDetectorTask : BgTaskBase
 
             var scoreInfo = directoryScores[normalizedDir];
 
-            // 基础分数：文件数量
-            scoreInfo.TotalScore += 10;
+            // 1. 基础分：稍微降低，不要让文件多的垃圾目录占据优势
+            scoreInfo.TotalScore += 2;
             scoreInfo.FileCount++;
 
-            // 额外分数：文件质量评分
+            // 2. 文件质量分
             var fileScore = CalculateSaveFileScore(path);
             scoreInfo.TotalScore += fileScore * 0.1;
 
-            // 额外分数：变体匹配评分（使用更精确的匹配）
+            // 3. 核心修改：变体匹配评分 (这是最重要的指标)
+            // 我们单独计算目录名的匹配程度，而不是整个长路径
             var variantScore = CalculateVariantMatchScore(directory, allVariants);
             scoreInfo.TotalScore += variantScore;
+
             if (variantScore > 0)
             {
                 scoreInfo.MatchedVariants.AddRange(GetMatchedVariants(directory, allVariants));
             }
 
-            // 额外分数：路径深度（更具体的路径更可能是存档目录）
-            var depth = directory.Count(c => c == '\\' || c == '/');
-            if (depth >= 3 && depth <= 6)
-                scoreInfo.TotalScore += 15 * (depth / 6.0);
-            scoreInfo.Depth = depth;
-
-            // 路径结构加分
+            // 4. 路径结构微调
             scoreInfo.TotalScore += CalculatePathStructureScore(directory);
         }
 
         if (directoryScores.Count == 0) return string.Empty;
 
-        Debug.WriteLine($"[GameSaveDetector] 目录详细评分结果:");
+        // 输出调试信息并选择最佳
         foreach (var kvp in directoryScores.OrderByDescending(kvp => kvp.Value.TotalScore))
         {
             var info = kvp.Value;
-            Debug.WriteLine($"[GameSaveDetector] - {info.Directory}");
-            Debug.WriteLine($"[GameSaveDetector]   总评分: {info.TotalScore:F1}");
-            Debug.WriteLine($"[GameSaveDetector]   文件数: {info.FileCount}");
-            Debug.WriteLine($"[GameSaveDetector]   路径深度: {info.Depth}");
-            Debug.WriteLine($"[GameSaveDetector]   匹配变体: {string.Join(", ", info.MatchedVariants)}");
+            Debug.WriteLine($"[GameSaveDetector] - {info.Directory} 总分: {info.TotalScore:F1} (匹配变体: {string.Join(",", info.MatchedVariants)})");
         }
 
-        // 按评分排序，获取最佳目录
-        var bestDirectoryEntry = directoryScores.OrderByDescending(kvp => kvp.Value.TotalScore).First();
-        var bestDirectory = bestDirectoryEntry.Value.Directory;
-        var bestScore = bestDirectoryEntry.Value.TotalScore;
-
-        Debug.WriteLine($"[GameSaveDetector] 最佳目录: {bestDirectory} (评分: {bestScore:F1})");
-
-        // 如果最佳目录评分足够高，直接返回
-        if (bestScore >= 25)
-        {
-            Debug.WriteLine("[GameSaveDetector] 最佳目录评分足够高，直接返回");
-            return bestDirectory;
-        }
-
-        Debug.WriteLine("[GameSaveDetector] 最佳目录评分不足，但仍返回最高评分目录");
-        return bestDirectory;
+        return directoryScores.OrderByDescending(kvp => kvp.Value.TotalScore).First().Value.Directory;
     }
 
     /// <summary>
-    /// 计算路径与变体的匹配评分
+    /// 计算路径与变体的匹配评分 - 已增强权重
     /// </summary>
     private double CalculateVariantMatchScore(string directory, List<string> variants)
     {
@@ -931,39 +908,34 @@ public class GameSaveDetectorTask : BgTaskBase
 
         var directoryLower = directory.ToLowerInvariant();
         var totalScore = 0.0;
-        var matchedVariants = 0;
+
+        // 获取目录的最后一级名称，用于精准匹配
+        // 例如 "C:\Users\...\MyGame" -> "mygame"
+        var dirName = new DirectoryInfo(directory).Name.ToLowerInvariant();
 
         foreach (var variant in variants)
         {
             if (string.IsNullOrEmpty(variant)) continue;
-
             var variantLower = variant.ToLowerInvariant();
 
-            // 完全匹配（最高分）
-            if (directoryLower.Contains(variantLower))
+            // 策略 A: 目录名完全等于游戏名/变体名 (最高优先级)
+            // 例如: 目录是 "妄想complete！"，变体是 "妄想complete！"
+            if (dirName == variantLower)
             {
-                // 根据匹配的精确度给分
-                if (directoryLower.EndsWith(variantLower))
-                {
-                    totalScore += 30; // 目录名以变体结尾，最高分
-                }
-                else if (directoryLower.Contains($"\\{variantLower}\\") || directoryLower.Contains($"/{variantLower}/"))
-                {
-                    totalScore += 25; // 变体作为独立目录名
-                }
-                else
-                {
-                    totalScore += 15; // 部分匹配
-                }
-                matchedVariants++;
+                totalScore += 500; // 极高分，几乎确信
+                Debug.WriteLine($"[GameSaveDetector] 完美目录名匹配: {variant}");
             }
-        }
-
-        // 匹配的变体越多，额外加分
-        if (matchedVariants > 0)
-        {
-            totalScore += matchedVariants * 5; // 每匹配一个变体额外加5分
-            Debug.WriteLine($"[GameSaveDetector] 路径 '{directory}' 匹配到 {matchedVariants} 个变体，评分: {totalScore}");
+            // 策略 B: 路径中包含独立的游戏名目录
+            // 例如: ...\MyGame\SaveData
+            else if (directoryLower.Contains($"\\{variantLower}\\") || directoryLower.Contains($"/{variantLower}/") || directoryLower.EndsWith($"\\{variantLower}"))
+            {
+                totalScore += 100; // 高分
+            }
+            // 策略 C: 部分包含
+            else if (directoryLower.Contains(variantLower))
+            {
+                totalScore += 20; // 只要包含就给分，但不如上面高
+            }
         }
 
         return totalScore;

@@ -295,9 +295,10 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         {
             // 确定起始路径：如果已检测到存档位置则使用它，否则使用 AppData
             string initialPath;
-            if (!string.IsNullOrEmpty(Gal.DetectedSavePosition) && Directory.Exists(Gal.DetectedSavePosition))
+            var absolutePath = SaveDetectionConstants.GetAbsolutePath(Gal.DetectedSavePosition, Gal.LocalPath);
+            if (!string.IsNullOrEmpty(absolutePath) && Directory.Exists(absolutePath))
             {
-                initialPath = Gal.DetectedSavePosition;
+                initialPath = absolutePath;
             }
             else
             {
@@ -385,15 +386,18 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     /// </summary>
     private async Task ShowStandardFolderPicker()
     {
-        var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindow!.GetWindowHandle());
-        folderPicker.FileTypeFilter.Add("*");
-        folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+        PvnFolderPicker picker = new()
+        {
+            Title = "GalgameSettingViewModel_ShowStandardFolderPicker_Title".GetLocalized(),
+            OkButtonLabel = "Choose".GetLocalized(),
+            InitialDirectory = Gal.LocalPath,
+        };
+        picker.ShowDialog();
+        var folder = picker.SelectedPath;
 
-        StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
         if (folder is not null)
         {
-            Gal.DetectedSavePosition = folder.Path;
+            Gal.DetectedSavePosition = SaveDetectionConstants.GetPortablePath(folder, Gal.LocalPath);
             await _galService.SaveGalgameAsync(Gal);
             _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_SavePositionUpdated".GetLocalized(), displayTimeMs: 2000);
         }

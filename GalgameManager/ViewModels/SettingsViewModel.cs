@@ -827,6 +827,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task SelectRemoteFolder()
     {
+        await Task.CompletedTask;
         var suggestedPath = RemoteFolder ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         PvnFolderPicker picker = new()
         {

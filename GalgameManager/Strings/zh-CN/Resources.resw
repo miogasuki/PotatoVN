@@ -4060,6 +4060,12 @@
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>编辑按键映射</value>
   </data>
+  <data name="Settings_Game_AutoDetectSavePath.Title" xml:space="preserve">
+    <value>自动探测游戏存档位置</value>
+  </data>
+  <data name="Settings_Game_AutoDetectSavePath.Description" xml:space="preserve">
+    <value>通过监控文件变更，尝试自动定位游戏的存档路径。(这是一项实验性功能，无法保证识别所有存档)</value>
+  </data>
   <data name="UploadAllPlayStatusDialog_Title" xml:space="preserve">
     <value>上传所有游戏游玩状态</value>
   </data>
@@ -4140,6 +4146,21 @@
   </data>
   <data name="GameSaveDetectorTask_Title" xml:space="preserve">
     <value>游戏存档位置探测任务</value>
+  </data>
+  <data name="GameSaveDetector_Initializing" xml:space="preserve">
+    <value>正在初始化存档检测器...</value>
+  </data>
+  <data name="GameSaveDetector_Monitoring" xml:space="preserve">
+    <value>正在监控存档变动... 已捕获潜在目标: {0}</value>
+  </data>
+  <data name="GameSaveDetector_Success" xml:space="preserve">
+    <value>存档检测完成: {0}</value>
+  </data>
+  <data name="GameSaveDetector_NotFound" xml:space="preserve">
+    <value>未检测到有效的存档路径，请尝试手动运行游戏并保存</value>
+  </data>
+  <data name="GameSaveDetector_Failed" xml:space="preserve">
+    <value>检测到文件变动，但无法确定最佳存档目录</value>
   </data>
   <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>编辑路径</value>

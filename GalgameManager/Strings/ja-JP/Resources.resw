@@ -3281,11 +3281,11 @@
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>キーマッピングが保存されました</value>
-  </data>
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>キーマッピングがありません</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>キーマッピングが保存されました</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>グローバルキーマッピング</value>
@@ -3310,9 +3310,6 @@
   </data>
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>マウスボタンキャプチャが有効、入力ボックス内でマウスボタンをクリックしてください</value>
-  </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>キーマッピングが保存されました</value>
   </data>
   <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
     <value>グローバルキーマッピングが保存されました</value>
@@ -3530,5 +3527,11 @@
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>キャラクターを削除しました</value>
   </data>
-
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="SettingsViewModel_SelectRemoteFolder_Title" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Choose" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
 </root>

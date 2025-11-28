@@ -4009,9 +4009,6 @@
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>鼠标按键捕获已启用，请在输入框内点击鼠标按键</value>
   </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>按键映射已保存</value>
-  </data>
   <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
     <value>全局按键映射已保存</value>
   </data>
@@ -4371,5 +4368,35 @@
   </data>
   <data name="StorePluginDialog_WaitingOffload" xml:space="preserve">
     <value>请重启软件后再添加插件</value>
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Title" xml:space="preserve">
+    <value>请选择云存档根目录</value>
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Choose" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSavePosition_File" xml:space="preserve">
+    <value>选择存档文件</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
+    <value>选择存档文件夹</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_Content" xml:space="preserve">
+    <value>请选择存档类型（单文件/文件夹）</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_Title" xml:space="preserve">
+    <value>确认</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_File" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_Folder" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="GalgameSettingViewModel_ShowStandardFolderPicker_Title" xml:space="preserve">
+    <value>选择一个文件夹</value>
+  </data>
+  <data name="Choose" xml:space="preserve">
+    <value>选择</value>
   </data>
 </root>

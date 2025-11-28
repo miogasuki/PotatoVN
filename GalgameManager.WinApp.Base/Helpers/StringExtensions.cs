@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -69,7 +70,8 @@ public static class StringExtensions
         return dp[n, m];
     }
     
-    public static bool IsNullOrEmpty(this string? str) => string.IsNullOrEmpty(str);
+    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str) => string.IsNullOrEmpty(str);
+    public static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? str) => string.IsNullOrWhiteSpace(str);
     
     /// <summary>
     /// 移除字符串中的非法字符

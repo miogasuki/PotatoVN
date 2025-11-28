@@ -386,15 +386,18 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     /// </summary>
     private async Task ShowStandardFolderPicker()
     {
-        var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindow!.GetWindowHandle());
-        folderPicker.FileTypeFilter.Add("*");
-        folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+        PvnFolderPicker picker = new()
+        {
+            Title = "GalgameSettingViewModel_ShowStandardFolderPicker_Title".GetLocalized(),
+            OkButtonLabel = "Choose".GetLocalized(),
+            InitialDirectory = Gal.LocalPath,
+        };
+        picker.ShowDialog();
+        var folder = picker.SelectedPath;
 
-        StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
         if (folder is not null)
         {
-            Gal.DetectedSavePosition = SaveDetectionConstants.GetPortablePath(folder.Path, Gal.LocalPath);
+            Gal.DetectedSavePosition = SaveDetectionConstants.GetPortablePath(folder, Gal.LocalPath);
             await _galService.SaveGalgameAsync(Gal);
             _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_SavePositionUpdated".GetLocalized(), displayTimeMs: 2000);
         }

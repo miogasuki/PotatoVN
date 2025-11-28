@@ -242,6 +242,17 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         List<string> result = Directory.GetDirectories(LocalPath).ToList();
         return result;
     }
+    
+    /// <summary>
+    /// 获取游戏文件夹下的所有子文件
+    /// </summary>
+    /// <returns>子文件夹地址</returns>
+    public List<string> GetRootFiles()
+    {
+        if (LocalPath is null) return [];
+        List<string> result = Directory.GetFiles(LocalPath).ToList();
+        return result;
+    }
 
     /// <summary>
     /// 尝试获取游戏的id，以int形式返回 <br/>

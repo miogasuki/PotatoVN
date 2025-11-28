@@ -119,6 +119,10 @@
     <PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.6" />
     <PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.257">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
     <PackageReference Include="PotatoVN.Client" Version="1.0.11" />
     <PackageReference Include="PotatoVnDBMapper" Version="1.0.4" />
@@ -131,6 +135,8 @@
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageReference Include="Squid-Box.SevenZipSharp" Version="1.6.1.23" />
     <PackageReference Include="System.Linq.Async" Version="6.0.3" />
+    <PackageReference Include="System.Memory" Version="4.6.3" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
     <PackageReference Include="TinyPinyin" Version="1.1.0" />
     <PackageReference Include="ValveKeyValue" Version="0.20.0.417" />
     <PackageReference Include="WanaKanaShaapu" Version="2.0.2" />

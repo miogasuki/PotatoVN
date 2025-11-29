@@ -12,6 +12,7 @@ using GalgameManager.Helpers.Converter;
 using GalgameManager.Helpers.EnumHelpers;
 using GalgameManager.Models;
 using System.Collections.ObjectModel;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Services;
 using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
@@ -45,10 +46,8 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     public string LocalPathMsg => Gal.LocalPath ?? "GalgameSettingPage_NotLocalGame".GetLocalized();
     public string ExePathMsg => Gal.ExePath ?? "GalgameSettingPage_NoExe".GetLocalized();
     public bool IsLocalGame => Gal.IsLocalGame;
-    public string SavePositionDescription =>
-        string.IsNullOrEmpty(Gal?.DetectedSavePosition)
-            ? "GalgameSettingPage_DetectedSavePosition".GetLocalized()!
-            : Gal.DetectedSavePosition;
+    public string SavePositionDescription => 
+        Gal.DetectedSavePosition?.ToDisplay() ?? "GalgameSettingPage_DetectedSavePosition".GetLocalized();
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
         IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService,
@@ -295,7 +294,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         {
             // 确定起始路径：如果已检测到存档位置则使用它，否则使用 AppData
             string initialPath;
-            var absolutePath = SaveDetectionConstants.GetAbsolutePath(Gal.DetectedSavePosition, Gal.LocalPath);
+            var absolutePath = GamePortablePath.Create(Gal.DetectedSavePosition, Gal.LocalPath);
             if (!string.IsNullOrEmpty(absolutePath) && Directory.Exists(absolutePath))
             {
                 initialPath = absolutePath;
@@ -397,7 +396,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
         if (folder is not null)
         {
-            Gal.DetectedSavePosition = SaveDetectionConstants.GetPortablePath(folder, Gal.LocalPath);
+            Gal.DetectedSavePosition = GamePortablePath.Create(folder, Gal.LocalPath);
             await _galService.SaveGalgameAsync(Gal);
             _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_SavePositionUpdated".GetLocalized(), displayTimeMs: 2000);
         }

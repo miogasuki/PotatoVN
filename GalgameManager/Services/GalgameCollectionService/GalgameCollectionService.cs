@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -584,30 +583,34 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// <returns>存档文件夹地址，若用户取消返回null</returns>
     private async Task<string?> GetGalgameSaveAsync(Galgame galgame)
     {
+        // 几个可能的存档位置：
+        // 1. SuggestedSavePath（由云端同步过来的路径）
+        //      TODO(kuriko): 这部分之后改成 ISaveProvider，由插件提供
+        // 2. DetectedSavePosition（运行检测到的路径）
+        // 3. 游戏根目录
+        
         var localPath = galgame.LocalPath;
-        var detectedSavePosition = galgame.DetectedSavePosition.IsNullOrWhiteSpace()
-            ? localPath
-            : SaveDetectionConstants.GetAbsolutePath(galgame.DetectedSavePosition, localPath);
+        // PvnGamePath? suggestedSavePath = galgame.SuggestedSavePath.Value;
+        GamePortablePath? detectedSavePosition = galgame.DetectedSavePosition;
 
+        List<string> candidateSavePath = new();
+        // if (suggestedSavePath?.ToPath() is { } path1) candidateSavePath.Add(path1);
+        if (detectedSavePosition?.ToPath() is { } path2) candidateSavePath.Add(path2);
+        
         async Task<string?> ChooseFolder()
         {
             List<string> subFolders = galgame.GetSubFolders();
-            var isSuggestedSavePathFound = false;
-            if (!detectedSavePosition.IsNullOrWhiteSpace() && !localPath.IsNullOrWhiteSpace() && !Utils.ArePathsEqual(detectedSavePosition, localPath))
-            {
-                // Make sure the detected save position alway the first item in the list.
-                if (subFolders.Contains(detectedSavePosition))
-                {
-                    subFolders.Remove(detectedSavePosition);
-                }
 
-                subFolders.Insert(0, detectedSavePosition);
-                isSuggestedSavePathFound = true;
+            var isSuggestedSavePathFound = candidateSavePath.Count > 0;
+            foreach (var suggestedPath in Enumerable.Reverse(candidateSavePath))
+            {
+                subFolders.RemoveAll(f => f.Equals(suggestedPath, StringComparison.OrdinalIgnoreCase));
+                subFolders.Insert(0, suggestedPath);
             }
 
-            var startupPath = detectedSavePosition == localPath
-                ? detectedSavePosition
-                : Path.GetDirectoryName(detectedSavePosition);
+            var startupPath = isSuggestedSavePathFound
+                ? Path.GetDirectoryName(candidateSavePath[0])
+                : localPath;
 
             FolderOrFilePickerDialog dialog = new(App.MainWindow!.Content.XamlRoot, "GalgameCollectionService_SelectSavePosition_Folder".GetLocalized(), subFolders, true, startupPath, isSuggestedSavePathFound);
             return await dialog.ShowAndAwaitResultAsync();
@@ -616,12 +619,15 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         async Task<string?> ChooseFile()
         {
             List<string> rootFiles = galgame.GetRootFiles();
-            FolderOrFilePickerDialog dialog = new(App.MainWindow!.Content.XamlRoot, "GalgameCollectionService_SelectSavePosition_File".GetLocalized(), rootFiles, false, detectedSavePosition ?? localPath);
+            FolderOrFilePickerDialog dialog = new(
+                App.MainWindow!.Content.XamlRoot, 
+                "GalgameCollectionService_SelectSavePosition_File".GetLocalized(), 
+                rootFiles, false, detectedSavePosition?.ToPath() ?? localPath);
             return await dialog.ShowAndAwaitResultAsync();
         }
 
         // 如果检测到的话，优先用这个
-        if (!detectedSavePosition.IsNullOrWhiteSpace())
+        if (detectedSavePosition?.ToPath()?.IsNullOrWhiteSpace() is false)
         {
             var result = await ChooseFolder();
             // 重置检测存档位置，允许重新显示选择单文件。

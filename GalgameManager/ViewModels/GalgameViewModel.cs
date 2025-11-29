@@ -19,6 +19,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.ComponentModel;
 using System.Globalization;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Views.GalgamePagePanel;
 using ValveKeyValue;
 
@@ -574,7 +575,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
         try
         {
-            var absolutePath = SaveDetectionConstants.GetAbsolutePath(Item.DetectedSavePosition, Item.LocalPath);
+            var absolutePath = GamePortablePath.Create(Item.DetectedSavePosition, Item.LocalPath);
             if (string.IsNullOrWhiteSpace(absolutePath))
             {
                 _infoService.Info(InfoBarSeverity.Error, "GalgamePage_OpenSaveDirectoryFailed".GetLocalized(), "GalgamePage_InvalidSavePath".GetLocalized());

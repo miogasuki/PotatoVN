@@ -104,10 +104,47 @@ public class GameSaveDetectorTask : BgTaskBase
         Debug.WriteLine($"[GameSaveDetector] 最终候选路径数量: {_candidatePaths.Count}");
     }
 
+    /// <summary>
+    /// 判断是否应该强制监听该路径（跳过排除检查）
+    /// </summary>
+    /// <param name="path">要检查的路径</param>
+    /// <returns>是否应该强制监听</returns>
+    private bool ShouldForceMonitorPath(string path)
+    {
+        if (string.IsNullOrEmpty(path) || Galgame?.LocalPath == null)
+            return false;
+
+        var gameLocalPath = Galgame.LocalPath.ToLowerInvariant();
+        var targetPath = path.ToLowerInvariant();
+
+        // 如果是游戏根目录本身，强制监听
+        if (targetPath == gameLocalPath)
+        {
+            Debug.WriteLine($"[GameSaveDetector] 强制监听游戏根目录: {path}");
+            return true;
+        }
+
+        return false;
+    }
+
     private bool ShouldExcludePath(string targetPath, string currentAppPath)
     {
         if (string.IsNullOrEmpty(targetPath) || string.IsNullOrEmpty(currentAppPath))
             return false;
+
+        // 修复：如果路径在游戏目录下，不进行排除检查
+        if (Galgame?.LocalPath != null && targetPath.StartsWith(Galgame.LocalPath, StringComparison.OrdinalIgnoreCase))
+        {
+            Debug.WriteLine($"[GameSaveDetector] 路径在游戏目录下，跳过排除: {targetPath}");
+            return false;
+        }
+
+        // 首先检查是否应该强制监听
+        if (ShouldForceMonitorPath(targetPath))
+        {
+            Debug.WriteLine($"[GameSaveDetector] 强制监听路径，跳过排除: {targetPath}");
+            return false;
+        }
 
         // 使用常量检查是否应该排除此路径
         var shouldExclude = SaveDetectionConstants.ShouldExcludePath(targetPath, currentAppPath);
@@ -339,7 +376,7 @@ public class GameSaveDetectorTask : BgTaskBase
         }
     }
 
-    
+      
     private void AddDeveloperVariants(List<string> keywords)
     {
         // 重构为使用新的变体生成系统
@@ -461,8 +498,11 @@ public class GameSaveDetectorTask : BgTaskBase
 
         foreach (var path in _candidatePaths)
         {
-            // 早期排除：避免对系统路径创建监听器
-            if (SaveDetectionConstants.ShouldExcludePath(path, currentAppPath))
+            // 修复：如果是游戏目录或其子目录，不进行排除检查
+            var shouldSkipExcludeCheck = ShouldForceMonitorPath(path);
+
+            // 早期排除：避免对系统路径创建监听器（但跳过游戏相关目录）
+            if (!shouldSkipExcludeCheck && SaveDetectionConstants.ShouldExcludePath(path, currentAppPath))
             {
                 Debug.WriteLine($"[GameSaveDetector] 跳过排除路径的监听: {path}");
                 continue;
@@ -471,6 +511,7 @@ public class GameSaveDetectorTask : BgTaskBase
             if (Directory.Exists(path))
             {
                 CreateFileSystemWatcher(path);
+                Debug.WriteLine($"[GameSaveDetector] 开始监听路径: {path}");
             }
             else
             {
@@ -495,8 +536,8 @@ public class GameSaveDetectorTask : BgTaskBase
 
             if (Directory.Exists(pendingPath))
             {
-                // 早期排除：跳过系统路径
-                if (SaveDetectionConstants.ShouldExcludePath(pendingPath, currentAppPath))
+                // 修复：使用统一的路径排除逻辑（包含强制监听检查）
+                if (ShouldExcludePath(pendingPath, currentAppPath))
                 {
                     _pendingMonitorPaths.RemoveAt(i);
                     Debug.WriteLine($"[GameSaveDetector] 跳过排除路径的延迟监听: {pendingPath}");
@@ -662,10 +703,20 @@ public class GameSaveDetectorTask : BgTaskBase
             var fileName = Path.GetFileName(filePath);
             var directory = Path.GetDirectoryName(filePath) ?? string.Empty;
 
-            // 早期排除：检查文件路径是否在排除列表中
+            Debug.WriteLine($"[GameSaveDetector] 检查文件是否为存档: {fileName}");
+
+            // 修复：首先检查是否在游戏目录下（游戏目录下的文件优先考虑）
+            if (Galgame?.LocalPath != null && filePath.StartsWith(Galgame.LocalPath, StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.WriteLine($"[GameSaveDetector] 文件在游戏目录下，优先考虑: {filePath}");
+                return true;           
+            }
+
+            // 早期排除：检查文件路径是否在排除列表中（但跳过游戏目录）
             var currentAppPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
             if (SaveDetectionConstants.ShouldExcludePath(filePath, currentAppPath))
             {
+                Debug.WriteLine($"[GameSaveDetector] 文件被排除: {filePath}");
                 return false; // 直接排除，避免后续计算
             }
 

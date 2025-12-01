@@ -42,7 +42,7 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
     }
 
     [RelayCommand]
-    private async Task AddPluginDev()
+    private async Task AddPluginFromDev()
     {
         try
         {
@@ -51,7 +51,7 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
             WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindow!.GetWindowHandle());
             StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
             if (folder is null) return;
-            await pluginService.AddPluginAsync(folder.Path);
+            await pluginService.AddPluginAsync(folder.Path, true);
         }
         catch (Exception e)
         {
@@ -61,7 +61,7 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
     }
 
     [RelayCommand]
-    private void AddPlugin()
+    private void AddPluginFromStore()
     {
         navService.NavigateTo(typeof(PluginStoreViewModel).FullName!);
     }
@@ -115,5 +115,18 @@ public partial class PluginSettingViewModel (PluginX plugin, IPluginService plug
         await dialog.ShowAsync();
         if (!dialog.PrimaryButtonClicked) return;
         await pluginService.DeletePluginAsync(Plugin, dialog.CheckBoxChecked);
+    }
+    
+    [RelayCommand]
+    private async Task HotReloadDevPlugin()
+    {
+        BasicDialog dialog = new("PluginPage_HotReloadDialog_Title".GetLocalized(),
+            checkBoxText: "PluginPage_HotReloadDialog_DeleteData".GetLocalized(),
+            primaryButton: "PluginPage_HotReloadDialog_Yes".GetLocalized());
+        await dialog.ShowAsync();
+        if (!dialog.PrimaryButtonClicked) return;
+        var pluginPath = Plugin.Path;
+        await pluginService.DeletePluginAsync(Plugin, dialog.CheckBoxChecked);
+        await pluginService.AddPluginAsync(pluginPath, true);
     }
 }

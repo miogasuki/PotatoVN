@@ -4441,4 +4441,16 @@
   <data name="InstallStorePluginTask_Installed" xml:space="preserve">
     <value>插件{0}已完成安装并启用</value>
   </data>
+  <data name="PluginPage_HotReloadDialog_DeleteData" xml:space="preserve">
+    <value>同时删除插件数据</value>
+  </data>
+  <data name="PluginPage_HotReloadDialog_Yes" xml:space="preserve">
+    <value>热重载</value>
+  </data>
+  <data name="PluginPage_UninstallPlugin_HotReloadButton.Content" xml:space="preserve">
+    <value>热重载</value>
+  </data>
+  <data name="PluginPage_HotReloadDialog_Title" xml:space="preserve">
+    <value>热重载插件</value>
+  </data>
 </root>

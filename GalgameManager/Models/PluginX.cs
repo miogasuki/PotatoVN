@@ -31,6 +31,10 @@ public partial class PluginX : ObservableObject
     /// 是否已经加载
     [BsonIgnore] public bool IsLoaded { get; set; } = false;
     [BsonIgnore] public PluginLoadContext LoadContext { get; set; }
+    
+    // 插件是否是在 Dev 模式下加载的
+    [ObservableProperty] private bool _isDevMode = false;
+    
     [Obsolete("For deserialization only", true)]
     public PluginX()
     {

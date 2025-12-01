@@ -11,12 +11,26 @@ public interface IPluginService
     public bool PluginOffloadInProgress { get; }
     
     /// <summary>
+    /// 立即设置插件的关联数据
+    /// </summary>
+    /// <param name="plugin"></param>
+    /// <param name="data"></param>
+    public void PluginSetData(PluginX plugin, string? data); 
+    
+    /// <summary>
+    /// 立即删除插件的关联数据
+    /// </summary>
+    /// <param name="plugin"></param>
+    public void PluginDeleteData(PluginX plugin); 
+    
+    /// <summary>
     /// 新增插件，注意捕获异常
     /// </summary>
     /// <param name="path"></param>
+    /// <param name="isDev"> 是否以 Dev 模式加载插件 </param>
     /// <exception cref="PvnException">已知错误</exception>
     /// <returns></returns>
-    public Task AddPluginAsync(string path);
+    public Task AddPluginAsync(string path, bool isDev);
 
     /// <summary>
     /// 标记一个插件要卸载，下次启动时会卸载插件。 <br/>

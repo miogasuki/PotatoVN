@@ -298,27 +298,43 @@
             </CommandBar>
             
             <ScrollViewer Grid.Row="1">
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                               cmtkAnimations:Connected.ListItemKey="galgameItem"
-                               cmtkAnimations:Connected.ListItemElementName="ConnectedElement">
-                    <ItemsRepeater.ItemTemplate>
+                <GridView  
+                    x:Name="MainGridView"
+                    ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                    IsItemClickEnabled="True"
+                    SelectionMode="None" 
+                    CanReorderItems="True" 
+                    AllowDrop="True" 
+                    CanDragItems="True">
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <!-- 使用原生的 ItemsWrapGrid -->
+                            <!-- 缺点：Item 不会自动拉伸填满行宽，是左对齐的 -->
+                            <ItemsWrapGrid Orientation="Horizontal" ItemWidth="175" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+
+                    <GridView.ItemContainerTransitions>
+                        <TransitionCollection>
+                            <ReorderThemeTransition />
+                        </TransitionCollection>
+                    </GridView.ItemContainerTransitions>
+
+                    <GridView.ItemTemplate>
                         <DataTemplate x:DataType="models:Galgame">
-                            <Button Style="{ThemeResource TransparentButtonWithHover}"
+                            <!--<Button Style="{ThemeResource TransparentButtonWithHover}"
                                     DataContext="{x:Bind}"
                                     Command="{Binding ElementName=Page, Path=ViewModel.ItemClickCommand}"
-                                    CommandParameter="{x:Bind}">
+                                    CommandParameter="{x:Bind}">-->        
                                 <prefab:GalgamePrefab
                                     Galgame="{x:Bind}"
                                     ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
                                     PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
                                     Flyout="{StaticResource GalFlyout}" />
-                            </Button>
+                            <!--</Button>-->
                         </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                    <ItemsRepeater.Layout>
-                        <UniformGridLayout ItemsStretch="Fill" MinItemWidth="175" MinRowSpacing="1" />
-                    </ItemsRepeater.Layout>
-                </ItemsRepeater>
+                    </GridView.ItemTemplate>
+                </GridView>
             </ScrollViewer>
 
             <!-- Drag&Drop(用于提示的区域) -->

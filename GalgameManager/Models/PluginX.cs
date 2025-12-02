@@ -15,7 +15,7 @@ namespace GalgameManager.Models;
 
 public partial class PluginX : ObservableObject
 {
-    [BsonId] public Guid Id { get; }
+    [BsonId] public Guid Id { get; init; }
     [BsonIgnore] public IPlugin? Plugin { get; set; }
     public PluginInfo Info { get; set; } 
     [ObservableProperty] private string _path;

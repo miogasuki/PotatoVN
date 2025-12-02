@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Reflection;
+using System.Runtime.Loader;
+using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -13,7 +15,7 @@ namespace GalgameManager.Models;
 
 public partial class PluginX : ObservableObject
 {
-    [BsonId] public Guid Id { get; set; }
+    [BsonId] public Guid Id { get; }
     [BsonIgnore] public IPlugin? Plugin { get; set; }
     public PluginInfo Info { get; set; } 
     [ObservableProperty] private string _path;
@@ -69,6 +71,29 @@ public partial class PluginX : ObservableObject
             App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Informational,
                 "PluginX_UiSlow_Title".GetLocalized(), msg: "PluginX_UiSlow_Msg".GetLocalized(Info.Name));
         return ui;
+    }
+    
+    public void ForceUnload()
+    {
+        IsLoaded = false;
+        Info = null!;
+        Plugin = null;
+        LoadContext.Unload();
+        LoadContext = null!;
+    }
+    
+    public override bool Equals(object? obj)
+    {
+        if (obj is PluginX other)
+        {
+            return Id.Equals(other.Id);
+        }
+        return false;
+    }
+    
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
     }
 }
 

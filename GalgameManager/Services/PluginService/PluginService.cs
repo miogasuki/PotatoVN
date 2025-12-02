@@ -56,6 +56,7 @@ public partial class PluginService(
     {
         _plugins.Remove(plugin);
     }
+    
     public void PluginSetData(PluginX plugin, string? data)
     {
         PluginData newData = new() {
@@ -91,20 +92,87 @@ public partial class PluginService(
         plugin.ToDeleteData = deleteData;
         if (!plugin.IsDevMode)
         {
-            // 对于 Dev Plugin，我们立即删除对应的 Plugin，同时不进入 Offload phase
+            // 对于 Dev Plugin，我们立即删除对应的 Plugin，同时不进入 Offload State
             PluginOffloadInProgress = true;
         }
-        await UiThreadInvokeHelper.InvokeAsync(() => RemovePluginFromList(plugin));
         if (plugin.IsDevMode)
         {
-            _pluginsDb.Delete(plugin.Id);
+            try
+            {
+                // Only wait for 5 seconds for unload to complete.
+                TimeSpan initialTimeout = TimeSpan.FromSeconds(5);
+                TimeSpan maxTimeout = TimeSpan.FromSeconds(60);
+
+                using var cts = new CancellationTokenSource();
+
+                var startTime = DateTime.UtcNow;
+                var deadline = startTime.Add(initialTimeout);
+                var hardDeadline = startTime.Add(maxTimeout);
+                cts.CancelAfter(hardDeadline - startTime);
+
+                Action<TimeSpan> extendWaitHandler = (extraTime) =>
+                {
+                    DateTime newDeadline = DateTime.UtcNow.Add(extraTime);
+                    if (newDeadline > hardDeadline) newDeadline = hardDeadline;
+                    if (newDeadline > deadline) deadline = newDeadline;
+                };
+
+                if (plugin.Plugin is not null)
+                {
+                    Task uninstallTask = plugin.Plugin.OnUninstallAsync(deleteData, extendWaitHandler, cts.Token);
+                    while (!uninstallTask.IsCompleted)
+                    {
+                        var now = DateTime.UtcNow;
+                        if (now >= deadline)
+                        {
+                            await cts.CancelAsync();
+                            throw new TimeoutException("Plugin Uninstall Timeout");
+                        }
+
+                        var waitTime = deadline - now;
+                        var delayTask = Task.Delay(waitTime, cts.Token);
+                        var completeTask = await Task.WhenAny(uninstallTask, delayTask);
+
+                        if (completeTask == uninstallTask)
+                            break;
+                    }
+                    await uninstallTask;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                /* 插件内部中止操作 */
+                App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Warning,
+                    $"Abort",
+                    msg: $"Dev plugin {plugin.Info.Name} uninstalled internal abort"
+                );
+            }
+            catch (TimeoutException)
+            {
+                /* 卸载超时：硬超时 */
+                App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Warning,
+                    $"Timeout",
+                    msg: $"Dev plugin {plugin.Info.Name} uninstalled timeout"
+                );
+            }
+            catch (Exception e)
+            {
+                 /* 卸载错误 */
+                 App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Warning,
+                 $"Dev plugin {plugin.Info.Name} uninstalled with errors",
+                 msg: $"Dev plugin {plugin.Info.Name} uninstalled with errors...\n${e}"
+                 );
+            }
+            _pluginsDb.Delete(plugin.Info.Id);
             if (deleteData)
                 PluginDeleteData(plugin);
+            plugin.ForceUnload();
         }
         else
         {
             SavePlugin(plugin);
         }
+        await UiThreadInvokeHelper.InvokeAsync(() => RemovePluginFromList(plugin));
     }
 
     public Task<ObservableCollection<PluginX>> GetAllPluginsAsync() => Task.FromResult(_plugins);

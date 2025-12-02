@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Runtime.Loader;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -13,7 +11,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Models;
 
-public partial class PluginX : ObservableObject
+public partial class PluginX : ObservableObject, IComparable<PluginX>
 {
     [BsonId] public Guid Id { get; init; }
     [BsonIgnore] public IPlugin? Plugin { get; set; }
@@ -72,6 +70,60 @@ public partial class PluginX : ObservableObject
                 "PluginX_UiSlow_Title".GetLocalized(), msg: "PluginX_UiSlow_Msg".GetLocalized(Info.Name));
         return ui;
     }
+
+    /// <summary>
+    /// 安全地调用插件的 OnUninstall 方法，支持最大执行时间限制及动态延时请求。
+    /// </summary>
+    /// <remarks>
+    /// 此方法会启动一个受监控的卸载任务：
+    /// <list type="bullet">
+    /// <item>默认等待时间为 5 秒。</item>
+    /// <item>插件可通过回调请求延长等待时间，但总时长不会超过 60 秒。</item>
+    /// <item>一旦超时，将自动取消任务并抛出 <see cref="TimeoutException"/>。</item>
+    /// </list>
+    /// </remarks>
+    public async Task ExecuteUninstallWithTimeoutAsync()
+    {
+        // Only wait for 5 seconds for unload to complete.
+        TimeSpan initialTimeout = TimeSpan.FromSeconds(5);
+        TimeSpan maxTimeout = TimeSpan.FromSeconds(60);
+
+        using var cts = new CancellationTokenSource();
+
+        var startTime = DateTime.UtcNow;
+        var deadline = startTime.Add(initialTimeout);
+        var hardDeadline = startTime.Add(maxTimeout);
+        cts.CancelAfter(hardDeadline - startTime);
+
+        Action<TimeSpan> extendWaitHandler = (extraTime) =>
+        {
+            DateTime newDeadline = DateTime.UtcNow.Add(extraTime);
+            if (newDeadline > hardDeadline) newDeadline = hardDeadline;
+            if (newDeadline > deadline) deadline = newDeadline;
+        };
+
+        if (Plugin is not null)
+        {
+            Task uninstallTask = Plugin.OnUninstallAsync(ToDeleteData, extendWaitHandler, cts.Token);
+            while (!uninstallTask.IsCompleted)
+            {
+                var now = DateTime.UtcNow;
+                if (now >= deadline)
+                {
+                    await cts.CancelAsync();
+                    throw new TimeoutException("Plugin Uninstall Timeout");
+                }
+
+                var waitTime = deadline - now;
+                var delayTask = Task.Delay(waitTime, cts.Token);
+                var completeTask = await Task.WhenAny(uninstallTask, delayTask);
+
+                if (completeTask == uninstallTask)
+                    break;
+            }
+            await uninstallTask;
+        }
+    }
     
     public void ForceUnload()
     {
@@ -80,6 +132,15 @@ public partial class PluginX : ObservableObject
         Plugin = null;
         LoadContext.Unload();
         LoadContext = null!;
+    }
+
+    public int CompareTo(PluginX? other) {
+        if (other is null) return 0;
+        // 优先级1: IsDevMode 降序 (true 在前)
+        var devCompare = other.IsDevMode.CompareTo(IsDevMode); 
+        if (devCompare != 0) return devCompare;
+        // 优先级2: Name 升序
+        return string.Compare(Info.Name, other.Info.Name, StringComparison.OrdinalIgnoreCase);
     }
     
     public override bool Equals(object? obj)

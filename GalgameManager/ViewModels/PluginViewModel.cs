@@ -70,9 +70,12 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
     {
         try
         {
+            ObservableCollection<PluginX> sourcePlugins = await pluginService.GetAllPluginsAsync();
+            List<PluginX> pluginsSorted = sourcePlugins.ToList();
+            pluginsSorted.Sort();
+            
             Plugins.Clear();
-            ObservableCollection<PluginX> tmp = await pluginService.GetAllPluginsAsync();
-            foreach (PluginX plugin in tmp)
+            foreach (PluginX plugin in pluginsSorted)
                 Plugins.Add(new PluginSettingViewModel(plugin, pluginService));
         }
         catch (Exception ex)

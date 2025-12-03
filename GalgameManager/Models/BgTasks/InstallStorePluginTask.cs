@@ -62,7 +62,8 @@ public class InstallStorePluginTask : BgTaskBase
             await ExtractPluginAsync(zipPath, PluginFolderPath);
 
             IPluginService pluginService = App.GetService<IPluginService>();
-            await pluginService.AddPluginAsync(PluginFolderPath);
+            // 从商店安装的 plugin 永远非 dev 模式。
+            await pluginService.AddPluginAsync(PluginFolderPath, false);
 
             ChangeProgress(1, 1, "InstallStorePluginTask_Installed".GetLocalized(PluginName));
         }

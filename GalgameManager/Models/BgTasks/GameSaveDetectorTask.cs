@@ -12,6 +12,7 @@ namespace GalgameManager.Models.BgTasks;
 /// </summary>
 public class GameSaveDetectorTask : BgTaskBase
 {
+    #region Properties & Fields
     public Galgame? Galgame { get; set; }
     public List<string> DetectedSavePaths { get; set; } = new();
     public List<string> MonitoredPaths { get; set; } = new();
@@ -34,6 +35,9 @@ public class GameSaveDetectorTask : BgTaskBase
     private List<string>? _cachedLowerVariants;
     private string _lastGameName = string.Empty;
 
+    #endregion
+
+    #region Constructors & Lifecycle
     public override string Title => "GameSaveDetectorTask_Title".GetLocalized();
 
     public GameSaveDetectorTask() { } // For serialization
@@ -59,13 +63,11 @@ public class GameSaveDetectorTask : BgTaskBase
 
         // 0. 预计算优化：提前计算好所有变体的小写形式，供监听线程快速匹配
         PrecomputeVariants();
-        
+
         // 2. 初始化搜索路径
         InitializeCandidatePaths();
 
-        Debug.WriteLine($"[GameSaveDetector] 开始为游戏 '{
-            Galgame.Name?.Value
-        }' 检测存档路径");
+        Debug.WriteLine($"[GameSaveDetector] 开始为游戏 '{Galgame.Name?.Value}' 检测存档路径");
         Debug.WriteLine($"[GameSaveDetector] 候选路径数量: {_candidatePaths.Count}");
 
         // 3. 启动监听
@@ -79,7 +81,9 @@ public class GameSaveDetectorTask : BgTaskBase
         // 5. 处理最终结果并更新UI
         ProcessDetectionResults(finalPaths);
     }
+    #endregion
 
+    #region Result Processing
     /// <summary>
     /// 处理检测结果，选择最佳存档目录并通知用户
     /// </summary>
@@ -121,6 +125,9 @@ public class GameSaveDetectorTask : BgTaskBase
         }
     }
 
+    #endregion
+
+    #region Candidate Initialization
     /// <summary>
     /// 预计算游戏名称变体并缓存小写版本
     /// </summary>
@@ -222,8 +229,7 @@ public class GameSaveDetectorTask : BgTaskBase
 
             foreach (var basePath in basePaths)
             {
-                var combinedPath = Path.Combine(basePath, keyword); 
-                
+                var combinedPath = Path.Combine(basePath, keyword);
                 // 检查路径是否包含 PotatoVN 或在当前程序路径下
                 if (!ShouldExcludePath(combinedPath, currentAppPath))
                 {
@@ -300,7 +306,7 @@ public class GameSaveDetectorTask : BgTaskBase
         if (Galgame.Name?.Value is { } name) keywords.Add(name);
         if (!string.IsNullOrEmpty(Galgame.ChineseName)) keywords.Add(Galgame.ChineseName!);
         if (Galgame.OriginalName?.Value is { } original) keywords.Add(original);
-        
+
         // 从开发者名称提取关键字
         if (!string.IsNullOrEmpty(Galgame.Developer?.Value)) keywords.Add(Galgame.Developer.Value);
 
@@ -331,6 +337,9 @@ public class GameSaveDetectorTask : BgTaskBase
         }
     }
 
+    #endregion
+
+    #region Variant Generation System
     // ========================================================================
     // 变体生成系统 (Variant Generation System)
     // ========================================================================
@@ -355,9 +364,7 @@ public class GameSaveDetectorTask : BgTaskBase
         }
 
         var allVariants = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        Debug.WriteLine($"[GameSaveDetector] 开始为游戏 '{
-            game.Name?.Value
-        }' 生成变体");
+        Debug.WriteLine($"[GameSaveDetector] 开始为游戏 '{game.Name?.Value}' 生成变体");
 
         // 1. 游戏名称变体
         GenerateNameVariants(game.Name?.Value, allVariants);
@@ -510,6 +517,9 @@ public class GameSaveDetectorTask : BgTaskBase
         }
     }
 
+    #endregion
+
+    #region File System Monitoring
     // ========================================================================
     // 文件系统监听 (File System Monitoring)
     // ========================================================================
@@ -619,7 +629,7 @@ public class GameSaveDetectorTask : BgTaskBase
                 }
             }
         }
-        
+
         // 检查是否有路径因为检测到保存操作而需要提前开始监听
         if (SaveOperationCount >= SAVE_COUNT_THRESHOLD)
         {
@@ -656,10 +666,10 @@ public class GameSaveDetectorTask : BgTaskBase
                 // 减少缓冲区大小以提高响应速度
                 InternalBufferSize = 4096,
                 // 通知所有变化
-                NotifyFilter = NotifyFilters.FileName | 
-                              NotifyFilters.LastWrite | 
-                              NotifyFilters.Size | 
-                              NotifyFilters.Attributes | 
+                NotifyFilter = NotifyFilters.FileName |
+                              NotifyFilters.LastWrite |
+                              NotifyFilters.Size |
+                              NotifyFilters.Attributes |
                               NotifyFilters.CreationTime
             };
 
@@ -720,12 +730,12 @@ public class GameSaveDetectorTask : BgTaskBase
             if (e is RenamedEventArgs renamedArgs)
             {
                 Debug.WriteLine($"[GameSaveDetector] 文件重命名: {renamedArgs.OldFullPath} -> {renamedArgs.FullPath}");
-                 HandleFileChange(renamedArgs.FullPath);
+                HandleFileChange(renamedArgs.FullPath);
             }
             else
             {
                 // 检查文件是否可能是存档文件
-                 HandleFileChange(e.FullPath);
+                HandleFileChange(e.FullPath);
             }
         }
         catch (Exception ex)
@@ -733,7 +743,10 @@ public class GameSaveDetectorTask : BgTaskBase
             Debug.WriteLine($"[GameSaveDetector] 处理文件系统变化时出错: {ex.Message}");
         }
     }
-    
+
+    #endregion
+
+    #region File Detection Logic
     /// <summary>
     /// 处理文件变更，判断是否加入检测到的存档列表
     /// </summary>
@@ -759,14 +772,14 @@ public class GameSaveDetectorTask : BgTaskBase
         {
             var fileName = Path.GetFileName(filePath);
             var directory = Path.GetDirectoryName(filePath) ?? string.Empty;
-            
+
             Debug.WriteLine($"[GameSaveDetector] 检查文件是否为存档: {fileName}");
 
             // 修复：首先检查是否在游戏目录下（游戏目录下的文件优先考虑）
             if (Galgame?.LocalPath != null && filePath.StartsWith(Galgame.LocalPath, StringComparison.OrdinalIgnoreCase))
             {
                 Debug.WriteLine($"[GameSaveDetector] 文件在游戏目录下，优先考虑: {filePath}");
-                return true;           
+                return true;
             }
 
             // 早期排除：检查文件路径是否在排除列表中（但跳过游戏目录）
@@ -818,21 +831,21 @@ public class GameSaveDetectorTask : BgTaskBase
         if (Galgame == null) return false;
         var pathLower = path.ToLowerInvariant();
         var matched = false;
-        
+
         Debug.WriteLine($"[GameSaveDetector] 检查路径启发式匹配: {path}");
 
         // 1. 检查汉化文件夹后缀模式
         foreach (var suffix in SaveDetectionConstants.ChineseLocalizationSuffixes)
         {
-             var lowerSuffix = suffix.ToLowerInvariant();
-             if (pathLower.EndsWith(lowerSuffix) || 
-                 pathLower.Contains($"_{lowerSuffix}") || 
-                 pathLower.Contains($"-{lowerSuffix}"))
-             {
-                 Debug.WriteLine($"[GameSaveDetector] 汉化后缀匹配: '{suffix}' 在路径中找到");
-                 matched = true;
-                 break;
-             }
+            var lowerSuffix = suffix.ToLowerInvariant();
+            if (pathLower.EndsWith(lowerSuffix) ||
+                pathLower.Contains($"_{lowerSuffix}") ||
+                pathLower.Contains($"-{lowerSuffix}"))
+            {
+                Debug.WriteLine($"[GameSaveDetector] 汉化后缀匹配: '{suffix}' 在路径中找到");
+                matched = true;
+                break;
+            }
         }
 
         // 2. 检查存档目录末尾字符模式
@@ -840,52 +853,55 @@ public class GameSaveDetectorTask : BgTaskBase
         {
             foreach (var suffix in SaveDetectionConstants.SaveDirectorySuffixPatterns)
             {
-                 var lowerSuffix = suffix.ToLowerInvariant();
-                 if (pathLower.EndsWith(lowerSuffix) || 
-                     pathLower.Contains($"_{lowerSuffix}") || 
-                     pathLower.Contains($"-{lowerSuffix}") || 
-                     pathLower.Contains($".{lowerSuffix}"))
-                 {
-                     Debug.WriteLine($"[GameSaveDetector] 存档后缀匹配: '{suffix}' 在路径中找到");
-                     matched = true;
-                     break;
-                 }
+                var lowerSuffix = suffix.ToLowerInvariant();
+                if (pathLower.EndsWith(lowerSuffix) ||
+                    pathLower.Contains($"_{lowerSuffix}") ||
+                    pathLower.Contains($"-{lowerSuffix}") ||
+                    pathLower.Contains($".{lowerSuffix}"))
+                {
+                    Debug.WriteLine($"[GameSaveDetector] 存档后缀匹配: '{suffix}' 在路径中找到");
+                    matched = true;
+                    break;
+                }
             }
         }
-        
+
         // 3. 使用变体生成系统进行游戏特定匹配
         // 优化：使用缓存的小写变体，避免重复生成和ToLower调用
         if (_cachedLowerVariants != null)
         {
-             foreach (var variant in _cachedLowerVariants)
-             {
-                 // 这里由于 variant 已经是小写，所以可以直接与 pathLower 对比
-                 if (pathLower.Contains(variant)) 
-                 {
-                     Debug.WriteLine($"[GameSaveDetector] 游戏变体匹配: '{variant}' 在路径 {path} 中找到");
-                     matched = true;
-                     break;
-                 }
-             }
+            foreach (var variant in _cachedLowerVariants)
+            {
+                // 这里由于 variant 已经是小写，所以可以直接与 pathLower 对比
+                if (pathLower.Contains(variant))
+                {
+                    Debug.WriteLine($"[GameSaveDetector] 游戏变体匹配: '{variant}' 在路径 {path} 中找到");
+                    matched = true;
+                    break;
+                }
+            }
         }
         else
         {
             // 回退安全机制（理论上不应触发，除非Precompute未被调用）
-             var allVariants = GenerateAllVariants(Galgame);
-             foreach(var variant in allVariants)
-             {
-                 if (!string.IsNullOrEmpty(variant) && pathLower.Contains(variant.ToLowerInvariant()))
-                 {
-                     Debug.WriteLine($"[GameSaveDetector] 游戏变体匹配: '{variant}' 在路径 {path} 中找到");
-                     matched = true;
-                     break;
-                 }
-             }
+            var allVariants = GenerateAllVariants(Galgame);
+            foreach (var variant in allVariants)
+            {
+                if (!string.IsNullOrEmpty(variant) && pathLower.Contains(variant.ToLowerInvariant()))
+                {
+                    Debug.WriteLine($"[GameSaveDetector] 游戏变体匹配: '{variant}' 在路径 {path} 中找到");
+                    matched = true;
+                    break;
+                }
+            }
         }
 
         return matched;
     }
 
+    #endregion
+
+    #region Analysis & Filtering
     private bool ShouldStopEarly(List<string> detectedPaths, int fileThreshold, int confidenceThreshold)
     {
         if (detectedPaths.Count < fileThreshold)
@@ -908,7 +924,7 @@ public class GameSaveDetectorTask : BgTaskBase
                     directoryCounts[normalizedDir] = 1;
             }
         }
-        
+
         // 记录目录统计信息
         Debug.WriteLine($"[GameSaveDetector] 目录文件统计: {string.Join(", ", directoryCounts.Select(kvp => $"{kvp.Key}:{kvp.Value}"))}");
 
@@ -941,7 +957,7 @@ public class GameSaveDetectorTask : BgTaskBase
             .OrderByDescending(x => x.Score)
             .Take(10) // 只返回前10个最可能的路径
             .ToList();
-            
+
             Debug.WriteLine("[GameSaveDetector] 过滤后保留前10个最高评分路径:");
             foreach (var file in fileInfoList)
             {
@@ -952,7 +968,7 @@ public class GameSaveDetectorTask : BgTaskBase
         }
         return filteredPaths;
     }
-    
+
     private double CalculateSaveFileScore(string filePath)
     {
         try
@@ -990,7 +1006,7 @@ public class GameSaveDetectorTask : BgTaskBase
         // 优化：优先使用缓存的小写变体，避免重复计算 ToLowerInvariant
         var allVariants = GenerateAllVariants(Galgame!);
         var matchVariants = _cachedLowerVariants ?? allVariants.Select(v => v.ToLowerInvariant()).Distinct().ToList();
-        
+
         var directoryScores = new Dictionary<string, DirectoryScoreInfo>();
         var currentAppPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
 
@@ -1012,37 +1028,37 @@ public class GameSaveDetectorTask : BgTaskBase
                 directoryScores[normalizedDir] = new DirectoryScoreInfo { Directory = directory };
 
             var scoreInfo = directoryScores[normalizedDir];
-            
+
             // 1. 基础分：稍微降低，不要让文件多的垃圾目录占据优势
             scoreInfo.TotalScore += 2;
             scoreInfo.FileCount++;
-            
+
             // 2. 文件质量分
             scoreInfo.TotalScore += CalculateSaveFileScore(path) * 0.1;
-            
+
             // 3. 核心修改：变体匹配评分 (这是最重要的指标)
             // 我们单独计算目录名的匹配程度，而不是整个长路径
             var variantScore = CalculateVariantMatchScore(directory, matchVariants);
             scoreInfo.TotalScore += variantScore;
-            
+
             if (variantScore > 0)
             {
                 scoreInfo.MatchedVariants.AddRange(GetMatchedVariants(directory, matchVariants));
             }
-            
+
             // 4. 路径结构微调
             scoreInfo.TotalScore += SaveDetectionConstants.GetPathStructureScore(directory);
         }
 
         if (directoryScores.Count == 0) return string.Empty;
-        
+
         // 输出调试信息并选择最佳
         foreach (var kvp in directoryScores.OrderByDescending(kvp => kvp.Value.TotalScore))
         {
             var info = kvp.Value;
             Debug.WriteLine($"[GameSaveDetector] - {info.Directory} 总分: {info.TotalScore:F1} (匹配变体: {string.Join(",", info.MatchedVariants)})");
         }
-        
+
         return directoryScores.OrderByDescending(kvp => kvp.Value.TotalScore).First().Value.Directory;
     }
 
@@ -1057,7 +1073,7 @@ public class GameSaveDetectorTask : BgTaskBase
 
         var directoryLower = directory.ToLowerInvariant();
         var totalScore = 0.0;
-        
+
         // 获取目录的最后一级名称，用于精准匹配
         // 例如 "C:\Users\...\MyGame" -> "mygame"
         var dirName = new DirectoryInfo(directory).Name.ToLowerInvariant();
@@ -1088,7 +1104,7 @@ public class GameSaveDetectorTask : BgTaskBase
         }
         return totalScore;
     }
-    
+
     /// <summary>
     /// 获取匹配的变体列表
     /// </summary>
@@ -1121,4 +1137,6 @@ public class GameSaveDetectorTask : BgTaskBase
         public int FileCount { get; set; }
         public List<string> MatchedVariants { get; set; } = new();
     }
+
+    #endregion
 }

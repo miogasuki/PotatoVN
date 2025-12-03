@@ -40,27 +40,38 @@ public class GameMuteTask : BgTaskBase
     {
         if (Galgame is null || _process is null) return;
         ChangeProgress(0, 1, "GameMuteTask_Starting".GetLocalized(Galgame.Name.Value!));
+        
+        // 确保开始时取消静音，防止上次异常退出导致的残留
+        AudioHelper.UnmuteProcess(_process.Id);
+        
         while (!_process!.HasExited)
         {
             try
             {
                 var shouldMute = !_process.IsMainWindowFocused();
-                if (shouldMute && !IsMuted)
+                if (shouldMute)
                 {
-                    // 静音游戏进程
-                    if (AudioHelper.MuteProcess(_process.Id))
+                    // 需要静音
+                    if (!IsMuted)
                     {
-                        IsMuted = true;
-                        ChangeProgress(0, 1, "GameMuteTask_Muted".GetLocalized(Galgame.Name.Value!));
+                        if (AudioHelper.MuteProcess(_process.Id))
+                        {
+                            IsMuted = true;
+                            ChangeProgress(0, 1, "GameMuteTask_Muted".GetLocalized(Galgame.Name.Value!));
+                        }
                     }
                 }
-                else if (!shouldMute && IsMuted)
+                else 
                 {
-                    // 取消静音
-                    if (AudioHelper.UnmuteProcess(_process.Id))
+                    // 需要有声音 (在前台)
+                    // 检查 IsMuted 标记或者系统实际状态
+                    if (IsMuted || AudioHelper.IsProcessMuted(_process.Id))
                     {
-                        IsMuted = false;
-                        ChangeProgress(0, 1, "GameMuteTask_Unmuted".GetLocalized(Galgame.Name.Value!));
+                        if (AudioHelper.UnmuteProcess(_process.Id))
+                        {
+                            IsMuted = false;
+                            ChangeProgress(0, 1, "GameMuteTask_Unmuted".GetLocalized(Galgame.Name.Value!));
+                        }
                     }
                 }
 
@@ -75,6 +86,8 @@ public class GameMuteTask : BgTaskBase
             }
         }
         
+        // 结束时尝试取消静音
+        try { AudioHelper.UnmuteProcess(_process.Id); } catch { /* ignore */ }
         ChangeProgress(1, 1, string.Empty, false);
     }
 
@@ -215,6 +228,15 @@ public static class AudioHelper
         Expired = 2
     }
 
+    public static bool IsProcessMuted(int processId)
+    {
+        return RunOnAudioSession(processId, volume =>
+        {
+            volume.GetMute(out bool isMuted);
+            return isMuted;
+        });
+    }
+
     public static bool MuteProcess(int processId)
     {
         return SetProcessMute(processId, true);
@@ -226,6 +248,16 @@ public static class AudioHelper
     }
 
     private static bool SetProcessMute(int processId, bool mute)
+    {
+        return RunOnAudioSession(processId, volume =>
+        {
+            var eventContext = Guid.Empty;
+            volume.SetMute(mute, ref eventContext);
+            return true;
+        });
+    }
+
+    private static bool RunOnAudioSession(int processId, Func<ISimpleAudioVolume, bool> action)
     {
         try
         {
@@ -258,9 +290,7 @@ public static class AudioHelper
                     var simpleVolume = ctl as ISimpleAudioVolume;
                     if (simpleVolume != null)
                     {
-                        var eventContext = Guid.Empty;
-                        simpleVolume.SetMute(mute, ref eventContext);
-                        return true;
+                        return action(simpleVolume);
                     }
                 }
             }

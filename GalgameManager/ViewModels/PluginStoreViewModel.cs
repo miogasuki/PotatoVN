@@ -28,7 +28,7 @@ public partial class PluginStoreViewModel(IInfoService infoService, IBgTaskServi
         try
         {
             if (clickedItem == null) return;
-            infoService.Info(InfoBarSeverity.Success, clickedItem.Name);
+            // infoService.Info(InfoBarSeverity.Success, clickedItem.Name);
             StorePluginDialog dialog = new(clickedItem, pluginService.PluginOffloadInProgress);
             ContentDialogResult result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Primary)

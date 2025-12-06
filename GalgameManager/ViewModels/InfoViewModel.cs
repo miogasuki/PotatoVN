@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
@@ -90,6 +91,8 @@ public partial class BgTaskViewModel : ObservableObject
 {
     [ObservableProperty] private string _message = string.Empty;
     [ObservableProperty] private string _title = string.Empty;
+    [ObservableProperty] private bool _canCancel;
+    [ObservableProperty] private Visibility _cancelButtonVisibility = Visibility.Collapsed;
     public readonly BgTaskBase Task;
 
     public BgTaskViewModel(BgTaskBase task)
@@ -97,11 +100,28 @@ public partial class BgTaskViewModel : ObservableObject
         Task = task;
         Task.OnProgress += Update;
         Update(Task.CurrentProgress);
+        UpdateCancelVisibility();
     }
 
     private void Update(Progress progress)
     {
         Title = Task.Title;
         Message = $"{progress.Message}, {progress.Current} / {progress.Total}";
+        UpdateCancelVisibility();
+    }
+
+    private void UpdateCancelVisibility()
+    {
+        CanCancel = Task.CanCancel && Task.IsRunning && !Task.IsCancelled;
+        CancelButtonVisibility = CanCancel ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    [RelayCommand]
+    private void CancelTask()
+    {
+        if (Task.TryCancel())
+        {
+            UpdateCancelVisibility();
+        }
     }
 }

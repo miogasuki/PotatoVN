@@ -102,6 +102,8 @@ public abstract class BgTaskBase
     {
         if (!CanCancel)
             throw new InvalidOperationException("Task is not cancellable.");
+        if (!IsRunning)
+            throw new InvalidOperationException("Task is not running.");
         if (CancellationTokenSource == null)
             throw new InvalidOperationException("CancellationTokenSource is null.");
         if (!IsCancelled)

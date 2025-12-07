@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using Windows.Storage;
@@ -381,8 +381,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             if (process.HasExited == false)
                 App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));
             
-            await process.WaitForExitAsync();
-            App.GetService<IMessenger>().Send(new GalgameStoppedMessage(Item));
+            await process.WaitForExitAsync();            
         }
 
         catch (Win32Exception e)

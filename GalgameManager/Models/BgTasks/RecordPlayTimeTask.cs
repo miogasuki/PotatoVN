@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
@@ -7,6 +8,7 @@ using GalgameManager.Helpers.Converter;
 using GalgameManager.Models.Sources;
 using GalgameManager.Services;
 using GalgameManager.ViewModels;
+using GalgameManager.WinApp.Base.Models.Msgs;
 
 namespace GalgameManager.Models.BgTasks;
 
@@ -69,6 +71,7 @@ public class RecordPlayTimeTask : BgTaskBase
                 // 手动通知LastPlayTime属性已更改
                 Galgame.RaisePropertyChanged(nameof(Galgame.LastPlayTime));
                 if (CurrentPlayTime >= _minPlayTimeRecordThreshold) Galgame!.PlayCount++;
+                App.GetService<IMessenger>().Send(new GalgameStoppedMessage(Galgame));
             });
             await App.GetService<IGalgameCollectionService>().SaveGalgameAsync(Galgame);
             if(await App.GetService<ILocalSettingsService>().ReadSettingAsync<bool>(KeyValues.SyncGames))

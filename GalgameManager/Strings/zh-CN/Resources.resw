@@ -2075,6 +2075,12 @@
   <data name="ConfirmGalInfoDialog_Title_NotFound" xml:space="preserve">
     <value>没有找到该游戏信息</value>
   </data>
+  <data name="BgTask_Cancelling" xml:space="preserve">
+    <value>取消中…</value>
+  </data>
+  <data name="BgTask_CancelFailed" xml:space="preserve">
+    <value>取消后台任务失败</value>
+  </data>
   <data name="Canceled" xml:space="preserve">
     <value>用户取消了操作</value>
   </data>

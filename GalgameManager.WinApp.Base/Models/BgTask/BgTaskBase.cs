@@ -98,7 +98,7 @@ public abstract class BgTaskBase
     /// <summary>
     /// 取消任务
     /// </summary>
-    public void Cancel()
+    public virtual void Cancel()
     {
         if (!CanCancel)
             throw new InvalidOperationException("Task is not cancellable.");
@@ -114,7 +114,7 @@ public abstract class BgTaskBase
     /// 尝试取消任务，不抛异常
     /// </summary>
     /// <returns>如果任务支持取消并成功触发取消则返回true，否则返回false</returns>
-    public bool TryCancel()
+    public virtual bool TryCancel()
     {
         if (!CanCancel)
             return false;

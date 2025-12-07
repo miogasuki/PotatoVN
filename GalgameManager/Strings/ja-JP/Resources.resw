@@ -1939,6 +1939,12 @@
   <data name="ConfirmGalInfoDialog_Title_NotFound" xml:space="preserve">
     <value>このゲーム情報は見つかりませんでした。</value>
   </data>
+  <data name="BgTask_Cancelling" xml:space="preserve">
+    <value>キャンセル中…</value>
+  </data>
+  <data name="BgTask_CancelFailed" xml:space="preserve">
+    <value>バックグラウンド タスクのキャンセルに失敗しました</value>
+  </data>
   <data name="Canceled" xml:space="preserve">
     <value>ユーザーが操作をキャンセルしました。</value>
   </data>

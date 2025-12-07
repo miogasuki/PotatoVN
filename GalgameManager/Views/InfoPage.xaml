@@ -48,11 +48,12 @@
                                             <Button Grid.Column="1"
                                                     Command="{x:Bind CancelTaskCommand}"
                                                     Visibility="{x:Bind CancelButtonVisibility, Mode=OneWay}"
+                                                    IsEnabled="{x:Bind IsCancelEnabled, Mode=OneWay}"
                                                     VerticalAlignment="Center"
                                                     Margin="8,0,0,0">
                                                 <StackPanel Orientation="Horizontal" Spacing="4">
                                                     <FontIcon Glyph="&#xE711;" FontSize="14" />
-                                                    <TextBlock Text="取消" />
+                                                    <TextBlock Text="{x:Bind CancelButtonText, Mode=OneWay}" />
                                                 </StackPanel>
                                             </Button>
                                         </Grid>

@@ -1,10 +1,11 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
+using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using Microsoft.UI.Xaml;
@@ -93,6 +94,8 @@ public partial class BgTaskViewModel : ObservableObject
     [ObservableProperty] private string _title = string.Empty;
     [ObservableProperty] private bool _canCancel;
     [ObservableProperty] private Visibility _cancelButtonVisibility = Visibility.Collapsed;
+    [ObservableProperty] private string _cancelButtonText = "Cancel".GetLocalized();
+    [ObservableProperty] private bool _isCancelEnabled;
     public readonly BgTaskBase Task;
 
     public BgTaskViewModel(BgTaskBase task)
@@ -112,16 +115,43 @@ public partial class BgTaskViewModel : ObservableObject
 
     private void UpdateCancelVisibility()
     {
-        CanCancel = Task.CanCancel && Task.IsRunning && !Task.IsCancelled;
-        CancelButtonVisibility = CanCancel ? Visibility.Visible : Visibility.Collapsed;
+        if (Task.IsCancelled)
+        {
+            CanCancel = false;
+            CancelButtonVisibility = Visibility.Visible;
+            IsCancelEnabled = false;
+            CancelButtonText = "BgTask_Cancelling".GetLocalized();
+        }
+        else if (Task.CanCancel && Task.IsRunning)
+        {
+            CanCancel = true;
+            CancelButtonVisibility = Visibility.Visible;
+            IsCancelEnabled = true;
+            CancelButtonText = "Cancel".GetLocalized();
+        }
+        else
+        {
+            CanCancel = false;
+            CancelButtonVisibility = Visibility.Collapsed;
+            IsCancelEnabled = false;
+            CancelButtonText = "Cancel".GetLocalized();
+        }
     }
 
     [RelayCommand]
     private void CancelTask()
     {
-        if (Task.TryCancel())
+        try
         {
+            Task.Cancel();
             UpdateCancelVisibility();
+        }
+        catch (Exception e)
+        {
+            App.GetService<IInfoService>().Info(
+                Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error,
+                "BgTask_CancelFailed".GetLocalized(),
+                e.Message);
         }
     }
 }

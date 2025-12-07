@@ -98,7 +98,18 @@ public abstract class BgTaskBase
     /// <summary>
     /// 取消任务
     /// </summary>
-    public virtual void Cancel()
+    public virtual void Cancel() => CancelAsync().GetAwaiter().GetResult();
+
+    /// <summary>
+    /// 尝试取消任务，不抛异常
+    /// </summary>
+    /// <returns>如果任务支持取消并成功触发取消则返回true，否则返回false</returns>
+    public virtual bool TryCancel() => TryCancelAsync().GetAwaiter().GetResult();
+
+    /// <summary>
+    /// 异步取消任务
+    /// </summary>
+    public async virtual Task CancelAsync()
     {
         if (!CanCancel)
             throw new InvalidOperationException("Task is not cancellable.");
@@ -107,20 +118,20 @@ public abstract class BgTaskBase
         if (CancellationTokenSource == null)
             throw new InvalidOperationException("CancellationTokenSource is null.");
         if (!IsCancelled)
-            CancellationTokenSource.Cancel();
+            await CancellationTokenSource.CancelAsync();
     }
 
     /// <summary>
-    /// 尝试取消任务，不抛异常
+    /// 异步尝试取消任务，不抛异常
     /// </summary>
     /// <returns>如果任务支持取消并成功触发取消则返回true，否则返回false</returns>
-    public virtual bool TryCancel()
+    public async virtual Task<bool> TryCancelAsync()
     {
         if (!CanCancel)
             return false;
         try
         {
-            Cancel();
+            await CancelAsync();
         }
         catch
         {

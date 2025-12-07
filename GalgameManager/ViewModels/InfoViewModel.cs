@@ -139,11 +139,11 @@ public partial class BgTaskViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CancelTask()
+    private async Task CancelTask()
     {
         try
         {
-            Task.Cancel();
+            await Task.CancelAsync();
             UpdateCancelVisibility();
         }
         catch (Exception e)

@@ -31,13 +31,32 @@
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="viewModels:BgTaskViewModel">
                                     <control:Panel Margin="{StaticResource SmallBottomMargin}" >
-                                        <StackPanel>
-                                            <TextBlock Text="{x:Bind Title, Mode=OneWay}"
-                                                       Style="{ThemeResource BodyTextBlockStyle}" />
-                                            <TextBlock Text="{x:Bind Message, Mode=OneWay}"
-                                                       Style="{ThemeResource DescriptionTextStyle}"
-                                                       TextWrapping="Wrap"/>
-                                        </StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{x:Bind Title, Mode=OneWay}"
+                                                           Style="{ThemeResource BodyTextBlockStyle}" />
+                                                <TextBlock Text="{x:Bind Message, Mode=OneWay}"
+                                                           Style="{ThemeResource DescriptionTextStyle}"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            
+                                            <Button Grid.Column="1"
+                                                    Command="{x:Bind CancelTaskCommand}"
+                                                    Visibility="{x:Bind CancelButtonVisibility, Mode=OneWay}"
+                                                    IsEnabled="{x:Bind IsCancelEnabled, Mode=OneWay}"
+                                                    VerticalAlignment="Center"
+                                                    Margin="8,0,0,0">
+                                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                                    <FontIcon Glyph="&#xE711;" FontSize="14" />
+                                                    <TextBlock Text="{x:Bind CancelButtonText, Mode=OneWay}" />
+                                                </StackPanel>
+                                            </Button>
+                                        </Grid>
                                     </control:Panel>
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>

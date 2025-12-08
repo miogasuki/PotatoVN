@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using Microsoft.UI.Xaml.Controls;
@@ -36,6 +37,16 @@ public interface IPotatoVnApi
     /// <param name="data"></param>
     /// <returns></returns>
     public Task SaveDataAsync(string data);
+
+    #endregion
+
+    //与消息相关的API
+    #region MESSAGES
+
+    /// <summary>
+    /// 全局消息信使
+    /// </summary>
+    public IMessenger Messenger { get; }
 
     #endregion
 

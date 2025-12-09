@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using Windows.Storage;
@@ -19,6 +19,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.ComponentModel;
 using System.Globalization;
+using GalgameManager.Core.Helpers;
+using CommunityToolkit.Mvvm.Messaging;
+using GalgameManager.WinApp.Base.Models.Msgs;
 using GalgameManager.Views.GalgamePagePanel;
 using ValveKeyValue;
 
@@ -365,6 +368,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             await _galgameService.SaveGalgameAsync(Item);
             _ = _bgTaskService.AddBgTask(new RecordPlayTimeTask(Item, process));
             await _jumpListService.AddToJumpListAsync(Item);
+            App.GetService<IMessenger>().Send(new GalgamePlayedMessage(Item));
             
             await Task.Delay(1000); //等待1000ms，让游戏进程启动后再最小化
             if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie) || Item.EnableMagpie) 
@@ -378,7 +382,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             if (process.HasExited == false)
                 App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));
             
-            await process.WaitForExitAsync();
+            await process.WaitForExitAsync();            
         }
 
         catch (Win32Exception e)
@@ -574,7 +578,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
         try
         {
-            var absolutePath = SaveDetectionConstants.GetAbsolutePath(Item.DetectedSavePosition, Item.LocalPath);
+            var absolutePath = GamePortablePath.Create(Item.DetectedSavePosition, Item.LocalPath);
             if (string.IsNullOrWhiteSpace(absolutePath))
             {
                 _infoService.Info(InfoBarSeverity.Error, "GalgamePage_OpenSaveDirectoryFailed".GetLocalized(), "GalgamePage_InvalidSavePath".GetLocalized());

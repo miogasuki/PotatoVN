@@ -6,6 +6,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 using GalgameManager.Contracts;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models.Sources;
@@ -19,14 +20,14 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 {
     public const string DefaultImagePath = "ms-appx:///Assets/WindowIcon.ico";
     public const string DefaultCharacterImagePath = "ms-appx:///Assets/default_character.jpg";
-    
+
     public const string DefaultString = "——";
     public const string MetaPath = ".PotatoVN";
     public static readonly int PhraserNumber = 8;
-    
+
     public event Action<Galgame, string, object>? GalPropertyChanged;
     [JsonIgnore] public Action<Exception>? ErrorOccurred; //非致命异常产生时触发
-    
+
     [JsonIgnore][BsonIgnore]
     public GalgameUid Uid
     {
@@ -48,7 +49,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
     /// 唯一标识， 若要判断两个游戏是否为同一个游戏，应使用<see cref="GalgameUid"/>
     [BsonId] public Guid Uuid { get; set; }  = Guid.NewGuid();
-    
+
     [ObservableProperty] private LockableProperty<string> _imagePath = DefaultImagePath;
     [ObservableProperty] private LockableProperty<string?> _headerImagePath = new(null);
 
@@ -82,7 +83,18 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private bool _enableMagpie; //是否启用Magpie
     [ObservableProperty] private bool _muteInBackground; //是否在后台时静音游戏
     [ObservableProperty] private bool _keyReMap; //是否快捷键映射
-    [ObservableProperty] private string? _detectedSavePosition; //探测到的存档位置（相对路径）
+    
+    /// <summary>
+    /// 探测到的存档位置
+    /// </summary>
+    /// <remarks>
+    /// 取值为「伪绝对路径」，例如：
+    /// 1. 相对游戏根目录：<c>%GameRoot%\savedata</c>
+    /// 2. 相对特殊文件夹：<c>%Documents%\Company\Title</c>
+    /// 3. 绝对路径（如NAS）：<c>Z:\114514\savedata</c>
+    /// </remarks>
+    [ObservableProperty] private GamePortablePath? _detectedSavePosition; 
+
     public List<KeyMapping> KeyMappings { get; set; } = new(); //快捷键映射
     private RssType _rssType = RssType.None;
     [ObservableProperty] private PlayType _playType;
@@ -90,7 +102,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public string?[] Ids { get; set; } = new string?[PhraserNumber]; //magic number: 钦定了一个最大Phraser数目
     /// 插件专用的id存储
-    public Dictionary<int,  string?> IdForPlugins { get; set; } = []; 
+    public Dictionary<int,  string?> IdForPlugins { get; set; } = [];
     [JsonIgnore][BsonIgnore] public readonly ObservableCollection<Category> Categories = new();
     [JsonIgnore][BsonIgnore] public ObservableCollection<GalgameSourceBase> Sources { get; } = new(); //所属的源
     [ObservableProperty] private string _comment = string.Empty; //吐槽（评论）
@@ -114,7 +126,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     {
         set => LastPlayTime = Utils.TryParseDateGuessCulture(value.Value ?? string.Empty);
     }
-    
+
     [Obsolete($"Use {nameof(LocalPath)} instead")][BsonIgnore]
     public string Path { get; set; } = "";
     #endregion
@@ -122,7 +134,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [JsonIgnore][BsonIgnore]
     public string? Id
     {
-        get 
+        get
         {
             if ((int)RssType >= 100) return IdForPlugins.GetValueOrDefault((int)RssType); //插件用的id
             if (Ids.Length < PhraserNumber) Ids = Ids.ResizeArray(PhraserNumber);
@@ -142,7 +154,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
             }
         }
     }
-    
+
     public RssType RssType
     {
         get => _rssType;
@@ -156,14 +168,14 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
             }
         }
     }
-    
+
     public string? SavePath
     {
         get => _savePath;
         set
         {
             _savePath = value;
-            SavePosition = (_savePath is null 
+            SavePosition = (_savePath is null
                 ? "Galgame_SavePath_Local".GetLocalized()
                 : "Galgame_SavePath_Remote".GetLocalized()) ?? string.Empty;
         }
@@ -231,7 +243,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         result.AddRange(Directory.GetFiles(path).Where(file => file.ToLower().EndsWith(".lnk")));
         return result;
     }
-    
+
     /// <summary>
     /// 获取游戏文件夹下的所有子文件夹
     /// </summary>
@@ -242,7 +254,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         List<string> result = Directory.GetDirectories(LocalPath).ToList();
         return result;
     }
-    
+
     /// <summary>
     /// 获取游戏文件夹下的所有子文件
     /// </summary>
@@ -256,7 +268,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
     /// <summary>
     /// 尝试获取游戏的id，以int形式返回 <br/>
-    /// 如果id前面有前缀（如v123），会去掉前缀（返回123）<br/> 
+    /// 如果id前面有前缀（如v123），会去掉前缀（返回123）<br/>
     /// 如果解析失败或者id为null，则返回-1
     /// </summary>
     /// <param name="type">不能是mixed</param>
@@ -319,7 +331,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         }
         Ids[(int)RssType.Mixed] = mixedId.TrimEnd(',');
     }
-    
+
     /// 检查是否所有的id都为空
     public bool IsIdsEmpty() => Ids.All(string.IsNullOrEmpty);
 
@@ -378,7 +390,8 @@ public enum SortKeys
     ReleaseDate,
     LastFetchInfoTime,
     AddTime,
-    Path
+    Path,
+    Custom,
 }
 
 public enum DisplayName

@@ -14,59 +14,66 @@
     xmlns:cmtkControl="using:CommunityToolkit.WinUI.Controls"
     xmlns:cmtk="using:CommunityToolkit.WinUI"
     xmlns:cmtkAnimations="using:CommunityToolkit.WinUI.Animations"
+    xmlns:helpers="using:GalgameManager.Helpers"
     mc:Ignorable="d"
     x:Name="Page"
     NavigationCacheMode="Required">
 
     <Page.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <helpers:SortKeyToBooleanConverter x:Key="EnumToBoolConverter" />
+
         <MenuFlyout x:Name="GalFlyout" Opening="{x:Bind ViewModel.GalFlyout_Opening}">
             <!-- 游玩状态管理 -->
             <MenuFlyoutSubItem x:Uid="LibraryPage_PlayStatusSubMenu">
                 <MenuFlyoutSubItem.Icon>
                     <FontIcon FontFamily="Segoe Fluent Icons"
-                            Glyph="&#xE74C;"/>
+                              Glyph="&#xE74C;" />
                 </MenuFlyoutSubItem.Icon>
                 <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlaying"
-                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}"
                                      CommandParameter="Playing"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Playing'), Mode=OneWay}"
-                                     GroupName="PlayStatus"/>
+                                     GroupName="PlayStatus" />
                 <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlayed"
-                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}"
                                      CommandParameter="Played"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Played'), Mode=OneWay}"
-                                     GroupName="PlayStatus"/>
+                                     GroupName="PlayStatus" />
                 <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusOnHold"
-                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}"
                                      CommandParameter="Shelved"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Shelved'), Mode=OneWay}"
-                                     GroupName="PlayStatus"/>
+                                     GroupName="PlayStatus" />
                 <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusAbandoned"
-                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}"
                                      CommandParameter="Abandoned"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'Abandoned'), Mode=OneWay}"
-                                     GroupName="PlayStatus"/>
+                                     GroupName="PlayStatus" />
                 <RadioMenuFlyoutItem x:Uid="LibraryPage_PlayStatusWantToPlay"
-                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}" 
+                                     Command="{x:Bind ViewModel.GalFlyOutChangePlayStatusCommand}"
                                      CommandParameter="WantToPlay"
                                      IsChecked="{x:Bind ViewModel.IsCurrentPlayType(ViewModel.CurrentContextGame, 'WantToPlay'), Mode=OneWay}"
-                                     GroupName="PlayStatus"/>
+                                     GroupName="PlayStatus" />
                 <MenuFlyoutSeparator />
                 <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusMoreSettings"
-                        Command="{x:Bind ViewModel.ShowChangePlayStatusDialogCommand}" CommandParameter="{Binding}" />
+                                Command="{x:Bind ViewModel.ShowChangePlayStatusDialogCommand}"
+                                CommandParameter="{Binding}" />
             </MenuFlyoutSubItem>
             <!-- 编辑游戏信息 -->
-            <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_Edit" Command="{x:Bind ViewModel.GalFlyOutEditCommand}" CommandParameter="{Binding}"/>
+            <MenuFlyoutItem Icon="Edit" x:Uid="LibraryPage_Edit" Command="{x:Bind ViewModel.GalFlyOutEditCommand}"
+                            CommandParameter="{Binding}" />
             <!-- 下载游戏信息 -->
-            <MenuFlyoutItem Icon="Download" x:Uid="LibraryPage_Download" Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}" CommandParameter="{Binding}"/>
+            <MenuFlyoutItem Icon="Download" x:Uid="LibraryPage_Download"
+                            Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}" CommandParameter="{Binding}" />
             <!-- 在文件管理器中打开 -->
             <MenuFlyoutItem Icon="OpenLocal" x:Uid="LibraryPage_OpenGameInExplorer"
-                           Command="{x:Bind ViewModel.OpenGameInExplorerCommand}"
-                           IsEnabled="{x:Bind ViewModel.CurrentContextGame.IsLocalGame, Mode=OneWay}"
-                           CommandParameter="{Binding}"/>
+                            Command="{x:Bind ViewModel.OpenGameInExplorerCommand}"
+                            IsEnabled="{x:Bind ViewModel.CurrentContextGame.IsLocalGame, Mode=OneWay}"
+                            CommandParameter="{Binding}" />
             <!-- 删除游戏 -->
-            <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_Remove" Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}" CommandParameter="{Binding}"/>
+            <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_Remove"
+                            Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}" CommandParameter="{Binding}" />
         </MenuFlyout>
     </Page.Resources>
 
@@ -82,12 +89,13 @@
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="{StaticResource CommandBarMargin}">
                 <!-- 搜索 -->
-                <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}" AllowFocusOnInteraction="True">
+                <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}"
+                              AllowFocusOnInteraction="True">
                     <AppBarButton.Flyout>
                         <Flyout Placement="Bottom">
-                            <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}" 
+                            <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}"
                                                           SearchKey="{x:Bind ViewModel.SearchKey, Mode=TwoWay}"
-                                                          SearchSuggestionsProvider="{x:Bind ViewModel.GalgameSearchSuggestionsProvider}"/>
+                                                          SearchSuggestionsProvider="{x:Bind ViewModel.GalgameSearchSuggestionsProvider}" />
                         </Flyout>
                     </AppBarButton.Flyout>
                     <AppBarButton.KeyboardAccelerators>
@@ -101,7 +109,7 @@
                     </AppBarButton.Icon>
                     <AppBarButton.Flyout>
                         <Flyout Placement="Bottom">
-                            <cmtkControl:TokenizingTextBox 
+                            <cmtkControl:TokenizingTextBox
                                 x:Uid="HomePage_FilterTokenizingTextBox"
                                 Width="250" HorizontalAlignment="Left"
                                 TokenDelimiter=","
@@ -113,7 +121,7 @@
                                 Text="{x:Bind ViewModel.FilterInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                 <cmtkControl:TokenizingTextBox.AutoSuggestBoxStyle>
                                     <Style TargetType="AutoSuggestBox">
-                                        <Setter Property="MinWidth" Value="200"/>
+                                        <Setter Property="MinWidth" Value="200" />
                                     </Style>
                                 </cmtkControl:TokenizingTextBox.AutoSuggestBoxStyle>
                                 <cmtkControl:TokenizingTextBox.SuggestedItemTemplate>
@@ -131,17 +139,20 @@
                                         <core:InvokeCommandAction Command="{x:Bind ViewModel.FilterRemovedCommand}" />
                                     </core:EventTriggerBehavior>
                                     <core:EventTriggerBehavior EventName="TextChanged">
-                                        <core:InvokeCommandAction Command="{x:Bind ViewModel.FilterInputTextChangeCommand}" />
+                                        <core:InvokeCommandAction
+                                            Command="{x:Bind ViewModel.FilterInputTextChangeCommand}" />
                                     </core:EventTriggerBehavior>
                                     <core:EventTriggerBehavior EventName="TokenItemAdding">
-                                        <core:InvokeCommandAction Command="{x:Bind ViewModel.FilterInputTokenItemAddingCommand}" />
+                                        <core:InvokeCommandAction
+                                            Command="{x:Bind ViewModel.FilterInputTokenItemAddingCommand}" />
                                     </core:EventTriggerBehavior>
                                     <core:EventTriggerBehavior EventName="TokenItemAdding">
-                                        <core:InvokeCommandAction Command="{x:Bind ViewModel.FilterInputTokenItemAddingCommand}" />
+                                        <core:InvokeCommandAction
+                                            Command="{x:Bind ViewModel.FilterInputTokenItemAddingCommand}" />
                                     </core:EventTriggerBehavior>
                                 </interactivity:Interaction.Behaviors>
                             </cmtkControl:TokenizingTextBox>
-                            
+
                             <interactivity:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Opening">
                                     <core:InvokeCommandAction Command="{x:Bind ViewModel.FilterFlyoutOpeningCommand}" />
@@ -150,7 +161,7 @@
                         </Flyout>
                     </AppBarButton.Flyout>
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="K"/>
+                        <KeyboardAccelerator Modifiers="Control" Key="K" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <!-- 添加游戏 -->
@@ -159,13 +170,13 @@
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutItem x:Uid="HomePage_AddNewGame_Local"
-                                            Command="{x:Bind ViewModel.AddGalgameCommand}"/>
+                                            Command="{x:Bind ViewModel.AddGalgameCommand}" />
                             <MenuFlyoutItem x:Uid="HomePage_AddNewGame_Virtual"
-                                            Command="{x:Bind ViewModel.AddVirtualGameCommand}"/>
+                                            Command="{x:Bind ViewModel.AddVirtualGameCommand}" />
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="N"/>
+                        <KeyboardAccelerator Modifiers="Control" Key="N" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <!-- 排序 -->
@@ -174,112 +185,186 @@
                         <MenuFlyout Placement="Bottom">
                             <!-- 第一排序键 -->
                             <MenuFlyoutSubItem x:Uid="HomePage_Sort_FirstKey">
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name" 
-                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
-                                               CommandParameter="Name"
-                                               GroupName="PrimarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('Name'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Developer" 
-                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
-                                               CommandParameter="Developer"
-                                               GroupName="PrimarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('Developer'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Rating" 
-                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
-                                               CommandParameter="Rating"
-                                               GroupName="PrimarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('Rating'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastPlay" 
-                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
-                                               CommandParameter="LastPlay"
-                                               GroupName="PrimarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('LastPlay'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_ReleaseDate" 
-                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
-                                               CommandParameter="ReleaseDate"
-                                               GroupName="PrimarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('ReleaseDate'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastFetchInfoTime" 
-                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
-                                               CommandParameter="LastFetchInfoTime"
-                                               GroupName="PrimarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('LastFetchInfoTime'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_AddTime" 
-                                               Command="{x:Bind ViewModel.SetPrimaryKeyCommand}" 
-                                               CommandParameter="AddTime"
-                                               GroupName="PrimarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsPrimaryKey('AddTime'), Mode=OneWay}"/>
-                                <MenuFlyoutSeparator/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Custom"
+                                                     Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
+                                                     CommandParameter="Custom"
+                                                     GroupName="PrimarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.PrimaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=Custom
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name"
+                                                     Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
+                                                     CommandParameter="Name"
+                                                     GroupName="PrimarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.PrimaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=Name
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Developer"
+                                                     Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
+                                                     CommandParameter="Developer"
+                                                     GroupName="PrimarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.PrimaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=Developer
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Rating"
+                                                     Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
+                                                     CommandParameter="Rating"
+                                                     GroupName="PrimarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.PrimaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=Rating
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastPlay"
+                                                     Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
+                                                     CommandParameter="LastPlay"
+                                                     GroupName="PrimarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.PrimaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=LastPlay
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_ReleaseDate"
+                                                     Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
+                                                     CommandParameter="ReleaseDate"
+                                                     GroupName="PrimarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.PrimaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=ReleaseDate
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastFetchInfoTime"
+                                                     Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
+                                                     CommandParameter="LastFetchInfoTime"
+                                                     GroupName="PrimarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.PrimaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=LastFetchInfoTime
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_AddTime"
+                                                     Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
+                                                     CommandParameter="AddTime"
+                                                     GroupName="PrimarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.PrimaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=AddTime
+                                                     }" />
+                                <MenuFlyoutSeparator />
                                 <ToggleMenuFlyoutItem x:Uid="HomePage_Sort_PrimaryDescending"
-                                                 IsChecked="{x:Bind ViewModel.IsPrimaryDescending, Mode=TwoWay}"
-                                                 Command="{x:Bind ViewModel.ApplySortCommand}"/>
+                                                      IsChecked="{x:Bind ViewModel.IsPrimaryDescending, Mode=TwoWay}"
+                                                      Command="{x:Bind ViewModel.ApplySortCommand}" />
                             </MenuFlyoutSubItem>
-                            <MenuFlyoutSeparator/>
+                            <MenuFlyoutSeparator />
                             <!-- 第二排序键 -->
                             <MenuFlyoutSubItem x:Uid="HomePage_Sort_SecondKey">
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name" 
-                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
-                                               CommandParameter="Name"
-                                               GroupName="SecondarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('Name'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Developer" 
-                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
-                                               CommandParameter="Developer"
-                                               GroupName="SecondarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('Developer'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Rating" 
-                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
-                                               CommandParameter="Rating"
-                                               GroupName="SecondarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('Rating'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastPlay" 
-                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
-                                               CommandParameter="LastPlay"
-                                               GroupName="SecondarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('LastPlay'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_ReleaseDate" 
-                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
-                                               CommandParameter="ReleaseDate"
-                                               GroupName="SecondarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('ReleaseDate'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastFetchInfoTime" 
-                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
-                                               CommandParameter="LastFetchInfoTime"
-                                               GroupName="SecondarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('LastFetchInfoTime'), Mode=OneWay}"/>
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_AddTime" 
-                                               Command="{x:Bind ViewModel.SetSecondaryKeyCommand}" 
-                                               CommandParameter="AddTime"
-                                               GroupName="SecondarySorting"
-                                               IsChecked="{x:Bind ViewModel.IsSecondaryKey('AddTime'), Mode=OneWay}"/>
-                                <MenuFlyoutSeparator/>
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Custom"
+                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
+                                                     CommandParameter="Custom"
+                                                     GroupName="SecondarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=Custom
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name"
+                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
+                                                     CommandParameter="Name"
+                                                     GroupName="SecondarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=Name
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Developer"
+                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
+                                                     CommandParameter="Developer"
+                                                     GroupName="SecondarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=Developer
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Rating"
+                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
+                                                     CommandParameter="Rating"
+                                                     GroupName="SecondarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=Rating
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastPlay"
+                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
+                                                     CommandParameter="LastPlay"
+                                                     GroupName="SecondarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=LastPlay
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_ReleaseDate"
+                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
+                                                     CommandParameter="ReleaseDate"
+                                                     GroupName="SecondarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=ReleaseDate
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastFetchInfoTime"
+                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
+                                                     CommandParameter="LastFetchInfoTime"
+                                                     GroupName="SecondarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=LastFetchInfoTime
+                                                     }" />
+                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_AddTime"
+                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
+                                                     CommandParameter="AddTime"
+                                                     GroupName="SecondarySorting"
+                                                     IsChecked="{
+                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
+                                                         Converter={StaticResource EnumToBoolConverter},
+                                                         ConverterParameter=AddTime
+                                                     }" />
+                                <MenuFlyoutSeparator />
                                 <ToggleMenuFlyoutItem x:Uid="HomePage_Sort_SecondaryDescending"
-                                                 IsChecked="{x:Bind ViewModel.IsSecondaryDescending, Mode=TwoWay}"
-                                                 Command="{x:Bind ViewModel.ApplySortCommand}"/>
+                                                      IsChecked="{x:Bind ViewModel.IsSecondaryDescending, Mode=TwoWay}"
+                                                      Command="{x:Bind ViewModel.ApplySortCommand}" />
                             </MenuFlyoutSubItem>
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="S"/>
+                        <KeyboardAccelerator Modifiers="Control" Key="S" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <CommandBar.SecondaryCommands>
                     <!-- 裁剪横图 -->
                     <AppBarToggleButton x:Uid="HomePage_FixHorizontalPicture" Icon="Crop"
-                                        IsChecked="{x:Bind ViewModel.FixHorizontalPicture, Mode=TwoWay}"/>
+                                        IsChecked="{x:Bind ViewModel.FixHorizontalPicture, Mode=TwoWay}" />
                     <!-- 游玩状态标记 -->
-                    <AppBarToggleButton x:Uid="HomePage_DisplayPlayType" 
+                    <AppBarToggleButton x:Uid="HomePage_DisplayPlayType"
                                         IsChecked="{x:Bind ViewModel.DisplayPlayTypePolygon, Mode=TwoWay}"
                                         Visibility="{x:Bind ViewModel.FixHorizontalPicture, Mode=OneWay}">
                         <AppBarToggleButton.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE890;"/>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE890;" />
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
                     <!-- 非本地游戏特殊显示 -->
                     <AppBarToggleButton x:Uid="HomePage_SpecialDisplayVirtualGame"
                                         IsChecked="{x:Bind ViewModel.SpecialDisplayVirtualGame, Mode=TwoWay}">
                         <AppBarToggleButton.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8FF;"/>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8FF;" />
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
                     <!-- 保留过滤器 -->
@@ -291,43 +376,57 @@
                     <AppBarToggleButton x:Uid="HomePage_Filter_DisplayVirtualGames"
                                         IsChecked="{x:Bind ViewModel.DisplayVirtualGame, Mode=TwoWay}">
                         <AppBarToggleButton.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE71C;"/>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE71C;" />
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
                 </CommandBar.SecondaryCommands>
             </CommandBar>
-            
+
             <ScrollViewer Grid.Row="1">
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                               cmtkAnimations:Connected.ListItemKey="galgameItem"
-                               cmtkAnimations:Connected.ListItemElementName="ConnectedElement">
-                    <ItemsRepeater.ItemTemplate>
+                <GridView
+                    x:Name="MainGridView"
+                    ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                    IsItemClickEnabled="True"
+                    SelectionMode="None"
+                    CanReorderItems="True"
+                    AllowDrop="True"
+                    CanDragItems="True"
+                    DragItemsStarting="MainGridView_DragItemsStarting"
+                    DragItemsCompleted="MainGridView_DragItemsCompleted"
+                    ItemClick="MainGridView_ItemClick">
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <!-- 使用原生的 ItemsWrapGrid -->
+                            <!-- 缺点：Item 不会自动拉伸填满行宽，是左对齐的 -->
+                            <ItemsWrapGrid Orientation="Horizontal" ItemWidth="175" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+
+                    <GridView.ItemContainerTransitions>
+                        <TransitionCollection>
+                            <ReorderThemeTransition />
+                        </TransitionCollection>
+                    </GridView.ItemContainerTransitions>
+
+                    <GridView.ItemTemplate>
                         <DataTemplate x:DataType="models:Galgame">
-                            <Button Style="{ThemeResource TransparentButtonWithHover}"
-                                    DataContext="{x:Bind}"
-                                    Command="{Binding ElementName=Page, Path=ViewModel.ItemClickCommand}"
-                                    CommandParameter="{x:Bind}">
-                                <prefab:GalgamePrefab
-                                    Galgame="{x:Bind}"
-                                    ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
-                                    PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
-                                    Flyout="{StaticResource GalFlyout}" />
-                            </Button>
+                            <prefab:GalgamePrefab
+                                Galgame="{x:Bind}"
+                                ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
+                                PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
+                                Flyout="{StaticResource GalFlyout}" />
                         </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                    <ItemsRepeater.Layout>
-                        <UniformGridLayout ItemsStretch="Fill" MinItemWidth="175" MinRowSpacing="1" />
-                    </ItemsRepeater.Layout>
-                </ItemsRepeater>
+                    </GridView.ItemTemplate>
+                </GridView>
             </ScrollViewer>
 
             <!-- Drag&Drop(用于提示的区域) -->
-            <Border Grid.Row="1" CornerRadius="5" 
-                    Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}" 
+            <Border Grid.Row="1" CornerRadius="5"
+                    Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}"
                     Visibility="{x:Bind ViewModel.DisplayDragArea, Mode=OneWay}"
                     Opacity="0.6">
                 <TextBlock x:Uid="HomePage_DragDrop" Style="{ThemeResource TitleTextBlockStyle}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
         </Grid>
 

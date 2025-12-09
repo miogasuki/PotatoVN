@@ -46,7 +46,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     public string LocalPathMsg => Gal.LocalPath ?? "GalgameSettingPage_NotLocalGame".GetLocalized();
     public string ExePathMsg => Gal.ExePath ?? "GalgameSettingPage_NoExe".GetLocalized();
     public bool IsLocalGame => Gal.IsLocalGame;
-    public string SavePositionDescription => 
+    public string SavePositionDescription =>
         Gal.DetectedSavePosition?.ToDisplay() ?? "GalgameSettingPage_DetectedSavePosition".GetLocalized();
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
@@ -132,14 +132,14 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         _bus.Register(this);
         Update();
     }
-    
+
     partial void OnSelectedRssChanged(RssType value)
     {
         Gal.RssType = value;
         if (!string.IsNullOrEmpty(_searchUrlList.GetValueOrDefault((int)value)))
             SearchUri = _searchUrlList[(int)value] + Gal.Name.Value;
     }
-    
+
     [RelayCommand]
     private void OnBack()
     {
@@ -165,7 +165,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
                 Gal.Ids[i] = null;
             }
         }
-        
+
         try
         {
             await _galService.ParseGalInfoAsync(Gal, Gal.RssType);
@@ -194,7 +194,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         OnPropertyChanged(nameof(IsLocalGame));
         OnPropertyChanged(nameof(SavePositionDescription));
     }
-    
+
     [RelayCommand]
     private async Task PickImageAsync()
     {
@@ -202,7 +202,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         if (newFile is null) return;
         Gal.ImagePath.Value= newFile;
     }
-    
+
     [RelayCommand]
     private async Task PickHeaderImageAsync()
     {
@@ -247,7 +247,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
                 var folder = file.Path[..file.Path.LastIndexOf('\\')];
                 Gal.ExePath = file.Path;
                 await _galService.SetLocalPathAsync(Gal, folder);
-                
+
 
                 _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_PathSetSuccess".GetLocalized());
 
@@ -294,7 +294,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         {
             // 确定起始路径：如果已检测到存档位置则使用它，否则使用 AppData
             string initialPath;
-            var absolutePath = GamePortablePath.Create(Gal.DetectedSavePosition, Gal.LocalPath);
+            var absolutePath = Gal.DetectedSavePosition?.ToPath();
             if (!string.IsNullOrEmpty(absolutePath) && Directory.Exists(absolutePath))
             {
                 initialPath = absolutePath;
@@ -407,7 +407,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         if (value.LocalDateTime == Gal.ReleaseDate.Value) return;
         Gal.ReleaseDate.Value = value.LocalDateTime;
     }
-    
+
     [RelayCommand]
     private void OnPageSizeChanged(SizeChangedEventArgs e)
     {
@@ -468,7 +468,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         }
     }
 
-  
+
     /// <summary>
     /// 检查全局快捷键是否已存在于当前快捷键列表中
     /// </summary>
@@ -496,7 +496,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         }
     }
 
-    
+
     [RelayCommand]
     private void AddKeyMapping()
     {

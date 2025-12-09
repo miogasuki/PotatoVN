@@ -406,6 +406,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private void ApplySort(List<string>? customOrder = null)
     {
         if (_suppressSort) return;
+        SaveSortSettings();
 
         // 清除现有排序
         Source.SortDescriptions.Clear();
@@ -414,7 +415,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         {
             Source.RefreshSorting();
             if (customOrder is not null) ApplyCustomOrder(customOrder);
-            SaveSortSettings();
             return;
         }
 

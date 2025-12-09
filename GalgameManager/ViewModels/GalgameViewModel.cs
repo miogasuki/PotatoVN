@@ -87,25 +87,25 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         _bgTaskService = bgTaskService;
         _pvnService = pvnService;
         _infoService = infoService;
-        
+
         // 订阅布局更改事件
         ManageGalgamePageLayoutDialog.LayoutChanged += OnLayoutChanged;
     }
-    
+
     // 布局更改时更新视图
     private async void OnLayoutChanged(object? sender, bool newLayoutValue)
     {
         try
         {
             UseNewLayout = newLayoutValue;
-            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
-                ? Visibility.Visible 
+            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
+                ? Visibility.Visible
                 : Visibility.Collapsed;
-            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
-                ? Visibility.Visible 
+            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
+                ? Visibility.Visible
                 : Visibility.Collapsed;
-            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
-                ? Visibility.Visible 
+            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
+                ? Visibility.Visible
                 : Visibility.Collapsed;
             Update(Item);
         }
@@ -114,7 +114,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             _infoService.DeveloperEvent(e: e);
         }
     }
-    
+
     public async void OnNavigatedTo(object parameter)
     {
         try
@@ -124,16 +124,16 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
                 return;
             }
-            
+
             UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
-            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
-                ? Visibility.Visible 
+            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
+                ? Visibility.Visible
                 : Visibility.Collapsed;
-            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
-                ? Visibility.Visible 
+            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
+                ? Visibility.Visible
                 : Visibility.Collapsed;
-            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
-                ? Visibility.Visible 
+            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
+                ? Visibility.Visible
                 : Visibility.Collapsed;
 
             Item = param.Galgame;
@@ -143,7 +143,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             _staffService.OnGameStaffChanged += Update;
             // 初始化面板
             Update(Item);
-        
+
             if (param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
                 await Play();
             if (param.SelectProgress)
@@ -151,7 +151,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 await Task.Delay(1000);
                 await SelectProcess();
             }
-        
+
             TryUpdateGameInfo();
             return;
 
@@ -177,7 +177,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         _staffService.OnGameStaffChanged -= Update;
         ManageGalgamePageLayoutDialog.LayoutChanged -= OnLayoutChanged;
     }
-    
+
     /// <summary>
     /// 等待游戏进程启动，若超时则返回null
     /// </summary>
@@ -195,7 +195,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         }
         return processes[0];
     }
-    
+
     private void Update(Galgame? game)
     {
         if (game is null || game != Item) return;
@@ -249,14 +249,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Bangumi])) return;
         await Launcher.LaunchUriAsync(new Uri("https://bgm.tv/subject/"+Item!.Ids[(int)RssType.Bangumi]));
     }
-    
+
     [RelayCommand]
     private async Task OpenInVndb()
     {
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Vndb])) return;
         await Launcher.LaunchUriAsync(new Uri("https://vndb.org/v"+Item!.Ids[(int)RssType.Vndb]));
     }
-    
+
     [RelayCommand]
     private async Task OpenInYmgal()
     {
@@ -277,7 +277,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Steam])) return;
         await Launcher.LaunchUriAsync(new Uri("https://store.steampowered.com/app/"+Item!.Ids[(int)RssType.Steam]));
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task Play()
     {
@@ -290,7 +290,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             if (string.IsNullOrEmpty(Item.Ids[(int)RssType.Steam]))
                 _infoService.Info(InfoBarSeverity.Warning, msg:"GalgamePage_Play_NoSteamId".GetLocalized());
         }
-        
+
         var isSteamGame = Item.Sources.Any(s => s.SourceType is GalgameSourceType.Steam) &&
                           !string.IsNullOrEmpty(Item.Ids[(int)RssType.Steam]);
         if (string.IsNullOrEmpty(Item.ExePath) && !isSteamGame)
@@ -353,8 +353,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 await Task.Delay(1000 * 2); //有可能引导进程和游戏进程是一个名字，等2s让引导进程先退出
                 process = await WaitForProcessStartAsync(Item.ProcessName) ?? process;
             }
-            if (!string.IsNullOrEmpty(Item.ExeArguments) && Item.ProcessName is null) 
-            { 
+            if (!string.IsNullOrEmpty(Item.ExeArguments) && Item.ProcessName is null)
+            {
                 //启动的进程和游戏进程不是同一个进程，需要知道到底启动什么进程
                 await Task.Delay(1000 * 2);
                 if (TryGetProcessFromName() is { } p) // 尝试根据游戏可执行文件名获取进程
@@ -369,26 +369,26 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             _ = _bgTaskService.AddBgTask(new RecordPlayTimeTask(Item, process));
             await _jumpListService.AddToJumpListAsync(Item);
             App.GetService<IMessenger>().Send(new GalgamePlayedMessage(Item));
-            
+
             await Task.Delay(1000); //等待1000ms，让游戏进程启动后再最小化
-            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie) || Item.EnableMagpie) 
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie) || Item.EnableMagpie)
                 _ = _bgTaskService.AddBgTask(new CallMagpieTask(Item, process));
             if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground) || Item.MuteInBackground)
                 _ = _bgTaskService.AddBgTask(new GameMuteTask(Item, process));
             if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled) || Item.KeyReMap) && Item.KeyMappings.Any(m => m.IsEnabled))
-                _ = _bgTaskService.AddBgTask(new KeyMappingTask(Item, process));            
+                _ = _bgTaskService.AddBgTask(new KeyMappingTask(Item, process));
             if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath)) && string.IsNullOrEmpty(Item.DetectedSavePosition))
-                _ = _bgTaskService.AddBgTask(new GameSaveDetectorTask(Item));            
+                _ = _bgTaskService.AddBgTask(new GameSaveDetectorTask(Item));
             if (process.HasExited == false)
                 App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));
-            
-            await process.WaitForExitAsync();            
+
+            await process.WaitForExitAsync();
         }
 
         catch (Win32Exception e)
         {
             // 可能是用户取消了UAC提示
-            if (e.NativeErrorCode == 1223) 
+            if (e.NativeErrorCode == 1223)
             {
                 _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_Play_CancelledByUser".GetLocalized());
                 return;
@@ -482,14 +482,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             _infoService.Info(InfoBarSeverity.Error, "GalgamePage_ChangeSavePosFailed".GetLocalized(), e.ToString());
         }
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private void ResetExePath(object obj)
     {
         if (Item is null || !Item.IsLocalGame) return;
         Item!.ExePath = null;
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task DeleteFromDisk()
     {
@@ -570,7 +570,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task OpenSaveDirectory()
     {
         if (Item == null) return;
-        if (string.IsNullOrWhiteSpace(Item.DetectedSavePosition))
+        if (string.IsNullOrWhiteSpace(Item.DetectedSavePosition?.ToPath()))
         {
             _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_NoSaveDirectoryDetected".GetLocalized(), displayTimeMs: 3000);
             return;
@@ -578,7 +578,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
         try
         {
-            var absolutePath = GamePortablePath.Create(Item.DetectedSavePosition, Item.LocalPath);
+            var absolutePath = Item.DetectedSavePosition?.ToPath();
             if (string.IsNullOrWhiteSpace(absolutePath))
             {
                 _infoService.Info(InfoBarSeverity.Error, "GalgamePage_OpenSaveDirectoryFailed".GetLocalized(), "GalgamePage_InvalidSavePath".GetLocalized());
@@ -626,15 +626,15 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task ChangeHighDpi()
     {
-        if (Item is null || string.IsNullOrEmpty(Item.ExePath)) 
+        if (Item is null || string.IsNullOrEmpty(Item.ExePath))
         {
             _infoService.Info(InfoBarSeverity.Error, "GalgamePage_HighDpi_ExePathIsEmpty".GetLocalized());
             if (Item != null)
                 Item.HighDpi = false;
             return;
         }
-        
-        try 
+
+        try
         {
             // 构建 PowerShell 命令
             var regPath = @"HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
@@ -719,7 +719,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         (GalStatusSyncResult, string) result = await _galgameService.DownLoadPlayStatusAsync(Item, RssType.Bangumi);
         await DisplayMsg(result.Item1.ToInfoBarSeverity(), result.Item2);
     }
-    
+
     [RelayCommand]
     private async Task SyncFromVndb()
     {
@@ -806,11 +806,11 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 await SaveAsync();
             }
         }
-        
+
         if (path is not null)
             _ = Launcher.LaunchUriAsync(new Uri(path));
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task ClearText()
     {
@@ -853,7 +853,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             Item.HighDpi = false;
         Item!.ExePath = null;
         await ClearText();
-        
+
     }
 
     // 管理游戏详情页布局

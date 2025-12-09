@@ -37,7 +37,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     public event Action<Galgame>? MetaSavedEvent; //当有galgame元数据保存时触发
     public event Action? GalgameLoadedEvent; //当galgame列表加载完成时触发
     public event Action? PhrasedEvent; //当有galgame信息下载完成时触发
-    public event Action<Galgame>? PhrasedEvent2; //当有galgame信息下载完成时触发 
+    public event Action<Galgame>? PhrasedEvent2; //当有galgame信息下载完成时触发
     public event Action<Galgame>? GalgameChangedEvent;
     public bool IsPhrasing;
 
@@ -46,7 +46,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         get;
     } = [];
 
-    public GalgameCollectionService(ILocalSettingsService localSettingsService, IJumpListService jumpListService, 
+    public GalgameCollectionService(ILocalSettingsService localSettingsService, IJumpListService jumpListService,
         IGalgameSourceCollectionService galgameSourceService, IInfoService infoService, IBgTaskService bgTaskService,
         IMessenger bus)
     {
@@ -59,7 +59,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         _galSrcService = galgameSourceService;
         _bus = bus;
         _bus.Register<PluginLoadArgs>(this, OnPluginLoaded);
-        
+
         BgmPhraser bgmPhraser = new(GetBgmData().Result);
         VndbPhraser vndbPhraser = new(GetVndbData().Result);
         YmgalPhraser ymgalPhraser = new();
@@ -74,7 +74,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         PhraserList[(int)RssType.Mixed] = mixedPhraser;
         PhraserList[(int)RssType.Steam] = steamParser;
     }
-    
+
     public async Task InitAsync()
     {
         _dbSet = LocalSettingsService.Database.GetCollection<Galgame>("galgame");
@@ -106,7 +106,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 galgames = LocalSettingsService.ReadSettingAsync<List<Galgame>>(KeyValues.Galgames, true).Result ?? [];
         }); //用Task.Run运行，防止阻塞UI线程
         _galgames.SyncCollection(galgames);
-        
+
         foreach (Galgame g in _galgames)
         {
             g.ErrorOccurred += e =>
@@ -137,7 +137,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             _galgames.ToList().ForEach(galgame => galgame.FindSaveInPath());
             await LocalSettingsService.SaveSettingAsync(KeyValues.SavePathUpgraded, true);
         }
-        
+
         // 给混合搜刮器设置的搜刮优先级添加新添加的搜刮器
         if (await LocalSettingsService.ReadSettingAsync<int>(KeyValues.MixedPhraserOrderVersion) !=
             MixedPhraserOrder.Version)
@@ -146,7 +146,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         // 游戏列表数据库化
         await UpgradeToLiteDb();
     }
-    
+
     public async Task RemoveGalgame(Galgame galgame, bool removeFromDisk = false)
     {
         if (!_galgames.Contains(galgame)) return;
@@ -169,7 +169,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         _dbSet.Delete(galgame.Uuid);
         await UiThreadInvokeHelper.InvokeAsync(() => GalgameDeletedEvent?.Invoke(galgame));
     }
-    
+
     public async Task<Galgame> ParseGalInfoAsync(Galgame galgame, RssType rssType = RssType.None,
         bool requireConfirm = false, GameParseType type = GameParseType.All)
     {
@@ -190,8 +190,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 if (tmp == ContentDialogResult.Secondary)
                     throw new PvnException("Canceled".GetLocalized());
             }
-        
-            if (type.HasFlag(GameParseType.PlayStatus) && 
+
+            if (type.HasFlag(GameParseType.PlayStatus) &&
                 await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.SyncPlayStatusWhenPhrasing))
             {
                 // 优先Bgm
@@ -199,7 +199,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 await DownLoadPlayStatusAsync(galgame, RssType.Bangumi);
             }
             await SaveGalgameAsync(galgame);
-            if (type.HasFlag(GameParseType.Character) && 
+            if (type.HasFlag(GameParseType.Character) &&
                 LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result)
                 AddGameToBgTask<GetGalgameCharactersFromRssTask>();
             if (type.HasFlag(GameParseType.HeaderImage))
@@ -216,7 +216,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         {
             IsPhrasing = false;
         }
-        
+
         void AddGameToBgTask<TBgTask>() where TBgTask : BgTaskBase, IGameProcessQueue, new()
         {
             var isNew = false;
@@ -298,10 +298,10 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         galgameCharacter.Height = tmp.Height;
         galgameCharacter.Weight = tmp.Weight;
         galgameCharacter.BWH = tmp.BWH;
-        
-        galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.ImageUrl, 
+
+        galgameCharacter.ImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.ImageUrl,
             fileNameWithoutExtension:$"{galgameCharacter.Name}_Large") ?? Galgame.DefaultCharacterImagePath;
-        galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.PreviewImageUrl, 
+        galgameCharacter.PreviewImagePath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(tmp.PreviewImageUrl,
                                                 fileNameWithoutExtension:$"{galgameCharacter.Name}_Preview") ??
                                             Galgame.DefaultCharacterImagePath;
         return galgameCharacter;
@@ -359,7 +359,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             if (type.HasFlag(GameParseType.Image))
             {
                 // ReSharper disable once SuspiciousTypeConversion.Global
-                HttpClient? client = phraser is IHttpClientProvider provider ? provider.HttpClient : null; 
+                HttpClient? client = phraser is IHttpClientProvider provider ? provider.HttpClient : null;
                 await Task.Delay(20);
                 _bus.Send(new GalgameParsingEventArgs(galgame, "GalgameCollectionService_ParseAsync_GettingImg".GetLocalized()));
                 galgame.ImageUrl = tmp.ImageUrl;
@@ -378,7 +378,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         });
         return galgame;
     }
-    
+
     /// <summary>
     /// 下载某个游戏的游玩状态
     /// </summary>
@@ -477,7 +477,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         tmp.Sort((a,b)=> a.CompareX(b));
         return tmp.Where((t, i) => i == 0 || t.CompareX(tmp[i - 1]) !=0).ToList();
     }
-    
+
     public Galgame? GetGalgameFromUid(GalgameUid? uid, GalgameUidFetchMode mode = GalgameUidFetchMode.Same)
     {
         if (uid is null) return null;
@@ -509,13 +509,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         if (id is null) return null;
         return _galgames.FirstOrDefault(g => g.Ids[(int)rssType] == id);
     }
-    
+
     public Galgame? GetGalgameFromName(string? name)
     {
         if (string.IsNullOrEmpty(name)) return null;
         return _galgames.FirstOrDefault(g => g.Name.Value == name);
     }
-    
+
     public Task SaveGalgamesAsync()
     {
         return Task.Run(() =>
@@ -523,13 +523,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             _dbSet.Upsert(_galgames);
         });
     }
-    
+
     public async Task SaveGalgameAsync(Galgame galgame)
     {
         _dbSet.Upsert(galgame);
         await SaveMetaAsync(galgame);
     }
-    
+
     public Task SaveGalgameMetaAsync(Galgame galgame, GalgameSourceBase? targetSource = null)
     {
         if (targetSource is null) return SaveMetaAsync(galgame);
@@ -537,7 +537,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             throw new PvnException($"{targetSource.Name} does not contain {galgame.Name.Value}");
         return SourceServiceFactory.GetSourceService(targetSource.SourceType).SaveMetaAsync(galgame, targetSource);
     }
-    
+
     /// <summary>
     /// 保存galgame的信息备份（包括meta.json和封面图）
     /// </summary>
@@ -547,7 +547,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         IEnumerable<GalgameSourceType> types = galgame.Sources.Select(s => s.SourceType)
             .Where(t => t != GalgameSourceType.Virtual).Distinct();
         List<(Task, GalgameSourceType)> tasks = new();
-        foreach (GalgameSourceType type in types) 
+        foreach (GalgameSourceType type in types)
             tasks.Add((SourceServiceFactory.GetSourceService(type).SaveMetaAsync(galgame), type));
         foreach ((Task, GalgameSourceType) t in tasks)
         {
@@ -661,7 +661,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
         return null;
     }
-    
+
     /// <summary>
     /// 获取并设置galgame的可执行文件
     /// </summary>
@@ -691,7 +691,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 break;
             default:
             {
-                SelectFileDialog dialog = new(galgame.LocalPath, new[] {".exe", ".bat", ".lnk"}, 
+                SelectFileDialog dialog = new(galgame.LocalPath, new[] {".exe", ".bat", ".lnk"},
                     "GalgameCollectionService_SelectExe".GetLocalized(), false);
                 await dialog.ShowAsync();
                 if (dialog.SelectedFilePath == null) return null;
@@ -709,15 +709,15 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     public async Task ChangeGalgameSavePosition(Galgame galgame)
     {
         if (galgame.SavePath is not null && new DirectoryInfo(galgame.SavePath).Exists == false)
-            galgame.SavePath = null;
-            
+            await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = null);
+
         if (galgame.SavePath is not null && FolderOperations.IsSymbolicLink(galgame.SavePath)) //目前在云端
         {
             await Task.Run(() =>
             {
                 FolderOperations.ConvertSymbolicLinkToActual(galgame.SavePath);
-                galgame.SavePath = null;
             });
+            await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = null);
         }
         else //目前在本地
         {
@@ -734,11 +734,11 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             if (FolderOperations.IsSymbolicLink(localSavePath))
             {
                 _infoService.Info(InfoBarSeverity.Warning, msg:"GalgameCollectionService_SavePathIsSymbolicLink".GetLocalized());
-                galgame.SavePath = localSavePath;
+                await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = localSavePath);
                 await SaveGalgameAsync(galgame);
                 return;
             }
-            
+
             var tmp = localSavePath[..localSavePath.LastIndexOf('\\')];
             var target = tmp[tmp.LastIndexOf('\\')..] + localSavePath[localSavePath.LastIndexOf('\\')..];
             remoteRoot += target;
@@ -773,7 +773,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 }
                 else
                     FolderOperations.ConvertFolderToSymbolicLink(localSavePath, remoteRoot);
-                galgame.SavePath = localSavePath;
+                await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = localSavePath);
             }
             catch (Exception e) //创建符号链接失败，把存档复制回去
             {
@@ -784,7 +784,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 stackPanel.Children.Add(new TextBlock {Text = "GalgameCollectionService_CreateSymbolicLinkFailed".GetLocalized()});
                 stackPanel.Children.Add(new TextBlock
                 {
-                    Text = e.Message + "\n" + e.StackTrace, 
+                    Text = e.Message + "\n" + e.StackTrace,
                     TextWrapping = TextWrapping.Wrap
                 });
                 ContentDialog dialog = new()
@@ -798,7 +798,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 await dialog.ShowAsync();
             }
         }
-        
+
         await SaveGalgameAsync(galgame);
     }
 
@@ -813,7 +813,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         };
         return data;
     }
-    
+
     /// <summary>
     /// 从设置中读取Vndb的设置
     /// </summary>
@@ -863,7 +863,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 break;
         }
     }
-    
+
     private void OnPluginLoaded(object recipient, PluginLoadArgs message)
     {
         try
@@ -880,7 +880,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             _infoService.DeveloperEvent(e: e);
         }
     }
-    
+
     #region UPGRADE
     private async Task MixedPhraserOrderUpdate()
     {
@@ -891,7 +891,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             IEnumerable<PropertyInfo> properties = orders.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.PropertyType == typeof(ObservableCollection<RssType>));
-            
+
             LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
             var isChineseCulture = language == LanguageEnum.ChineseSimplified ||
                                     (language == LanguageEnum.Auto &&
@@ -946,7 +946,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             await LocalSettingsService.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true);
         if (status?.ImportGalgame is not false) return;
         foreach (Galgame game in await LocalSettingsService.ReadSettingAsync<List<Galgame>>
-                     (KeyValues.Galgames, true) ?? []) 
+                     (KeyValues.Galgames, true) ?? [])
             _galgames.Add(game);
         foreach (Galgame game in _galgames)
         {
@@ -972,7 +972,7 @@ public class FolderOrFilePickerDialog : ContentDialog
     private string? _selectedItem;
     private readonly TaskCompletionSource<string?> _folderSelectedTcs = new TaskCompletionSource<string?>();
     public FolderOrFilePickerDialog(
-        XamlRoot xamlRoot, string title, List<string> entries, bool isFolder = true, 
+        XamlRoot xamlRoot, string title, List<string> entries, bool isFolder = true,
         string? suggestedPath = null, bool isFirstItemSuggested = false)
     {
         this.isFirstItemSuggested = isFirstItemSuggested;
@@ -1032,13 +1032,13 @@ public class FolderOrFilePickerDialog : ContentDialog
             radioButton.Checked += RadioButton_Checked;
             stackPanel.Children.Add(radioButton);
         }
-        
+
         IsPrimaryButtonEnabled = false;
         if (isFirstItemSuggested)
         {
             RadioButton firstElement = stackPanel.Children.OfType<RadioButton>().First();
             firstElement.IsChecked = true;
-        } 
+        }
         return stackPanel;
     }
     private void RadioButton_Checked(object sender, RoutedEventArgs? e)

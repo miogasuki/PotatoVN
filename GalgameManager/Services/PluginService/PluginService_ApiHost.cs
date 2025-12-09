@@ -1,4 +1,5 @@
-﻿using Windows.Storage;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Windows.Storage;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -62,9 +63,15 @@ public partial class PluginService
 
         #endregion
 
+        #region MESSAGES
+
+        public IMessenger Messenger => App.GetService<IMessenger>();
+
+        #endregion
+
         #region NOTIFICATION
 
-        public void Info(InfoBarSeverity infoBarSeverity, string? title = null, string? msg = null, int? displayTimeMs = 3000) 
+        public void Info(InfoBarSeverity infoBarSeverity, string? title = null, string? msg = null, int? displayTimeMs = 3000)  
             => _infoService.Info(infoBarSeverity, title, msg, displayTimeMs);
 
         public void Event(InfoBarSeverity infoBarSeverity, string title, Exception? exception = null, string? msg = null,

@@ -15,6 +15,8 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Services;
 
+
+
 public partial class PluginService(
     ILocalSettingsService settingService,
     IBgTaskService bgTaskService,
@@ -23,32 +25,93 @@ public partial class PluginService(
 {
     private ObservableCollection<PluginX> _plugins = [];
     private ILiteCollection<PluginX> _pluginsDb = null!;
+    private ILiteCollection<PluginData> _pluginDataDb = null!;
 
     public bool PluginOffloadInProgress { get; private set; }
-
-    public async Task AddPluginAsync(string path)
+    
+    public void PluginSetData(PluginX plugin, string? data)
     {
+        PluginData newData = new() {
+            PluginId = plugin.Id,
+            Data = data,
+        };
+        _pluginDataDb.Upsert(newData);
+    }
+    
+    public void PluginDeleteData(PluginX plugin) => _pluginDataDb.Delete(plugin.Info.Id);
+
+    public async Task AddPluginAsync(string path, bool isDev)
+    {
+        // 如果删除过正常插件，即使是 Dev 模式也会禁止加载新的插件。
         if (PluginOffloadInProgress) 
             throw new PvnException("PluginService_PluginOffloadInProgress".GetLocalized());
         if (_plugins.Any(p => Utils.ArePathsEqual(path, p.Path)))   
             throw new PvnException($"plugin in {path} already initialized");
-        (IPlugin plugin, PluginLoadContext contex) tmp = await LoadPluginInternalAsync(path);
+        (IPlugin plugin, PluginLoadContext contex) tmp = await LoadPluginInternalAsync(path, isDev);
         PluginX plugin = new(tmp.plugin, path, tmp.contex)
         {
             Enable = true,
+            IsDevMode = isDev,
         };
         await LoadPluginAsync(plugin, true);
+        // 使用 Insert 来做最后的判重，防止重复加载 Dev 插件。
         _pluginsDb.Insert(plugin);
     }
 
+    public async Task InvokePluginOnUninstall(PluginX plugin)
+    {
+        try
+        {
+            await plugin.ExecuteUninstallWithTimeoutAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            /* 插件内部中止操作 */
+            App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Warning,
+                $"Abort",
+                msg: $"Dev plugin {plugin.Info.Name} uninstalled internal abort"
+            );
+        }
+        catch (TimeoutException)
+        {
+            /* 卸载超时：硬超时 */
+            App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Warning,
+                $"Timeout",
+                msg: $"Dev plugin {plugin.Info.Name} uninstalled timeout"
+            );
+        }
+        catch (Exception e)
+        {
+            /* 卸载错误 */
+            App.GetService<IInfoService>().Event(EventType.PluginError, InfoBarSeverity.Warning,
+                $"Dev plugin {plugin.Info.Name} uninstalled with errors",
+                msg: $"Dev plugin {plugin.Info.Name} uninstalled with errors...\n${e}"
+            );
+        }
+    }
+    
     public async Task DeletePluginAsync(PluginX plugin, bool deleteData)
     {
-        await Task.CompletedTask;
-        PluginOffloadInProgress = true;
         plugin.ToDelete = true;
         plugin.ToDeleteData = deleteData;
+        if (!plugin.IsDevMode)
+        {
+            // 对于 Dev Plugin，我们立即删除对应的 Plugin，同时不进入 Offload State
+            PluginOffloadInProgress = true;
+        }
+        if (plugin.IsDevMode)
+        {
+            await InvokePluginOnUninstall(plugin);
+            _pluginsDb.Delete(plugin.Info.Id);
+            if (deleteData)
+                PluginDeleteData(plugin);
+            plugin.ForceUnload();
+        }
+        else
+        {
+            SavePlugin(plugin);
+        }
         await UiThreadInvokeHelper.InvokeAsync(() => _plugins.Remove(plugin));
-        SavePlugin(plugin);
     }
 
     public Task<ObservableCollection<PluginX>> GetAllPluginsAsync() => Task.FromResult(_plugins);
@@ -57,6 +120,7 @@ public partial class PluginService(
     {
         await Task.CompletedTask; //预留异步
         _pluginsDb = settingService.Database.GetCollection<PluginX>("plugin");
+        _pluginDataDb = settingService.Database.GetCollection<PluginData>("plugin_data");
         PluginDir = new DirectoryInfo((await FileHelper.GetFolderAsync(FileHelper.FolderType.Plugins)).Path);
         if (!PluginDir.Exists) PluginDir.Create();
         _ = bgTaskService.AddBgTask(new LoadPluginTask());
@@ -67,15 +131,18 @@ public partial class PluginService(
         if (plugin.IsLoaded) return;
         if (load)
         {
-            (IPlugin plugin, PluginLoadContext contex) tmp = await LoadPluginInternalAsync(plugin.Path);
-            plugin.Plugin = tmp.plugin;
-            plugin.LoadContext = tmp.contex;
+            if (plugin.Plugin is null)
+            {
+                (IPlugin plugin, PluginLoadContext contex) tmp = await LoadPluginInternalAsync(plugin.Path, plugin.IsDevMode);
+                plugin.Plugin = tmp.plugin;
+                plugin.LoadContext = tmp.contex;
+            }
             plugin.Info = plugin.Plugin.Info;
             await plugin.Plugin.InitializeAsync(new PotatoVnApiHost(plugin));
             plugin.IsLoaded = true;
         }
         if (_plugins.All(p => p.Info.Id != plugin.Info.Id))
-            await UiThreadInvokeHelper.InvokeAsync(() => { _plugins.Add(plugin); });
+            await UiThreadInvokeHelper.InvokeAsync(() => _plugins.Add(plugin));
         plugin.PropertyChanged -= OnPluginOnPropertyChanged;
         plugin.PropertyChanged += OnPluginOnPropertyChanged;
         if (load) bus.Send(new PluginLoadArgs { Plugin = plugin.Plugin! });
@@ -112,7 +179,7 @@ public partial class PluginService(
             msg: msgHeader + "PluginService_PluginError_Msg".GetLocalized(e.ToString()));
     }
 
-    private static async Task<(IPlugin plugin, PluginLoadContext contex)> LoadPluginInternalAsync(string path)
+    private static async Task<(IPlugin plugin, PluginLoadContext contex)> LoadPluginInternalAsync(string path, bool isDev)
     {
         await Task.CompletedTask; //预留异步
         if (!Directory.Exists(path)) throw new PvnPathNotExist(path);
@@ -124,9 +191,26 @@ public partial class PluginService(
             pluginFile = Directory.GetFiles(path, "PotatoVN.App.PluginBase.dll").FirstOrDefault();
         if (pluginFile == null || !File.Exists(pluginFile)) 
             throw new PvnException($"plugin dll of {path} not found");
-        
         PluginLoadContext loadContext = new(pluginFile);
-        Assembly pluginAssembly = loadContext.LoadFromAssemblyPath(pluginFile);
+
+        Assembly pluginAssembly;
+        if (isDev)
+        {
+            var pdbPath = Path.ChangeExtension(pluginFile, ".pdb");
+            FileStream? pdbStream = File.Exists(pdbPath) 
+                ? new FileStream(pdbPath, FileMode.Open, FileAccess.Read, FileShare.Read) 
+                : null;
+            await using (pdbStream)
+            {
+                await using FileStream fs = new (pluginFile, FileMode.Open, FileAccess.Read);
+                pluginAssembly = loadContext.LoadFromStream(fs, pdbStream);
+            }
+        }
+        else
+        {
+            pluginAssembly = loadContext.LoadFromAssemblyPath(pluginFile);
+        }
+        
         Type? pluginType = pluginAssembly.GetTypes()
             .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsInterface);
         if (pluginType == null) throw new PvnException($"no valid plugin found in {path}");

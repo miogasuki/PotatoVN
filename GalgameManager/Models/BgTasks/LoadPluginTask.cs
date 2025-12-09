@@ -28,7 +28,7 @@ public class LoadPluginTask : BgTaskBase
             PluginX plugin = plugins[i];
             if (plugin.ToDelete)
             {
-                DeletePlugin(plugin);
+                await DeletePlugin(plugin);
                 continue;
             }
             
@@ -47,13 +47,27 @@ public class LoadPluginTask : BgTaskBase
         ChangeProgress(1, 1, string.Empty, false);
         return;
 
-        void DeletePlugin(PluginX plugin)
+        async Task DeletePlugin(PluginX plugin)
         {
             try
             {
-                if (!IsDevPlugin(plugin) && Directory.Exists(plugin.Path)) 
-                    Directory.Delete(plugin.Path, true);
-                if (plugin.ToDeleteData) dataDb.Delete(plugin.Id);
+                // 处理所有延迟删除的 Plugin，注意 dev plugin 不存在延迟删除机制。
+                if (plugin.IsDevMode)
+                {
+                    _infoService.Event(EventType.PluginError, InfoBarSeverity.Warning,
+                        "Dev Plugin Invalid State", // 标题明确指出是 Dev 插件状态异常
+                        msg: $"Dev plugin {plugin.Info.Name} found in delayed delete queue. Cleaning up...");
+                }
+                else
+                {
+                    if (Directory.Exists(plugin.Path)) 
+                        Directory.Delete(plugin.Path, true);
+                }
+
+                // 如果出现文件占用问题，则不删除 plugin，等待下次重启再删除。
+                // 如果 plugin 自身的 OnUninstall 超时或者报错，则正常删除这个插件。
+                try { await plugin.ExecuteUninstallWithTimeoutAsync(); } catch(Exception) { /* Ignore */ }
+                if (plugin.ToDeleteData) _pluginService.PluginDeleteData(plugin);
                 db.Delete(plugin.Id);
             }
             catch (Exception)
@@ -66,6 +80,4 @@ public class LoadPluginTask : BgTaskBase
     });
 
     public override string Title => "LoadPluginTask_Title".GetLocalized();
-    
-    private bool IsDevPlugin(PluginX plugin) => !Utils.IsPathContained(_pluginDir.FullName, plugin.Path);
 }

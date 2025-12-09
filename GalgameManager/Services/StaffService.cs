@@ -1,4 +1,5 @@
-﻿using GalgameManager.Contracts.Phrase;
+﻿using System.Collections.Concurrent;
+using GalgameManager.Contracts.Phrase;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -20,7 +21,7 @@ public class StaffService : IStaffService
     private readonly IGalgameCollectionService _galgameService;
     private readonly IBgTaskService _bgTaskService;
     private readonly IInfoService _infoService;
-    private readonly Dictionary<Guid, Staff> _staffs = new();
+    private readonly ConcurrentDictionary<Guid, Staff> _staffs = new();
 
     public StaffService(IGalgameCollectionService galgameService, IBgTaskService bgTaskService,
         ILocalSettingsService settingsService, IInfoService infoService)
@@ -29,11 +30,11 @@ public class StaffService : IStaffService
         _galgameService = galgameService;
         _bgTaskService = bgTaskService;
         _infoService = infoService;
-        
+
         galgameService.PhrasedEvent2 += OnGalgamePhrasedEvent;
         galgameService.GalgameDeletedEvent += OnGalgameDeletedEvent;
     }
-    
+
     public async Task InitAsync()
     {
         _dbSet = _settingsService.Database.GetCollection<Staff>("staff");
@@ -50,7 +51,7 @@ public class StaffService : IStaffService
                 foreach (StaffGame game in staff.Games)
                 {
                     // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                    if (game is null) 
+                    if (game is null)
                     {
                         containNullGame = true;
                         continue; //按理来说应该绝对不应该出现，但是数据库里就有这种脏数据
@@ -64,7 +65,7 @@ public class StaffService : IStaffService
                 {
                     for(var i = staff.Games.Count - 1; i >= 0; i--)
                         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                        if (staff.Games[i] is null) 
+                        if (staff.Games[i] is null)
                             staff.Games.RemoveAt(i);
                     _infoService.Log(InfoBarSeverity.Warning,
                         $"Found null game in staff {staff.Name}({staff.Id}), it has been removed.");
@@ -75,7 +76,7 @@ public class StaffService : IStaffService
     }
 
     public Staff? GetStaff(Guid? id) => id is null ? null : _staffs.GetValueOrDefault(id.Value);
-    
+
     public Staff? GetStaff(StaffIdentifier identifier)
     {
         Staff? result = null;
@@ -144,7 +145,7 @@ public class StaffService : IStaffService
 
     public void Delete(Staff staff, bool sync = true)
     {
-        _staffs.Remove(staff.Id);
+        _staffs.TryRemove(staff.Id, out _);
         _dbSet.Delete(staff.Id);
         if (sync) OnStaffDeleted?.Invoke(staff);
     }
@@ -220,7 +221,7 @@ public class StaffService : IStaffService
             {
                 OnGameStaffChanged?.Invoke(galgame);
             });
-            
+
             GetStaffFromRssTask? task = _bgTaskService.GetBgTask<GetStaffFromRssTask>(string.Empty);
             if (task is null)
             {
@@ -236,7 +237,7 @@ public class StaffService : IStaffService
             _infoService.DeveloperEvent(msg: "failed on listening galgame phrased event", e: e);
         }
     }
-    
+
     private void OnGalgameDeletedEvent(Galgame galgame)
     {
         try

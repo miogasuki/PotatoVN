@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Helpers;
 using GalgameManager.Server.Enums;

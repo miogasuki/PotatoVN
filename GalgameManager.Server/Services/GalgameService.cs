@@ -60,7 +60,7 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         galgame.HeaderImageOssPosition = payload.HeaderImageOssLoc ?? galgame.HeaderImageOssPosition;
         galgame.HeaderImageUrl = payload.HeaderImageExternalUrl ?? galgame.HeaderImageUrl;
         galgame.Tags = payload.Tags ?? galgame.Tags;
-
+        
         if (payload.PlayTime is not null)
         {
             List<PlayLog> newLogs = [];

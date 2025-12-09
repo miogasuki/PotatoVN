@@ -6,6 +6,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI;
 using GalgameManager.Contracts;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models.Sources;
@@ -82,7 +83,18 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private bool _enableMagpie; //是否启用Magpie
     [ObservableProperty] private bool _muteInBackground; //是否在后台时静音游戏
     [ObservableProperty] private bool _keyReMap; //是否快捷键映射
-    [ObservableProperty] private string? _detectedSavePosition; //探测到的存档位置（相对路径）
+    
+    /// <summary>
+    /// 探测到的存档位置
+    /// </summary>
+    /// <remarks>
+    /// 取值为「伪绝对路径」，例如：
+    /// 1. 相对游戏根目录：<c>%GameRoot%\savedata</c>
+    /// 2. 相对特殊文件夹：<c>%Documents%\Company\Title</c>
+    /// 3. 绝对路径（如NAS）：<c>Z:\114514\savedata</c>
+    /// </remarks>
+    [ObservableProperty] private GamePortablePath? _detectedSavePosition; 
+
     public List<KeyMapping> KeyMappings { get; set; } = new(); //快捷键映射
     private RssType _rssType = RssType.None;
     [ObservableProperty] private PlayType _playType;

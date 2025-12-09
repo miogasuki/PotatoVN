@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Server.Enums;
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
@@ -36,6 +37,7 @@ public class Galgame
     public List<string>? Tags { get; set; }
     public List<Character> Characters { get; set; } = [];
     public List<StaffGame> StaffGames { get; set; } = [];
+
     #endregion
 
     #region PLAY_STATUS

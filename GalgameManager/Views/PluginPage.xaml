@@ -16,14 +16,14 @@
 
         <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                     Margin="{StaticResource CommandBarMargin}">
-            <AppBarButton x:Uid="PluginPage_Add" Command="{x:Bind ViewModel.AddPluginCommand}">
+            <AppBarButton x:Uid="PluginPage_Add" Command="{x:Bind ViewModel.AddPluginFromStoreCommand}">
                 <AppBarButton.Icon>
-                    <control:ConditionalFontIcon Symbol="Add" FluentGlyph="&#xE710;"/>
+                    <control:ConditionalFontIcon Symbol="Add" FluentGlyph="&#xE710;" />
                 </AppBarButton.Icon>
             </AppBarButton>
-            <AppBarButton x:Uid="PluginPage_Add_Dev" Command="{x:Bind ViewModel.AddPluginDevCommand}">
+            <AppBarButton x:Uid="PluginPage_Add_Dev" Command="{x:Bind ViewModel.AddPluginFromDevCommand}">
                 <AppBarButton.Icon>
-                    <control:ConditionalFontIcon Symbol="Add" FluentGlyph="&#xE710;"/>
+                    <control:ConditionalFontIcon Symbol="Add" FluentGlyph="&#xE710;" />
                 </AppBarButton.Icon>
             </AppBarButton>
         </CommandBar>
@@ -36,16 +36,16 @@
                             <Expander HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
                                       IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}">
                                 <Expander.Header>
-                                    <Grid ColumnDefinitions="*, Auto"  Padding=" 0 10">
+                                    <Grid ColumnDefinitions="*, Auto" Padding=" 0 10">
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{x:Bind Plugin.Info.Name}"/>
+                                            <TextBlock Text="{x:Bind Plugin.Info.Name}" />
                                             <TextBlock
                                                 Text="{x:Bind Plugin.Info.Description}"
-                                                Style="{StaticResource DescriptionTextStyle}"/>
+                                                Style="{StaticResource DescriptionTextStyle}" />
                                         </StackPanel>
                                         <ToggleSwitch Grid.Column="1" x:Uid="PluginPage_PluginStatus"
                                                       IsOn="{x:Bind Plugin.Enable, Mode=TwoWay}"
-                                                      Margin="0 0 -20 0"/>
+                                                      Margin="0 0 -20 0" />
                                     </Grid>
                                 </Expander.Header>
                                 <Expander.Content>
@@ -53,13 +53,23 @@
                                         <ContentPresenter Content="{x:Bind Ui, Mode=OneWay}" />
                                         <control:Panel>
                                             <control:Setting x:Uid="PluginPage_UninstallPlugin">
-                                                <Button x:Uid="PluginPage_UninstallPlugin_Button" 
-                                                        Command="{x:Bind DeletePluginCommand}"/>
+                                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                                    <Button x:Uid="PluginPage_UninstallPlugin_HotReloadButton"
+                                                            Visibility="{x:Bind Plugin.IsDevMode, Mode=OneWay}"
+                                                            Command="{x:Bind HotReloadDevPluginCommand}" />
+                                                    <Button x:Uid="PluginPage_UninstallPlugin_Button"
+                                                            Command="{x:Bind DeletePluginCommand}" />
+                                                </StackPanel>
                                             </control:Setting>
                                         </control:Panel>
                                     </StackPanel>
                                 </Expander.Content>
                             </Expander>
+                            <Border BorderBrush="#c864a6"
+                                    BorderThickness="2"
+                                    CornerRadius="4"
+                                    IsHitTestVisible="False"
+                                    Visibility="{x:Bind Plugin.IsDevMode, Mode=OneWay}" />
                         </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>

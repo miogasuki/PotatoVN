@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using GalgameManager.WinApp.Base.Models;
 
 namespace GalgameManager.WinApp.Base.Contracts;
@@ -16,4 +18,18 @@ public interface IPlugin
     /// </summary>
     /// <returns></returns>
     public Task InitializeAsync(IPotatoVnApi hostApi);
+
+    /// <summary>
+    /// 插件被卸载的时候会被调用，用于清理一些插件相关的外部配置和数据
+    /// </summary>
+    /// <remarks>
+    /// 对于开发阶段的插件可以在这个接口中实现热重载相关逻辑方便开发。
+    /// 插件默认最多用时 5s，可以通过 extendWaitHandler 延长，但是无法超过 60s
+    /// </remarks>
+    /// <returns></returns>
+    public Task OnUninstallAsync(bool deleteData, Action<TimeSpan> extendWaitHandler, CancellationToken cts)
+    {
+        if (cts.IsCancellationRequested) return Task.FromCanceled(cts);
+        return Task.CompletedTask;
+    }
 }

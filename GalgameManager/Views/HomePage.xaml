@@ -15,6 +15,7 @@
     xmlns:cmtk="using:CommunityToolkit.WinUI"
     xmlns:cmtkAnimations="using:CommunityToolkit.WinUI.Animations"
     xmlns:helpers="using:GalgameManager.Helpers"
+    xmlns:behaviors="using:GalgameManager.Behaviors"
     mc:Ignorable="d"
     x:Name="Page"
     NavigationCacheMode="Required">
@@ -382,43 +383,38 @@
                 </CommandBar.SecondaryCommands>
             </CommandBar>
 
-            <ScrollViewer Grid.Row="1">
-                <GridView
-                    x:Name="MainGridView"
-                    ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                    IsItemClickEnabled="True"
-                    SelectionMode="None"
-                    CanReorderItems="True"
-                    AllowDrop="True"
-                    CanDragItems="True"
-                    DragItemsStarting="MainGridView_DragItemsStarting"
-                    DragItemsCompleted="MainGridView_DragItemsCompleted"
-                    ItemClick="MainGridView_ItemClick">
-                    <GridView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <!-- 使用原生的 ItemsWrapGrid -->
-                            <!-- 缺点：Item 不会自动拉伸填满行宽，是左对齐的 -->
-                            <ItemsWrapGrid Orientation="Horizontal" ItemWidth="175" />
-                        </ItemsPanelTemplate>
-                    </GridView.ItemsPanel>
+            <GridView
+                Grid.Row="1" x:Name="GridView"
+                ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                IsItemClickEnabled="True"
+                SelectionMode="None"
+                CanReorderItems="True"
+                AllowDrop="True"
+                CanDragItems="True"
+                DragItemsStarting="MainGridView_DragItemsStarting"
+                DragItemsCompleted="MainGridView_DragItemsCompleted"
+                ItemClick="MainGridView_ItemClick">
+                <behaviors:GridViewSpacingBehavior GridView="{x:Bind GridView}"
+                                                   TargetWidth="175"
+                                                   ItemSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                                                   Calc="True"/>
 
-                    <GridView.ItemContainerTransitions>
-                        <TransitionCollection>
-                            <ReorderThemeTransition />
-                        </TransitionCollection>
-                    </GridView.ItemContainerTransitions>
+                <GridView.ItemContainerTransitions>
+                    <TransitionCollection>
+                        <ReorderThemeTransition />
+                    </TransitionCollection>
+                </GridView.ItemContainerTransitions>
 
-                    <GridView.ItemTemplate>
-                        <DataTemplate x:DataType="models:Galgame">
-                            <prefab:GalgamePrefab
-                                Galgame="{x:Bind}"
-                                ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
-                                PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
-                                Flyout="{StaticResource GalFlyout}" />
-                        </DataTemplate>
-                    </GridView.ItemTemplate>
-                </GridView>
-            </ScrollViewer>
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Galgame">
+                        <prefab:GalgamePrefab
+                            Galgame="{x:Bind}"
+                            ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
+                            PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
+                            Flyout="{StaticResource GalFlyout}" />
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
 
             <!-- Drag&Drop(用于提示的区域) -->
             <Border Grid.Row="1" CornerRadius="5"

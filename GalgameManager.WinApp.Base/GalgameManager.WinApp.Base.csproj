@@ -17,8 +17,5 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GalgameManager.Core\GalgameManager.Core.csproj" />
-  </ItemGroup>
   
 </Project>

@@ -85,10 +85,9 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             SecondaryKey = (SortKeys)_localSettingsService.ReadSettingAsync<int>(KeyValues.SecondarySortKey).Result;
             IsSecondaryDescending = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SecondarySortDescending).Result;
 
-            var customOrder = _localSettingsService
-                                 .ReadSettingAsync<string>(KeyValues.CustomSortOrder).Result;
-
-            var customOrderList = JsonConvert.DeserializeObject<List<string>>(customOrder ?? "[]");
+            var customOrderList = _localSettingsService
+                                 .ReadSettingAsync<List<string>>(KeyValues.CustomSortOrder, true).Result
+                                  ?? [];
             ApplySort(customOrderList);
 
             //Add Event
@@ -344,21 +343,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             SecondaryKey = SortKeys.Custom;
             IsPrimaryDescending = false;
             IsSecondaryDescending = false;
-
-            // Keep view order during dragging
-            List<Galgame> currentViewOrder = Source.Cast<Galgame>().ToList();
-            ObservableCollection<Galgame> collection = _galgameService.Galgames;
-            for (var i = 0; i < currentViewOrder.Count; i++)
-            {
-                Galgame item = currentViewOrder[i];
-                var oldIndex = collection.IndexOf(item);
-
-                if (oldIndex != i && oldIndex != -1)
-                {
-                    collection.Move(oldIndex, i);
-                }
-            }
-
             Source.SortDescriptions.Clear();
             Source.RefreshSorting();
             SaveSortSettings();
@@ -498,15 +482,14 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         _localSettingsService.SaveSettingAsync(KeyValues.SecondarySortDescending, IsSecondaryDescending);
     }
 
-    public void SaveCustomSortOrder()
+    public async void SaveCustomSortOrder()
     {
         try
         {
             List<string> customSortOrder = Source.Cast<Galgame>()
                 .Select(g => g.Uuid.ToString())
                 .ToList();
-            var toSave = JsonConvert.SerializeObject(customSortOrder);
-            _localSettingsService.SaveSettingAsync(KeyValues.CustomSortOrder, toSave);
+            await _localSettingsService.SaveSettingAsync(KeyValues.CustomSortOrder, customSortOrder, true);
         }
         catch (Exception ex)
         {

@@ -97,7 +97,7 @@ public class GameSaveDetectorTask : BgTaskBase
 
             if (!string.IsNullOrEmpty(saveDirectory))
             {
-                Galgame.DetectedSavePosition = GamePortablePath.Create(saveDirectory, Galgame.LocalPath);
+                Galgame.DetectedSavePath = GamePortablePath.Create(saveDirectory, Galgame.LocalPath);
                 // 4. 【关键】成功后，将进度设为 1/1，并将消息设置为最终路径
                 ChangeProgress(1, 1, "GameSaveDetector_Success".GetLocalized(saveDirectory)); // "成功检测到存档：{0}"
             }
@@ -107,7 +107,7 @@ public class GameSaveDetectorTask : BgTaskBase
                 var fallbackDirectory = Path.GetDirectoryName(finalPaths[0]);
                 if (!string.IsNullOrEmpty(fallbackDirectory))
                 {
-                    Galgame.DetectedSavePosition = GamePortablePath.Create(fallbackDirectory, Galgame.LocalPath);
+                    Galgame.DetectedSavePath = GamePortablePath.Create(fallbackDirectory, Galgame.LocalPath);
                     Debug.WriteLine($"[GameSaveDetector] 使用回退目录: {fallbackDirectory}");
                     ChangeProgress(1, 1, "GameSaveDetector_Success".GetLocalized(fallbackDirectory));
                 }

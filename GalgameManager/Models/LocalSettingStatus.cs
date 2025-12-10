@@ -14,23 +14,26 @@ public class LocalSettingStatus
     /// GalgameSourceCollectionService, v1.8.0, 修改存储库的结构
     /// <seealso cref="GalgameSourceCollectionService.SourceUpgradeAsync"/>
     public bool GalgameSourceFormatUpgrade = false;
-    
+
     /// GalgameSourceCollectionService, v1.8.6, 添加虚拟游戏库
     public bool GalgameSourceAddVirtualSource = false;
-    
+
     /// GalgameSourceCollectionService, 将全局SaveBackupMetadata设置迁移到各个库的SaveMetaBackup属性
     public bool MetaBackupPerSourceUpgrade = false;
     /// GalgameSourceCollectionService, 检测现有的每个库是否为可移动库
     public bool GalgameSourceRemoveableUpgrade = false;
-    
+
     /// CategoryService, v1.8.0, 改变分类中游戏索引格式
-    public bool CategoryGameIndexUpgrade = false;   
-    
+    public bool CategoryGameIndexUpgrade = false;
+
     /// CategoryService, v1.8.0, 给各分类添加LastPlayed字段
     public bool CategoryAddLastPlayed = false;
-    
+
     /// CategoryService, v1.8.0, 添加"想玩"分类
     public bool CategoryAddWantToPlay = false;
+
+    /// GalgameSourceCollectionService，GalgameDetectedSavePosition => GalgameDetectedSavePath的迁移， v1.10.0
+    public bool GalgameDetectedSavePath = false;
 
 
     // 数据存储数据库化，对于导出的数据永远为false（导出数据采用json格式），v1.9

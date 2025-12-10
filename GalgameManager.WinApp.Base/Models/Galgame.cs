@@ -92,7 +92,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// 2. 相对特殊文件夹：<c>%Documents%\Company\Title</c>
     /// 3. 绝对路径（如NAS）：<c>Z:\114514\savedata</c>
     /// </remarks>
-    [ObservableProperty] private GamePortablePath? _detectedSavePosition;
+    [ObservableProperty] private GamePortablePath? _detectedSavePath;
 
     public List<KeyMapping> KeyMappings { get; set; } = new(); //快捷键映射
     private RssType _rssType = RssType.None;
@@ -128,6 +128,10 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
     [Obsolete($"Use {nameof(LocalPath)} instead")][BsonIgnore]
     public string Path { get; set; } = "";
+
+    [Obsolete($"Use {nameof(DetectedSavePath)} instead")][BsonIgnore]
+    public string? DetectedSavePosition { get; set; }
+
     #endregion
 
     [JsonIgnore][BsonIgnore]

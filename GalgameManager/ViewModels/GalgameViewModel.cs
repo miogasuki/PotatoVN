@@ -216,7 +216,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         IsRemoveSelectedThreadVisible = Item?.ProcessName is not null ? Visibility.Visible : Visibility.Collapsed;
         IsSelectProcessVisible = Item?.ProcessName is null ? Visibility.Visible : Visibility.Collapsed;
         IsResetPathVisible = Item?.ExePath is not null || Item?.TextPath is not null ? Visibility.Visible : Visibility.Collapsed;
-        HasSaveDirectory = !string.IsNullOrEmpty(Item?.DetectedSavePosition);
+        HasSaveDirectory = !string.IsNullOrEmpty(Item?.DetectedSavePath);
 
         // 根据是否有存档目录来设置打开按钮的显示
         if (HasSaveDirectory)
@@ -377,7 +377,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 _ = _bgTaskService.AddBgTask(new GameMuteTask(Item, process));
             if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled) || Item.KeyReMap) && Item.KeyMappings.Any(m => m.IsEnabled))
                 _ = _bgTaskService.AddBgTask(new KeyMappingTask(Item, process));
-            if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath)) && string.IsNullOrEmpty(Item.DetectedSavePosition))
+            if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath)) && string.IsNullOrEmpty(Item.DetectedSavePath))
                 _ = _bgTaskService.AddBgTask(new GameSaveDetectorTask(Item));
             if (process.HasExited == false)
                 App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));
@@ -570,7 +570,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private async Task OpenSaveDirectory()
     {
         if (Item == null) return;
-        if (string.IsNullOrWhiteSpace(Item.DetectedSavePosition?.ToPath()))
+        if (string.IsNullOrWhiteSpace(Item.DetectedSavePath?.ToPath()))
         {
             _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_NoSaveDirectoryDetected".GetLocalized(), displayTimeMs: 3000);
             return;
@@ -578,7 +578,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
         try
         {
-            var absolutePath = Item.DetectedSavePosition?.ToPath();
+            var absolutePath = Item.DetectedSavePath?.ToPath();
             if (string.IsNullOrWhiteSpace(absolutePath))
             {
                 _infoService.Info(InfoBarSeverity.Error, "GalgamePage_OpenSaveDirectoryFailed".GetLocalized(), "GalgamePage_InvalidSavePath".GetLocalized());

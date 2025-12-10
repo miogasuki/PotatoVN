@@ -47,7 +47,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     public string ExePathMsg => Gal.ExePath ?? "GalgameSettingPage_NoExe".GetLocalized();
     public bool IsLocalGame => Gal.IsLocalGame;
     public string SavePositionDescription =>
-        Gal.DetectedSavePosition?.ToDisplay() ?? "GalgameSettingPage_DetectedSavePosition".GetLocalized();
+        Gal.DetectedSavePath?.ToDisplay() ?? "GalgameSettingPage_DetectedSavePosition".GetLocalized();
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
         IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService,
@@ -294,7 +294,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         {
             // 确定起始路径：如果已检测到存档位置则使用它，否则使用 AppData
             string initialPath;
-            var absolutePath = Gal.DetectedSavePosition?.ToPath();
+            var absolutePath = Gal.DetectedSavePath?.ToPath();
             if (!string.IsNullOrEmpty(absolutePath) && Directory.Exists(absolutePath))
             {
                 initialPath = absolutePath;
@@ -305,7 +305,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             }
 
             // 检查是否已有检测到的存档位置
-            var hasDetectedSavePosition = !string.IsNullOrEmpty(Gal.DetectedSavePosition);
+            var hasDetectedSavePosition = !string.IsNullOrEmpty(Gal.DetectedSavePath);
 
             // 尝试打开资源管理器到指定路径，然后让用户选择
             await ShowFolderPickerWithPath(initialPath, hasDetectedSavePosition);
@@ -396,7 +396,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
         if (folder is not null)
         {
-            Gal.DetectedSavePosition = GamePortablePath.Create(folder, Gal.LocalPath);
+            Gal.DetectedSavePath = GamePortablePath.Create(folder, Gal.LocalPath);
             await _galService.SaveGalgameAsync(Gal);
             _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_SavePositionUpdated".GetLocalized(), displayTimeMs: 2000);
         }
@@ -427,7 +427,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         try
         {
             // 清空检测到的存档位置
-            Gal.DetectedSavePosition = null;
+            Gal.DetectedSavePath = null;
 
             // 保存游戏设置
             await _galService.SaveGalgameAsync(Gal);

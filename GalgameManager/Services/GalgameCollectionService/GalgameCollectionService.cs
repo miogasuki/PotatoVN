@@ -85,7 +85,24 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
     public async Task StartAsync()
     {
-        await Task.CompletedTask;
+        LocalSettingStatus status = await LocalSettingsService.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true)
+            ?? new();
+        if (!status.GalgameDetectedSavePath)
+        {
+            try
+            {
+                foreach (Galgame galgame in _galgames)
+#pragma warning disable CS0618 // 类型或成员已过时
+                    galgame.DetectedSavePath = GamePortablePath.Create(galgame.DetectedSavePosition, galgame.LocalPath);
+#pragma warning restore CS0618 // 类型或成员已过时
+            }
+            catch (Exception)
+            {
+                //ignore
+            }
+            status.GalgameDetectedSavePath = true;
+            await LocalSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+        }
     }
 
     /// <summary>
@@ -586,17 +603,17 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         // 几个可能的存档位置：
         // 1. SuggestedSavePath（由云端同步过来的路径）
         //      TODO(kuriko): 这部分之后改成 ISaveProvider，由插件提供
-        // 2. DetectedSavePosition（运行检测到的路径）
+        // 2. DetectedSavePath（运行检测到的路径）
         // 3. 游戏根目录
-        
+
         var localPath = galgame.LocalPath;
         // PvnGamePath? suggestedSavePath = galgame.SuggestedSavePath.Value;
-        GamePortablePath? detectedSavePosition = galgame.DetectedSavePosition;
+        GamePortablePath? detectedSavePosition = galgame.DetectedSavePath;
 
         List<string> candidateSavePath = new();
         // if (suggestedSavePath?.ToPath() is { } path1) candidateSavePath.Add(path1);
         if (detectedSavePosition?.ToPath() is { } path2) candidateSavePath.Add(path2);
-        
+
         async Task<string?> ChooseFolder()
         {
             List<string> subFolders = galgame.GetSubFolders();
@@ -620,8 +637,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         {
             List<string> rootFiles = galgame.GetRootFiles();
             FolderOrFilePickerDialog dialog = new(
-                App.MainWindow!.Content.XamlRoot, 
-                "GalgameCollectionService_SelectSavePosition_File".GetLocalized(), 
+                App.MainWindow!.Content.XamlRoot,
+                "GalgameCollectionService_SelectSavePosition_File".GetLocalized(),
                 rootFiles, false, detectedSavePosition?.ToPath() ?? localPath);
             return await dialog.ShowAndAwaitResultAsync();
         }
@@ -631,7 +648,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         {
             var result = await ChooseFolder();
             // 重置检测存档位置，允许重新显示选择单文件。
-            if (result.IsNullOrWhiteSpace()) galgame.DetectedSavePosition = null;
+            if (result.IsNullOrWhiteSpace()) galgame.DetectedSavePath = null;
             return result;
         }
 

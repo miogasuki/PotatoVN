@@ -15,7 +15,7 @@ using System.Web;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser
+public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser, IGalCoverParser
 {
     private IYmgalApi _ymgalApi;
     private Task<IYmgalApi>? _apiInitTask;
@@ -165,6 +165,21 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
         }
     }
     
+    public async Task<List<string>> GetGalgameImagesAsync(Galgame galgame)
+    {
+        Galgame? info = await GetGalgameInfo(galgame);
+        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
+    }
+
+    /// <summary>
+    /// 获取封面图片，通过 GetGalgameInfo 获取
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        Galgame? info = await GetGalgameInfo(galgame);
+        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
+    }
+
     public RssType GetPhraseType() => RssType.Ymgal;
 
     public async Task<GalgameCharacter?> GetGalgameCharacter(GalgameCharacter galgameCharacter)

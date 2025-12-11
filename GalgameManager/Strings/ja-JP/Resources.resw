@@ -913,6 +913,9 @@
   <data name="GalgameSettingPage_GalgameImagePath.Title" xml:space="preserve">
     <value>カバー画像</value>
   </data>
+  <data name="GalgameSettingPage_PickImageFromRss.Content" xml:space="preserve">
+    <value>选择图片</value>
+  </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>画像を選択</value>
   </data>

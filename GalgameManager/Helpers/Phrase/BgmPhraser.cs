@@ -13,7 +13,7 @@ using Exception = System.Exception;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser
+public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalCoverParser
 {
     private HttpClient _httpClient;
     private IBgmApi _bgmApi = null!;
@@ -179,6 +179,21 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser,
             result.Characters.Add(c);
         }
         return result;
+    }
+
+    public async Task<List<string>> GetGalgameImagesAsync(Galgame galgame)
+    {
+        Galgame? info = await GetGalgameInfo(galgame);
+        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
+    }
+
+    /// <summary>
+    /// 获取封面图片，通过 GetGalgameInfo 获取
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        Galgame? info = await GetGalgameInfo(galgame);
+        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
     }
 
     public RssType GetPhraseType() => RssType.Bangumi;

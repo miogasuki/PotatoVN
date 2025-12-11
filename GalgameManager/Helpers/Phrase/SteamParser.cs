@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Web;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Core.Helpers;
@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class SteamParser : IGalInfoPhraser
+public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoverParser
 {
     private readonly string _lang;
     private readonly HttpClient _httpClient;
@@ -66,6 +66,29 @@ public class SteamParser : IGalInfoPhraser
         result.LastFetchInfoTime = DateTime.Now;
         result.ImageUrl = $"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_600x900.jpg";
         return result;
+    }
+
+    public async Task<List<string>> GetGalgameImagesAsync(Galgame galgame)
+    {
+        Galgame? info = await GetGalgameInfo(galgame);
+        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
+    }
+
+    /// <summary>
+    /// 获取Header图片
+    /// </summary>
+    public async Task<List<string>> GetGalHeadersAsync(Galgame game)
+    {
+        string? header = await GetGalHeaderAsync(game);
+        return header is not null ? [header] : [];
+    }
+
+    /// <summary>
+    /// 获取封面图片，复用 GetGalgameImagesAsync 的实现
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        return await GetGalgameImagesAsync(galgame);
     }
 
     public RssType GetPhraseType() => RssType.Steam;

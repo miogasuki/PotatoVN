@@ -54,7 +54,7 @@ public class VndbApi : IVndbApi
     public async Task<VndbResponse<VndbCharacter>> GetVnCharacterAsync(VndbQuery vndbQuery) => 
         await _vndbApiImplementation.GetVnCharacterAsync(vndbQuery);
 
-    public async Task<VndbResponse<VndbStaff>> GetStaffAsync(VndbQuery vndbQuery) => 
+    public async Task<VndbResponse<VndbStaff>> GetStaffAsync(VndbQuery vndbQuery) =>
         await _vndbApiImplementation.GetStaffAsync(vndbQuery);
     
     public async Task<UserLabelsResponse> GetUserLabelsAsync(string id) => 

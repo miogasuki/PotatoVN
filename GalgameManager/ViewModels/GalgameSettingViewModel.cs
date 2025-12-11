@@ -1,9 +1,10 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using GalgameManager.Contracts.Phrase;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
@@ -17,6 +18,7 @@ using GalgameManager.Services;
 using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System.Diagnostics;
 
 namespace GalgameManager.ViewModels;
 
@@ -221,6 +223,111 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&
             await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
             Gal.PvnUploadProperties |= PvnUploadProperties.HeaderImageLoc;
+    }
+
+    [RelayCommand]
+    private async Task PickImageFromRssAsync(object? parameter)
+    {
+        bool isHeader = parameter is string s && s == "True";
+        IsPhrasing = true;
+        try
+        {
+            List<Task<List<string>>> tasks = [];
+            foreach (RssType rssType in RssTypeHelper.UsablePhrasers)
+            {
+                if (_galService.PhraserList.TryGetValue((int)rssType, out IGalInfoPhraser? phraser) && phraser != null)
+                {
+                    if (Gal.Ids[(int)rssType] == "-1") continue;
+                    Galgame game = new();
+                    game.Name.Value = Gal.Name.Value;
+                    game.RssType = rssType;
+                    game.Ids = (string?[])Gal.Ids.Clone();
+
+                    if (isHeader)
+                    {
+                        if (phraser is IGalHeaderParser headerParser)
+                        {
+                            tasks.Add(Task.Run(async () => await headerParser.GetGalHeadersAsync(game)));
+                        }
+                    }
+                    else
+                    {
+                        tasks.Add(Task.Run(async () => await phraser.GetGalgameImagesAsync(game)));
+                    }
+                }
+            }
+
+            var safeTasks = tasks.Select(async t =>
+            {
+                try
+                {
+                    return await t;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"Phraser failed: {e.Message}");
+                    return new List<string>();
+                }
+            });
+
+            var results = await Task.WhenAll(safeTasks);
+
+            List<string> imageUrls = new();
+            foreach (List<string> images in results)
+            {
+                if (images != null)
+                {
+                    imageUrls.AddRange(images.Where(url => !string.IsNullOrEmpty(url)));
+                }
+            }
+
+            // Remove duplicates
+            imageUrls = imageUrls.Distinct().ToList();
+
+            IsPhrasing = false; // Turn off loading before showing dialog
+
+            if (imageUrls.Count == 0)
+            {
+                _infoService.Info(InfoBarSeverity.Warning, "未找到图片");
+                return;
+            }
+
+            ImagePickerDialog dialog = new(imageUrls, isHeader);
+            ContentDialogResult result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary && !string.IsNullOrEmpty(dialog.SelectedImageUrl))
+            {
+                var suffix = isHeader ? "_header" : "_cover";
+                var newFile = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dialog.SelectedImageUrl,
+                    fileNameWithoutExtension: $"{Gal.Name.Value}_{DateTime.Now.ToUnixTime()}{suffix}");
+                if (newFile != null)
+                {
+                    if (isHeader)
+                    {
+                        DownloadHelper.DeleteImgIfExists(Gal.HeaderImagePath.Value);
+                        Gal.HeaderImagePath.Value = newFile;
+                        Gal.HeaderImageUrl = dialog.SelectedImageUrl; // 更新HeaderImageUrl以便上传
+                        if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&
+                            await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
+                            Gal.PvnUploadProperties |= PvnUploadProperties.HeaderImageLoc;
+                    }
+                    else
+                    {
+                        Gal.ImagePath.Value = newFile;
+                    }
+                    await _galService.SaveGalgameAsync(Gal);
+                    _infoService.Info(InfoBarSeverity.Success, "图片已保存");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
+        }
+        finally
+        {
+            IsPhrasing = false;
+        }
     }
 
     [RelayCommand]

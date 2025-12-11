@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GalgameManager.Helpers.Phrase;
-public class CngalPhraser : IGalInfoPhraser
+public class CngalPhraser : IGalInfoPhraser, IGalCoverParser
 {
 
     private HttpClient _httpClient;
@@ -122,6 +122,21 @@ public class CngalPhraser : IGalInfoPhraser
         {
             return null;
         }
+    }
+
+    public async Task<List<string>> GetGalgameImagesAsync(Galgame galgame)
+    {
+        Galgame? info = await GetGalgameInfo(galgame);
+        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
+    }
+
+    /// <summary>
+    /// 获取封面图片，通过 GetGalgameInfo 获取
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        Galgame? info = await GetGalgameInfo(galgame);
+        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
     }
 
     public RssType GetPhraseType()

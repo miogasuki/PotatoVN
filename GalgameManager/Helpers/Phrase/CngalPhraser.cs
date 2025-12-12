@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GalgameManager.Helpers.Phrase;
-public class CngalPhraser : IGalInfoPhraser, IGalCoverParser
+public class CngalPhraser : IGalInfoPhraser, IGalCoversParser
 {
 
     private HttpClient _httpClient;
@@ -131,12 +131,36 @@ public class CngalPhraser : IGalInfoPhraser, IGalCoverParser
     }
 
     /// <summary>
-    /// 获取封面图片，通过 GetGalgameInfo 获取
+    /// 获取封面图片
     /// </summary>
     public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
     {
-        Galgame? info = await GetGalgameInfo(galgame);
-        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
+        var name = galgame.Name.Value ?? "";
+        int? id;
+        try
+        {
+            id = Convert.ToInt32(galgame.Ids[(int)RssType.Cngal] ?? "");
+        }
+        catch (Exception)
+        {
+            id = await GetId(name);
+        }
+
+        if (id == null) return [];
+
+        try
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync($"https://api.cngal.org/api/entries/GetEntryView/{id}");
+            if (!response.IsSuccessStatusCode) return [];
+
+            JToken jsonToken = JToken.Parse(await response.Content.ReadAsStringAsync());
+            var url = jsonToken["mainPicture"]?.ToObject<string>();
+            return url is not null ? [url] : [];
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     public RssType GetPhraseType()

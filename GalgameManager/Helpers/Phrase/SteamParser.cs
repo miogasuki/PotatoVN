@@ -9,15 +9,15 @@ using Newtonsoft.Json.Linq;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoverParser
+public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoversParser, IGalHeadersParser
 {
     private readonly string _lang;
     private readonly HttpClient _httpClient;
     private readonly ISteamStoreApi _storeApi;
-    
+
     public SteamParser(string lang)
     {
-        _lang       = lang;
+        _lang = lang;
         _httpClient = Utils.GetDefaultHttpClient();
         _httpClient.BaseAddress = new Uri("https://api.steampowered.com");
         _storeApi = SteamAPi.GetStoreApi();
@@ -47,13 +47,13 @@ public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoverParser
         SteamAppDetailDataDto data = rsp.Data;
         Galgame result = new()
         {
-            RssType     = RssType.Steam,
-            Name        = data.Name ?? string.Empty,
+            RssType = RssType.Steam,
+            Name = data.Name ?? string.Empty,
             Description = data.DetailedDescription ?? string.Empty,
-            ImageUrl    = data.HeaderImage,
-            Developer   = data.Developers is { Count: > 0 } ? data.Developers[0] : Galgame.DefaultString,
+            ImageUrl = data.HeaderImage,
+            Developer = data.Developers is { Count: > 0 } ? data.Developers[0] : Galgame.DefaultString,
             ReleaseDate = DateTimeExtensions.ToDateTime(data.ReleaseDate?.Date ?? string.Empty),
-            Tags        = new ObservableCollection<string>(data.Genres?.Select(g => g.Description ?? string.Empty) ?? []),
+            Tags = new ObservableCollection<string>(data.Genres?.Select(g => g.Description ?? string.Empty) ?? []),
             Ids =
             {
                 [(int)GetPhraseType()] = appId.ToString(),
@@ -84,11 +84,15 @@ public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoverParser
     }
 
     /// <summary>
-    /// 获取封面图片，复用 GetGalgameImagesAsync 的实现
+    /// 获取封面图片，直接通过AppID构造URL
     /// </summary>
     public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
     {
-        return await GetGalgameImagesAsync(galgame);
+        var appId = TryParseId(galgame);
+        if (appId is null && galgame.Name.Value is not null)
+            appId = await QueryAppIdByNameAsync(galgame);
+        if (appId is null) return [];
+        return [$"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_600x900.jpg"];
     }
 
     public RssType GetPhraseType() => RssType.Steam;
@@ -123,7 +127,7 @@ public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoverParser
             if (!nameLists.Contains(game.Name.Value)) nameLists.Insert(0, game.Name.Value);
             Dictionary<string, JArray?> cache = new();
             double max = 0;
-            int?   id  = null;
+            int? id = null;
             foreach (var name in nameLists)
             {
                 var langStr = LanguageEnum.English.ToSteamApiString();
@@ -134,8 +138,8 @@ public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoverParser
                 {
                     var url =
                         $"https://store.steampowered.com/api/storesearch?term={HttpUtility.UrlEncode(name)}&l={langStr}&cc=US";
-                    var json   = await _httpClient.GetStringAsync(url);
-                    JObject jo    = JObject.Parse(json);
+                    var json = await _httpClient.GetStringAsync(url);
+                    JObject jo = JObject.Parse(json);
                     items = jo["items"] as JArray ?? jo["apps"] as JArray;
                     cache[langStr] = items;
                 }
@@ -147,7 +151,7 @@ public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoverParser
                     var s = IGalInfoPhraser.Similarity(name, itemName);
                     if (!(s > max)) continue;
                     max = s;
-                    id  = it["id"]?.ToObject<int>();
+                    id = it["id"]?.ToObject<int>();
                     if (max > 0.999) return id;
                 }
             }

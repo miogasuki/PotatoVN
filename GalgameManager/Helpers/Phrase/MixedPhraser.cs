@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
 using CommunityToolkit.Mvvm.Messaging;
@@ -8,7 +8,7 @@ using GalgameManager.Models;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser, IGalHeaderParser, IGalCoverParser
+public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser, IGalCoversParser
 {
     private MixedPhraserData _data;
     private IEnumerable<string> _developerList;
@@ -269,74 +269,19 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
 
     public RssType GetPhraseType() => RssType.Mixed;
 
-    public async Task<List<string>> GetGalgameImagesAsync(Galgame galgame)
-    {
-        List<string> result = [];
-        foreach (RssType phraserType in RssTypeHelper.UsablePhrasers)
-        {
-            if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) && phraser != null)
-            {
-                if (galgame.Ids[(int)phraserType] == "-1") continue;
-                // Create a temporary galgame object for the specific phraser
-                Galgame game = new() { Name = galgame.Name };
-                game.RssType = phraserType;
-                game.Ids = (string?[])galgame.Ids.Clone();
-                
-                try
-                {
-                    List<string> images = await phraser.GetGalgameImagesAsync(game);
-                    result.AddRange(images);
-                }
-                catch
-                {
-                    // ignore individual phraser failures
-                }
-            }
-        }
-        return result.Distinct().ToList();
-    }
-
-    /// <summary>
-    /// 获取Header图片，遍历所有支持Header的解析器
-    /// </summary>
-    public async Task<List<string>> GetGalHeadersAsync(Galgame galgame)
-    {
-        List<string> result = [];
-        foreach (RssType phraserType in _data.Order.ImageUrlOrder)
-        {
-            if (galgame.Ids[(int)phraserType] == "-1") continue;
-            if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
-                phraser != null && phraser is IGalHeaderParser headerParser)
-            {
-                Galgame game = new() { Name = galgame.Name };
-                game.RssType = phraserType;
-                game.Ids = (string?[])galgame.Ids.Clone();
-
-                try
-                {
-                    List<string> headers = await headerParser.GetGalHeadersAsync(game);
-                    result.AddRange(headers);
-                }
-                catch
-                {
-                    // ignore individual phraser failures
-                }
-            }
-        }
-        return result.Distinct().ToList();
-    }
-
     /// <summary>
     /// 获取封面图片，遍历所有支持Cover的解析器
     /// </summary>
     public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
     {
+        if (!_init) Init();
         List<string> result = [];
         foreach (RssType phraserType in _data.Order.ImageUrlOrder)
         {
+            if (!IsPhraserEnabled(phraserType)) continue;
             if (galgame.Ids[(int)phraserType] == "-1") continue;
             if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
-                phraser != null && phraser is IGalCoverParser coverParser)
+                phraser != null && phraser is IGalCoversParser coverParser)
             {
                 Galgame game = new() { Name = galgame.Name };
                 game.RssType = phraserType;

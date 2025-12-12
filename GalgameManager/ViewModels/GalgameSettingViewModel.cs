@@ -232,58 +232,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         IsPhrasing = true;
         try
         {
-            List<Task<List<string>>> tasks = [];
-            foreach (RssType rssType in RssTypeHelper.UsablePhrasers)
-            {
-                if (_galService.PhraserList.TryGetValue((int)rssType, out IGalInfoPhraser? phraser) && phraser != null)
-                {
-                    if (Gal.Ids[(int)rssType] == "-1") continue;
-                    Galgame game = new();
-                    game.Name.Value = Gal.Name.Value;
-                    game.RssType = rssType;
-                    game.Ids = (string?[])Gal.Ids.Clone();
-
-                    if (isHeader)
-                    {
-                        if (phraser is IGalHeaderParser headerParser)
-                        {
-                            tasks.Add(Task.Run(async () => await headerParser.GetGalHeadersAsync(game)));
-                        }
-                    }
-                    else
-                    {
-                        tasks.Add(Task.Run(async () => await phraser.GetGalgameImagesAsync(game)));
-                    }
-                }
-            }
-
-            var safeTasks = tasks.Select(async t =>
-            {
-                try
-                {
-                    return await t;
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine($"Phraser failed: {e.Message}");
-                    return new List<string>();
-                }
-            });
-
-            var results = await Task.WhenAll(safeTasks);
-
-            List<string> imageUrls = new();
-            foreach (List<string> images in results)
-            {
-                if (images != null)
-                {
-                    imageUrls.AddRange(images.Where(url => !string.IsNullOrEmpty(url)));
-                }
-            }
-
-            // Remove duplicates
-            imageUrls = imageUrls.Distinct().ToList();
-
+            List<string> imageUrls = await _galService.ParserGalImagesAsync(Gal, isHeader ? GameParseType.HeaderImage : GameParseType.Image);
             IsPhrasing = false; // Turn off loading before showing dialog
 
             if (imageUrls.Count == 0)

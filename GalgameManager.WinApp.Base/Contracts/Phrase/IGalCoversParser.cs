@@ -1,8 +1,10 @@
 using GalgameManager.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GalgameManager.Contracts.Phrase;
 
-public interface IGalCoverParser
+public interface IGalCoversParser
 {
     /// <summary>
     /// 从rss中获取galgame的所有可能的封面图片

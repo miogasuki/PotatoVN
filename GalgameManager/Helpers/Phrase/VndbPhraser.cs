@@ -12,7 +12,7 @@ using GalgameManager.Helpers;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalHeaderParser, IGalCoverParser
+public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalHeaderParser, IGalCoversParser
 {
     private VndbApi _vndbApi;
 
@@ -284,7 +284,10 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         return result;
     }
 
-    public async Task<List<string>> GetGalgameImagesAsync(Galgame galgame)
+    /// <summary>
+    /// 获取封面图片，复用 GetGalgameImagesAsync 的实现
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
     {
         List<string> result = [];
         if (string.IsNullOrEmpty(galgame.Ids[(int)RssType.Vndb])) await TryGetId(galgame);
@@ -350,14 +353,6 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         }
 
         return result.Distinct().ToList();
-    }
-
-    /// <summary>
-    /// 获取封面图片，复用 GetGalgameImagesAsync 的实现
-    /// </summary>
-    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
-    {
-        return await GetGalgameImagesAsync(galgame);
     }
 
     public RssType GetPhraseType() => RssType.Vndb;

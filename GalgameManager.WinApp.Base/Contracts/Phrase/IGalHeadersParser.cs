@@ -1,8 +1,10 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using GalgameManager.Models;
 
 namespace GalgameManager.Contracts.Phrase;
 
-public interface IGalHeaderParser
+public interface IGalHeadersParser
 {
     /// <summary>
     /// 从rss中获取galgame的所有可能的Header图片

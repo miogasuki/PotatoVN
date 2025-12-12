@@ -6,5 +6,31 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    xmlns:local="using:GalgameManager.Views.Dialog"
     Style="{ThemeResource DefaultContentDialogStyle}">
+
+    <GridView x:Name="ImageGridView"
+              ItemsSource="{x:Bind Images}"
+              SelectionMode="Single"
+              IsItemClickEnabled="True"
+              SelectionChanged="ImageGridView_OnSelectionChanged"
+              ScrollViewer.VerticalScrollBarVisibility="Auto"
+              ScrollViewer.VerticalScrollMode="Auto"
+              HorizontalAlignment="Stretch" 
+              VerticalAlignment="Stretch">
+        <GridView.ItemTemplate>
+            <DataTemplate x:DataType="local:ImagePickerItem">
+                <Grid Width="{Binding ElementName=DialogRoot, Path=ItemWidth}" 
+                      Height="{Binding ElementName=DialogRoot, Path=ItemHeight}" 
+                      CornerRadius="4" 
+                      Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{x:Bind Url}"/>
+                    </ToolTipService.ToolTip>
+                    <Image Source="{x:Bind Url}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            </DataTemplate>
+        </GridView.ItemTemplate>
+    </GridView>
+    
 </ContentDialog>

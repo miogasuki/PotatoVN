@@ -12,7 +12,7 @@ using GalgameManager.Helpers;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalHeaderParser, IGalCoversParser
+public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalHeaderParser, IGalCoversParser, IGalHeadersParser
 {
     private VndbApi _vndbApi;
 

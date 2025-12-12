@@ -68,33 +68,6 @@ public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoversParser, 
         return result;
     }
 
-    public async Task<List<string>> GetGalgameImagesAsync(Galgame galgame)
-    {
-        Galgame? info = await GetGalgameInfo(galgame);
-        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
-    }
-
-    /// <summary>
-    /// 获取Header图片
-    /// </summary>
-    public async Task<List<string>> GetGalHeadersAsync(Galgame game)
-    {
-        string? header = await GetGalHeaderAsync(game);
-        return header is not null ? [header] : [];
-    }
-
-    /// <summary>
-    /// 获取封面图片，直接通过AppID构造URL
-    /// </summary>
-    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
-    {
-        var appId = TryParseId(galgame);
-        if (appId is null && galgame.Name.Value is not null)
-            appId = await QueryAppIdByNameAsync(galgame);
-        if (appId is null) return [];
-        return [$"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_600x900.jpg"];
-    }
-
     public RssType GetPhraseType() => RssType.Steam;
 
     public async Task<string?> GetGalHeaderAsync(Galgame galgame)
@@ -104,6 +77,40 @@ public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoversParser, 
             appId = await QueryAppIdByNameAsync(galgame);
         if (appId is null) return null;
         return $"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_hero.jpg";
+    }
+
+    /// <summary>
+    /// 获取Headers图片
+    /// </summary>
+    public async Task<List<string>> GetGalHeadersAsync(Galgame game) =>
+        (await GetGalHeaderAsync(game)) is { } header ? [header] : [];
+
+    /// <summary>
+    /// 获取封面图片，只关注ImageUrl
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        var appId = TryParseId(galgame);
+        if (appId is null && galgame.Name.Value is not null)
+            appId = await QueryAppIdByNameAsync(galgame);
+        if (appId is null) return [];
+
+        Dictionary<string, SteamAppDetailResponse>? dict;
+        try
+        {
+            dict = await _storeApi.GetAppDetailsAsync(appId.ToString()!, _lang);
+        }
+        catch
+        {
+            return [];
+        }
+
+        if (dict.TryGetValue(appId.ToString()!, out SteamAppDetailResponse? rsp) == false || rsp.Success == false ||
+            rsp.Data is null)
+            return [];
+        
+        // If we reached here, the AppId is considered valid, so construct the cover URL
+        return [$"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_600x900.jpg"];
     }
 
     #region private helpers

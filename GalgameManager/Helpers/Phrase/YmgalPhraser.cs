@@ -165,12 +165,6 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
         }
     }
     
-    public async Task<List<string>> GetGalgameImagesAsync(Galgame galgame)
-    {
-        Galgame? info = await GetGalgameInfo(galgame);
-        return info?.ImageUrl is not null ? [info.ImageUrl] : [];
-    }
-
     /// <summary>
     /// 获取封面图片
     /// </summary>

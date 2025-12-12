@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using GalgameManager.Enums;
@@ -17,7 +17,7 @@ public interface IGalInfoPhraser
     /// <param name="galgame">galgame</param>
     /// <returns>获取到的galgame信息（放到一个空的galgame里），如果获取不到信息则返回null</returns>
     public Task<Galgame?> GetGalgameInfo(Galgame galgame);
-
+    
     public RssType GetPhraseType();
 
     /// <summary>
@@ -27,7 +27,7 @@ public interface IGalInfoPhraser
     /// <param name="data">数据包</param>
     public void UpdateData(IGalInfoPhraserData data)
     {
-
+        
     }
 
     /// <summary>

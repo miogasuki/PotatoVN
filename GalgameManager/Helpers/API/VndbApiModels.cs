@@ -162,7 +162,7 @@ public class VndbCharacter
     public string? Description { get; set; }
     public VndbImage? Image { get; set; }
     public string? BloodType { get; set; }
-    public int? Height { get; set; }
+    public int? Height { get; set; } 
     public int? Weight { get; set; }
     public int? Bust { get; set; }
     public int? Waist { get; set; }
@@ -173,7 +173,6 @@ public class VndbCharacter
     public string[]? Sex { get; set; }
     public List<VndbVn>? Vns { get; set; }
 }
-
 public class VndbFilters
 {
     private readonly JArray? _jsonArray;

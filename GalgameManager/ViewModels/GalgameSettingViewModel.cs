@@ -228,12 +228,17 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [RelayCommand]
     private async Task PickImageFromRssAsync(object? parameter)
     {
-        bool isHeader = parameter is string s && s == "True";
+        // 1. 简化的参数解析
+        var parseType = parameter is string typeStr && Enum.TryParse(typeStr, out GameParseType pt)
+            ? pt
+            : GameParseType.Image;
+
         IsPhrasing = true;
         try
         {
-            List<string> imageUrls = await _galService.ParserGalImagesAsync(Gal, isHeader ? GameParseType.HeaderImage : GameParseType.Image);
-            IsPhrasing = false; // Turn off loading before showing dialog
+            // 2. 获取图片列表
+            List<string> imageUrls = await _galService.ParserGalImagesAsync(Gal, parseType);
+            IsPhrasing = false; // 加载完成
 
             if (imageUrls.Count == 0)
             {
@@ -241,37 +246,88 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
                 return;
             }
 
-            ImagePickerDialog dialog = new(imageUrls, isHeader)
+            // 3. 初始化并显示对话框
+            ImagePickerDialog dialog = new(imageUrls, parseType)
             {
                 XamlRoot = App.MainWindow!.Content.XamlRoot
             };
             dialog.Resources["ContentDialogMaxWidth"] = App.MainWindow.Bounds.Width * 0.8;
-            
-            ContentDialogResult result = await dialog.ShowAsync();
-            
-            if (result == ContentDialogResult.Primary && !string.IsNullOrEmpty(dialog.SelectedImageUrl))
+
+            var result = await dialog.ShowAsync();
+
+            if (result != ContentDialogResult.Primary || string.IsNullOrEmpty(dialog.SelectedImageUrl))
             {
-                var suffix = isHeader ? "_header" : "_cover";
-                var newFile = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dialog.SelectedImageUrl,
-                    fileNameWithoutExtension: $"{Gal.Name.Value}_{DateTime.Now.ToUnixTime()}{suffix}");
-                if (newFile != null)
+                return;
+            }
+
+            // --- 开始处理图片 ---
+
+            bool isHeader = parseType == GameParseType.HeaderImage;
+            long timestamp = DateTime.Now.ToUnixTime(); // 统一时间戳
+            string? finalPath = null; // 最终成功保存的文件路径
+
+            if (isHeader)
+            {
+                // === Header 处理逻辑 ===
+                var tempFileName = $"{Gal.Name.Value}_Header_{timestamp}_tmp";
+                var targetFileName = $"{Gal.Name.Value}_Header_{timestamp}.png";
+                var imagesFolder = (await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path;
+                var targetPath = Path.Combine(imagesFolder, targetFileName);
+
+                // 下载临时文件
+                var tempFile = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dialog.SelectedImageUrl,
+                    fileNameWithoutExtension: tempFileName);
+
+                if (tempFile != null)
                 {
-                    if (isHeader)
+                    try
                     {
-                        DownloadHelper.DeleteImgIfExists(Gal.HeaderImagePath.Value);
-                        Gal.HeaderImagePath.Value = newFile;
-                        Gal.HeaderImageUrl = dialog.SelectedImageUrl; // 更新HeaderImageUrl以便上传
+                        // 在后台线程处理图片 (裁剪/转换)
+                        await Task.Run(() => DownloadHelper.ProcessImage(tempFile, targetPath, false));
+                        finalPath = targetPath; // 标记成功
+
+                        // 设置 Header 特有的属性
+                        DownloadHelper.DeleteImgIfExists(Gal.HeaderImagePath.Value); // 删旧图
+                        Gal.HeaderImagePath.Value = finalPath;
+                        Gal.HeaderImageUrl = dialog.SelectedImageUrl;
+
+                        // 设置同步标记
                         if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&
                             await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
+                        {
                             Gal.PvnUploadProperties |= PvnUploadProperties.HeaderImageLoc;
+                        }
                     }
-                    else
+                    finally
                     {
-                        Gal.ImagePath.Value = newFile;
+                        // 确保清理临时文件
+                        if (File.Exists(tempFile)) File.Delete(tempFile);
                     }
-                    await _galService.SaveGalgameAsync(Gal);
-                    _infoService.Info(InfoBarSeverity.Success, "图片已保存");
                 }
+            }
+            else
+            {
+                // === 普通封面 处理逻辑 ===
+                var fileName = $"{Gal.Name.Value}_{timestamp}_cover";
+
+                // 直接下载为最终文件
+                var newFile = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dialog.SelectedImageUrl,
+                    fileNameWithoutExtension: fileName);
+
+                if (newFile != null)
+                {
+                    finalPath = newFile; // 标记成功
+                    DownloadHelper.DeleteImgIfExists(Gal.ImagePath.Value); // 删旧图
+                    Gal.ImagePath.Value = finalPath;
+                }
+            }
+
+            // 5. 统一的保存与通知逻辑
+            // 只要 finalPath 不为空，说明上面的步骤（无论是Header还是Cover）成功了
+            if (finalPath != null)
+            {
+                await _galService.SaveGalgameAsync(Gal);
+                _infoService.Info(InfoBarSeverity.Success, "图片已保存");
             }
         }
         catch (Exception e)

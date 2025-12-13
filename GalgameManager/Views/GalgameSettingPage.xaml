@@ -264,7 +264,7 @@
                                                       IsOn="{x:Bind ViewModel.Gal.HeaderImagePath.IsLock, Mode=TwoWay}"/>
                                         <Button x:Uid="GalgameSettingPage_PickImageFromRss"
                                                 Command="{x:Bind ViewModel.PickImageFromRssCommand}"
-                                                CommandParameter="True"
+                                                CommandParameter="HeaderImage"
                                                 IsEnabled="{x:Bind ViewModel.Gal.HeaderImagePath.IsLock, Mode=OneWay,
                                                 Converter={StaticResource InverseBooleanConverter}}"/>
                                         <Button x:Uid="GalgameSettingPage_PickImage"

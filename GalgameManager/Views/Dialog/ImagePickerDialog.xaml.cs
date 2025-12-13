@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
+using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace GalgameManager.Views.Dialog;
@@ -13,12 +13,13 @@ public sealed partial class ImagePickerDialog : ContentDialog
     public double ItemWidth { get; set; }
     public double ItemHeight { get; set; }
 
-    public ImagePickerDialog(IEnumerable<string> images, bool isHeader = false)
+    public ImagePickerDialog(IEnumerable<string> images, GameParseType type = GameParseType.Image)
     {
+        var isHeader = type == GameParseType.HeaderImage;
         ItemWidth = isHeader ? 320 : 150;
         ItemHeight = isHeader ? 180 : 209;
         
-        InitializeComponent();   
+        InitializeComponent();        
 
         Title = "选择图片";
         PrimaryButtonText = "Yes".GetLocalized();

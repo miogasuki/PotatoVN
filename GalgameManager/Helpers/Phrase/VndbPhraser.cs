@@ -294,8 +294,8 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
         if (string.IsNullOrEmpty(galgame.Ids[(int)RssType.Vndb])) return result;
 
         var idString = galgame.Ids[(int)RssType.Vndb];
-        if (!string.IsNullOrEmpty(idString) && idString[0] != 'v')
-            idString = "v" + idString;
+        if (string.IsNullOrEmpty(idString)) return [];
+        if (idString[0] != 'v') idString = "v" + idString;
 
         // First, get the main cover image from API
         VndbResponse<VndbVn>? vndbResponse = await CallVndbApiAsync(() => _vndbApi.GetVisualNovelAsync(new VndbQuery

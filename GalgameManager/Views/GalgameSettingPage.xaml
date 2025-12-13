@@ -244,14 +244,19 @@
                                     <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
                                         <ToggleSwitch x:Uid="LockSwitchButton" 
                                                       IsOn="{x:Bind ViewModel.Gal.ImagePath.IsLock, Mode=TwoWay}"/>
-                                        <Button x:Uid="GalgameSettingPage_PickImageFromRss"
-                                                Command="{x:Bind ViewModel.PickImageFromRssCommand}"
-                                                IsEnabled="{x:Bind ViewModel.Gal.ImagePath.IsLock, Mode=OneWay,
-                                                Converter={StaticResource InverseBooleanConverter}}"/>
                                         <Button x:Uid="GalgameSettingPage_PickImage"
-                                                Command="{x:Bind ViewModel.PickImageCommand}"
                                                 IsEnabled="{x:Bind ViewModel.Gal.ImagePath.IsLock, Mode=OneWay,
-                                                Converter={StaticResource InverseBooleanConverter}}"/>
+                                                Converter={StaticResource InverseBooleanConverter}}">
+                                            <Button.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem x:Uid="GalgameSettingPage_PickImageFromRss"
+                                                                    Command="{x:Bind ViewModel.PickImageFromRssCommand}"
+                                                                    CommandParameter="Image"/>
+                                                    <MenuFlyoutItem x:Uid="GalgameSettingPage_PickImageLocal"
+                                                                    Command="{x:Bind ViewModel.PickImageCommand}"/>
+                                                </MenuFlyout>
+                                            </Button.Flyout>
+                                        </Button>
                                     </StackPanel>
                                 </control:Setting>
                             </control:Panel>
@@ -262,15 +267,19 @@
                                     <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
                                         <ToggleSwitch x:Uid="LockSwitchButton" 
                                                       IsOn="{x:Bind ViewModel.Gal.HeaderImagePath.IsLock, Mode=TwoWay}"/>
-                                        <Button x:Uid="GalgameSettingPage_PickImageFromRss"
-                                                Command="{x:Bind ViewModel.PickImageFromRssCommand}"
-                                                CommandParameter="HeaderImage"
-                                                IsEnabled="{x:Bind ViewModel.Gal.HeaderImagePath.IsLock, Mode=OneWay,
-                                                Converter={StaticResource InverseBooleanConverter}}"/>
                                         <Button x:Uid="GalgameSettingPage_PickImage"
-                                                Command="{x:Bind ViewModel.PickHeaderImageCommand}"
                                                 IsEnabled="{x:Bind ViewModel.Gal.HeaderImagePath.IsLock, Mode=OneWay,
-                                                Converter={StaticResource InverseBooleanConverter}}"/>
+                                                Converter={StaticResource InverseBooleanConverter}}">
+                                            <Button.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem x:Uid="GalgameSettingPage_PickImageFromRss"
+                                                                    Command="{x:Bind ViewModel.PickImageFromRssCommand}"
+                                                                    CommandParameter="HeaderImage"/>
+                                                    <MenuFlyoutItem x:Uid="GalgameSettingPage_PickImageLocal"
+                                                                    Command="{x:Bind ViewModel.PickHeaderImageCommand}"/>
+                                                </MenuFlyout>
+                                            </Button.Flyout>
+                                        </Button>
                                     </StackPanel>
                                 </control:Setting>
                             </control:Panel>

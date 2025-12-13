@@ -913,8 +913,20 @@ Since multiple data sources are involved, you need to configure relevant setting
   <data name="GalgameSettingPage_GalgameImagePath.Title" xml:space="preserve">
     <value>Cover</value>
   </data>
-  <data name="GalgameSettingPage_PickImageFromRss.Content" xml:space="preserve">
-    <value>From Rss</value>
+  <data name="GalgameSettingPage_PickImageFromRss.Text" xml:space="preserve">
+    <value>From RSS</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageLocal.Text" xml:space="preserve">
+    <value>From Local File</value>
+  </data>
+  <data name="GalgameSettingPage_NoImagesFound" xml:space="preserve">
+  <value>No images found</value>
+  </data>
+  <data name="GalgameSettingPage_ImageSaved" xml:space="preserve">
+  <value>Image saved</value>
+  </data>
+  <data name="GalgameSettingPage_PickImage" xml:space="preserve">
+    <value>Select image</value>
   </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>Select image</value>

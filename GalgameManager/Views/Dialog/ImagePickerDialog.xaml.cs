@@ -21,7 +21,7 @@ public sealed partial class ImagePickerDialog : ContentDialog
         
         InitializeComponent();        
 
-        Title = "选择图片";
+        Title = "GalgameSettingPage_PickImage".GetLocalized();
         PrimaryButtonText = "Yes".GetLocalized();
         SecondaryButtonText = "Cancel".GetLocalized();
         DefaultButton = ContentDialogButton.Primary;

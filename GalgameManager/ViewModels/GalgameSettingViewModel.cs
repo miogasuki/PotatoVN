@@ -228,32 +228,29 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [RelayCommand]
     private async Task PickImageFromRssAsync(object? parameter)
     {
-        // 1. 简化的参数解析
-        var parseType = parameter is string typeStr && Enum.TryParse(typeStr, out GameParseType pt)
+        GameParseType parseType = parameter is string typeStr && Enum.TryParse(typeStr, out GameParseType pt)
             ? pt
             : GameParseType.Image;
 
         IsPhrasing = true;
         try
-        {
-            // 2. 获取图片列表
+        {        
             List<string> imageUrls = await _galService.ParserGalImagesAsync(Gal, parseType);
-            IsPhrasing = false; // 加载完成
+            IsPhrasing = false;
 
             if (imageUrls.Count == 0)
             {
-                _infoService.Info(InfoBarSeverity.Warning, "未找到图片");
+                _infoService.Info(InfoBarSeverity.Warning, "GalgameSettingPage_NoImagesFound".GetLocalized());
                 return;
             }
 
-            // 3. 初始化并显示对话框
             ImagePickerDialog dialog = new(imageUrls, parseType)
             {
                 XamlRoot = App.MainWindow!.Content.XamlRoot
             };
             dialog.Resources["ContentDialogMaxWidth"] = App.MainWindow.Bounds.Width * 0.8;
 
-            var result = await dialog.ShowAsync();
+            ContentDialogResult result = await dialog.ShowAsync();
 
             if (result != ContentDialogResult.Primary || string.IsNullOrEmpty(dialog.SelectedImageUrl))
             {
@@ -261,9 +258,8 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             }
 
             // --- 开始处理图片 ---
-
-            bool isHeader = parseType == GameParseType.HeaderImage;
-            long timestamp = DateTime.Now.ToUnixTime(); // 统一时间戳
+            var isHeader = parseType == GameParseType.HeaderImage;
+            var timestamp = DateTime.Now.ToUnixTime(); // 统一时间戳
             string? finalPath = null; // 最终成功保存的文件路径
 
             if (isHeader)
@@ -327,7 +323,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             if (finalPath != null)
             {
                 await _galService.SaveGalgameAsync(Gal);
-                _infoService.Info(InfoBarSeverity.Success, "图片已保存");
+                _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_ImageSaved".GetLocalized());
             }
         }
         catch (Exception e)

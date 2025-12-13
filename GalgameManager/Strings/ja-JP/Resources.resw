@@ -925,9 +925,6 @@
   <data name="GalgameSettingPage_ImageSaved" xml:space="preserve">
   <value>画像を保存しました</value>
   </data>
-  <data name="GalgameSettingPage_PickImage" xml:space="preserve">
-    <value>画像を選択</value>
-  </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>画像を選択</value>
   </data>

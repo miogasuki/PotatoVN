@@ -989,9 +989,6 @@
   <data name="GalgameSettingPage_ImageSaved" xml:space="preserve">
     <value>图片已保存</value>
   </data>
-  <data name="GalgameSettingPage_PickImage" xml:space="preserve">
-    <value>选择图片</value>
-  </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>选择图片</value>
   </data>

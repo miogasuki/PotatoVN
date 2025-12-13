@@ -925,9 +925,6 @@ Since multiple data sources are involved, you need to configure relevant setting
   <data name="GalgameSettingPage_ImageSaved" xml:space="preserve">
   <value>Image saved</value>
   </data>
-  <data name="GalgameSettingPage_PickImage" xml:space="preserve">
-    <value>Select image</value>
-  </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>Select image</value>
   </data>

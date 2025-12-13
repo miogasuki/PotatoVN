@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    x:Name="DialogRoot"
     xmlns:local="using:GalgameManager.Views.Dialog"
     Style="{ThemeResource DefaultContentDialogStyle}">
 
@@ -15,14 +16,17 @@
               IsItemClickEnabled="True"
               SelectionChanged="ImageGridView_OnSelectionChanged"
               ScrollViewer.VerticalScrollBarVisibility="Auto"
-              ScrollViewer.VerticalScrollMode="Auto"
-              HorizontalAlignment="Stretch" 
-              VerticalAlignment="Stretch">
+              ScrollViewer.VerticalScrollMode="Auto">
+        <GridView.ItemsPanel>
+            <ItemsPanelTemplate>
+                <ItemsWrapGrid Orientation="Horizontal" 
+                               ItemWidth="{Binding ElementName=DialogRoot, Path=ItemWidth}" 
+                               ItemHeight="{Binding ElementName=DialogRoot, Path=ItemHeight}"/>
+            </ItemsPanelTemplate>
+        </GridView.ItemsPanel>
         <GridView.ItemTemplate>
             <DataTemplate x:DataType="local:ImagePickerItem">
-                <Grid Width="{Binding ElementName=DialogRoot, Path=ItemWidth}" 
-                      Height="{Binding ElementName=DialogRoot, Path=ItemHeight}" 
-                      CornerRadius="4" 
+                <Grid CornerRadius="4" 
                       Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                     <ToolTipService.ToolTip>
                         <ToolTip Content="{x:Bind Url}"/>

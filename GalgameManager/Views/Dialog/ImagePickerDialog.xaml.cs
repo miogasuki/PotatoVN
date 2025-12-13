@@ -18,8 +18,7 @@ public sealed partial class ImagePickerDialog : ContentDialog
         ItemWidth = isHeader ? 320 : 150;
         ItemHeight = isHeader ? 180 : 209;
         
-        InitializeComponent();
-        XamlRoot = App.MainWindow!.Content.XamlRoot;
+        InitializeComponent();   
 
         Title = "选择图片";
         PrimaryButtonText = "Yes".GetLocalized();

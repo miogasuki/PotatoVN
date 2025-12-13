@@ -241,9 +241,14 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
                 return;
             }
 
-            ImagePickerDialog dialog = new(imageUrls, isHeader);
+            ImagePickerDialog dialog = new(imageUrls, isHeader)
+            {
+                XamlRoot = App.MainWindow!.Content.XamlRoot
+            };
+            dialog.Resources["ContentDialogMaxWidth"] = App.MainWindow.Bounds.Width * 0.8;
+            
             ContentDialogResult result = await dialog.ShowAsync();
-
+            
             if (result == ContentDialogResult.Primary && !string.IsNullOrEmpty(dialog.SelectedImageUrl))
             {
                 var suffix = isHeader ? "_header" : "_cover";

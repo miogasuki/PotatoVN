@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -232,7 +232,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
         IsPhrasing = true;
         try
-        {        
+        {
             List<string> imageUrls = await _galService.ParserGalImagesAsync(Gal, parseType);
             IsPhrasing = false;
 
@@ -277,7 +277,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
                     try
                     {
                         // 在后台线程处理图片 (裁剪/转换)
-                        await Task.Run(() => DownloadHelper.ProcessImage(tempFile, targetPath, false));
+                        await Task.Run(() => DownloadHelper.ProcessImage(tempFile, targetPath, true));
                         finalPath = targetPath; // 标记成功
 
                         // 设置 Header 特有的属性
@@ -313,6 +313,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
                     finalPath = newFile; // 标记成功
                     DownloadHelper.DeleteImgIfExists(Gal.ImagePath.Value); // 删旧图
                     Gal.ImagePath.Value = finalPath;
+                    Gal.PvnUploadProperties |= PvnUploadProperties.ImageLoc;
                 }
             }
 

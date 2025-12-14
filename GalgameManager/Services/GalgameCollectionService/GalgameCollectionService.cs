@@ -326,6 +326,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     {
                         if (phraser is IGalCoversParser coverParser)
                         {
+                            if (phraser is MixedPhraser) continue; // 混合搜刮器是所有搜刮器并集的真子集，没必要再调用一次
                             tasks.Add(Task.Run(async () => await coverParser.GetGalCoversAsync(game)));
                         }
                     }

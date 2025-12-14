@@ -1,4 +1,4 @@
-﻿using GalgameManager.Contracts.Phrase;
+using GalgameManager.Contracts.Phrase;
 using GalgameManager.Enums;
 using GalgameManager.Models;
 using GalgameManager.Helpers.API.Ymgal;
@@ -15,7 +15,7 @@ using System.Web;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser
+public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser, IGalCoversParser
 {
     private IYmgalApi _ymgalApi;
     private Task<IYmgalApi>? _apiInitTask;
@@ -165,6 +165,34 @@ public class YmgalPhraser: IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParse
         }
     }
     
+    /// <summary>
+    /// 获取封面图片
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        try
+        {
+            // 确保先初始化API
+            await EnsureApiInitialized();
+
+            var id = await GetId(galgame);
+            if (id == null) return [];
+
+            var gameResponse = await ExecuteWithTokenRefreshAsync(async api =>
+                await api.GetGameAsync(id.Value));
+
+            if (!gameResponse.Success || gameResponse.Data?.Game == null)
+                return [];
+
+            var img = gameResponse.Data.Game.MainImg;
+            return img is not null ? [img] : [];
+        }
+        catch (Exception)
+        {
+            return [];
+        }
+    }
+
     public RssType GetPhraseType() => RssType.Ymgal;
 
     public async Task<GalgameCharacter?> GetGalgameCharacter(GalgameCharacter galgameCharacter)

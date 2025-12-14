@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
 using CommunityToolkit.Mvvm.Messaging;
@@ -8,7 +8,7 @@ using GalgameManager.Models;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser
+public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffParser, IGalCoversParser
 {
     private MixedPhraserData _data;
     private IEnumerable<string> _developerList;
@@ -268,6 +268,38 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
     public void UpdateData(IGalInfoPhraserData data) => _data = (MixedPhraserData)data;
 
     public RssType GetPhraseType() => RssType.Mixed;
+
+    /// <summary>
+    /// 获取封面图片，遍历所有支持Cover的解析器
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        if (!_init) Init();
+        List<string> result = [];
+        foreach (RssType phraserType in _data.Order.ImageUrlOrder)
+        {
+            if (!IsPhraserEnabled(phraserType)) continue;
+            if (galgame.Ids[(int)phraserType] == "-1") continue;
+            if (_phrasers.TryGetValue(phraserType, out IGalInfoPhraser? phraser) &&
+                phraser != null && phraser is IGalCoversParser coverParser)
+            {
+                Galgame game = new() { Name = galgame.Name };
+                game.RssType = phraserType;
+                game.Ids = (string?[])galgame.Ids.Clone();
+
+                try
+                {
+                    List<string> covers = await coverParser.GetGalCoversAsync(game);
+                    result.AddRange(covers);
+                }
+                catch
+                {
+                    // ignore individual phraser failures
+                }
+            }
+        }
+        return result.Distinct().ToList();
+    }
 
     public async Task<GalgameCharacter?> GetGalgameCharacter(GalgameCharacter galgameCharacter)
     {

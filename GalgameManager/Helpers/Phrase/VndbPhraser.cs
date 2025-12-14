@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Enums;
@@ -7,10 +7,12 @@ using GalgameManager.Models;
 using Newtonsoft.Json.Linq;
 using PotatoDBMapper.Models;
 using Staff = GalgameManager.Models.Staff;
+using HtmlAgilityPack;
+using GalgameManager.Helpers;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalHeaderParser
+public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalHeaderParser, IGalCoversParser, IGalHeadersParser
 {
     private VndbApi _vndbApi;
 
@@ -280,6 +282,77 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             return null;
         }
         return result;
+    }
+
+    /// <summary>
+    /// 获取封面图片，复用 GetGalgameImagesAsync 的实现
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        List<string> result = [];
+        if (string.IsNullOrEmpty(galgame.Ids[(int)RssType.Vndb])) await TryGetId(galgame);
+        if (string.IsNullOrEmpty(galgame.Ids[(int)RssType.Vndb])) return result;
+
+        var idString = galgame.Ids[(int)RssType.Vndb];
+        if (string.IsNullOrEmpty(idString)) return [];
+        if (idString[0] != 'v') idString = "v" + idString;
+
+        // First, get the main cover image from API
+        VndbResponse<VndbVn>? vndbResponse = await CallVndbApiAsync(() => _vndbApi.GetVisualNovelAsync(new VndbQuery
+        {
+            Fields = "image.url",
+            Filters = VndbFilters.Equal("id", idString),
+        }));
+
+        if (vndbResponse?.Results?.Count > 0)
+        {
+            VndbVn rssItem = vndbResponse.Results[0];
+            if (rssItem.Image?.Url is not null)
+                result.Add(rssItem.Image.Url);
+        }
+
+        // Then, scrape all cover images from the VNDB website
+        try
+        {
+            var url = $"https://vndb.org/{idString}/cv";
+            var web = new HtmlWeb();
+            var doc = await web.LoadFromWebAsync(url);
+
+            // Find all <a> tags with href containing /cv/
+            var nodes = doc.DocumentNode.SelectNodes("//a[contains(@href,'/cv/')]");
+            if (nodes != null)
+            {
+                var foundImages = new HashSet<string>();
+
+                foreach (var node in nodes)
+                {
+                    var href = node.GetAttributeValue("href", "");
+                    if (!string.IsNullOrEmpty(href))
+                    {
+                        // Convert relative URLs to absolute
+                        if (href.StartsWith("//"))
+                            href = "https:" + href;
+                        else if (href.StartsWith("/"))
+                            href = "https://vndb.org" + href;
+
+                        // Only add /cv/ images
+                        if (href.Contains("/cv/"))
+                        {
+                            foundImages.Add(href);
+                        }
+                    }
+                }
+
+                result.AddRange(foundImages);
+            }
+        }
+        catch (Exception ex)
+        {
+            // If web scraping fails, we still have the main cover from API
+            System.Diagnostics.Debug.WriteLine($"Failed to scrape VNDB covers: {ex.Message}");
+        }
+
+        return result.Distinct().ToList();
     }
 
     public RssType GetPhraseType() => RssType.Vndb;
@@ -580,7 +653,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             };
         }
     }
-    
+
     public async Task<string?> GetGalHeaderAsync(Galgame game)
     {
         if (string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) await TryGetId(game);
@@ -619,6 +692,64 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
                 }
             }
             return null;
+        }
+    }
+
+    public async Task<List<string>> GetGalHeadersAsync(Galgame game)
+    {
+        List<string> result = [];
+        if (string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) await TryGetId(game);
+        if (string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) return result;
+        var id = game.Ids[(int)RssType.Vndb]!.StartsWith('v')
+            ? game.Ids[(int)RssType.Vndb]!
+            : "v" + game.Ids[(int)RssType.Vndb]!;
+        
+        await GetHeader(id, 0);
+        return result;
+
+        async Task GetHeader(string vid, int depth)
+        {
+            ExVndb.ExVn? exVn = await ExVndb.TryGetExVnAsync(vid);
+            if (exVn is not null && (exVn.BestHeaderImage is not null || exVn.AlternativeHeaderImage is not null))
+            {
+                var imageId = exVn.BestHeaderImage ?? exVn.AlternativeHeaderImage;
+                var lastTwo = imageId![^2..];
+                result.Add($"https://t.vndb.org/sf/{lastTwo}/{imageId[2..]}.jpg");
+            }
+            
+            VndbResponse<VndbVn>? vndbResponse = await CallVndbApiAsync(() => _vndbApi.GetVisualNovelAsync(new VndbQuery
+            {
+                Fields = "screenshots.url, screenshots.sexual, screenshots.violence, relations.id",
+                Filters = VndbFilters.Equal("id", vid),
+            }));
+            
+            if (vndbResponse?.Results?.Count > 0)
+            {
+                if (vndbResponse.Results[0].Screenshots?.Count > 0)
+                {
+                    foreach (var screenshot in vndbResponse.Results[0].Screenshots!
+                                 .Where(sc => sc is { Sexual: < 10, Violence: < 10 }))
+                    {
+                        if (screenshot.Url is not null)
+                            result.Add(screenshot.Url);
+                    }
+                }
+                
+                if (depth == 1) return;
+                //else: 这个游戏没有截图，可能是某个续作或FD，尝试从相关游戏（一般为正作）获取截图
+                if (result.Count == 0 && vndbResponse.Results[0].Relations is not null)
+                {
+                    foreach (VndbVn relationGame in vndbResponse.Results[0].Relations!)
+                    {
+                        // 递归获取相关游戏的截图，但不覆盖result，而是追加（虽然此处逻辑稍微有点变动，原本是找到一个就返回）
+                        // 为了避免递归太深或者无限循环，depth限制为1
+                        // 注意：这里可能会导致获取到很多不相关的图，但原逻辑是"如果没有"才去找
+                        // 所以这里保持"如果result为空"才去找
+                        if (result.Count > 0) break;
+                        await GetHeader(relationGame.Id!, depth + 1);
+                    }
+                }
+            }
         }
     }
 

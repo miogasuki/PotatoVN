@@ -299,6 +299,74 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         return result;
     }
 
+    public async Task<List<string>> ParserGalImagesAsync(Galgame galgame, GameParseType parseType)
+    {
+        IsPhrasing = true;
+        try
+        {
+            List<Task<List<string>>> tasks = [];
+            foreach (RssType rssType in RssTypeHelper.UsablePhrasers)
+            {
+                if (PhraserList.TryGetValue((int)rssType, out IGalInfoPhraser? phraser) && phraser != null)
+                {
+                    if (galgame.Ids[(int)rssType] == "-1") continue;
+                    Galgame game = new();
+                    game.Name.Value = galgame.Name.Value;
+                    game.RssType = rssType;
+                    game.Ids = (string?[])galgame.Ids.Clone();
+
+                    if (parseType == GameParseType.HeaderImage)
+                    {
+                        if (phraser is IGalHeadersParser headerParser)
+                        {
+                            tasks.Add(Task.Run(async () => await headerParser.GetGalHeadersAsync(game)));
+                        }
+                    }
+                    else if (parseType == GameParseType.Image)
+                    {
+                        if (phraser is IGalCoversParser coverParser)
+                        {
+                            tasks.Add(Task.Run(async () => await coverParser.GetGalCoversAsync(game)));
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Unsupported GameParseType for ParserGalImagesAsync");
+                    }
+                }
+            }
+
+            var safeTasks = tasks.Select(async t =>
+            {
+                try
+                {
+                    return await t;
+                }
+                catch (Exception)
+                {
+                    return new List<string>();
+                }
+            });
+
+            var results = await Task.WhenAll(safeTasks);
+
+            List<string> imageUrls = new();
+            foreach (List<string> images in results)
+            {
+                if (images != null)
+                {
+                    imageUrls.AddRange(images.Where(url => !string.IsNullOrEmpty(url)));
+                }
+            }
+
+            return imageUrls.Distinct().ToList();
+        }
+        finally
+        {
+            IsPhrasing = false;
+        }
+    }
+
     private static async Task<GalgameCharacter> PhraserCharacterAsync(GalgameCharacter galgameCharacter, IGalInfoPhraser phraser)
     {
         if (phraser is not IGalCharacterPhraser characterPhraser) return galgameCharacter;

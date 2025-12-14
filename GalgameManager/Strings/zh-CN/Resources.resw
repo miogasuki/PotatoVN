@@ -977,6 +977,18 @@
   <data name="GalgameSettingPage_GalgameImagePath.Title" xml:space="preserve">
     <value>封面图</value>
   </data>
+  <data name="GalgameSettingPage_PickImageFromRss.Text" xml:space="preserve">
+    <value>数据源</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageLocal.Text" xml:space="preserve">
+    <value>本地文件</value>
+  </data>
+  <data name="GalgameSettingPage_NoImagesFound" xml:space="preserve">
+    <value>未找到图片</value>
+  </data>
+  <data name="GalgameSettingPage_ImageSaved" xml:space="preserve">
+    <value>图片已保存</value>
+  </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>选择图片</value>
   </data>

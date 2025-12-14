@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Web;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Core.Helpers;
@@ -9,15 +9,15 @@ using Newtonsoft.Json.Linq;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class SteamParser : IGalInfoPhraser
+public class SteamParser : IGalInfoPhraser, IGalHeaderParser, IGalCoversParser, IGalHeadersParser
 {
     private readonly string _lang;
     private readonly HttpClient _httpClient;
     private readonly ISteamStoreApi _storeApi;
-    
+
     public SteamParser(string lang)
     {
-        _lang       = lang;
+        _lang = lang;
         _httpClient = Utils.GetDefaultHttpClient();
         _httpClient.BaseAddress = new Uri("https://api.steampowered.com");
         _storeApi = SteamAPi.GetStoreApi();
@@ -47,13 +47,13 @@ public class SteamParser : IGalInfoPhraser
         SteamAppDetailDataDto data = rsp.Data;
         Galgame result = new()
         {
-            RssType     = RssType.Steam,
-            Name        = data.Name ?? string.Empty,
+            RssType = RssType.Steam,
+            Name = data.Name ?? string.Empty,
             Description = data.DetailedDescription ?? string.Empty,
-            ImageUrl    = data.HeaderImage,
-            Developer   = data.Developers is { Count: > 0 } ? data.Developers[0] : Galgame.DefaultString,
+            ImageUrl = data.HeaderImage,
+            Developer = data.Developers is { Count: > 0 } ? data.Developers[0] : Galgame.DefaultString,
             ReleaseDate = DateTimeExtensions.ToDateTime(data.ReleaseDate?.Date ?? string.Empty),
-            Tags        = new ObservableCollection<string>(data.Genres?.Select(g => g.Description ?? string.Empty) ?? []),
+            Tags = new ObservableCollection<string>(data.Genres?.Select(g => g.Description ?? string.Empty) ?? []),
             Ids =
             {
                 [(int)GetPhraseType()] = appId.ToString(),
@@ -79,6 +79,40 @@ public class SteamParser : IGalInfoPhraser
         return $"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_hero.jpg";
     }
 
+    /// <summary>
+    /// 获取Headers图片
+    /// </summary>
+    public async Task<List<string>> GetGalHeadersAsync(Galgame game) =>
+        (await GetGalHeaderAsync(game)) is { } header ? [header] : [];
+
+    /// <summary>
+    /// 获取封面图片，只关注ImageUrl
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        var appId = TryParseId(galgame);
+        if (appId is null && galgame.Name.Value is not null)
+            appId = await QueryAppIdByNameAsync(galgame);
+        if (appId is null) return [];
+
+        Dictionary<string, SteamAppDetailResponse>? dict;
+        try
+        {
+            dict = await _storeApi.GetAppDetailsAsync(appId.ToString()!, _lang);
+        }
+        catch
+        {
+            return [];
+        }
+
+        if (dict.TryGetValue(appId.ToString()!, out SteamAppDetailResponse? rsp) == false || rsp.Success == false ||
+            rsp.Data is null)
+            return [];
+        
+        // If we reached here, the AppId is considered valid, so construct the cover URL
+        return [$"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_600x900.jpg"];
+    }
+
     #region private helpers
 
     private static int? TryParseId(Galgame gal)
@@ -100,7 +134,7 @@ public class SteamParser : IGalInfoPhraser
             if (!nameLists.Contains(game.Name.Value)) nameLists.Insert(0, game.Name.Value);
             Dictionary<string, JArray?> cache = new();
             double max = 0;
-            int?   id  = null;
+            int? id = null;
             foreach (var name in nameLists)
             {
                 var langStr = LanguageEnum.English.ToSteamApiString();
@@ -111,8 +145,8 @@ public class SteamParser : IGalInfoPhraser
                 {
                     var url =
                         $"https://store.steampowered.com/api/storesearch?term={HttpUtility.UrlEncode(name)}&l={langStr}&cc=US";
-                    var json   = await _httpClient.GetStringAsync(url);
-                    JObject jo    = JObject.Parse(json);
+                    var json = await _httpClient.GetStringAsync(url);
+                    JObject jo = JObject.Parse(json);
                     items = jo["items"] as JArray ?? jo["apps"] as JArray;
                     cache[langStr] = items;
                 }
@@ -124,7 +158,7 @@ public class SteamParser : IGalInfoPhraser
                     var s = IGalInfoPhraser.Similarity(name, itemName);
                     if (!(s > max)) continue;
                     max = s;
-                    id  = it["id"]?.ToObject<int>();
+                    id = it["id"]?.ToObject<int>();
                     if (max > 0.999) return id;
                 }
             }

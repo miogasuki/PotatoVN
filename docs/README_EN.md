@@ -39,7 +39,7 @@ A visual novel management tool designed to provide galgame collectors with a con
     </a>  
     &nbsp; <!-- Add a space so the two buttons are not stuck together -->  
     <a href="https://github.com/GoldenPotato137/PotatoVN/releases">  
-        <img src="docs/DownloadBadge.svg" height="43" alt="Sideload Download"/>  
+        <img src="../docs/DownloadBadge.svg" height="43" alt="Sideload Download"/>  
     </a>  
 </p>  
   

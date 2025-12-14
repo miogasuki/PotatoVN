@@ -1,5 +1,5 @@
 <p align="center">  
-<img src="GalgameManager/Assets/Pictures/Potato.png" width="80px"/>  
+<img src="../GalgameManager/Assets/Pictures/Potato.png" width="80px"/>  
 </p>  
   
 <div align="center">  

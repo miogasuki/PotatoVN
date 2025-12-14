@@ -3,8 +3,14 @@
 </p>
 
 <div align="center">
-
+    
 # PotatoVN
+  
+[简体中文](https://github.com/GoldenPotato137/PotatoVN/blob/dev/README.md) 
+|
+[English](https://github.com/GoldenPotato137/PotatoVN/tree/dev/docs/README_EN.md)
+
+
 ![123](https://img.shields.io/endpoint?color=blue&label=Microsoft%20Store%20Rating&url=https%3A%2F%2Fmicrosoft-store-badge.fly.dev%2Fapi%2Frating%3FstoreId%3D9P9CBKD5HR3W)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoldenPotato137%2FPotatoVN.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoldenPotato137%2FPotatoVN?ref=badge_shield)
 [![Telegram](https://img.shields.io/badge/Telegram%E5%90%B9%E6%B0%B4%E7%BE%A4-Join-green)](https://t.me/potato_vn)
@@ -24,15 +30,15 @@
 
 <p align="center">
     <a href="https://apps.microsoft.com/detail/9p9cbkd5hr3w?cid=github&mode=full">
-        <img src="https://get.microsoft.com/images/zh-cn%20dark.svg" height="90" alt="https://apps.microsoft.com/detail/9p9cbkd5hr3w?cid=github&mode=full"/>
+        <img src="https://get.microsoft.com/images/zh-cn%20dark.svg" alt="Microsoft Store"/>
     </a>
+    &nbsp; <!-- 添加一个空格，防止两个按钮紧贴着 -->
     <a href="https://github.com/GoldenPotato137/PotatoVN/releases">
-        <img src="docs/DownloadBadge.svg" height="87.5" alt="https://github.com/GoldenPotato137/PotatoVN/releases"/>
+        <img src="docs/DownloadBadge.svg" height="43" alt="Sideload Download"/>
     </a>
 </p>
 
 ## 翻译
-![en translation](https://img.shields.io/badge/dynamic/json?color=blue&label=en&style=flat&logo=crowdin&query=%24.progress[?(@.data.languageId==%27en%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15790227-581621.json)
 
 PotatoVN使用crowdin来进行本地化，欢迎在[crowdin](https://crowdin.com/project/potatovn)将PotatoVN带到您的语言当中。
 
@@ -49,8 +55,9 @@ PotatoVN使用crowdin来进行本地化，欢迎在[crowdin](https://crowdin.com
 
 | 赞助方 | 支持内容 |
 |----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
-| <p align="center"><img src="https://github.com/user-attachments/assets/2de96f21-4e01-4d2b-8d22-72aae5784906" alt="signpath logo" width="80px"></p>                                                          | 为PotatoVN提供了免费的侧载版安装包签名，极大方便了不方便使用微软商店的用户的下载与安装 |
-| <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png" alt="JetBrains logo." width="80px"> | 提供了免费正版授权的强大IDE，其中的.Net开发工具`Rider`极大方便了PotatoVN的开发                                          |
+| <p align="center"><a href="https://signpath.io/"><img src="https://github.com/user-attachments/assets/2de96f21-4e01-4d2b-8d22-72aae5784906" alt="signpath logo" width="80px"></a></p> | 为PotatoVN提供了免费的侧载版安装包签名，极大方便了不方便使用微软商店的用户的下载与安装 |
+| <p align="center"><a href="https://repoflow.io/"><img src="https://github.com/user-attachments/assets/f755e596-bba1-441d-bf61-5f073c95aa61" alt="repoflow logo" width="80px"></a></p> | [Repoflow](https://repoflow.io)，一个支持自托管的包管理平台，为我们的插件管理平台提供了正版授权，极大方便了用户下载插件与开发者上传自己的插件 |
+| <a href="https://www.jetbrains.com/"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png" alt="JetBrains logo." width="80px"></a> | 提供了免费正版授权的强大IDE，其中的.Net开发工具`Rider`极大方便了PotatoVN的开发 |
 
 ## Code signing policy
 * Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).

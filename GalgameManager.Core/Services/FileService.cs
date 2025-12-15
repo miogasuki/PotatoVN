@@ -85,9 +85,17 @@ public class FileService : IFileService
     {
         foreach (var (path, content) in WritingQueue.GetConsumingEnumerable())
         {
-            var tmpPath = path + ".tmp";
-            File.WriteAllText(tmpPath, content);
-            File.Move(tmpPath, path, true);
+            var tmpPath = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            try
+            {
+                File.WriteAllText(tmpPath, content);
+                File.Move(tmpPath, path, true);
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine($"[FileService] Error saving {path}: {e}");
+                try { File.Delete(tmpPath); } catch { }
+            }
         }
     }
 }

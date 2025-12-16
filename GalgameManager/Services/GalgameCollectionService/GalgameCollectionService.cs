@@ -17,6 +17,7 @@ using GalgameManager.WinApp.Base.Contracts;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using LiteDB;
+using FileAttributes = System.IO.FileAttributes;
 
 namespace GalgameManager.Services;
 
@@ -676,12 +677,10 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         // 3. 游戏根目录
 
         var localPath = galgame.LocalPath;
-        // PvnGamePath? suggestedSavePath = galgame.SuggestedSavePath.Value;
-        GamePortablePath? detectedSavePosition = galgame.DetectedSavePath;
+        GamePortablePath? detectedSavePath = galgame.DetectedSavePath;
 
         List<string> candidateSavePath = new();
-        // if (suggestedSavePath?.ToPath() is { } path1) candidateSavePath.Add(path1);
-        if (detectedSavePosition?.ToPath() is { } path2) candidateSavePath.Add(path2);
+        if (detectedSavePath?.ToPath() is { } path2) candidateSavePath.Add(path2);
 
         async Task<string?> ChooseFolder()
         {
@@ -698,7 +697,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 ? Path.GetDirectoryName(candidateSavePath[0])
                 : localPath;
 
-            FolderOrFilePickerDialog dialog = new(App.MainWindow!.Content.XamlRoot, "GalgameCollectionService_SelectSavePosition_Folder".GetLocalized(), subFolders, true, startupPath, isSuggestedSavePathFound);
+            FolderOrFilePickerDialog dialog = new(
+                App.MainWindow!.Content.XamlRoot,
+                "GalgameCollectionService_SelectSavePosition_Folder".GetLocalized(),
+                subFolders,
+                isFolder: true,
+                suggestedPath: startupPath,
+                isFirstItemSuggested: isSuggestedSavePathFound);
             return await dialog.ShowAndAwaitResultAsync();
         }
 
@@ -708,12 +713,14 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             FolderOrFilePickerDialog dialog = new(
                 App.MainWindow!.Content.XamlRoot,
                 "GalgameCollectionService_SelectSavePosition_File".GetLocalized(),
-                rootFiles, false, detectedSavePosition?.ToPath() ?? localPath);
+                rootFiles,
+                isFolder: false,
+                suggestedPath: detectedSavePath?.ToPath() ?? localPath);
             return await dialog.ShowAndAwaitResultAsync();
         }
 
         // 如果检测到的话，优先用这个
-        if (detectedSavePosition?.ToPath()?.IsNullOrWhiteSpace() is false)
+        if (detectedSavePath?.ToPath()?.IsNullOrWhiteSpace() is false)
         {
             var result = await ChooseFolder();
             // 重置检测存档位置，允许重新显示选择单文件。
@@ -735,14 +742,10 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
         switch (typeResult)
         {
-            case ContentDialogResult.Primary:  // Folder
-            {
+            case ContentDialogResult.Primary: // Folder
                 return await ChooseFolder();
-            }
             case ContentDialogResult.Secondary: // File
-            {
                 return await ChooseFile();
-            }
         }
 
         return null;
@@ -817,6 +820,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             if (localSavePath == null) return;
             if (Utils.ArePathsEqual(remoteRoot, localSavePath))
                 throw new PvnException("GalgameCollectionService_SavePathIsCloudRoot".GetLocalized());
+            if (galgame.LocalPath != null && Utils.IsPathContained(localSavePath, galgame.LocalPath))
+                throw new PvnException("GalgameCollectionService_SavePathIsGameRoot".GetLocalized());
             if (FolderOperations.IsSymbolicLink(localSavePath))
             {
                 _infoService.Info(InfoBarSeverity.Warning, msg:"GalgameCollectionService_SavePathIsSymbolicLink".GetLocalized());
@@ -849,7 +854,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     if (choose == 1)
                     {
                         new DirectoryInfo(remoteRoot).Delete(true); //删除云端文件夹
-                        FolderOperations.ConvertFolderToSymbolicLink(localSavePath, remoteRoot);
+                        FolderOperations.ConvertFolderOrFileToSymbolicLink(localSavePath, remoteRoot);
                     }
                     else if (choose == 2)
                     {
@@ -858,7 +863,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     }
                 }
                 else
-                    FolderOperations.ConvertFolderToSymbolicLink(localSavePath, remoteRoot);
+                    FolderOperations.ConvertFolderOrFileToSymbolicLink(localSavePath, remoteRoot);
+
                 await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = localSavePath);
             }
             catch (Exception e) //创建符号链接失败，把存档复制回去
@@ -1054,20 +1060,30 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
 public class FolderOrFilePickerDialog : ContentDialog
 {
-    private readonly bool isFirstItemSuggested;
+    private readonly bool _isFirstItemSuggested;
     private string? _selectedItem;
-    private readonly TaskCompletionSource<string?> _folderSelectedTcs = new TaskCompletionSource<string?>();
+    private readonly TaskCompletionSource<string?> _folderSelectedTcs = new();
+
     public FolderOrFilePickerDialog(
-        XamlRoot xamlRoot, string title, List<string> entries, bool isFolder = true,
-        string? suggestedPath = null, bool isFirstItemSuggested = false)
+        XamlRoot xamlRoot,
+        string title,
+        List<string> entries,
+        bool isFolder = true,
+        string? suggestedPath = null,
+        bool isFirstItemSuggested = false)
     {
-        this.isFirstItemSuggested = isFirstItemSuggested;
+        _isFirstItemSuggested = isFirstItemSuggested;
+
         XamlRoot = xamlRoot;
         Title = title;
         Content = CreateContent(entries);
+
         PrimaryButtonText = "Yes".GetLocalized();
-        SecondaryButtonText = "GalgameCollectionService_FolderPickerDialog_ChoseAnotherFolder".GetLocalized();
+        SecondaryButtonText = "GalgameCollectionService_FolderOrFilePickerDialog_Other".GetLocalized();
         CloseButtonText = "Cancel".GetLocalized();
+
+        IsPrimaryButtonEnabled = false;
+
         PrimaryButtonClick += (_, _) => { _folderSelectedTcs.TrySetResult(_selectedItem); };
         SecondaryButtonClick += (_, _) =>
         {
@@ -1084,7 +1100,9 @@ public class FolderOrFilePickerDialog : ContentDialog
                     _folderSelectedTcs.TrySetResult(_selectedItem);
                 }
                 else
+                {
                     _folderSelectedTcs.TrySetResult(null);
+                }
             }
             else
             {
@@ -1100,33 +1118,36 @@ public class FolderOrFilePickerDialog : ContentDialog
                     _folderSelectedTcs.TrySetResult(_selectedItem);
                 }
                 else
+                {
                     _folderSelectedTcs.TrySetResult(null);
+                }
             }
         };
         CloseButtonClick += (_, _) => { _folderSelectedTcs.TrySetResult(null); };
     }
-    private UIElement CreateContent(List<string> files)
+
+    private UIElement CreateContent(List<string> entries)
     {
         StackPanel stackPanel = new();
-        foreach (var file in files)
+        foreach (var entry in entries)
         {
             RadioButton radioButton = new()
             {
-                Content = file,
+                Content = entry,
                 GroupName = "ExeFiles",
             };
             radioButton.Checked += RadioButton_Checked;
             stackPanel.Children.Add(radioButton);
         }
 
-        IsPrimaryButtonEnabled = false;
-        if (isFirstItemSuggested)
+        if (_isFirstItemSuggested && stackPanel.Children.OfType<RadioButton>().FirstOrDefault() is { } firstElement)
         {
-            RadioButton firstElement = stackPanel.Children.OfType<RadioButton>().First();
             firstElement.IsChecked = true;
         }
+
         return stackPanel;
     }
+
     private void RadioButton_Checked(object sender, RoutedEventArgs? e)
     {
         RadioButton radioButton = (RadioButton)sender;
@@ -1134,6 +1155,7 @@ public class FolderOrFilePickerDialog : ContentDialog
         IsPrimaryButtonEnabled = true;
         DefaultButton = ContentDialogButton.Primary;
     }
+
     public async Task<string?> ShowAndAwaitResultAsync()
     {
         await ShowAsync();

@@ -259,13 +259,19 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     }
 
     /// <summary>
-    /// 获取游戏文件夹下的所有子文件
+    /// 获取游戏文件夹根目录下的所有文件
     /// </summary>
     /// <returns>子文件夹地址</returns>
     public List<string> GetRootFiles()
     {
         if (LocalPath is null) return [];
-        List<string> result = Directory.GetFiles(LocalPath).ToList();
+        HashSet<string> commonExtensions = new (StringComparer.OrdinalIgnoreCase)
+        {
+            ".exe", ".xp3", ".lnk", ".txt", ".ico", ".sig", ".dll",
+        };
+        List<string> result = Directory.GetFiles(LocalPath)
+            .Where(el => !commonExtensions.Contains(System.IO.Path.GetExtension(el)))
+            .ToList();
         return result;
     }
 

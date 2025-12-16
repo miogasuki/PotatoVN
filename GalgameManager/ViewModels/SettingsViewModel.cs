@@ -43,7 +43,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private string _versionDescription;
 
     #region UI_STRINGS //历史遗留，不要继续使用这种方式获取字符串
-    
+
     private static readonly ResourceLoader ResourceLoader = new();
     public readonly string UiThemeTitle = ResourceLoader.GetString("SettingsPage_ThemeTitle");
     public readonly string UiThemeDescription = ResourceLoader.GetString("SettingsPage_ThemeDescription");
@@ -80,7 +80,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         get => _versionDescription;
         set => SetProperty(ref _versionDescription, value);
     }
-    
+
     public async void OnNavigatedTo(object parameter)
     {
         try
@@ -100,7 +100,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _galgameCollectionService.MetaSavedEvent -= SetSaveMetaPopUp;
     }
 
-    public SettingsViewModel(IThemeSelectorService themeSelectorService, ILocalSettingsService localSettingsService, 
+    public SettingsViewModel(IThemeSelectorService themeSelectorService, ILocalSettingsService localSettingsService,
         IGalgameCollectionService galgameService, IUpdateService updateService, INavigationService navigationService,
         ICategoryService categoryService, IInfoService infoService, IBgTaskService bgTaskService)
     {
@@ -113,7 +113,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _localSettingsService = localSettingsService;
         _infoService = infoService;
         _bgTaskService = bgTaskService;
-        
+
         //THEME
         _elementTheme = themeSelectorService.Theme;
         _language = _localSettingsService.ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
@@ -188,7 +188,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         UpdateAutoExportDescriptions();
         List<string> extensionsList = _localSettingsService.ReadSettingAsync<List<string>>(KeyValues.CustomTextFileExtensions).Result ?? [];
         _customTextFileExtensionsString = Join(", ", extensionsList);
-        
+
         //Check the availability of Windows Hello
         UserConsentVerifierAvailability verifierAvailability = UserConsentVerifier.CheckAvailabilityAsync().AsTask().Result;
         AuthenticationTypes = verifierAvailability != UserConsentVerifierAvailability.Available
@@ -225,7 +225,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region UPDATE
 
     [ObservableProperty] private bool _updateAvailable;
-    
+
     private async Task ShowUpdateNotification()
     {
         // 获取可用的更新版本
@@ -249,14 +249,14 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 break;
         }
     }
-    
+
     private async void HandelSettingBadgeEvent(bool result)
     {
         if (result == false) return;
         await ShowUpdateNotification();
         await _updateService.UpdateSettingsBadgeAsync();
     }
-    
+
     #endregion
 
     #region THEME
@@ -304,12 +304,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     partial void OnLanguageChanged(LanguageEnum value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.Language, value);
- 
+
         try
         {
             string languageTag = GetLanguageTag(value);
             ApplicationLanguages.PrimaryLanguageOverride = languageTag;
- 
+
             // 提醒用户完全应用新语言还需要重启应用
             _infoService.Info(InfoBarSeverity.Informational,
                 "SettingsPage_Language_RestartRequired".GetLocalized(),
@@ -340,7 +340,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty] private bool _fixHorizontalPicture;
     partial void OnFixHorizontalPictureChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.FixHorizontalPicture, value);
-    
+
     // 时间显示单位改为小时
     [ObservableProperty] private bool _timeAsHour;
     partial void OnTimeAsHourChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.TimeAsHour, value);
@@ -418,13 +418,13 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private List<int> _magpieHotkeyKeys = new();
     private List<int> _magpieHotkeys;
     public WindowMode[] PlayingWindowModes;
-    
+
     partial void OnRecordOnlyForegroundChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.RecordOnlyWhenForeground, value);
-    
+
     partial void OnPlayingWindowModeChanged(WindowMode value) => _localSettingsService.SaveSettingAsync(KeyValues.PlayingWindowMode, value);
 
     partial void OnMinPlayTimeRecordThresholdChanged(int value) => _localSettingsService.SaveSettingAsync(KeyValues.MinPlayTimeRecordThreshold, value);
-    
+
     partial void OnLocalEmulatorPathChanged(string? value) => _localSettingsService.SaveSettingAsync(KeyValues.LocaleEmulatorPath, value);
 
     partial void OnMagpieTotalSwitchChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.MagpieTotalSwitch, value);
@@ -461,7 +461,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             {
                 _magpieHotkeys = new List<int>(value);
             }
-            
+
             await _localSettingsService.SaveSettingAsync(KeyValues.MagpieHotkeys, _magpieHotkeys);
             UpdateMagpieHotkeysString();
             _infoService.Info(InfoBarSeverity.Success, msg:"SettingSuccess".GetLocalized(), displayTimeMs: 2000);
@@ -612,7 +612,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             _infoService.Info(InfoBarSeverity.Success, msg:"SettingsPage_Game_MagpiePath_Success".GetLocalized());
         }
     }
-    
+
     [ObservableProperty]
     private string _customTextFileExtensionsString;
 
@@ -636,19 +636,19 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     #endregion
-    
+
     #region RSS
 
     [ObservableProperty] private RssType _rssType;
     // ReSharper disable once CollectionNeverQueried.Global
     public readonly List<RssType> RssTypes = RssHelperX.GetAvailableTypes(App.GetService<IGalgameCollectionService>());
     [ObservableProperty] private bool _vndbTranslateTags;
-    
+
     partial void OnRssTypeChanged(RssType value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.RssType, value);
     }
-    
+
     [RelayCommand]
     public async Task SetMixedPhraserOrderAsync()
     {
@@ -681,17 +681,17 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _autoCategory;
     [ObservableProperty] private bool _downloadPlayStatusWhenPhrasing;
     [ObservableProperty] private bool _downloadCharacters;
-    
+
     // partial void OnOverrideLocalNameChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.OverrideLocalName, value);
-    
+
     // partial void OnOverrideLocalNameWithChineseChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.OverrideLocalNameWithChinese, value);
-    
+
     partial void OnAutoCategoryChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.AutoCategory, value);
-    
+
     partial void OnDownloadPlayStatusWhenPhrasingChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SyncPlayStatusWhenPhrasing, value);
-    
+
     partial void OnDownloadCharactersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.DownloadCharacters, value);
-    
+
     partial void OnVndbTranslateTagsChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.VndbTranslateTags, value);
 
     [RelayCommand]
@@ -707,7 +707,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         (GalStatusSyncResult, string) result = await _galgameCollectionService.DownloadAllPlayStatus(RssType.Bangumi);
         await DisplayMsgAsync(result.Item1.ToInfoBarSeverity(), result.Item2);
     }
-    
+
     [RelayCommand]
     private async Task DownloadPlayStatusFormVndbNow()
     {
@@ -777,7 +777,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
     partial void OnSearchSubFolderChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.SearchChildFolder, value);
     partial void OnIgnoreFetchResultChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.IgnoreFetchResult, value);
-    
+
     partial void OnRegexChanged(string value) => _localSettingsService.SaveSettingAsync(KeyValues.RegexPattern, value);
 
     partial void OnRegexIndexChanged(int value) => _localSettingsService.SaveSettingAsync(KeyValues.RegexIndex, value);
@@ -841,7 +841,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     #endregion
 
-    #region QUIT_START 
+    #region QUIT_START
 
     [ObservableProperty] private bool _quitStart;
     public readonly PageEnum[] StartPages = { PageEnum.Home , PageEnum.Category, PageEnum.MultiStream};
@@ -1024,7 +1024,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private DateTime _lastExportTime;
     public bool IsSideloadVersion => !App.IsStoreVersion();
     public readonly WindowMode[] WindowModes;
-    
+
     partial void OnUploadToAppCenterChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.UploadData, value);
 
     async partial void OnFingerprintPlanEnabledChanged(bool value)
@@ -1041,13 +1041,13 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             _infoService.DeveloperEvent(e: e);
         }
     }
-    
+
     partial void OnMemoryImproveChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.MemoryImprove, value);
 
     partial void OnCloseModeChanged(WindowMode value) => _localSettingsService.SaveSettingAsync(KeyValues.CloseMode, value);
-    
+
     partial void OnDevelopmentModeChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.DevelopmentMode, value);
-    
+
     partial void OnIsBetaChannelChanged(bool value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.IsBetaChannel, value);
@@ -1117,7 +1117,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Other_Export_Exporting".GetLocalized());
                 return;
             }
-            
+
             FolderPicker openPicker = new();
             WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
             openPicker.SuggestedStartLocation = PickerLocationId.HomeGroup;
@@ -1146,7 +1146,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Other_Export_Exporting".GetLocalized());
                 return;
             }
-            
+
             FileOpenPicker openPicker = new();
             WinRT.Interop.InitializeWithWindow.Initialize(openPicker, App.MainWindow!.GetWindowHandle());
             openPicker.SuggestedStartLocation = PickerLocationId.HomeGroup;
@@ -1183,11 +1183,11 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _notifyWhenUnpackGame;
     [ObservableProperty] private bool _eventPvnSync;
     [ObservableProperty] private bool _eventPvnSyncEmpty;
-    
+
     partial void OnNotifyWhenGetGalgameInFolderChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.NotifyWhenGetGalgameInFolder, value);
-    
+
     partial void OnNotifyWhenUnpackGameChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.NotifyWhenUnpackGame, value);
-    
+
     partial void OnEventPvnSyncChanged(bool value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.EventPvnSyncNotify, value);
@@ -1252,7 +1252,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         _navigationService.NavigateTo(typeof(UpdateContentViewModel).FullName!);
     }
-    
+
     private static string GetVersionDescription()
     {
         return $"{"AppDisplayName".GetLocalized()} - {RuntimeHelper.GetVersion()}";

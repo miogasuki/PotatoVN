@@ -4474,4 +4474,7 @@
   <data name="PluginPage_HotReloadDialog_Title" xml:space="preserve">
     <value>热重载插件</value>
   </data>
+  <data name="GalgameCollectionService_FolderOrFilePickerDialog_Other" xml:space="preserve">
+      <value>其他</value>
+  </data>
 </root>

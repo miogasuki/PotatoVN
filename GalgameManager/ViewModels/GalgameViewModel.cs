@@ -377,7 +377,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 _ = _bgTaskService.AddBgTask(new GameMuteTask(Item, process));
             if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled) || Item.KeyReMap) && Item.KeyMappings.Any(m => m.IsEnabled))
                 _ = _bgTaskService.AddBgTask(new KeyMappingTask(Item, process));
-            if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath)) && string.IsNullOrEmpty(Item.DetectedSavePath))
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath) && Item.DetectedSavePath is null)
                 _ = _bgTaskService.AddBgTask(new GameSaveDetectorTask(Item));
             if (process.HasExited == false)
                 App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));

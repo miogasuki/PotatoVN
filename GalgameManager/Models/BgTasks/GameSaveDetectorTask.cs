@@ -38,7 +38,7 @@ public class GameSaveDetectorTask : BgTaskBase
     /// <summary>
     /// 缓存的核心名称列表（游戏名，中文名，原名等），用于模糊匹配（Jaro-Winkler）
     /// </summary>
-    private List<string>? _fuzzyMatchCoreVariants; 
+    private List<string>? _fuzzyMatchCoreVariants;
     private string _lastGameName = string.Empty;
 
     #endregion
@@ -141,14 +141,14 @@ public class GameSaveDetectorTask : BgTaskBase
     {
         if (Galgame == null) return;
         var allGeneratedVariants = GenerateAllVariants(Galgame);
-        
+
         // 缓存所有生成的小写变体
         _cachedLowerVariants = allGeneratedVariants
             .Where(v => !string.IsNullOrEmpty(v))
             .Select(v => v.ToLowerInvariant())
             .Distinct()
             .ToList();
-        
+
         // 缓存核心名称用于模糊匹配
         // 核心名称包括：游戏名、中文名、原名、开发商、分类
         var coreNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -823,7 +823,7 @@ public class GameSaveDetectorTask : BgTaskBase
             var currentAppPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
             if (SaveDetectionConstants.ShouldExcludePath(filePathSpan, currentAppPath))
             {
-                return false; 
+                return false;
             }
 
             // 检查文件扩展名
@@ -910,12 +910,11 @@ public class GameSaveDetectorTask : BgTaskBase
 
             // 2. 检查分隔符组合 (避免拼接字符串，使用 IndexOf)
             // 我们查找 suffix 在 path 中的位置
-            int index = -1;
-            int searchStart = 0;
-            
+            int index;
+
             // 注意：pathSpan 在每次 Slice 后长度变化，这里我们需要在原始 pathSpan 上循环查找
             // 为了简单，我们使用 while loop 配合 Slice
-            
+
             var tempSpan = pathSpan;
             int absoluteIndex = 0;
 
@@ -934,11 +933,11 @@ public class GameSaveDetectorTask : BgTaskBase
                         return true;
                     }
                 }
-                
+
                 // 继续查找：从本次匹配位置之后开始
                 int nextStart = index + 1;
                 if (nextStart >= tempSpan.Length) break;
-                
+
                 tempSpan = tempSpan.Slice(nextStart);
                 absoluteIndex += nextStart;
             }
@@ -990,41 +989,41 @@ public class GameSaveDetectorTask : BgTaskBase
     private static double JaroWinkler(ReadOnlySpan<char> s1, string s2)
     {
         if (s1.IsEmpty || string.IsNullOrEmpty(s2)) return 0;
-        
+
         int n = s1.Length;
         int m = s2.Length;
         int matchWindow = Math.Max(n, m) / 2 - 1;
-        
+
         // 对于路径片段，通常都很短，使用 stackalloc 避免堆分配
         // 如果超过 256 字符（极罕见），回退到数组
         Span<bool> s1Matches = n <= 256 ? stackalloc bool[n] : new bool[n];
         Span<bool> s2Matches = m <= 256 ? stackalloc bool[m] : new bool[m];
-        
+
         int matches = 0;
         int transpositions = 0;
-        
+
         for (int i = 0; i < n; i++)
         {
             int start = Math.Max(0, i - matchWindow);
             int end = Math.Min(i + matchWindow + 1, m);
-            
+
             char c1 = char.ToLowerInvariant(s1[i]);
-            
+
             for (int j = start; j < end; j++)
             {
                 if (s2Matches[j]) continue;
                 // s2 假定已经是小写
                 if (c1 != s2[j]) continue;
-                
+
                 s1Matches[i] = true;
                 s2Matches[j] = true;
                 matches++;
                 break;
             }
         }
-        
+
         if (matches == 0) return 0;
-        
+
         int k = 0;
         for (int i = 0; i < n; i++)
         {
@@ -1033,9 +1032,9 @@ public class GameSaveDetectorTask : BgTaskBase
             if (char.ToLowerInvariant(s1[i]) != s2[k]) transpositions++;
             k++;
         }
-        
+
         double jaro = (matches / (double)n + matches / (double)m + (matches - transpositions / 2.0) / matches) / 3.0;
-        
+
         // Winkler prefix scale (standard is 0.1, max 4 chars)
         int prefix = 0;
         int maxPrefix = Math.Min(4, Math.Min(n, m));
@@ -1044,7 +1043,7 @@ public class GameSaveDetectorTask : BgTaskBase
             if (char.ToLowerInvariant(s1[i]) == s2[i]) prefix++;
             else break;
         }
-        
+
         return jaro + prefix * 0.1 * (1 - jaro);
     }
 
@@ -1219,16 +1218,16 @@ public class GameSaveDetectorTask : BgTaskBase
     private double CalculateDirectoryVariantMatchScore(string directory, List<string> allLowerVariantsForContains)
     {
         if (string.IsNullOrEmpty(directory) || allLowerVariantsForContains == null || allLowerVariantsForContains.Count == 0) return 0;
-      
+
         var totalScore = 0.0;
 
         // 优化：使用 Path.GetFileName 获取最后一级目录名
         var dirName = Path.GetFileName(directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         if (string.IsNullOrEmpty(dirName)) dirName = directory; // Fallback
-        
+
         // 为了精确匹配比较（Case Insensitive），我们还是需要一个 string 或者 Span 比较
         var dirNameSpan = dirName.AsSpan();
-        
+
         // 我们需要 directoryLower 仅用于 contains 检查，但我们可以用 IndexOf 替代
         var directorySpan = directory.AsSpan();
 
@@ -1247,7 +1246,7 @@ public class GameSaveDetectorTask : BgTaskBase
                 Debug.WriteLine($"[GameSaveDetector] 完美目录名匹配: {variantLower}");
             }
             // 策略 B: 路径中包含独立的游戏名目录
-            else 
+            else
             {
                 // 使用 Span 优化的 IndexOf
                 int index = directorySpan.IndexOf(variantLower, StringComparison.OrdinalIgnoreCase);
@@ -1283,7 +1282,7 @@ public class GameSaveDetectorTask : BgTaskBase
                 if (JaroWinkler(dirNameSpan, coreVariant) > 0.8)
                 {
                     // 模糊匹配得分作为额外加分
-                    totalScore = Math.Max(totalScore, 400); 
+                    totalScore = Math.Max(totalScore, 400);
                     Debug.WriteLine($"[GameSaveDetector] 模糊目录名匹配 (核心变体): {dirName} ~= {coreVariant}");
                 }
             }

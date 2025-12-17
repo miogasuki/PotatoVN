@@ -27,6 +27,7 @@ public class GameSaveDetectorTask : BgTaskBase
     private DateTime _monitorStartTime;
     private const int DELAY_SECONDS = 10; // 延迟10秒后开始监听不存在的路径
     private const int SAVE_COUNT_THRESHOLD = 3; // 需要检测到3次保存操作才开始监听
+    private const double SIMILARITY_THRESHOLD = 0.8; // 相似度阈值
 
     // 缓存变体结果以提高性能
     private List<string>? _cachedVariants;
@@ -34,6 +35,10 @@ public class GameSaveDetectorTask : BgTaskBase
     /// 缓存的小写变体列表，用于高频的文件路径匹配，避免重复调用 ToLowerInvariant
     /// </summary>
     private List<string>? _cachedLowerVariants;
+    /// <summary>
+    /// 缓存的核心名称列表（游戏名，中文名，原名等），用于模糊匹配（Jaro-Winkler）
+    /// </summary>
+    private List<string>? _fuzzyMatchCoreVariants; 
     private string _lastGameName = string.Empty;
 
     #endregion
@@ -135,14 +140,38 @@ public class GameSaveDetectorTask : BgTaskBase
     private void PrecomputeVariants()
     {
         if (Galgame == null) return;
-        var variants = GenerateAllVariants(Galgame);
-        // 缓存小写变体供高频调用使用（IsPotentialSaveFile会在文件系统事件中频繁触发）
-        _cachedLowerVariants = variants
+        var allGeneratedVariants = GenerateAllVariants(Galgame);
+        
+        // 缓存所有生成的小写变体
+        _cachedLowerVariants = allGeneratedVariants
             .Where(v => !string.IsNullOrEmpty(v))
             .Select(v => v.ToLowerInvariant())
             .Distinct()
             .ToList();
+        
+        // 缓存核心名称用于模糊匹配
+        // 核心名称包括：游戏名、中文名、原名、开发商、分类
+        var coreNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (Galgame.Name?.Value is { } name) coreNames.Add(name);
+        if (!string.IsNullOrEmpty(Galgame.ChineseName)) coreNames.Add(Galgame.ChineseName!);
+        if (Galgame.OriginalName?.Value is { } original) coreNames.Add(original);
+        if (Galgame.Developer?.Value is { } developer) coreNames.Add(developer);
+        if (Galgame.Categories != null)
+        {
+            foreach (var category in Galgame.Categories)
+            {
+                if (!string.IsNullOrEmpty(category.Name)) coreNames.Add(category.Name);
+            }
+        }
+
+        _fuzzyMatchCoreVariants = coreNames
+            .Where(v => !string.IsNullOrEmpty(v))
+            .Select(v => v.ToLowerInvariant())
+            .Distinct()
+            .ToList();
+
         Debug.WriteLine($"[GameSaveDetector] 预计算了 {_cachedLowerVariants.Count} 个小写变体用于快速匹配");
+        Debug.WriteLine($"[GameSaveDetector] 预计算了 {_fuzzyMatchCoreVariants.Count} 个核心变体用于模糊匹配 (Jaro-Winkler)");
     }
 
     /// <summary>
@@ -288,7 +317,7 @@ public class GameSaveDetectorTask : BgTaskBase
         }
 
         // 使用常量检查是否应该排除此路径
-        var shouldExclude = SaveDetectionConstants.ShouldExcludePath(targetPath, currentAppPath);
+        var shouldExclude = SaveDetectionConstants.ShouldExcludePath(targetPath.AsSpan(), currentAppPath);
 
         if (shouldExclude)
         {
@@ -771,50 +800,56 @@ public class GameSaveDetectorTask : BgTaskBase
     {
         try
         {
-            var fileName = Path.GetFileName(filePath);
-            var directory = Path.GetDirectoryName(filePath) ?? string.Empty;
+            // 全程使用 Span 避免内存分配 (Zero-Allocation)
+            ReadOnlySpan<char> filePathSpan = filePath.AsSpan();
+            ReadOnlySpan<char> fileNameSpan = Path.GetFileName(filePathSpan);
+            ReadOnlySpan<char> directorySpan = Path.GetDirectoryName(filePathSpan);
 
-            Debug.WriteLine($"[GameSaveDetector] 检查文件是否为存档: {fileName}");
+            // Debug 输出无法避免 ToString，但在 Release 模式下或不开启 Debug 时影响较小
+            // 也可以选择仅在特定条件下输出
+            Debug.WriteLine($"[GameSaveDetector] 检查文件: {fileNameSpan.ToString()}");
 
             // 修复：首先检查是否在游戏目录下（游戏目录下的文件优先考虑）
-            if (Galgame?.LocalPath != null && filePath.StartsWith(Galgame.LocalPath, StringComparison.OrdinalIgnoreCase))
+            // StartsWith 对比 Span 和 String
+            if (Galgame?.LocalPath != null && filePathSpan.StartsWith(Galgame.LocalPath.AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
-                Debug.WriteLine($"[GameSaveDetector] 文件在游戏目录下，优先考虑: {filePath}");
+                Debug.WriteLine($"[GameSaveDetector] 文件在游戏目录下: {filePath}");
                 return true;
             }
 
-            // 早期排除：检查文件路径是否在排除列表中（但跳过游戏目录）
+            // 早期排除：检查文件路径是否在排除列表中
+            // 注意：ShouldExcludePath 目前可能还需要 String，因为需要和 currentAppPath 对比
+            // 如果能优化 ShouldExcludePath 更好，暂时保持 string 调用，但它是基于 StartsWith 的，相对快
             var currentAppPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
-            if (SaveDetectionConstants.ShouldExcludePath(filePath, currentAppPath))
+            if (SaveDetectionConstants.ShouldExcludePath(filePathSpan, currentAppPath))
             {
-                Debug.WriteLine($"[GameSaveDetector] 文件被排除: {filePath}");
-                return false; // 直接排除，避免后续计算
+                return false; 
             }
 
-            // 检查文件扩展名（使用常量）
-            var extension = Path.GetExtension(filePath);
-            if (extension.Length > 0)
+            // 检查文件扩展名
+            ReadOnlySpan<char> extensionSpan = Path.GetExtension(filePathSpan);
+            if (extensionSpan.Length > 0)
             {
-                var extensionSpan = extension.AsSpan().Slice(1); // 去掉点号
-                if (SaveDetectionConstants.IsSaveFileExtension(extensionSpan))
+                // 去掉点号
+                var extNoDot = extensionSpan.Slice(1);
+                if (SaveDetectionConstants.IsSaveFileExtension(extNoDot))
                 {
-                    Debug.WriteLine($"[GameSaveDetector] 文件扩展名匹配: {fileName} ({extension})");
+                    Debug.WriteLine($"[GameSaveDetector] 扩展名匹配: {fileNameSpan.ToString()}");
                     return true;
                 }
             }
 
-            // 检查文件名是否包含存档相关关键词（使用常量）
-            var fileNameSpan = fileName.AsSpan();
+            // 检查文件名是否包含存档相关关键词
             if (SaveDetectionConstants.ContainsSaveKeyword(fileNameSpan))
             {
-                Debug.WriteLine($"[GameSaveDetector] 文件名关键词匹配: {fileName}");
+                Debug.WriteLine($"[GameSaveDetector] 文件名关键词匹配: {fileNameSpan.ToString()}");
                 return true;
             }
 
-            // 使用启发式关键字匹配
-            if (MatchesHeuristicKeywords(directory))
+            // 使用启发式关键字匹配 (传入 Span)
+            if (MatchesHeuristicKeywords(directorySpan))
             {
-                Debug.WriteLine($"[GameSaveDetector] 目录启发式匹配: {directory}");
+                Debug.WriteLine($"[GameSaveDetector] 目录启发式匹配: {directorySpan.ToString()}");
                 return true;
             }
 
@@ -822,82 +857,195 @@ public class GameSaveDetectorTask : BgTaskBase
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[GameSaveDetector] 检查文件是否为存档时出错: {filePath}, 错误: {ex.Message}");
+            Debug.WriteLine($"[GameSaveDetector] 检查文件出错: {filePath}, 错误: {ex.Message}");
             return false;
         }
     }
 
-    private bool MatchesHeuristicKeywords(string path)
+    private bool MatchesHeuristicKeywords(ReadOnlySpan<char> pathSpan)
     {
-        if (Galgame == null) return false;
-        var pathLower = path.ToLowerInvariant();
-        var matched = false;
+        // 0. 基础检查
+        if (Galgame == null || pathSpan.IsEmpty) return false;
 
-        Debug.WriteLine($"[GameSaveDetector] 检查路径启发式匹配: {path}");
+        // 1 & 2. 检查汉化和存档后缀
+        if (CheckSuffixList(pathSpan, SaveDetectionConstants.ChineseLocalizationSuffixes)) return true;
+        if (CheckSuffixList(pathSpan, SaveDetectionConstants.SaveDirectorySuffixPatterns)) return true;
 
-        // 1. 检查汉化文件夹后缀模式
-        foreach (var suffix in SaveDetectionConstants.ChineseLocalizationSuffixes)
-        {
-            var lowerSuffix = suffix.ToLowerInvariant();
-            if (pathLower.EndsWith(lowerSuffix) ||
-                pathLower.Contains($"_{lowerSuffix}") ||
-                pathLower.Contains($"-{lowerSuffix}"))
-            {
-                Debug.WriteLine($"[GameSaveDetector] 汉化后缀匹配: '{suffix}' 在路径中找到");
-                matched = true;
-                break;
-            }
-        }
-
-        // 2. 检查存档目录末尾字符模式
-        if (!matched)
-        {
-            foreach (var suffix in SaveDetectionConstants.SaveDirectorySuffixPatterns)
-            {
-                var lowerSuffix = suffix.ToLowerInvariant();
-                if (pathLower.EndsWith(lowerSuffix) ||
-                    pathLower.Contains($"_{lowerSuffix}") ||
-                    pathLower.Contains($"-{lowerSuffix}") ||
-                    pathLower.Contains($".{lowerSuffix}"))
-                {
-                    Debug.WriteLine($"[GameSaveDetector] 存档后缀匹配: '{suffix}' 在路径中找到");
-                    matched = true;
-                    break;
-                }
-            }
-        }
-
-        // 3. 使用变体生成系统进行游戏特定匹配
-        // 优化：使用缓存的小写变体，避免重复生成和ToLower调用
+        // 3. 游戏特定变体匹配 (Contains 检查)
+        // 优化：使用 Span.IndexOf 避免 ToLower
         if (_cachedLowerVariants != null)
         {
             foreach (var variant in _cachedLowerVariants)
             {
-                // 这里由于 variant 已经是小写，所以可以直接与 pathLower 对比
-                if (pathLower.Contains(variant))
+                // MemoryExtensions.IndexOf (Span, String, StringComparison)
+                if (pathSpan.IndexOf(variant, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    Debug.WriteLine($"[GameSaveDetector] 游戏变体匹配: '{variant}' 在路径 {path} 中找到");
-                    matched = true;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            // 回退安全机制（理论上不应触发，除非Precompute未被调用）
-            var allVariants = GenerateAllVariants(Galgame);
-            foreach (var variant in allVariants)
-            {
-                if (!string.IsNullOrEmpty(variant) && pathLower.Contains(variant.ToLowerInvariant()))
-                {
-                    Debug.WriteLine($"[GameSaveDetector] 游戏变体匹配: '{variant}' 在路径 {path} 中找到");
-                    matched = true;
-                    break;
+                    Debug.WriteLine($"[GameSaveDetector] 游戏变体包含匹配: '{variant}'");
+                    return true;
                 }
             }
         }
 
-        return matched;
+        // 4. 字符串相似度匹配 (路径分段)
+        // 只有当前面都失败时才执行这个昂贵的操作
+        if (_fuzzyMatchCoreVariants != null && _fuzzyMatchCoreVariants.Count > 0)
+        {
+            return CheckFuzzyMatch(pathSpan);
+        }
+
+        return false;
+    }
+
+    // 辅助方法：检查后缀列表 (Span 优化版)
+    private bool CheckSuffixList(ReadOnlySpan<char> pathSpan, IEnumerable<string> suffixes)
+    {
+        foreach (var suffix in suffixes)
+        {
+            // 1. 直接检查 EndsWith (Span版本)
+            if (pathSpan.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.WriteLine($"[GameSaveDetector] 后缀匹配 (EndsWith): '{suffix}'");
+                return true;
+            }
+
+            // 2. 检查分隔符组合 (避免拼接字符串，使用 IndexOf)
+            // 我们查找 suffix 在 path 中的位置
+            int index = -1;
+            int searchStart = 0;
+            
+            // 注意：pathSpan 在每次 Slice 后长度变化，这里我们需要在原始 pathSpan 上循环查找
+            // 为了简单，我们使用 while loop 配合 Slice
+            
+            var tempSpan = pathSpan;
+            int absoluteIndex = 0;
+
+            while ((index = tempSpan.IndexOf(suffix, StringComparison.OrdinalIgnoreCase)) != -1)
+            {
+                // index 是相对于 tempSpan 的位置
+                int actualIndex = absoluteIndex + index;
+
+                // 检查前一个字符
+                if (actualIndex > 0)
+                {
+                    char prevChar = pathSpan[actualIndex - 1];
+                    if (prevChar == '_' || prevChar == '-' || prevChar == '.')
+                    {
+                        Debug.WriteLine($"[GameSaveDetector] 后缀匹配 (Contains分隔符): '{suffix}'");
+                        return true;
+                    }
+                }
+                
+                // 继续查找：从本次匹配位置之后开始
+                int nextStart = index + 1;
+                if (nextStart >= tempSpan.Length) break;
+                
+                tempSpan = tempSpan.Slice(nextStart);
+                absoluteIndex += nextStart;
+            }
+        }
+        return false;
+    }
+
+    // 辅助方法：模糊匹配 (Span 优化版)
+    private bool CheckFuzzyMatch(ReadOnlySpan<char> pathSpan)
+    {
+        int start = 0;
+
+        // 手动遍历路径分割符
+        for (int i = 0; i <= pathSpan.Length; i++)
+        {
+            // 当遇到分隔符 或 字符串结束时
+            if (i == pathSpan.Length || pathSpan[i] == Path.DirectorySeparatorChar || pathSpan[i] == Path.AltDirectorySeparatorChar)
+            {
+                if (i > start) // 确保段不为空
+                {
+                    // 获取当前段
+                    ReadOnlySpan<char> segmentSpan = pathSpan.Slice(start, i - start);
+
+                    // 使用无分配的 JaroWinkler 实现
+                    if (_fuzzyMatchCoreVariants != null)
+                    {
+                        foreach (var coreVariant in _fuzzyMatchCoreVariants)
+                        {
+                            if (JaroWinkler(segmentSpan, coreVariant) > SIMILARITY_THRESHOLD)
+                            {
+                                Debug.WriteLine($"[GameSaveDetector] 模糊匹配成功: '{segmentSpan.ToString()}' ~= '{coreVariant}'");
+                                return true;
+                            }
+                        }
+                    }
+                }
+                start = i + 1;
+            }
+        }
+        return false;
+    }
+
+
+    /// <summary>
+    /// 高性能、无分配（小字符串）的 Jaro-Winkler 相似度计算
+    /// </summary>
+    /// <param name="s1">输入字符串 Span (任意大小写)</param>
+    /// <param name="s2">比较基准字符串 (必须预先转为小写)</param>
+    private static double JaroWinkler(ReadOnlySpan<char> s1, string s2)
+    {
+        if (s1.IsEmpty || string.IsNullOrEmpty(s2)) return 0;
+        
+        int n = s1.Length;
+        int m = s2.Length;
+        int matchWindow = Math.Max(n, m) / 2 - 1;
+        
+        // 对于路径片段，通常都很短，使用 stackalloc 避免堆分配
+        // 如果超过 256 字符（极罕见），回退到数组
+        Span<bool> s1Matches = n <= 256 ? stackalloc bool[n] : new bool[n];
+        Span<bool> s2Matches = m <= 256 ? stackalloc bool[m] : new bool[m];
+        
+        int matches = 0;
+        int transpositions = 0;
+        
+        for (int i = 0; i < n; i++)
+        {
+            int start = Math.Max(0, i - matchWindow);
+            int end = Math.Min(i + matchWindow + 1, m);
+            
+            char c1 = char.ToLowerInvariant(s1[i]);
+            
+            for (int j = start; j < end; j++)
+            {
+                if (s2Matches[j]) continue;
+                // s2 假定已经是小写
+                if (c1 != s2[j]) continue;
+                
+                s1Matches[i] = true;
+                s2Matches[j] = true;
+                matches++;
+                break;
+            }
+        }
+        
+        if (matches == 0) return 0;
+        
+        int k = 0;
+        for (int i = 0; i < n; i++)
+        {
+            if (!s1Matches[i]) continue;
+            while (!s2Matches[k]) k++;
+            if (char.ToLowerInvariant(s1[i]) != s2[k]) transpositions++;
+            k++;
+        }
+        
+        double jaro = (matches / (double)n + matches / (double)m + (matches - transpositions / 2.0) / matches) / 3.0;
+        
+        // Winkler prefix scale (standard is 0.1, max 4 chars)
+        int prefix = 0;
+        int maxPrefix = Math.Min(4, Math.Min(n, m));
+        for (int i = 0; i < maxPrefix; i++)
+        {
+            if (char.ToLowerInvariant(s1[i]) == s2[i]) prefix++;
+            else break;
+        }
+        
+        return jaro + prefix * 0.1 * (1 - jaro);
     }
 
     #endregion
@@ -1022,7 +1170,7 @@ public class GameSaveDetectorTask : BgTaskBase
             }
 
             if (string.IsNullOrEmpty(directory)) continue;
-            if (SaveDetectionConstants.ShouldExcludePath(directory, currentAppPath)) continue;
+            if (SaveDetectionConstants.ShouldExcludePath(directory.AsSpan(), currentAppPath)) continue;
 
             var normalizedDir = directory.ToLowerInvariant().TrimEnd('\\', '/');
             if (!directoryScores.ContainsKey(normalizedDir))
@@ -1039,7 +1187,7 @@ public class GameSaveDetectorTask : BgTaskBase
 
             // 3. 核心修改：变体匹配评分 (这是最重要的指标)
             // 我们单独计算目录名的匹配程度，而不是整个长路径
-            var variantScore = CalculateVariantMatchScore(directory, matchVariants);
+            var variantScore = CalculateDirectoryVariantMatchScore(directory, matchVariants);
             scoreInfo.TotalScore += variantScore;
 
             if (variantScore > 0)
@@ -1048,7 +1196,7 @@ public class GameSaveDetectorTask : BgTaskBase
             }
 
             // 4. 路径结构微调
-            scoreInfo.TotalScore += SaveDetectionConstants.GetPathStructureScore(directory);
+            scoreInfo.TotalScore += SaveDetectionConstants.GetPathStructureScore(directory.AsSpan());
         }
 
         if (directoryScores.Count == 0) return string.Empty;
@@ -1064,45 +1212,83 @@ public class GameSaveDetectorTask : BgTaskBase
     }
 
     /// <summary>
-    /// 计算路径与变体的匹配评分 - 已增强权重
+    /// 计算目录路径与变体的匹配评分 (重命名以更准确反映用途)
     /// </summary>
     /// <param name="directory">目录路径</param>
-    /// <param name="lowerVariants">预先转换为小写的变体列表</param>
-    private double CalculateVariantMatchScore(string directory, List<string> lowerVariants)
+    /// <param name="allLowerVariantsForContains">预先转换为小写的全量变体列表（用于Contains匹配）</param>
+    private double CalculateDirectoryVariantMatchScore(string directory, List<string> allLowerVariantsForContains)
     {
-        if (string.IsNullOrEmpty(directory) || lowerVariants == null || lowerVariants.Count == 0) return 0;
-
-        var directoryLower = directory.ToLowerInvariant();
+        if (string.IsNullOrEmpty(directory) || allLowerVariantsForContains == null || allLowerVariantsForContains.Count == 0) return 0;
+      
         var totalScore = 0.0;
 
-        // 获取目录的最后一级名称，用于精准匹配
-        // 例如 "C:\Users\...\MyGame" -> "mygame"
-        var dirName = new DirectoryInfo(directory).Name.ToLowerInvariant();
+        // 优化：使用 Path.GetFileName 获取最后一级目录名
+        var dirName = Path.GetFileName(directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        if (string.IsNullOrEmpty(dirName)) dirName = directory; // Fallback
+        
+        // 为了精确匹配比较（Case Insensitive），我们还是需要一个 string 或者 Span 比较
+        var dirNameSpan = dirName.AsSpan();
+        
+        // 我们需要 directoryLower 仅用于 contains 检查，但我们可以用 IndexOf 替代
+        var directorySpan = directory.AsSpan();
 
-        foreach (var variantLower in lowerVariants)
+        // --- 精确/包含匹配 (使用所有生成的变体) ---
+        foreach (var variantLower in allLowerVariantsForContains)
         {
             if (string.IsNullOrEmpty(variantLower)) continue;
-            // 注意：这里传入的 lowerVariants 已经是小写的，无需再次 ToLowerInvariant
+
+            double scoreForThisVariant = 0;
 
             // 策略 A: 目录名完全等于游戏名/变体名 (最高优先级)
-            // 例如: 目录是 "妄想complete！"，变体是 "妄想complete！"
-            if (dirName == variantLower)
+            // 使用 Equals 忽略大小写比较 Span 和 String
+            if (dirNameSpan.Equals(variantLower.AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
-                totalScore += 500; // 极高分，几乎确信
+                scoreForThisVariant = 500; // 极高分，几乎确信
                 Debug.WriteLine($"[GameSaveDetector] 完美目录名匹配: {variantLower}");
             }
             // 策略 B: 路径中包含独立的游戏名目录
-            // 例如: ...\MyGame\SaveData
-            else if (directoryLower.Contains($"\\{variantLower}\\") || directoryLower.Contains($"/{variantLower}/") || directoryLower.EndsWith($"\\{variantLower}"))
+            else 
             {
-                totalScore += 100; // 高分
+                // 使用 Span 优化的 IndexOf
+                int index = directorySpan.IndexOf(variantLower, StringComparison.OrdinalIgnoreCase);
+                if (index >= 0)
+                {
+                    // 检查前后字符是否为分隔符或边界
+                    bool startOk = (index == 0) || (directory[index - 1] == Path.DirectorySeparatorChar) || (directory[index - 1] == Path.AltDirectorySeparatorChar);
+                    int end = index + variantLower.Length;
+                    bool endOk = (end == directory.Length) || (directory[end] == Path.DirectorySeparatorChar) || (directory[end] == Path.AltDirectorySeparatorChar);
+
+                    if (startOk && endOk)
+                    {
+                        scoreForThisVariant = 100; // 高分
+                    }
+                    else
+                    {
+                        scoreForThisVariant = 20; // 包含但不是独立段
+                    }
+                }
             }
-            // 策略 C: 部分包含
-            else if (directoryLower.Contains(variantLower))
+
+            totalScore = Math.Max(totalScore, scoreForThisVariant);
+        }
+
+        // --- 模糊匹配 (使用核心变体进行Jaro-Winkler) ---
+        if (_fuzzyMatchCoreVariants != null)
+        {
+            // 使用我们优化的无分配 JaroWinkler
+            foreach (var coreVariant in _fuzzyMatchCoreVariants)
             {
-                totalScore += 20; // 只要包含就给分，但不如上面高
+                if (string.IsNullOrEmpty(coreVariant)) continue;
+                // 注意：JaroWinkler 内部会处理大小写
+                if (JaroWinkler(dirNameSpan, coreVariant) > 0.8)
+                {
+                    // 模糊匹配得分作为额外加分
+                    totalScore = Math.Max(totalScore, 400); 
+                    Debug.WriteLine($"[GameSaveDetector] 模糊目录名匹配 (核心变体): {dirName} ~= {coreVariant}");
+                }
             }
         }
+
         return totalScore;
     }
 

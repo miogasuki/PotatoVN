@@ -144,7 +144,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             // 初始化面板
             Update(Item);
 
-            if (param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
+            if ((param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
+                || param.ForceStartGame)
                 await Play();
             if (param.SelectProgress)
             {
@@ -904,6 +905,8 @@ public class GalgamePageParameter
     [Required] public Galgame Galgame = null!;
     /// 如果设置有打开直接启动游戏，则直接启动游戏
     public bool StartGame;
+    /// 强制启动游戏
+    public bool ForceStartGame;
     /// 显示手动选择线程弹窗
     public bool SelectProgress;
 }

@@ -17,6 +17,7 @@ namespace GalgameManager.Services;
 
 public class ActivationService : IActivationService
 {
+    public static object? ActivationArgs { get; private set; }
     private readonly IEnumerable<IActivationHandler> _activationHandlers;//
     private readonly IThemeSelectorService _themeSelectorService; //
     private readonly IUpdateService _updateService;
@@ -34,7 +35,7 @@ public class ActivationService : IActivationService
     private readonly IPvnService _pvnService;
     private readonly IPluginService _pluginService;
     private readonly IInfoService _infoService;
-    
+
     public ActivationService(
         IEnumerable<IActivationHandler> activationHandlers, IThemeSelectorService themeSelectorService,
         IGalgameSourceCollectionService galgameFolderCollectionService,
@@ -77,7 +78,7 @@ public class ActivationService : IActivationService
             Application.Current.Exit();
             return;
         }
-        
+
         // Execute tasks before activation.
         await InitializeAsync();
 
@@ -88,7 +89,7 @@ public class ActivationService : IActivationService
             {
                 Application.Current.Exit();
                 return;
-            } 
+            }
         }
 
         ImportWindow? importWindow = null;
@@ -149,7 +150,7 @@ public class ActivationService : IActivationService
         {
             await _bgTaskService.ResolvedBgTasksAsync();
         }
-        
+
         App.Status = WindowMode.SystemTray;
 
         // Execute tasks after activation.
@@ -158,6 +159,7 @@ public class ActivationService : IActivationService
 
     public async Task HandleActivationAsync(object activationArgs)
     {
+        ActivationArgs = activationArgs;
         IActivationHandler? activationHandler = _activationHandlers.FirstOrDefault(h => h.CanHandle(activationArgs));
 
         if (activationHandler != null)
@@ -181,7 +183,7 @@ public class ActivationService : IActivationService
             //防止有人手快按到页面内容
             App.MainWindow!.Content.Visibility = Visibility.Collapsed;
         }
-        
+
         //系统托盘
         App.GetResource<XamlUICommand>("SetWindowNormalCommand").ExecuteRequested += (_, _) =>
         {
@@ -263,10 +265,10 @@ public class ActivationService : IActivationService
                 {
                     await _localSettingsService.SaveSettingAsync(KeyValues.FontInstalled, checkBox.IsChecked);
                 };
-                
+
                 await dialog.ShowAsync();
             }
-            
+
             if (Utils.IsFontInstalled("Segoe Fluent Icons"))
                 await _localSettingsService.SaveSettingAsync(KeyValues.FontInstalled, true);
         }
@@ -294,7 +296,7 @@ public class ActivationService : IActivationService
         }
         return false;
     }
-    
+
     private static bool IsSafeMode()
     {
         AppActivationArguments activatedArgs = AppInstance.GetCurrent().GetActivatedEventArgs();

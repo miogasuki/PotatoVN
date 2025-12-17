@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
+using GalgameManager.WinApp.Base.Contracts.NavigationApi;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Windows.AppLifecycle;
 
 namespace GalgameManager.WinApp.Base.Contracts;
 
@@ -13,7 +15,7 @@ public interface IPotatoVnApi
 {
     //与游戏相关的API
     #region GAMES
-    
+
     /// <summary>
     /// 获取所有游戏，这个列表只是一个快照（即后续添加的游戏或删除的游戏均不会在这个List中反馈）
     /// </summary>
@@ -21,7 +23,7 @@ public interface IPotatoVnApi
     public List<Galgame> GetAllGames();
 
     #endregion
-    
+
     //与插件数据存储相关的API
     #region DATA
 
@@ -30,7 +32,7 @@ public interface IPotatoVnApi
     /// </summary>
     /// <returns></returns>
     public Task<string?> GetDataAsync();
-    
+
     /// <summary>
     /// 保存本插件存储的数据
     /// </summary>
@@ -51,7 +53,7 @@ public interface IPotatoVnApi
     #endregion
 
     //与事件/通知相关的API
-    #region NOTIFICATIONS 
+    #region NOTIFICATIONS
 
     /// <summary>
     /// 使用InfoBar通知信息，若title与msg均为空则关闭InfoBar
@@ -114,8 +116,30 @@ public interface IPotatoVnApi
     public T? GetBgTask<T>(string key) where T : BgTaskBase;
 
     #endregion BG_TASKS
-    
-    
+
+    //与软件本体（比如说启动参数）相关的API
+    #region HOST
+
+    /// <summary>
+    /// 软件的启动参数，正常情况下应该是一个<see cref="AppActivationArguments"/>
+    /// </summary>
+    object? ActivationArgs { get; }
+
+    #endregion
+
+    //与界面相关的API（例如界面跳转）
+
+    #region PAGE
+
+    /// <summary>
+    /// 跳转到指定页面
+    /// </summary>
+    /// <param name="page">要跳转到的界面</param>
+    /// <param name="parameter">跳转参数，可为空</param>
+    void NavigateTo(PageEnum page, object? parameter = null);
+
+    #endregion
+
     #region UTILS
 
     /// <summary>
@@ -134,12 +158,12 @@ public interface IPotatoVnApi
     /// </summary>
     /// <returns></returns>
     public string GetPluginPath();
-    
+
     /// <summary>
     /// 在主线程执行某个操作（一般用于UI相关操作）
     /// </summary>
     /// <param name="action"></param>
     public void InvokeOnMainThread(Action action);
-    
+
     #endregion
 }

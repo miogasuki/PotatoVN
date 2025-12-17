@@ -207,7 +207,7 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             {
                 IEnumerable<string> developers = rssItem.Developers.Select<VndbProducer, string>(d =>
                     d.Original ?? d.Name ?? "");
-                result.Developer = string.Join(",", developers);
+                result.Developer = string.Join("||", developers);
             }else
             {
                 result.Developer = Galgame.DefaultString;

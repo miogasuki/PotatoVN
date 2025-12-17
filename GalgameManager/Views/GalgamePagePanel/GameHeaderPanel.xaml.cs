@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using GalgameManager.Contracts.Services;
@@ -22,6 +22,7 @@ public partial class GameHeaderPanel
     private readonly IStaffService _staffService = App.GetService<IStaffService>();
     private Galgame? _lastGame;
     private readonly ObservableCollection<GameHeaderPanelStaffList> _staffListSource = new();
+    private readonly ObservableCollection<GameHeaderPanelDeveloperList> _developerListSource = new();
     
     // 标题属性
     public string PrimaryTitleText => GetTitleText(PrimaryTitleType);
@@ -34,6 +35,7 @@ public partial class GameHeaderPanel
     {
         InitializeComponent();
         StaffList.ItemsSource = _staffListSource;
+        DeveloperList.ItemsSource = _developerListSource;
         Unloaded += (_, _) =>
         {
             _staffService.OnGameStaffChanged -= StaffServiceOnOnGameStaffChanged;
@@ -105,6 +107,7 @@ public partial class GameHeaderPanel
             // 继续执行现有更新逻辑
             await UpdateHeaderImgAndCoverImg();
             await UpdateStaffs();
+            UpdateDevelopers();
         }
         catch (Exception e)
         {
@@ -257,6 +260,25 @@ public partial class GameHeaderPanel
         StaffList.UpdateLayout();
     }
 
+    private void UpdateDevelopers()
+    {
+        if (Game is null || string.IsNullOrEmpty(Game.Developer.Value))
+        {
+            _developerListSource.Clear();
+            return;
+        }
+
+        _developerListSource.Clear();
+        var developers = Game.Developer.Value.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(s => !string.IsNullOrEmpty(s));
+
+        foreach (var dev in developers)
+        {
+            _developerListSource.Add(new GameHeaderPanelDeveloperList { Name = dev });
+        }
+    }
+
     private async Task UpdateHeaderImgAndCoverImg()
     {
         if (Game is null) return;
@@ -280,4 +302,15 @@ public class GameHeaderPanelStaffList (Career career, List<Staff> staffsList)
 {
     public string Career { get; set; } = $"Career_Relation_{career}".GetLocalized();
     public List<Staff> StaffsList { get; set; } = staffsList;
+}
+
+public class GameHeaderPanelDeveloperList : INotifyPropertyChanged
+{
+    public string Name { get; set; } = string.Empty;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

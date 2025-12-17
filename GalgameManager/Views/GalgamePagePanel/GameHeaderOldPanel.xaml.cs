@@ -41,7 +41,7 @@ public partial class GameHeaderOldPanel
         }
 
         _developerListSource.Clear();
-        var developers = Game.Developer.Value.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries)
+        var developers = Game.Developer.Value.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
             .Select(s => s.Trim())
             .Where(s => !string.IsNullOrEmpty(s));
 

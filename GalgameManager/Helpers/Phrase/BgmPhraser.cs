@@ -144,7 +144,7 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser,
                 case JTokenType.Array:
                 {
                     IEnumerable<char> tmp = developerInfoBox.SelectMany(dev => dev["v"]!.ToString());
-                    result.Developer = string.Join("||", tmp);
+                    result.Developer = string.Join(",", tmp);
                     break;
                 }
                 case JTokenType.String:

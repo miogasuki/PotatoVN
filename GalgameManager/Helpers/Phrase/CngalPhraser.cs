@@ -58,7 +58,7 @@ public class CngalPhraser : IGalInfoPhraser, IGalCoversParser
             {
                 0 => Galgame.DefaultString,
                 1 => productionGroups[0]["displayName"]!.ToObject<string>()!,
-                _ => string.Join("||", productionGroups.Select(dev => dev["name"]!.ToObject<string>()!))
+                _ => string.Join(",", productionGroups.Select(dev => dev["name"]!.ToObject<string>()!))
             };
         }
 

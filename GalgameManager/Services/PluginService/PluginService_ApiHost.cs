@@ -20,6 +20,7 @@ public partial class PluginService
         private readonly IInfoService _infoService = App.GetService<IInfoService>();
         private readonly IBgTaskService _bgTaskService = App.GetService<IBgTaskService>();
         private readonly IGalgameCollectionService _gameService = App.GetService<IGalgameCollectionService>();
+        private readonly ILocalSettingsService _settingService = App.GetService<ILocalSettingsService>();
 
         #region GAMES
 
@@ -95,6 +96,8 @@ public partial class PluginService
         public T? GetBgTask<T>(string key) where T : BgTaskBase => _bgTaskService.GetBgTask<T>(key);
 
         public object? ActivationArgs => ActivationService.ActivationArgs;
+
+        public LanguageEnum Language => _settingService.ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
 
         #endregion
 

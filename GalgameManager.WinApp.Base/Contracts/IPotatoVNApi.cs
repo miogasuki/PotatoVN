@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
+using GalgameManager.Enums;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi;
@@ -125,10 +126,14 @@ public interface IPotatoVnApi
     /// </summary>
     object? ActivationArgs { get; }
 
+    /// <summary>
+    /// 软件当前使用的语言（切换语言后，这个值会变成目标语言，但需要重启后才生效）
+    /// </summary>
+    LanguageEnum Language { get; }
+
     #endregion
 
     //与界面相关的API（例如界面跳转）
-
     #region PAGE
 
     /// <summary>

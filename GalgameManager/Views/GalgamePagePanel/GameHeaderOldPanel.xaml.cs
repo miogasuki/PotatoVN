@@ -1,4 +1,5 @@
-﻿using GalgameManager.Contracts.Services;
+using System.Collections.ObjectModel;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
@@ -17,13 +18,40 @@ public partial class GameHeaderOldPanel
     private readonly IFilterService _filterService = App.GetService<IFilterService>();
     private readonly INavigationService _navigationService = App.GetService<INavigationService>();
     private readonly ILocalSettingsService _localSettingsService = App.GetService<ILocalSettingsService>();
+    private readonly ObservableCollection<GameHeaderPanelDeveloperList> _developerListSource = new();
 
     public GameHeaderOldPanel()
     {
         InitializeComponent();
+        DeveloperList.ItemsSource = _developerListSource;
     }
 
-    private void ClickDeveloper(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    protected override void Update()
+    {
+        base.Update();
+        UpdateDevelopers();
+    }
+
+    private void UpdateDevelopers()
+    {
+        if (Game is null || string.IsNullOrEmpty(Game.Developer.Value))
+        {
+            _developerListSource.Clear();
+            return;
+        }
+
+        _developerListSource.Clear();
+        var developers = Game.Developer.Value.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(s => !string.IsNullOrEmpty(s));
+
+        foreach (var dev in developers)
+        {
+            _developerListSource.Add(new GameHeaderPanelDeveloperList { Name = dev });
+        }
+    }
+
+    private void ClickDeveloper(object sender, RoutedEventArgs e)
     {
         if (Game is null) return;
         Category? category = _categoryService.GetDeveloperCategory(Game);

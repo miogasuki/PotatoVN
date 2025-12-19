@@ -17,26 +17,26 @@ public partial class PluginService
             switch (page)
             {
                 case PageEnum.CategoryPage:
-                    _navigationService.NavigateTo(nameof(CategoryViewModel));
+                    _navigationService.NavigateTo(typeof(CategoryViewModel).FullName!);
                     break;
                 case PageEnum.GalgamePage:
                     if (parameter is not GalgamePageNavParameter navParameter)
                         throw new ArgumentException(null, nameof(parameter));
-                    _navigationService.NavigateTo(nameof(GalgameViewModel), new GalgamePageParameter
+                    _navigationService.NavigateTo(typeof(GalgameViewModel).FullName!, new GalgamePageParameter
                     {
                         Galgame =  navParameter.Galgame,
                         ForceStartGame = navParameter.StartGame,
                     });
                     break;
                 case PageEnum.GameListPage:
-                    _navigationService.NavigateTo(nameof(HomeViewModel));
+                    _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
                     break;
                 case PageEnum.HomePage:
-                    _navigationService.NavigateTo(nameof(MultiStreamViewModel));
+                    _navigationService.NavigateTo(typeof(MultiStreamViewModel).FullName!);
                     break;
                 case PageEnum.LibraryPage:
                     LibraryPageNavParameter? param = parameter as LibraryPageNavParameter;
-                    _navigationService.NavigateTo(nameof(LibraryViewModel), param?.TargetSource);
+                    _navigationService.NavigateTo(typeof(LibraryViewModel).FullName!, param?.TargetSource);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(page), page, null);

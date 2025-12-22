@@ -12,6 +12,8 @@
     <Page.Resources>
         <converter:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
         <converter:ImagePathConverter x:Key="ImagePathConverter" />
+        <converter:StorePluginStatusToOpacityConverter x:Key="StorePluginStatusToOpacityConverter" />
+        <converter:StorePluginStatusToTextConverter x:Key="StorePluginStatusToTextConverter" />
     </Page.Resources>
 
     <Grid>
@@ -59,6 +61,16 @@
                                                Style="{ThemeResource CaptionTextBlockStyle}"
                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                                HorizontalAlignment="Left"/>
+
+                                    <!-- Status -->
+                                    <Grid Grid.Row="2" HorizontalAlignment="Right"
+                                          Opacity="{x:Bind Status, Mode=OneWay, Converter={StaticResource StorePluginStatusToOpacityConverter}}">
+                                        <Border Background="{ThemeResource SystemControlBackgroundAccentBrush}" CornerRadius="4" Padding="6 2">
+                                            <TextBlock Text="{x:Bind Status, Mode=OneWay, Converter={StaticResource StorePluginStatusToTextConverter}}"
+                                                       Style="{ThemeResource CaptionTextBlockStyle}"
+                                                       Foreground="White"/>
+                                        </Border>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </Button>

@@ -42,10 +42,23 @@ public sealed partial class StorePluginDialog
         }
         else
         {
-            PrimaryButtonText = "StorePluginDialog_DownloadLatest".GetLocalized();
-            if (VersionsView.SelectedItem is StorePluginVersion selected)
-                PrimaryButtonText = "StorePluginDialog_DownloadSelected".GetLocalized(selected.Version);
-            IsPrimaryButtonEnabled = _storePlugin.Versions.Count > 0;
+            if (_storePlugin.Status == StorePluginStatus.UpdateAvailable)
+            {
+                PrimaryButtonText = "StorePluginDialog_Update".GetLocalized();
+                IsPrimaryButtonEnabled = true;
+            }
+            else if (_storePlugin.Status == StorePluginStatus.Installed)
+            {
+                PrimaryButtonText = "StorePluginDialog_Installed".GetLocalized();
+                IsPrimaryButtonEnabled = false;
+            }
+            else
+            {
+                PrimaryButtonText = "StorePluginDialog_DownloadLatest".GetLocalized();
+                if (VersionsView.SelectedItem is StorePluginVersion selected)
+                    PrimaryButtonText = "StorePluginDialog_DownloadSelected".GetLocalized(selected.Version);
+                IsPrimaryButtonEnabled = _storePlugin.Versions.Count > 0;
+            }
         }
     }
 }

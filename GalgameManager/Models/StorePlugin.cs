@@ -29,6 +29,16 @@ public partial class StorePlugin : ObservableObject
     [ObservableProperty] private DateTime _releaseDate;
     /// 插件各个版本与下载链接
     public List<StorePluginVersion> Versions { get; set; } = [];
+
+    [ObservableProperty] private StorePluginStatus _status = StorePluginStatus.NotInstalled;
+    [ObservableProperty] private Version? _installedVersion;
+}
+
+public enum StorePluginStatus
+{
+    NotInstalled,
+    Installed,
+    UpdateAvailable
 }
 
 public class StorePluginVersion

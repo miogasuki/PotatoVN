@@ -11,6 +11,7 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
     protected override int MaxRunning() => 5;
     private readonly IRepoFlowApi _api = RepoFlowApi.GetApi();
     private readonly IInfoService _infoService = App.GetService<IInfoService>();
+    private readonly IPluginService _pluginService = App.GetService<IPluginService>();
     private readonly HttpClient _httpClient = Utils.GetDefaultHttpClient();
 
     private const string DocPackageName = "doc";
@@ -47,13 +48,27 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
             await Task.WhenAll(tasks);
             if (item.Versions.Count > 0)
                 item.ReleaseDate = item.Versions[0].ReleaseDate;
+
+            PluginX? installedPlugin = (await _pluginService.GetAllPluginsAsync()).FirstOrDefault(p => p.Info.Id == item.Id);
+            if (installedPlugin != null)
+            {
+                item.InstalledVersion = installedPlugin.Info.Version;
+                if (item.Versions.Count > 0 && item.Versions[0].Version > item.InstalledVersion)
+                    item.Status = StorePluginStatus.UpdateAvailable;
+                else
+                    item.Status = StorePluginStatus.Installed;
+            }
+            else
+            {
+                item.Status = StorePluginStatus.NotInstalled;
+            }
         }
         catch (Exception e)
         {
             _infoService.DeveloperEvent(msg: $"获取插件{item.RepoName}信息失败", e: e);
             return;
         }
-        
+
         await UiThreadInvokeHelper.InvokeAsync(() =>
         {
             pluginList.Add(item);
@@ -76,6 +91,7 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
         if (info is null) throw new PvnException("找不到插件信息文件或格式错误");
         await UiThreadInvokeHelper.InvokeAsync(() =>
         {
+            plugin.Id = info.Id;
             plugin.Name = info.Name;
             plugin.DescriptionShort = info.DescriptionShort;
             plugin.DescriptionDetailed = info.DescriptionDetailed;
@@ -108,6 +124,7 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
     private class PluginInfo
     {
 #pragma warning disable CS0649 // 忽略未赋值警告，JsonProperty会赋值
+        [JsonProperty("guid")] public Guid Id;
         [JsonProperty("name")] public string Name = string.Empty;
         [JsonProperty("description_short")] public string DescriptionShort = string.Empty;
         [JsonProperty("description_detailed")] public string DescriptionDetailed = string.Empty;

@@ -4475,6 +4475,18 @@
     <value>热重载插件</value>
   </data>
   <data name="GalgameCollectionService_FolderOrFilePickerDialog_Other" xml:space="preserve">
-      <value>其他</value>
+    <value>其他</value>
+  </data>
+  <data name="StorePlugin_Installed" xml:space="preserve">
+    <value>已安装</value>
+  </data>
+  <data name="StorePlugin_UpdateAvailable" xml:space="preserve">
+    <value>有更新</value>
+  </data>
+  <data name="StorePluginDialog_Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="StorePluginDialog_Installed" xml:space="preserve">
+    <value>已安装</value>
   </data>
 </root>

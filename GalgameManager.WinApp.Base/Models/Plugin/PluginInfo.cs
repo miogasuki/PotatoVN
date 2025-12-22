@@ -9,14 +9,19 @@ public class PluginInfo
     /// 可以考虑使用在线UUID生成器生成一个并硬编码在代码里
     /// </summary>
     public required Guid Id { get; set; }
-    
+
     /// <summary>
     /// 插件名
     /// </summary>
     public required string Name { get; set; }
-    
+
     /// <summary>
     /// 插件描述
     /// </summary>
     public required string Description { get; set; }
+
+    /// <summary>
+    /// 插件版本
+    /// </summary>
+    public Version Version { get; set; } = new(1, 0, 0);
 }

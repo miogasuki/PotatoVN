@@ -186,6 +186,18 @@
   <data name="HomePage_Download" xml:space="preserve">
     <value>ゲーム情報をダウンロード</value>
   </data>
+  <data name="HomePage_BatchManage" xml:space="preserve">
+    <value>一括管理</value>
+  </data>
+  <data name="HomePage_BatchManage_Done" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="HomePage_Filter_RecentAdded" xml:space="preserve">
+    <value>直近1か月に追加</value>
+  </data>
+  <data name="HomePage_Filter_PlayStatusUnset" xml:space="preserve">
+    <value>未設定</value>
+  </data>
   <data name="HomePage_Remove" xml:space="preserve">
     <value>ライブラリからゲームを削除</value>
   </data>
@@ -215,6 +227,9 @@
   </data>
   <data name="HomePage_Remove_Message" xml:space="preserve">
     <value>このゲームのホストを解除しますか？</value>
+  </data>
+  <data name="HomePage_BatchRemove_Message" xml:space="preserve">
+    <value>選択した{0}件のゲームをライブラリから削除しますか？</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>確定</value>

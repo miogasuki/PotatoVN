@@ -22,6 +22,8 @@
 
     <Page.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseVisibilityConverter x:Key="InverseVisibilityConverter" />
         <helpers:SortKeyToBooleanConverter x:Key="EnumToBoolConverter" />
 
         <MenuFlyout x:Name="GalFlyout" Opening="{x:Bind ViewModel.GalFlyout_Opening}">
@@ -89,9 +91,71 @@
 
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="{StaticResource CommandBarMargin}">
+                <CommandBar.Content>
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
+                                Visibility="{x:Bind ViewModel.IsFilterMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                            <ToggleButton Content="{x:Bind ViewModel.PlayStatusUnsetFilterLabel}"
+                                          IsChecked="{x:Bind ViewModel.PlayStatusUnsetFilterEnabled, Mode=TwoWay}"
+                                          Padding="10,4" MinHeight="32" />
+                            <ToggleButton Content="{x:Bind ViewModel.RecentAddedFilterLabel}"
+                                          IsChecked="{x:Bind ViewModel.RecentAddedFilterEnabled, Mode=TwoWay}"
+                                          Padding="10,4" MinHeight="32" />
+                        </StackPanel>
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE71C;" />
+                        <cmtkControl:TokenizingTextBox
+                            Width="240" HorizontalAlignment="Left"
+                            TokenDelimiter=","
+                            ItemsSource="{x:Bind ViewModel.Filters, Mode=TwoWay}"
+                            QueryIcon="{cmtk:FontIconSource Glyph=&#xE721;,
+                                                          FontSize=12}"
+                            SuggestedItemsSource="{x:Bind ViewModel.FilterInputSuggestions, Mode=OneWay}"
+                            AllowFocusOnInteraction="True"
+                            Text="{x:Bind ViewModel.FilterInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            <cmtkControl:TokenizingTextBox.AutoSuggestBoxStyle>
+                                <Style TargetType="AutoSuggestBox">
+                                    <Setter Property="MinWidth" Value="180" />
+                                </Style>
+                            </cmtkControl:TokenizingTextBox.AutoSuggestBoxStyle>
+                            <cmtkControl:TokenizingTextBox.SuggestedItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding }" />
+                                </DataTemplate>
+                            </cmtkControl:TokenizingTextBox.SuggestedItemTemplate>
+                            <cmtkControl:TokenizingTextBox.TokenItemTemplate>
+                                <DataTemplate x:DataType="filters:FilterBase">
+                                    <TextBlock Text="{x:Bind ToString() }" />
+                                </DataTemplate>
+                            </cmtkControl:TokenizingTextBox.TokenItemTemplate>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="TokenItemRemoved">
+                                    <core:InvokeCommandAction Command="{x:Bind ViewModel.FilterRemovedCommand}" />
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="TextChanged">
+                                    <core:InvokeCommandAction
+                                        Command="{x:Bind ViewModel.FilterInputTextChangeCommand}" />
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="TokenItemAdding">
+                                    <core:InvokeCommandAction
+                                        Command="{x:Bind ViewModel.FilterInputTokenItemAddingCommand}" />
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="TokenItemAdding">
+                                    <core:InvokeCommandAction
+                                        Command="{x:Bind ViewModel.FilterInputTokenItemAddingCommand}" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </cmtkControl:TokenizingTextBox>
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE721;" />
+                        <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}"
+                                                      SearchKey="{x:Bind ViewModel.SearchKey, Mode=TwoWay}"
+                                                      PlaceholderText="{x:Bind ViewModel.SearchPlaceholder}"
+                                                      SearchSuggestionsProvider="{x:Bind ViewModel.GalgameSearchSuggestionsProvider}" />
+                    </StackPanel>
+                </CommandBar.Content>
                 <!-- 搜索 -->
                 <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}"
-                              AllowFocusOnInteraction="True">
+                              AllowFocusOnInteraction="True"
+                              Visibility="{x:Bind ViewModel.IsFilterMode, Converter={StaticResource InverseVisibilityConverter}}">
                     <AppBarButton.Flyout>
                         <Flyout Placement="Bottom">
                             <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}"
@@ -104,7 +168,8 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <!-- 过滤 -->
-                <AppBarButton x:Uid="HomePage_Filter" Label="{x:Bind ViewModel.UiFilter, Mode=OneWay}">
+                <AppBarButton x:Uid="HomePage_Filter" Label="{x:Bind ViewModel.UiFilter, Mode=OneWay}"
+                              Visibility="{x:Bind ViewModel.IsFilterMode, Converter={StaticResource InverseVisibilityConverter}}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE71C;" />
                     </AppBarButton.Icon>
@@ -167,7 +232,8 @@
                 </AppBarButton>
                 <!-- 添加游戏 -->
                 <AppBarButton x:Uid="HomePage_AddNewGame" Icon="Add"
-                              IsEnabled="{x:Bind ViewModel.IsPhrasing, Mode=OneWay, Converter={StaticResource InverseBooleanConverter}}">
+                              IsEnabled="{x:Bind ViewModel.IsPhrasing, Mode=OneWay, Converter={StaticResource InverseBooleanConverter}}"
+                              Visibility="{x:Bind ViewModel.IsBatchMode, Converter={StaticResource InverseVisibilityConverter}}">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutItem x:Uid="HomePage_AddNewGame_Local"
@@ -181,7 +247,8 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <!-- 排序 -->
-                <AppBarButton x:Uid="HomePage_Sort" Icon="Sort">
+                <AppBarButton x:Uid="HomePage_Sort" Icon="Sort"
+                              Visibility="{x:Bind ViewModel.IsBatchMode, Converter={StaticResource InverseVisibilityConverter}}">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <!-- 第一排序键 -->
@@ -349,6 +416,42 @@
                         <KeyboardAccelerator Modifiers="Control" Key="S" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
+                <AppBarButton Label="{x:Bind ViewModel.PlayStatus}" Visibility="{x:Bind ViewModel.IsBatchMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                              IsEnabled="{x:Bind ViewModel.HasBatchSelection}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74C;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+                            <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlaying"
+                                             Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                             CommandParameter="Playing" />
+                            <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlayed"
+                                             Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                             CommandParameter="Played" />
+                            <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusOnHold"
+                                             Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                             CommandParameter="Shelved" />
+                            <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusAbandoned"
+                                             Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                             CommandParameter="Abandoned" />
+                            <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusWantToPlay"
+                                             Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                             CommandParameter="WantToPlay" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarButton Label="{x:Bind ViewModel.BatchDownloadLabel}" Icon="Download"
+                              Visibility="{x:Bind ViewModel.IsBatchMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                              IsEnabled="{x:Bind ViewModel.HasBatchSelection}"
+                              Command="{x:Bind ViewModel.BatchDownloadInfoCommand}" />
+                <AppBarButton Label="{x:Bind ViewModel.BatchRemoveLabel}" Icon="Delete"
+                              Visibility="{x:Bind ViewModel.IsBatchMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                              IsEnabled="{x:Bind ViewModel.HasBatchSelection}"
+                              Command="{x:Bind ViewModel.BatchRemoveCommand}" />
+                <AppBarToggleButton Icon="SelectAll" Label="{x:Bind ViewModel.BatchManageLabel}"
+                                    IsChecked="{x:Bind ViewModel.IsBatchMode, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.ToggleBatchManageStateCommand}" />
                 <CommandBar.SecondaryCommands>
                     <!-- 裁剪横图 -->
                     <AppBarToggleButton x:Uid="HomePage_FixHorizontalPicture" Icon="Crop"
@@ -386,13 +489,16 @@
             <GridView
                 Grid.Row="1" x:Name="GridView"
                 ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                IsItemClickEnabled="True"
-                SelectionMode="None"
-                CanReorderItems="True"
+                IsItemClickEnabled="{x:Bind ViewModel.IsItemClickEnabled, Mode=OneWay}"
+                SelectionMode="{x:Bind ViewModel.GridSelectionMode, Mode=OneWay}"
+                IsMultiSelectCheckBoxEnabled="{x:Bind ViewModel.IsMultiSelectCheckBoxEnabled, Mode=OneWay}"
+                CanReorderItems="{x:Bind ViewModel.CanReorderItems, Mode=OneWay}"
                 AllowDrop="True"
-                CanDragItems="True"
+                CanDragItems="{x:Bind ViewModel.CanDragItems, Mode=OneWay}"
                 DragItemsStarting="MainGridView_DragItemsStarting"
                 DragItemsCompleted="MainGridView_DragItemsCompleted"
+                SelectionChanged="MainGridView_SelectionChanged"
+                ContainerContentChanging="MainGridView_ContainerContentChanging"
                 ItemClick="MainGridView_ItemClick">
                 <behaviors:GridViewSpacingBehavior GridView="{x:Bind GridView}"
                                                    TargetWidth="175"

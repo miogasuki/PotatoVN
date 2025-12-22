@@ -115,6 +115,17 @@ public class FilterService : IFilterService
             //本地游戏
             if(Filters.Any(f => f is VirtualGameFilter) == false)
                 result.Add(new VirtualGameFilter());
+
+            // 最近添加
+            string recentAddedLabel = "HomePage_Filter_RecentAdded".GetLocalized();
+            if (recentAddedLabel.ContainX(str) && Filters.All(f => f is not RecentAddedFilter))
+                result.Add(new RecentAddedFilter());
+
+            // 未设置游玩状态
+            string unsetPlayStatusLabel = PlayType.None.GetLocalized();
+            if (unsetPlayStatusLabel.ContainX(str) &&
+                Filters.All(f => f is not PlayTypeFilter filter || filter.PlayType != PlayType.None))
+                result.Add(new PlayTypeFilter(PlayType.None));
         })!);
         return result;
     }

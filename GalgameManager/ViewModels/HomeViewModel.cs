@@ -431,20 +431,10 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         foreach (var group in groups)
         {
             var task = new GetGalgameInfoFromRssTask(group.Key, selectedParseTypes,
-                group.Select(item => item.Game).ToList());
-            //task.OnProgress += HandleGetGalInfoProgressChanged;
+                group.Select(item => item.Game).ToList());         
             BatchRssTasks.Add(task);
             _ = _bgTaskService.AddBgTask(task);
         }
-    }
-
-    private void HandleGetGalInfoProgressChanged(Progress progress)
-    {
-        _infoService.Info(progress.ToSeverity(), msg: progress.Message, displayTimeMs: progress.ToSeverity() switch
-        {
-            InfoBarSeverity.Informational => 300000,
-            _ => 3000
-        });
     }
 
     [RelayCommand(CanExecute = nameof(HasBatchSelection))]
@@ -853,38 +843,14 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         if (_selectedGalgames.Count == 0) return false;
 
-        List<string> names = _selectedGalgames.Select(g => g.Name.Value!).ToList();
-        StackPanel content = new() { Spacing = 8 };
-        if (!string.IsNullOrEmpty(message))
+        List<Galgame> selectedGalgames = [.. Source.OfType<Galgame>().Where(game => _selectedGalgames.Contains(game))];
+        if (selectedGalgames.Count == 0)
+            selectedGalgames = _selectedGalgames.ToList();
+        BatchConfirmDialog dialog = new(selectedGalgames, title, message)
         {
-            content.Children.Add(new TextBlock
-            {
-                Text = message,
-                TextWrapping = TextWrapping.Wrap
-            });
-        }
-
-        content.Children.Add(new ListView
-        {
-            ItemsSource = names,
-            SelectionMode = ListViewSelectionMode.None,
-            MaxHeight = 240
-        });
-
-        ContentDialog dialog = new()
-        {
-            XamlRoot = App.MainWindow!.Content.XamlRoot,
-            RequestedTheme = App.MainWindow.Content is FrameworkElement element
-                ? element.RequestedTheme
-                : ElementTheme.Default,
-            Title = title,
-            Content = content,
-            PrimaryButtonText = "Yes".GetLocalized(),
-            SecondaryButtonText = "Cancel".GetLocalized()
+            XamlRoot = App.MainWindow!.Content.XamlRoot
         };
-
-        dialog.Resources["ContentDialogMaxWidth"] = App.MainWindow.Bounds.Width * 0.6;
-
+        dialog.Resources["ContentDialogMinWidth"] = App.MainWindow.Bounds.Width * 0.4;
         return await dialog.ShowAsync() == ContentDialogResult.Primary;
     }
 

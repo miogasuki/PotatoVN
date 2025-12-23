@@ -38,7 +38,7 @@ public sealed partial class HomePage : Page
     private void MainGridView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
     {
         if (args.ItemContainer is GridViewItem container)
-            ApplyBatchOpacity(container);
+            ApplyBatchVisualState(container, updateFlyout: true);
     }
 
     private void BatchSelectAll_Click(object sender, RoutedEventArgs e)
@@ -66,7 +66,7 @@ public sealed partial class HomePage : Page
     {
         if (!ViewModel.IsBatchMode && GridView.SelectedItems.Count > 0)
             GridView.SelectedItems.Clear();
-        UpdateAllItemOpacity();
+        UpdateRealizedContainers(updateFlyout: true);
     }
 
     private void UpdateSelectionOpacity(SelectionChangedEventArgs e)
@@ -77,29 +77,47 @@ public sealed partial class HomePage : Page
             UpdateContainerOpacity(item);
     }
 
-    private void UpdateAllItemOpacity()
-    {
-        GridView.UpdateLayout();
-        foreach (var item in GridView.Items)
-            UpdateContainerOpacity(item);
-    }
-
     private void UpdateContainerOpacity(object item)
     {
         if (GridView.ContainerFromItem(item) is GridViewItem container)
             ApplyBatchOpacity(container);
     }
 
-    private void ApplyBatchOpacity(GridViewItem container)
+    private void UpdateRealizedContainers(bool updateFlyout)
     {
-        UpdateContainerFlyout(container);
-        if (!ViewModel.IsBatchMode)
+        if (GridView.ItemsPanelRoot is Panel panel)
         {
-            container.Opacity = 1;
+            foreach (var child in panel.Children)
+            {
+                if (child is GridViewItem container)
+                    ApplyBatchVisualState(container, updateFlyout);
+            }
+
             return;
         }
 
-        container.Opacity = container.IsSelected ? 1 : 0.4;
+        foreach (var item in GridView.Items)
+            UpdateContainerVisualState(item, updateFlyout);
+    }
+
+    private void UpdateContainerVisualState(object item, bool updateFlyout)
+    {
+        if (GridView.ContainerFromItem(item) is GridViewItem container)
+            ApplyBatchVisualState(container, updateFlyout);
+    }
+
+    private void ApplyBatchVisualState(GridViewItem container, bool updateFlyout)
+    {
+        if (updateFlyout)
+            UpdateContainerFlyout(container);
+        ApplyBatchOpacity(container);
+    }
+
+    private void ApplyBatchOpacity(GridViewItem container)
+    {
+        double targetOpacity = !ViewModel.IsBatchMode || container.IsSelected ? 1 : 0.4;
+        if (container.Opacity != targetOpacity)
+            container.Opacity = targetOpacity;
     }
 
     private void UpdateContainerFlyout(GridViewItem container)

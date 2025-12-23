@@ -54,7 +54,16 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     public readonly string BatchRemoveLabel = "HomePage_Remove".GetLocalized();
     #endregion
 
-    [ObservableProperty] private bool _isBatchMode;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsItemClickEnabled))]
+    [NotifyPropertyChangedFor(nameof(CanDragItems))]
+    [NotifyPropertyChangedFor(nameof(CanReorderItems))]
+    [NotifyPropertyChangedFor(nameof(GridSelectionMode))]
+    [NotifyPropertyChangedFor(nameof(IsMultiSelectCheckBoxEnabled))]
+    [NotifyPropertyChangedFor(nameof(BatchManageLabel))]
+    [NotifyPropertyChangedFor(nameof(IsAllSelected))]
+    [NotifyPropertyChangedFor(nameof(BatchSelectLabel))]
+    private bool _isBatchMode;
     public bool IsItemClickEnabled => !IsBatchMode;
     public bool CanDragItems => !IsBatchMode;
     public bool CanReorderItems => !IsBatchMode;
@@ -76,15 +85,13 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [NotifyCanExecuteChangedFor(nameof(BatchChangePlayStatusCommand))]
     [NotifyCanExecuteChangedFor(nameof(BatchDownloadInfoCommand))]
     [NotifyCanExecuteChangedFor(nameof(BatchRemoveCommand))]
+    [NotifyPropertyChangedFor(nameof(HasBatchSelection))]
+    [NotifyPropertyChangedFor(nameof(IsAllSelected))]
+    [NotifyPropertyChangedFor(nameof(BatchSelectLabel))]
     private int _selectedGalgamesCount;
 
     public bool HasBatchSelection => SelectedGalgamesCount > 0;
 
-    partial void OnSelectedGalgamesCountChanged(int value)
-    {
-        OnPropertyChanged(nameof(HasBatchSelection));
-        UpdateBatchSelectionState();
-    }
 
     public HomeViewModel(INavigationService navigationService, IGalgameCollectionService dataCollectionService,
         ILocalSettingsService localSettingsService, IFilterService filterService, IInfoService infoService,
@@ -134,7 +141,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             _galgameService.GalgameChangedEvent += UpdateGalgame;
             _galgameService.PhrasedEvent += OnGalgameServicePhrased;
             _localSettingsService.OnSettingChanged += OnSettingChanged;
-            _filterService.OnFilterChanged += () => Source.RefreshFilter();
             _galgameService.Galgames.CollectionChanged += OnGalgamesCollectionChanged;
             Source.Filter = g =>
             {
@@ -146,7 +152,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                 return false;
             };
             Source.Refresh();
-            UpdateBatchSelectionState();
             UpdateFilterPanelDisplay(null, null!);
         }
         catch (Exception e)
@@ -187,29 +192,28 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     partial void OnIsBatchModeChanged(bool value)
     {
-        OnPropertyChanged(nameof(IsItemClickEnabled));
-        OnPropertyChanged(nameof(CanDragItems));
-        OnPropertyChanged(nameof(CanReorderItems));
-        OnPropertyChanged(nameof(GridSelectionMode));
-        OnPropertyChanged(nameof(IsMultiSelectCheckBoxEnabled));
-        OnPropertyChanged(nameof(BatchManageLabel));
-        UpdateBatchSelectionState();
         if (!value)
         {
-            _selectedGalgames.Clear();
-            SelectedGalgamesCount = 0;
+            ResetBatchSelection();
         }
     }
 
     private void OnGalgamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        UpdateBatchSelectionState();
+        NotifyBatchSelectionStateChanged();
     }
 
-    private void UpdateBatchSelectionState()
+    private void NotifyBatchSelectionStateChanged()
     {
+        if (!IsBatchMode) return;
         OnPropertyChanged(nameof(IsAllSelected));
         OnPropertyChanged(nameof(BatchSelectLabel));
+    }
+
+    private void ResetBatchSelection()
+    {
+        _selectedGalgames.Clear();
+        SelectedGalgamesCount = 0;
     }
 
     [RelayCommand]
@@ -293,7 +297,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         var hasActiveFilters = Filters.Count > 0 && (DisplayVirtualGame || Filters.Any(f => !(f is VirtualGameFilter)));
         UiFilter = "HomePage_Filter".GetLocalized() + (hasActiveFilters ? " ●" : string.Empty);
-        Source.RefreshFilter();
+        RefreshFilterAndSelection();
     }
 
     [RelayCommand]
@@ -366,7 +370,13 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private void Search(string searchKey)
     {
         SearchTitle = searchKey == string.Empty ? _uiSearch : _uiSearch + " ●";
+        RefreshFilterAndSelection();
+    }
+
+    private void RefreshFilterAndSelection()
+    {
         Source.RefreshFilter();
+        NotifyBatchSelectionStateChanged();
     }
 
     #endregion
@@ -379,6 +389,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void MainGridViewSelectionChanged(SelectionChangedEventArgs args)
     {
+        if (!IsBatchMode) return;
         foreach (Galgame game in args.AddedItems.OfType<Galgame>())
             _selectedGalgames.Add(game);
         foreach (Galgame game in args.RemovedItems.OfType<Galgame>())
@@ -448,8 +459,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         {
             await _galgameService.RemoveGalgame(game);
         }
-        _selectedGalgames.Clear();
-        SelectedGalgamesCount = 0;
+        ResetBatchSelection();
     }
 
     #endregion
@@ -687,7 +697,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         Source.Source = _galgameService.Galgames;
         Source.Refresh();
-        UpdateBatchSelectionState();
+        NotifyBatchSelectionStateChanged();
     }
 
     private void UpdateGalgame(Galgame game)

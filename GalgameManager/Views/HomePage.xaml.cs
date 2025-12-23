@@ -80,7 +80,7 @@ public sealed partial class HomePage : Page
     private void UpdateContainerOpacity(object item)
     {
         if (GridView.ContainerFromItem(item) is GridViewItem container)
-            ApplyBatchOpacity(container);
+            ApplyBatchVisualState(container, updateFlyout: false);
     }
 
     private void UpdateRealizedContainers(bool updateFlyout)
@@ -111,6 +111,7 @@ public sealed partial class HomePage : Page
         if (updateFlyout)
             UpdateContainerFlyout(container);
         ApplyBatchOpacity(container);
+        UpdateSelectionCheckBox(container);
     }
 
     private void ApplyBatchOpacity(GridViewItem container)
@@ -122,8 +123,36 @@ public sealed partial class HomePage : Page
 
     private void UpdateContainerFlyout(GridViewItem container)
     {
-        if (container.ContentTemplateRoot is GalgamePrefab prefab)
+        if (container.ContentTemplateRoot is FrameworkElement root &&
+            root.FindName("GalgamePrefabRoot") is GalgamePrefab prefab)
+        {
             prefab.Flyout = ViewModel.IsBatchMode ? BatchFlyout : GalFlyout;
+        }
+    }
+
+    private void UpdateSelectionCheckBox(GridViewItem container)
+    {
+        if (container.ContentTemplateRoot is FrameworkElement root &&
+            root.FindName("SelectionCheckBox") is CheckBox checkBox)
+        {
+            checkBox.IsChecked = container.IsSelected;
+        }
+    }
+
+    private void SelectionCheckBox_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ViewModel.IsBatchMode)
+        {
+            if (sender is CheckBox checkBox)
+                checkBox.IsChecked = false;
+            return;
+        }
+
+        if (sender is CheckBox { DataContext: Galgame game } checkBoxItem &&
+            GridView.ContainerFromItem(game) is GridViewItem container)
+        {
+            container.IsSelected = checkBoxItem.IsChecked == true;
+        }
     }
 
     private void MainGridView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)

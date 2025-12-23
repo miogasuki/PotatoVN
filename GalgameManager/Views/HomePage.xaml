@@ -430,7 +430,7 @@
                 ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
                 IsItemClickEnabled="{x:Bind ViewModel.IsItemClickEnabled, Mode=OneWay}"
                 SelectionMode="{x:Bind ViewModel.GridSelectionMode, Mode=OneWay}"
-                IsMultiSelectCheckBoxEnabled="{x:Bind ViewModel.IsMultiSelectCheckBoxEnabled, Mode=OneWay}"
+                IsMultiSelectCheckBoxEnabled="False"
                 CanReorderItems="{x:Bind ViewModel.CanReorderItems, Mode=OneWay}"
                 AllowDrop="True"
                 CanDragItems="{x:Bind ViewModel.CanDragItems, Mode=OneWay}"
@@ -452,11 +452,19 @@
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:Galgame">
-                        <prefab:GalgamePrefab
-                            Galgame="{x:Bind}"
-                            ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
-                            PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"                        
-                            Flyout="{StaticResource GalFlyout}" />
+                        <Grid>
+                            <prefab:GalgamePrefab x:Name="GalgamePrefabRoot"
+                                Galgame="{x:Bind}"
+                                ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
+                                PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
+                                Flyout="{StaticResource GalFlyout}" />
+                            <CheckBox x:Name="SelectionCheckBox"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Top"
+                                      Margin="6"
+                                      Click="SelectionCheckBox_Click"
+                                      Visibility="{Binding ElementName=Page, Path=ViewModel.IsMultiSelectCheckBoxEnabled, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>

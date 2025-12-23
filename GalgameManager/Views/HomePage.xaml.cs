@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using GalgameManager.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -17,7 +17,6 @@ public sealed partial class HomePage : Page
     private int _rangeAnchorIndex = -1;
     private readonly PointerEventHandler _gridViewItemPointerPressedHandler;
     private int _pendingShiftEndIndex = -1;
-    private bool _pendingShiftRange;
     private bool _isApplyingShiftSelection;
     private HashSet<object>? _anchorSelectionSnapshot;
 
@@ -48,7 +47,7 @@ public sealed partial class HomePage : Page
             return;
         }
 
-        if (ViewModel.IsBatchMode && _pendingShiftRange && _pendingShiftEndIndex >= 0 && _anchorSelectionSnapshot is not null)
+        if (ViewModel.IsBatchMode && _pendingShiftEndIndex >= 0 && _anchorSelectionSnapshot is not null)
         {
             ApplyShiftRangeToggle();
             return;
@@ -198,7 +197,6 @@ public sealed partial class HomePage : Page
         if (!isShiftDown)
         {
             _rangeAnchorIndex = currentIndex;
-            _pendingShiftRange = false;
             _pendingShiftEndIndex = -1;
             _anchorSelectionSnapshot = GridView.SelectedItems.Cast<object>().ToHashSet();
             return;
@@ -209,19 +207,16 @@ public sealed partial class HomePage : Page
 
         if (_anchorSelectionSnapshot is null)
             _anchorSelectionSnapshot = GridView.SelectedItems.Cast<object>().ToHashSet();
-        _pendingShiftRange = true;
         _pendingShiftEndIndex = currentIndex;
     }
 
     private void ApplyShiftRangeToggle()
     {
-        if (_anchorSelectionSnapshot is null) return;
+        if (_anchorSelectionSnapshot is null || _pendingShiftEndIndex < 0) return;
         int startIndex = _rangeAnchorIndex;
         int endIndex = _pendingShiftEndIndex;
         HashSet<object> snapshot = _anchorSelectionSnapshot;
-        _pendingShiftRange = false;
         _pendingShiftEndIndex = -1;
-        _anchorSelectionSnapshot = null;
 
         try
         {
@@ -235,7 +230,6 @@ public sealed partial class HomePage : Page
         finally
         {
             _isApplyingShiftSelection = false;
-            _anchorSelectionSnapshot = GridView.SelectedItems.Cast<object>().ToHashSet();
         }
     }
 

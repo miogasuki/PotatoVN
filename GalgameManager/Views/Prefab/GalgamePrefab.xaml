@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     mc:Ignorable="d"
     x:Class="GalgameManager.Views.Prefab.GalgamePrefab"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -76,7 +76,7 @@
                 Text="{x:Bind Galgame.Name, Mode=OneWay, FallbackValue={x:Null}}" 
                 FontSize="{x:Bind MediumFontSize, Mode=OneWay}"/>
         </StackPanel>
-
+        
         <!-- 透明控件，确保右键时射线检测能够打到Item上 -->
         <Rectangle Fill="Transparent" />
     </Grid>

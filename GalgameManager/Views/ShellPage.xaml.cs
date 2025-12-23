@@ -1,4 +1,4 @@
-using Windows.System;
+﻿using Windows.System;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;

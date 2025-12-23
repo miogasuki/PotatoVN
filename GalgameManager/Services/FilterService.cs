@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;

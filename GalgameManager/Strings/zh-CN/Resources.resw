@@ -192,11 +192,11 @@
   <data name="HomePage_BatchManage_Done" xml:space="preserve">
     <value>完成</value>
   </data>
-  <data name="HomePage_Filter_RecentAdded" xml:space="preserve">
-    <value>最近一个月添加</value>
+  <data name="HomePage_SelectAll" xml:space="preserve">
+    <value>全选</value>
   </data>
-  <data name="HomePage_Filter_PlayStatusUnset" xml:space="preserve">
-    <value>未设置</value>
+  <data name="HomePage_SelectNone" xml:space="preserve">
+    <value>取消全选</value>
   </data>
   <data name="HomePage_Remove" xml:space="preserve">
     <value>从库中移除游戏</value>

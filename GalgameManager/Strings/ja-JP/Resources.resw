@@ -192,11 +192,11 @@
   <data name="HomePage_BatchManage_Done" xml:space="preserve">
     <value>完了</value>
   </data>
-  <data name="HomePage_Filter_RecentAdded" xml:space="preserve">
-    <value>直近1か月に追加</value>
+  <data name="HomePage_SelectAll" xml:space="preserve">
+    <value>全選択</value>
   </data>
-  <data name="HomePage_Filter_PlayStatusUnset" xml:space="preserve">
-    <value>未設定</value>
+  <data name="HomePage_SelectNone" xml:space="preserve">
+    <value>選択解除</value>
   </data>
   <data name="HomePage_Remove" xml:space="preserve">
     <value>ライブラリからゲームを削除</value>

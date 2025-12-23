@@ -1,8 +1,10 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using GalgameManager.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using GalgameManager.Models;
+using GalgameManager.Views.Prefab;
+using Microsoft.UI.Xaml.Input;
 
 namespace GalgameManager.Views;
 
@@ -39,10 +41,30 @@ public sealed partial class HomePage : Page
             ApplyBatchOpacity(container);
     }
 
+    private void BatchSelectAll_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ViewModel.IsBatchMode || GridView.Items.Count == 0) return;
+        if (ViewModel.IsAllSelected)
+            GridView.SelectedItems.Clear();
+        else
+            GridView.SelectAll();
+    }
+
     private void ViewModel_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName != nameof(ViewModel.IsBatchMode)) return;
-        if (!ViewModel.IsBatchMode)
+        if (!DispatcherQueue.HasThreadAccess)
+        {
+            DispatcherQueue.TryEnqueue(UpdateBatchModeVisuals);
+            return;
+        }
+
+        UpdateBatchModeVisuals();
+    }
+
+    private void UpdateBatchModeVisuals()
+    {
+        if (!ViewModel.IsBatchMode && GridView.SelectedItems.Count > 0)
             GridView.SelectedItems.Clear();
         UpdateAllItemOpacity();
     }
@@ -57,6 +79,7 @@ public sealed partial class HomePage : Page
 
     private void UpdateAllItemOpacity()
     {
+        GridView.UpdateLayout();
         foreach (var item in GridView.Items)
             UpdateContainerOpacity(item);
     }
@@ -69,6 +92,7 @@ public sealed partial class HomePage : Page
 
     private void ApplyBatchOpacity(GridViewItem container)
     {
+        UpdateContainerFlyout(container);
         if (!ViewModel.IsBatchMode)
         {
             container.Opacity = 1;
@@ -76,6 +100,12 @@ public sealed partial class HomePage : Page
         }
 
         container.Opacity = container.IsSelected ? 1 : 0.4;
+    }
+
+    private void UpdateContainerFlyout(GridViewItem container)
+    {
+        if (container.ContentTemplateRoot is GalgamePrefab prefab)
+            prefab.Flyout = ViewModel.IsBatchMode ? BatchFlyout : GalFlyout;
     }
 
     private void MainGridView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)

@@ -1,4 +1,4 @@
-﻿using Windows.System;
+using Windows.System;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -9,7 +9,6 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 
 namespace GalgameManager.Views;
 
@@ -87,8 +86,6 @@ public sealed partial class ShellPage : Page
         {
             AppTitleBarText.Opacity = 0.6;
             AppTitleBarIcon.Opacity = 0.6;
-
-
         }
         else
         {

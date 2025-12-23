@@ -14,7 +14,12 @@ namespace GalgameManager.Views;
 public sealed partial class HomePage : Page
 {
     public HomeViewModel ViewModel { get; }
-    private int _lastSelectedIndex = -1;
+    private int _rangeAnchorIndex = -1;
+    private readonly PointerEventHandler _gridViewItemPointerPressedHandler;
+    private int _pendingShiftEndIndex = -1;
+    private bool _pendingShiftRange;
+    private bool _isApplyingShiftSelection;
+    private HashSet<object>? _anchorSelectionSnapshot;
 
     public HomePage()
     {
@@ -22,6 +27,7 @@ public sealed partial class HomePage : Page
         DataContext = ViewModel;
         InitializeComponent();
         ViewModel.PropertyChanged += ViewModel_OnPropertyChanged;
+        _gridViewItemPointerPressedHandler = GridViewItem_PointerPressed;
     }
 
     private void MainGridView_ItemClick(object sender, ItemClickEventArgs e)
@@ -35,15 +41,31 @@ public sealed partial class HomePage : Page
 
     private void MainGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (_isApplyingShiftSelection)
+        {
+            ViewModel.MainGridViewSelectionChangedCommand.Execute(e);
+            UpdateSelectionOpacity(e);
+            return;
+        }
+
+        if (ViewModel.IsBatchMode && _pendingShiftRange && _pendingShiftEndIndex >= 0 && _anchorSelectionSnapshot is not null)
+        {
+            ApplyShiftRangeToggle();
+            return;
+        }
+
         ViewModel.MainGridViewSelectionChangedCommand.Execute(e);
         UpdateSelectionOpacity(e);
-        UpdateLastSelectedIndex(e);
     }
 
     private void MainGridView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
     {
         if (args.ItemContainer is GridViewItem container)
+        {
+            container.RemoveHandler(UIElement.PointerPressedEvent, _gridViewItemPointerPressedHandler);
+            container.AddHandler(UIElement.PointerPressedEvent, _gridViewItemPointerPressedHandler, true);
             ApplyBatchVisualState(container, updateFlyout: true);
+        }
     }
 
     private void BatchSelectAll_Click(object sender, RoutedEventArgs e)
@@ -144,25 +166,6 @@ public sealed partial class HomePage : Page
         }
     }
 
-    private void UpdateLastSelectedIndex(SelectionChangedEventArgs e)
-    {
-        if (!ViewModel.IsBatchMode) return;
-        bool isShiftDown = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift) & CoreVirtualKeyStates.Down)
-            == CoreVirtualKeyStates.Down;
-        if (isShiftDown) return;
-
-        object? lastChanged = e.AddedItems.Count > 0
-            ? e.AddedItems[e.AddedItems.Count - 1]
-            : e.RemovedItems.Count > 0
-                ? e.RemovedItems[e.RemovedItems.Count - 1]
-                : null;
-        if (lastChanged is null) return;
-
-        int index = GridView.Items.IndexOf(lastChanged);
-        if (index >= 0)
-            _lastSelectedIndex = index;
-    }
-
     private void SelectionCheckBox_Click(object sender, RoutedEventArgs e)
     {
         if (!ViewModel.IsBatchMode)
@@ -172,44 +175,80 @@ public sealed partial class HomePage : Page
             return;
         }
 
-        if (sender is not CheckBox { DataContext: Galgame game } checkBoxItem)
-            return;
+        if (sender is CheckBox { DataContext: Galgame game } checkBoxItem &&
+            GridView.ContainerFromItem(game) is GridViewItem container)
+        {
+            container.IsSelected = checkBoxItem.IsChecked == true;
+        }
+    }
 
-        int currentIndex = GridView.Items.IndexOf(game);
-        if (currentIndex < 0)
-            return;
+    private void GridViewItem_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        if (!ViewModel.IsBatchMode) return;
+        if (sender is not GridViewItem container) return;
 
-        bool isChecked = checkBoxItem.IsChecked == true;
+        var point = e.GetCurrentPoint(container);
+        if (!point.Properties.IsLeftButtonPressed) return;
+
+        int currentIndex = GridView.IndexFromContainer(container);
+        if (currentIndex < 0) return;
+
         bool isShiftDown = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift) & CoreVirtualKeyStates.Down)
             == CoreVirtualKeyStates.Down;
-
-        if (isShiftDown)
+        if (!isShiftDown)
         {
-            if (_lastSelectedIndex < 0)
-                _lastSelectedIndex = currentIndex;
-
-            int start = Math.Min(_lastSelectedIndex, currentIndex);
-            int end = Math.Max(_lastSelectedIndex, currentIndex);
-
-            for (int i = start; i <= end; i++)
-            {
-                var item = GridView.Items[i];
-                if (isChecked)
-                {
-                    if (!GridView.SelectedItems.Contains(item))
-                        GridView.SelectedItems.Add(item);
-                }
-                else
-                {
-                    if (GridView.SelectedItems.Contains(item))
-                        GridView.SelectedItems.Remove(item);
-                }
-            }
+            _rangeAnchorIndex = currentIndex;
+            _pendingShiftRange = false;
+            _pendingShiftEndIndex = -1;
+            _anchorSelectionSnapshot = GridView.SelectedItems.Cast<object>().ToHashSet();
+            return;
         }
-        else if (GridView.ContainerFromItem(game) is GridViewItem container)
+
+        if (_rangeAnchorIndex < 0)
+            _rangeAnchorIndex = currentIndex;
+
+        if (_anchorSelectionSnapshot is null)
+            _anchorSelectionSnapshot = GridView.SelectedItems.Cast<object>().ToHashSet();
+        _pendingShiftRange = true;
+        _pendingShiftEndIndex = currentIndex;
+    }
+
+    private void ApplyShiftRangeToggle()
+    {
+        if (_anchorSelectionSnapshot is null) return;
+        int startIndex = _rangeAnchorIndex;
+        int endIndex = _pendingShiftEndIndex;
+        HashSet<object> snapshot = _anchorSelectionSnapshot;
+        _pendingShiftRange = false;
+        _pendingShiftEndIndex = -1;
+        _anchorSelectionSnapshot = null;
+
+        try
         {
-            container.IsSelected = isChecked;
-            _lastSelectedIndex = currentIndex;
+            _isApplyingShiftSelection = true;
+            GridView.SelectedItems.Clear();
+            foreach (var item in snapshot)
+                GridView.SelectedItems.Add(item);
+
+            ToggleRangeSelection(startIndex, endIndex, snapshot);
+        }
+        finally
+        {
+            _isApplyingShiftSelection = false;
+            _anchorSelectionSnapshot = GridView.SelectedItems.Cast<object>().ToHashSet();
+        }
+    }
+
+    private void ToggleRangeSelection(int startIndex, int endIndex, HashSet<object> selectionSnapshot)
+    {
+        int step = startIndex <= endIndex ? 1 : -1;
+        for (int i = startIndex; i != endIndex + step; i += step)
+        {
+            var item = GridView.Items[i];
+            if (selectionSnapshot.Contains(item))
+                GridView.SelectedItems.Remove(item);
+            else
+                GridView.SelectedItems.Add(item);
         }
     }
 

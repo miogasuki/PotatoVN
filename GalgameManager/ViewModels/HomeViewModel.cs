@@ -401,11 +401,42 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private async Task BatchChangePlayStatus(string playTypeString)
     {
         if (!Enum.TryParse(playTypeString, out PlayType playType)) return;
+        List<Galgame> selectedGalgames = GetSelectedGalgamesInViewOrder();
+        if (selectedGalgames.Count == 0) return;
+
         var title = $"{PlayStatus} - {playType.GetLocalized()}";
-        if (!await ConfirmBatchActionAsync(title)) return;
-        foreach (Galgame game in _selectedGalgames.ToList())
+        BatchChangePlayStatusDialog dialog = new(selectedGalgames, title, playType);
+        dialog.Resources["ContentDialogMinWidth"] = App.MainWindow!.Bounds.Width * 0.4;
+        await dialog.ShowAsync();
+        if (dialog.Canceled) return;
+
+        foreach (Galgame game in selectedGalgames)
         {
-            game.PlayType = playType;
+            game.PlayType = PlayType.None; //确保分类事件能被触发
+            game.PlayType = dialog.SelectedPlayType;
+            game.MyRate = dialog.SelectedRate;
+            game.PrivateComment = dialog.PrivateComment;
+
+            if (dialog.UploadToBgm)
+            {
+                _infoService.Info(InfoBarSeverity.Informational,
+                    msg: "HomePage_UploadingToBgm".GetLocalized(),
+                    displayTimeMs: 1000 * 10);
+                (GalStatusSyncResult, string) result = await _galgameService.UploadPlayStatusAsync(game, RssType.Bangumi);
+                _infoService.Info(result.Item1.ToInfoBarSeverity(), result.Item2);
+                await Task.Delay(Random.Shared.Next(300, 801));
+            }
+
+            if (dialog.UploadToVndb)
+            {
+                _infoService.Info(InfoBarSeverity.Informational,
+                    msg: "HomePage_UploadingToVndb".GetLocalized(),
+                    displayTimeMs: 1000 * 10);
+                (GalStatusSyncResult, string) result = await _galgameService.UploadPlayStatusAsync(game, RssType.Vndb);
+                _infoService.Info(result.Item1.ToInfoBarSeverity(), result.Item2);
+                await Task.Delay(Random.Shared.Next(300, 801));
+            }
+
             await _galgameService.SaveGalgameAsync(game);
         }
     }
@@ -431,7 +462,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         foreach (var group in groups)
         {
             var task = new GetGalgameInfoFromRssTask(group.Key, selectedParseTypes,
-                group.Select(item => item.Game).ToList());         
+                group.Select(item => item.Game).ToList());
             BatchRssTasks.Add(task);
             _ = _bgTaskService.AddBgTask(task);
         }
@@ -843,15 +874,19 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         if (_selectedGalgames.Count == 0) return false;
 
-        List<Galgame> selectedGalgames = [.. Source.OfType<Galgame>().Where(game => _selectedGalgames.Contains(game))];
-        if (selectedGalgames.Count == 0)
-            selectedGalgames = _selectedGalgames.ToList();
+        List<Galgame> selectedGalgames = GetSelectedGalgamesInViewOrder();
         BatchConfirmDialog dialog = new(selectedGalgames, title, message)
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot
         };
         dialog.Resources["ContentDialogMinWidth"] = App.MainWindow.Bounds.Width * 0.4;
         return await dialog.ShowAsync() == ContentDialogResult.Primary;
+    }
+
+    private List<Galgame> GetSelectedGalgamesInViewOrder()
+    {
+        List<Galgame> selectedGalgames = [.. Source.OfType<Galgame>().Where(game => _selectedGalgames.Contains(game))];
+        return selectedGalgames.Count > 0 ? selectedGalgames : [.. _selectedGalgames];
     }
 
     partial void OnFixHorizontalPictureChanged(bool value)

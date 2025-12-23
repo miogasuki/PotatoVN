@@ -401,7 +401,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private async Task BatchChangePlayStatus(string playTypeString)
     {
         if (!Enum.TryParse(playTypeString, out PlayType playType)) return;
-        string title = $"{PlayStatus} - {playType.GetLocalized()}";
+        var title = $"{PlayStatus} - {playType.GetLocalized()}";
         if (!await ConfirmBatchActionAsync(title)) return;
         foreach (Galgame game in _selectedGalgames.ToList())
         {
@@ -432,7 +432,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         {
             var task = new GetGalgameInfoFromRssTask(group.Key, selectedParseTypes,
                 group.Select(item => item.Game).ToList());
-            task.OnProgress += HandleGetGalInfoProgressChanged;
+            //task.OnProgress += HandleGetGalInfoProgressChanged;
             BatchRssTasks.Add(task);
             _ = _bgTaskService.AddBgTask(task);
         }
@@ -451,8 +451,8 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private async Task BatchRemove()
     {
         if (_selectedGalgames.Count == 0) return;
-        string title = "HomePage_Remove_Title".GetLocalized();
-        string message = "HomePage_BatchRemove_Message".GetLocalized(_selectedGalgames.Count);
+        var title = "HomePage_Remove_Title".GetLocalized();
+        var message = "HomePage_BatchRemove_Message".GetLocalized(_selectedGalgames.Count);
         if (!await ConfirmBatchActionAsync(title, message)) return;
 
         foreach (Galgame game in _selectedGalgames.ToList())
@@ -821,7 +821,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         if (game == null) return;
 
-        ChangePlayStatusDialog dialog = new ChangePlayStatusDialog(game);
+        ChangePlayStatusDialog dialog = new(game);
         await dialog.ShowAsync();
 
         if (!dialog.Canceled)

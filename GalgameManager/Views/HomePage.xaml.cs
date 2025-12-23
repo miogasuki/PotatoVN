@@ -5,12 +5,16 @@ using Microsoft.UI.Xaml.Controls;
 using GalgameManager.Models;
 using GalgameManager.Views.Prefab;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Input;
+using Windows.System;
+using Windows.UI.Core;
 
 namespace GalgameManager.Views;
 
 public sealed partial class HomePage : Page
 {
     public HomeViewModel ViewModel { get; }
+    private int _lastSelectedIndex = -1;
 
     public HomePage()
     {
@@ -33,6 +37,7 @@ public sealed partial class HomePage : Page
     {
         ViewModel.MainGridViewSelectionChangedCommand.Execute(e);
         UpdateSelectionOpacity(e);
+        UpdateLastSelectedIndex(e);
     }
 
     private void MainGridView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
@@ -139,6 +144,25 @@ public sealed partial class HomePage : Page
         }
     }
 
+    private void UpdateLastSelectedIndex(SelectionChangedEventArgs e)
+    {
+        if (!ViewModel.IsBatchMode) return;
+        bool isShiftDown = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift) & CoreVirtualKeyStates.Down)
+            == CoreVirtualKeyStates.Down;
+        if (isShiftDown) return;
+
+        object? lastChanged = e.AddedItems.Count > 0
+            ? e.AddedItems[e.AddedItems.Count - 1]
+            : e.RemovedItems.Count > 0
+                ? e.RemovedItems[e.RemovedItems.Count - 1]
+                : null;
+        if (lastChanged is null) return;
+
+        int index = GridView.Items.IndexOf(lastChanged);
+        if (index >= 0)
+            _lastSelectedIndex = index;
+    }
+
     private void SelectionCheckBox_Click(object sender, RoutedEventArgs e)
     {
         if (!ViewModel.IsBatchMode)
@@ -148,10 +172,44 @@ public sealed partial class HomePage : Page
             return;
         }
 
-        if (sender is CheckBox { DataContext: Galgame game } checkBoxItem &&
-            GridView.ContainerFromItem(game) is GridViewItem container)
+        if (sender is not CheckBox { DataContext: Galgame game } checkBoxItem)
+            return;
+
+        int currentIndex = GridView.Items.IndexOf(game);
+        if (currentIndex < 0)
+            return;
+
+        bool isChecked = checkBoxItem.IsChecked == true;
+        bool isShiftDown = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift) & CoreVirtualKeyStates.Down)
+            == CoreVirtualKeyStates.Down;
+
+        if (isShiftDown)
         {
-            container.IsSelected = checkBoxItem.IsChecked == true;
+            if (_lastSelectedIndex < 0)
+                _lastSelectedIndex = currentIndex;
+
+            int start = Math.Min(_lastSelectedIndex, currentIndex);
+            int end = Math.Max(_lastSelectedIndex, currentIndex);
+
+            for (int i = start; i <= end; i++)
+            {
+                var item = GridView.Items[i];
+                if (isChecked)
+                {
+                    if (!GridView.SelectedItems.Contains(item))
+                        GridView.SelectedItems.Add(item);
+                }
+                else
+                {
+                    if (GridView.SelectedItems.Contains(item))
+                        GridView.SelectedItems.Remove(item);
+                }
+            }
+        }
+        else if (GridView.ContainerFromItem(game) is GridViewItem container)
+        {
+            container.IsSelected = isChecked;
+            _lastSelectedIndex = currentIndex;
         }
     }
 

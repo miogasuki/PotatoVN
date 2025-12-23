@@ -19,9 +19,12 @@
 
             <controls:SelectorBar SelectionChanged="{x:Bind ViewModel.SelectorBar_SelectionChanged}"
                                   Grid.Row="0">
-                <controls:SelectorBarItem Text="Page1" IsSelected="True"/>
-                <controls:SelectorBarItem Text="Page2"/>
-                <controls:SelectorBarItem Text="Page3"/>
+                <controls:SelectorBarItem Text="总览" IsSelected="True"/>
+                <controls:SelectorBarItem Text="习惯"/>
+                <controls:SelectorBarItem Text="月度"/>
+                <controls:SelectorBarItem Text="鉴赏"/>
+                <controls:SelectorBarItem Text="词云"/>
+                <controls:SelectorBarItem Text="最爱"/>
             </controls:SelectorBar>
 
             <Frame x:Name="ContentFrame" Grid.Row="1"

@@ -1,5 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
-
+using GalgameManager.Contracts.Services;
 using GalgameManager.ViewModels;
 using Microsoft.UI.Xaml.Navigation;
 namespace GalgameManager.Views
@@ -16,7 +16,7 @@ namespace GalgameManager.Views
 
         public AnnualReportSubPage3()
         {
-            ViewModel = App.GetService<ReportSubPage3ViewModel>();
+            ViewModel = new ReportSubPage3ViewModel(App.GetService<INavigationService>());
             DataContext = ViewModel;
             this.InitializeComponent();
         }

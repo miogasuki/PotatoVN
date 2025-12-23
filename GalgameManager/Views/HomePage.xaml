@@ -388,10 +388,10 @@
                         <KeyboardAccelerator Modifiers="Control" Key="S" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarToggleButton Icon="AllApps" Label="{x:Bind ViewModel.BatchManageLabel, Mode=OneWay}"
-                                    IsChecked="{x:Bind ViewModel.IsBatchMode, Mode=OneWay}"
-                                    Command="{x:Bind ViewModel.ToggleBatchManageStateCommand}" />
                 <CommandBar.SecondaryCommands>
+                    <AppBarToggleButton x:Uid="HomePage_BatchManage" Icon="AllApps"
+                                        IsChecked="{x:Bind ViewModel.IsBatchMode, Mode=OneWay}"
+                                        Command="{x:Bind ViewModel.ToggleBatchManageStateCommand}" />
                     <!-- 裁剪横图 -->
                     <AppBarToggleButton x:Uid="HomePage_FixHorizontalPicture" Icon="Crop"
                                         IsChecked="{x:Bind ViewModel.FixHorizontalPicture, Mode=TwoWay}" />

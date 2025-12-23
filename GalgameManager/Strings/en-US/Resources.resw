@@ -186,7 +186,7 @@
   <data name="HomePage_Download" xml:space="preserve">
     <value>Download Game Info</value>
   </data>
-  <data name="HomePage_BatchManage" xml:space="preserve">
+  <data name="HomePage_BatchManage.Label" xml:space="preserve">
     <value>Batch manage</value>
   </data>
   <data name="HomePage_BatchManage_Done" xml:space="preserve">

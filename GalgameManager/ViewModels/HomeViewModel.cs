@@ -46,8 +46,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     #region UI
     public readonly string PlayStatus = "HomePage_PlayStatus".GetLocalized();
     private readonly string _uiSearch = "Search".GetLocalized();
-    private readonly string _batchManageLabel = "HomePage_BatchManage".GetLocalized();
-    private readonly string _batchManageDoneLabel = "HomePage_BatchManage_Done".GetLocalized();
     private readonly string _batchSelectAllLabel = "HomePage_SelectAll".GetLocalized();
     private readonly string _batchSelectNoneLabel = "HomePage_SelectNone".GetLocalized();
     public readonly string BatchDownloadLabel = "HomePage_Download".GetLocalized();
@@ -60,7 +58,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [NotifyPropertyChangedFor(nameof(CanReorderItems))]
     [NotifyPropertyChangedFor(nameof(GridSelectionMode))]
     [NotifyPropertyChangedFor(nameof(IsMultiSelectCheckBoxEnabled))]
-    [NotifyPropertyChangedFor(nameof(BatchManageLabel))]
     [NotifyPropertyChangedFor(nameof(IsAllSelected))]
     [NotifyPropertyChangedFor(nameof(BatchSelectLabel))]
     private bool _isBatchMode;
@@ -70,7 +67,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     public ListViewSelectionMode GridSelectionMode =>
         IsBatchMode ? ListViewSelectionMode.Multiple : ListViewSelectionMode.None;
     public bool IsMultiSelectCheckBoxEnabled => IsBatchMode;
-    public string BatchManageLabel => IsBatchMode ? _batchManageDoneLabel : _batchManageLabel;
     public bool IsAllSelected => IsBatchMode && Source.Count > 0 && SelectedGalgamesCount == Source.Count;
     public string BatchSelectLabel => IsAllSelected ? _batchSelectNoneLabel : _batchSelectAllLabel;
 

@@ -186,7 +186,7 @@
   <data name="HomePage_Download" xml:space="preserve">
     <value>下载游戏信息</value>
   </data>
-  <data name="HomePage_BatchManage" xml:space="preserve">
+  <data name="HomePage_BatchManage.Label" xml:space="preserve">
     <value>批量管理</value>
   </data>
   <data name="HomePage_BatchManage_Done" xml:space="preserve">

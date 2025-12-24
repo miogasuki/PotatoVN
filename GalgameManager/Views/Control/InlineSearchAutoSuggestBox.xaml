@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     mc:Ignorable="d">
 
     <Grid x:Name="LayoutRoot" VerticalAlignment="Center">
@@ -13,8 +14,11 @@
                       VerticalAlignment="Center"
                       Height="{ThemeResource AppBarThemeCompactHeight}"
                       Background="Transparent">
+            <animations:Implicit.Animations>
+                <animations:OpacityAnimation Duration="0:0:0.2" />
+            </animations:Implicit.Animations>
             <AppBarButton.Content>
-                <StackPanel Orientation="Horizontal" Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="10">
                     <SymbolIcon Symbol="Find"/>
                     <TextBlock x:Name="SearchLabelText" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -30,6 +34,9 @@
               IsHitTestVisible="False"
               VerticalAlignment="Center"
               HorizontalAlignment="Left">
+            <animations:Implicit.Animations>
+                <animations:OpacityAnimation Duration="0:0:0.2" />
+            </animations:Implicit.Animations>
             <AutoSuggestBox x:Name="SearchBox"
                             x:Uid="SearchAutoSuggestBox_Search"
                             AllowFocusOnInteraction="True"

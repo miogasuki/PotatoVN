@@ -4,6 +4,7 @@ using DependencyPropertyGenerator;
 using GalgameManager.Helpers;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 
@@ -24,93 +25,102 @@ public sealed partial class InlineSearchAutoSuggestBox : UserControl
     private CancellationTokenSource? _searchCts;
     private bool _isInitialized;
 
+    // Animation caching
+    private Storyboard? _widthStoryboard;
+    private DoubleAnimation? _widthAnimation;
+
     public InlineSearchAutoSuggestBox()
     {
         InitializeComponent();
-        Loaded += InlineSearchAutoSuggestBox_Loaded;
+        // Use a single event handler for setup to reduce closure allocations if possible, 
+        // but lambda is fine here for capturing 'this'.
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
 
     public ObservableCollection<string> SearchSuggestions => _searchSuggestions;
 
-    private void InlineSearchAutoSuggestBox_Loaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object sender, RoutedEventArgs e)
     {
         if (_isInitialized) return;
         _isInitialized = true;
-
         SearchLabelText.Text = "Search".GetLocalized();
-        // Initial state
-        SearchButton.Opacity = 1;
-        SearchButton.IsHitTestVisible = true;
-        SearchBoxHost.Opacity = 0;
-        SearchBoxHost.IsHitTestVisible = false;
+        ToggleState(false);
         SearchBox.Width = 0;
+        AttachClearButton();
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        DetachClearButton();
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+        _searchCts = null;
     }
 
     private void SearchButton_Click(object sender, RoutedEventArgs e) => Expand();
 
     private void Expand()
     {
-        if (_isExpanded) return;
+        if (_isExpanded)
+        {
+            SearchBox.Focus(FocusState.Programmatic);
+            return;
+        }
 
         _isExpanded = true;
-
-        // Update HitTest state
-        SearchButton.IsHitTestVisible = false;
-        SearchBoxHost.IsHitTestVisible = true;
-
-        // Implicit Animations handle Opacity
-        SearchButton.Opacity = 0;
-        SearchBoxHost.Opacity = 1;
-
-        // Manually animate Width (Dependent Animation)
+        ToggleState(true);
         AnimateWidth(ExpandedWidth);
-
         SearchBox.Focus(FocusState.Programmatic);
+        AttachClearButton();
+    }
+
+    private void OnCtrlF_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        Expand();
+        args.Handled = true;
     }
 
     private void Collapse()
     {
         if (!_isExpanded) return;
-
         _isExpanded = false;
+
         SearchBox.IsSuggestionListOpen = false;
-
-        // Update HitTest state
-        SearchBoxHost.IsHitTestVisible = false;
-        SearchButton.IsHitTestVisible = true;
-
-        // Implicit Animations handle Opacity
-        SearchButton.Opacity = 1;
-        SearchBoxHost.Opacity = 0;
-
-        // Manually animate Width
+        ToggleState(false);
         AnimateWidth(0);
     }
 
-    private void SearchBox_OnLoaded(object sender, RoutedEventArgs e)
+    private void ToggleState(bool isExpanded)
     {
-        AttachClearButton();
-        SearchBox.LostFocus += SearchBox_LostFocus;
-    }
+        // Batch property updates if needed, but here simple assignment is efficient enough.
+        SearchButton.IsHitTestVisible = !isExpanded;
+        SearchBox.IsHitTestVisible = isExpanded;
 
-    private void SearchBox_OnUnloaded(object sender, RoutedEventArgs e)
-    {
-        DetachClearButton();
-        SearchBox.LostFocus -= SearchBox_LostFocus;
+        // Use Visibility for the button to remove it from hit testing fully when hidden,
+        // but Opacity animation handles the visual transition.
+        // Keeping it simple with Opacity/IsHitTestVisible as per original design.
+        SearchButton.Opacity = isExpanded ? 0 : 1;
+        SearchBox.Opacity = isExpanded ? 1 : 0;
     }
 
     private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
     {
-        // 如果关键词为空，失去焦点时自动收起
         if (string.IsNullOrEmpty(SearchKey))
-        {
             Collapse();
-        }
     }
+
+    private void SearchBox_OnLoaded(object sender, RoutedEventArgs e) => AttachClearButton();
 
     private void AttachClearButton()
     {
-        DetachClearButton();
+        if (_clearButton != null)
+        {
+            EnsureClearButtonVisible();
+            return;
+        }
+
+        // Optimized iterative search
         _clearButton = FindDescendant<Button>(SearchBox, "DeleteButton")
                        ?? FindDescendant<Button>(SearchBox, "ClearButton");
 
@@ -147,81 +157,95 @@ public sealed partial class InlineSearchAutoSuggestBox : UserControl
 
     private void EnsureClearButtonVisible()
     {
-        if (_clearButton == null) return;
+        if (_clearButton == null || _clearButton.Visibility == Visibility.Visible) return;
         _clearButton.Visibility = Visibility.Visible;
         _clearButton.Opacity = 1;
         _clearButton.IsHitTestVisible = true;
     }
 
-    private void ScheduleClearButtonVisible() => DispatcherQueue.TryEnqueue(EnsureClearButtonVisible);
-
     private void AnimateWidth(double toWidth)
     {
-        var animation = new DoubleAnimation
+        if (_widthStoryboard == null)
         {
-            From = SearchBox.Width,
-            To = toWidth,
-            Duration = new Duration(TimeSpan.FromSeconds(0.2)),
-            EnableDependentAnimation = true,
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-        };
+            _widthAnimation = new DoubleAnimation
+            {
+                Duration = new Duration(TimeSpan.FromSeconds(0.2)),
+                EnableDependentAnimation = true,
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            Storyboard.SetTarget(_widthAnimation, SearchBox);
+            Storyboard.SetTargetProperty(_widthAnimation, "Width");
+            _widthStoryboard = new Storyboard();
+            _widthStoryboard.Children.Add(_widthAnimation);
+        }
 
-        Storyboard.SetTarget(animation, SearchBox);
-        Storyboard.SetTargetProperty(animation, "Width");
-
-        var sb = new Storyboard();
-        sb.Children.Add(animation);
-        sb.Begin();
+        if (_widthAnimation != null)
+        {
+            _widthAnimation.From = SearchBox.Width;
+            _widthAnimation.To = toWidth;
+        }
+        _widthStoryboard!.Begin();
     }
 
+    // Optimized iterative implementation to avoid recursion stack overhead
     private static T? FindDescendant<T>(DependencyObject root, string name) where T : FrameworkElement
     {
-        var count = VisualTreeHelper.GetChildrenCount(root);
-        for (var i = 0; i < count; i++)
+        if (root == null) return null;
+
+        var queue = new Queue<DependencyObject>();
+        queue.Enqueue(root);
+
+        while (queue.Count > 0)
         {
-            var child = VisualTreeHelper.GetChild(root, i);
-            if (child is T element && element.Name == name) return element;
-            var found = FindDescendant<T>(child, name);
-            if (found != null) return found;
+            var current = queue.Dequeue();
+            var count = VisualTreeHelper.GetChildrenCount(current);
+
+            for (var i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(current, i);
+                if (child is T element && element.Name == name)
+                    return element;
+                queue.Enqueue(child);
+            }
         }
         return null;
     }
 
     private async void AutoSuggestBox_OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        ScheduleClearButtonVisible();
+        // Avoid closure allocation for the DispatcherQueue call if possible, 
+        // but minimal impact here. We check if update is needed inside EnsureClearButtonVisible.
+        DispatcherQueue.TryEnqueue(EnsureClearButtonVisible);
 
-        // 1. Logic consistent with SearchAutoSuggestBox: Handle Empty Key immediately
         if (string.IsNullOrEmpty(SearchKey))
         {
             _searchCts?.Cancel();
-            SearchCommand?.Execute(SearchKey);
+            SearchCommand?.Execute(string.Empty);
             SearchSuggestions.Clear();
             return;
         }
 
-        // 2. Logic consistent with SearchAutoSuggestBox: Debounce Search Command
         _searchCts?.Cancel();
         _searchCts = new CancellationTokenSource();
         var token = _searchCts.Token;
 
-        // Start the debounce timer (Fire and forget, similar to Task.Run in original)
+        // Fire-and-forget debounce
         _ = DebounceSearchCommand(token);
 
-        // 3. Logic consistent with SearchAutoSuggestBox: Fetch Suggestions Immediately
-        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput && SearchSuggestionsProvider != null)
         {
-            SearchSuggestions.Clear();
-            if (SearchSuggestionsProvider != null)
+            // Use ConfigureAwait(true) to ensure we stay on UI thread for collection modification 
+            // (default is true, but explicit is clear). 
+            // Actually, we must be on UI thread to modify ObservableCollection bound to UI.
+            var result = await SearchSuggestionsProvider.GetSearchSuggestionsAsync(SearchKey);
+
+            if (!token.IsCancellationRequested)
             {
-                var result = await SearchSuggestionsProvider.GetSearchSuggestionsAsync(SearchKey);
-                // Check token to avoid race conditions (Optimization: Don't show stale results)
-                if (result != null && !token.IsCancellationRequested)
+                SearchSuggestions.Clear();
+                if (result != null)
                 {
                     foreach (var suggestion in result)
-                    {
                         SearchSuggestions.Add(suggestion);
-                    }
                 }
             }
         }
@@ -237,16 +261,12 @@ public sealed partial class InlineSearchAutoSuggestBox : UserControl
                 SearchCommand?.Execute(SearchKey);
             }
         }
-        catch (TaskCanceledException)
-        {
-            // Ignore cancellation
-        }
+        catch (TaskCanceledException) { /* Ignore */ }
     }
 
     private void AutoSuggestBox_OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        _searchCts?.Cancel(); // Cancel any pending search
-
+        _searchCts?.Cancel();
         SearchKey = args.ChosenSuggestion?.ToString() ?? args.QueryText;
 
         if (string.IsNullOrEmpty(SearchKey)) return;

@@ -7,6 +7,10 @@
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     mc:Ignorable="d">
 
+    <UserControl.KeyboardAccelerators>
+        <KeyboardAccelerator Modifiers="Control" Key="F" Invoked="OnCtrlF_Invoked" />
+    </UserControl.KeyboardAccelerators>
+
     <Grid x:Name="LayoutRoot" VerticalAlignment="Center">
         <AppBarButton x:Name="SearchButton"
                       Click="SearchButton_Click"
@@ -23,37 +27,30 @@
                     <TextBlock x:Name="SearchLabelText" VerticalAlignment="Center"/>
                 </StackPanel>
             </AppBarButton.Content>
-
-            <AppBarButton.KeyboardAccelerators>
-                <KeyboardAccelerator Modifiers="Control" Key="F" />
-            </AppBarButton.KeyboardAccelerators>
         </AppBarButton>
 
-        <Grid x:Name="SearchBoxHost"
-              Opacity="0"
-              IsHitTestVisible="False"
-              VerticalAlignment="Center"
-              HorizontalAlignment="Left">
+        <AutoSuggestBox x:Name="SearchBox"
+                        x:Uid="SearchAutoSuggestBox_Search"
+                        Opacity="0"
+                        IsHitTestVisible="False"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        AllowFocusOnInteraction="True"
+                        Width="0"
+                        Height="32"
+                        MaxWidth="{x:Bind ExpandedWidth, Mode=OneWay}"
+                        Text="{x:Bind SearchKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ItemsSource="{x:Bind SearchSuggestions, Mode=OneWay}"
+                        MaxSuggestionListHeight="500"
+                        AutoMaximizeSuggestionArea="True"
+                        PlaceholderText="{x:Bind PlaceholderText, Mode=OneWay}"
+                        Loaded="SearchBox_OnLoaded"
+                        LostFocus="SearchBox_LostFocus"
+                        TextChanged="AutoSuggestBox_OnTextChanged"
+                        QuerySubmitted="AutoSuggestBox_OnQuerySubmitted">
             <animations:Implicit.Animations>
                 <animations:OpacityAnimation Duration="0:0:0.2" />
             </animations:Implicit.Animations>
-            <AutoSuggestBox x:Name="SearchBox"
-                            x:Uid="SearchAutoSuggestBox_Search"
-                            AllowFocusOnInteraction="True"
-                            Width="0"
-                            Height="32"
-                            MaxWidth="{x:Bind ExpandedWidth, Mode=OneWay}"
-                            VerticalAlignment="Center"
-                            Text="{x:Bind SearchKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            ItemsSource="{x:Bind SearchSuggestions, Mode=OneWay}"
-                            MaxSuggestionListHeight="500"
-                            AutoMaximizeSuggestionArea="True"
-                            PlaceholderText="{x:Bind PlaceholderText, Mode=OneWay}"
-                            Loaded="SearchBox_OnLoaded"
-                            Unloaded="SearchBox_OnUnloaded"
-                            TextChanged="AutoSuggestBox_OnTextChanged"
-                            QuerySubmitted="AutoSuggestBox_OnQuerySubmitted">
-            </AutoSuggestBox>
-        </Grid>
+        </AutoSuggestBox>
     </Grid>
 </UserControl>

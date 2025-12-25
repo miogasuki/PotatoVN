@@ -1,22 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.Models;
+using Microsoft.UI.Xaml.Controls;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -30,11 +16,11 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
     // 定义布局更改事件
     public static event EventHandler<bool>? LayoutChanged;
 
-    public DisplayName[] PrimaryTitleTypes { get; } = {DisplayName.ChineseName, DisplayName.OriginalName, DisplayName.Name};
-    public DisplayName[] SecondaryTitleTypes { get; } = {DisplayName.ChineseName, DisplayName.OriginalName, DisplayName.Name, DisplayName.None};
+    public DisplayName[] PrimaryTitleTypes { get; } = { DisplayName.ChineseName, DisplayName.OriginalName, DisplayName.Name };
+    public DisplayName[] SecondaryTitleTypes { get; } = { DisplayName.ChineseName, DisplayName.OriginalName, DisplayName.Name, DisplayName.None };
     public DisplayName GalgamePagePrimaryTitleType { get; set; } = DisplayName.ChineseName;
     public DisplayName GalgamePageSecondaryTitleType { get; set; } = DisplayName.OriginalName;
-    
+
     public bool GalgamePageNewLayout { get; set; }
     public bool GalgamePageNewLayout_ShowPainter { get; set; }
     public bool GalgamePageNewLayout_ShowSeiyu { get; set; }
@@ -47,6 +33,10 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
     public bool GalgamePageNewLayout_ShowRating { get; set; }
     public bool GalgamePageNewLayout_ShowTags { get; set; }
     public bool GalgamePageNewLayout_ShowCharacters { get; set; }
+    public bool GalgamePageOldLayout_ShowDescription { get; set; }
+    public bool GalgamePageOldLayout_ShowTags { get; set; }
+    public bool GalgamePageOldLayout_ShowCharacters { get; set; }
+    public bool GalgamePageOldLayout_ShowStaff { get; set; }
 
     public ManageGalgamePageLayoutDialog()
     {
@@ -56,14 +46,14 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         Title = "ManageGalgamePageLayoutDialog_Title".GetLocalized();
         PrimaryButtonText = "Yes".GetLocalized();
         SecondaryButtonText = "Cancel".GetLocalized();
-        
+
         // 明确设置宽度属性以覆盖默认样式限制
         MinWidth = 600;
         Width = 600;
 
         LoadSettings();
         PrimaryButtonClick += ManageGalgamePageLayoutDialog_PrimaryButtonClick;
-        
+
         // 监听主标题和副标题的选择变化，确保它们不同
         PrimaryTitleComboBox.SelectionChanged += TitleComboBox_SelectionChanged;
         SecondaryTitleComboBox.SelectionChanged += TitleComboBox_SelectionChanged;
@@ -76,7 +66,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         {
             return;
         }
-        
+
         // 获取当前选择的DisplayName枚举值
         DisplayName primaryType = (DisplayName)PrimaryTitleComboBox.SelectedItem;
         DisplayName secondaryType = (DisplayName)SecondaryTitleComboBox.SelectedItem;
@@ -120,7 +110,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         // 直接读取DisplayName枚举值
         GalgamePagePrimaryTitleType = await _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.GalgamePagePrimaryTitleType);
         GalgamePageSecondaryTitleType = await _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.GalgamePageSecondaryTitleType);
-        
+
         GalgamePageNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
         GalgamePageNewLayout_ShowPainter = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowPainter);
         GalgamePageNewLayout_ShowSeiyu = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowSeiyu);
@@ -133,6 +123,10 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         GalgamePageNewLayout_ShowRating = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowRating);
         GalgamePageNewLayout_ShowTags = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags);
         GalgamePageNewLayout_ShowCharacters = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters);
+        GalgamePageOldLayout_ShowDescription = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowDescription);
+        GalgamePageOldLayout_ShowTags = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowTags);
+        GalgamePageOldLayout_ShowCharacters = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowCharacters);
+        GalgamePageOldLayout_ShowStaff = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowStaff);
     }
 
     private async void ManageGalgamePageLayoutDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -141,7 +135,7 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
 
         // 直接保存DisplayName枚举值
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePagePrimaryTitleType, GalgamePagePrimaryTitleType);
-        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageSecondaryTitleType, GalgamePageSecondaryTitleType);     
+        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageSecondaryTitleType, GalgamePageSecondaryTitleType);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout, GalgamePageNewLayout);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowPainter, GalgamePageNewLayout_ShowPainter);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowSeiyu, GalgamePageNewLayout_ShowSeiyu);
@@ -154,6 +148,10 @@ public sealed partial class ManageGalgamePageLayoutDialog : ContentDialog
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowRating, GalgamePageNewLayout_ShowRating);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowTags, GalgamePageNewLayout_ShowTags);
         await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout_ShowCharacters, GalgamePageNewLayout_ShowCharacters);
+        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageOldLayout_ShowDescription, GalgamePageOldLayout_ShowDescription);
+        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageOldLayout_ShowTags, GalgamePageOldLayout_ShowTags);
+        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageOldLayout_ShowCharacters, GalgamePageOldLayout_ShowCharacters);
+        await _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageOldLayout_ShowStaff, GalgamePageOldLayout_ShowStaff);
 
         // 触发事件通知
         LayoutChanged?.Invoke(this, GalgamePageNewLayout);

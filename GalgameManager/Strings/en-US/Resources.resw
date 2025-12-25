@@ -2569,6 +2569,15 @@ If play time can record correctly, just cancel this popup.
   <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
     <value>Show background image</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_OldLayoutSettings.Text" xml:space="preserve">
+    <value>Old Layout Settings</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowDescription.Text" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowStaff.Text" xml:space="preserve">
+    <value>Staff</value>
+  </data>
   <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
     <value>Game Info</value>
   </data>

@@ -2574,6 +2574,15 @@
   <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
     <value>背景画像を表示</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_OldLayoutSettings.Text" xml:space="preserve">
+    <value>旧レイアウトの設定</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowDescription.Text" xml:space="preserve">
+    <value>概要</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowStaff.Text" xml:space="preserve">
+    <value>スタッフ</value>
+  </data>
   <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
     <value>ゲーム情報</value>
   </data>

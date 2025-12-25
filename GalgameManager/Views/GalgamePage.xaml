@@ -274,13 +274,17 @@
                 <ScrollViewer IsTabStop="True">
                     <StackPanel>
                         <galgamePagePanel:GameHeaderOldPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                        <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                        <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                                                               Visibility="{x:Bind ViewModel.ShowDescriptionPanel, Mode=OneWay}"/>
+                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                                                       Visibility="{x:Bind ViewModel.ShowTagPanel, Mode=OneWay}"/>
                         <galgamePagePanel:GameCharacterPanel
                             Game="{x:Bind ViewModel.Item, Mode=OneWay}"
                             AddCharacterCommand="{x:Bind ViewModel.AddCharacterCommand}"
-                            DeleteCharacterCommand="{x:Bind ViewModel.DeleteCharacterCommand}" />
-                        <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                            DeleteCharacterCommand="{x:Bind ViewModel.DeleteCharacterCommand}"
+                            Visibility="{x:Bind ViewModel.ShowCharacterPanel, Mode=OneWay}"/>
+                        <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
+                                                         Visibility="{x:Bind ViewModel.ShowStaffPanel, Mode=OneWay}"/>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

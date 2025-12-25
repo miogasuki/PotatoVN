@@ -1,4 +1,4 @@
-﻿namespace GalgameManager.Enums;
+namespace GalgameManager.Enums;
 
 public static class KeyValues
 {
@@ -33,7 +33,7 @@ public static class KeyValues
     public const string MaxBackupNumber = "maxBackupNumber"; //int, 最多保存备份数目
 
     //账户相关
-    public const string BangumiAccount= "bangumiAccount"; //BgmAccount?, Bangumi账户, 若为null则未登录
+    public const string BangumiAccount = "bangumiAccount"; //BgmAccount?, Bangumi账户, 若为null则未登录
     public const string BangumiOAuthStateLastUpdate = "bangumiOAuthStateLastUpdate";
     public const string PvnServerType = "pvnServerType"; //enum: PvnServerType, 服务器类型（官方/自定义）
     public const string PvnServerEndpoint = "pvnServerEndpoint"; //string, 自定义服务器Url
@@ -117,6 +117,10 @@ public static class KeyValues
     public const string GalgamePageNewLayout_ShowRating = "galgamePageNewLayout_showRating"; //bool, 游戏页是否显示评分
     public const string GalgamePageNewLayout_ShowTags = "galgamePageNewLayout_showTags"; //bool, 游戏页是否显示标签
     public const string GalgamePageNewLayout_ShowCharacters = "galgamePageNewLayout_showCharacters"; //bool, 游戏页是否显示角色
+    public const string GalgamePageOldLayout_ShowDescription = "galgamePageOldLayout_showDescription"; //bool, 旧版游戏页是否显示简介
+    public const string GalgamePageOldLayout_ShowTags = "galgamePageOldLayout_showTags"; //bool, 旧版游戏页是否显示标签
+    public const string GalgamePageOldLayout_ShowCharacters = "galgamePageOldLayout_showCharacters"; //bool, 旧版游戏页是否显示角色
+    public const string GalgamePageOldLayout_ShowStaff = "galgamePageOldLayout_showStaff"; //bool, 旧版游戏页是否显示Staff
     public const string GalgameSourcePageShowSubSourceGames = "galgameSourcePageShowSubSourceGames"; //bool, 游戏源页面是否显示子源游戏
     public const string ShowGameNameInControl = "showGameNameInControl"; //bool, 游戏控件是否显示游戏名称
     public const string CustomSortOrder = "customSortOrder"; //List<string>, 记录自定义排序
@@ -175,7 +179,7 @@ public static class KeyValues
 
     //废弃Key，只读，仅用于升级
     public const string BangumiToken = "bangumiToken";
-    public const string BangumiOAuthState= "bangumiOAuthState"; //BgmAccount?, Bangumi账户, 若为null则未登录
+    public const string BangumiOAuthState = "bangumiOAuthState"; //BgmAccount?, Bangumi账户, 若为null则未登录
     public const string GalgameFolders = "galgameFolders"; //旧游戏文件夹，仅用于升级
     public const string SyncTo = "syncTo"; //map<mac:string, id:int>，每台设备merge到的commit id
     public const string SearchChildFolderDepth = "searchChildFolderDepth"; //int, 搜索子文件夹的深度，默认是0（不搜索），新版本改成智能搜索，不需要这个了

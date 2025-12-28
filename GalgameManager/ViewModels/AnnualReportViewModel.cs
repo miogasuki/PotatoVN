@@ -30,6 +30,12 @@ public partial class AnnualReportViewModel(IGalgameCollectionService gameService
         Task.Run(async () =>
         {
             List<Galgame> gamesPlayThisYear = [];
+            HashSet<DateTime> playedDates = new();
+            Dictionary<DateTime, Dictionary<Galgame, double>> dailyPlayData = new();
+            var monthlyMaxPlayTime = new double[12]; // 临时记录每个月最大游玩时长
+            var ratedGamesCount = 0;
+            double totalRating = 0;
+
             // 第一页数据
             foreach (Galgame game in gameService.Galgames)
             {
@@ -46,6 +52,21 @@ public partial class AnnualReportViewModel(IGalgameCollectionService gameService
                         playedInYear[date.Month - 1] = true;
                         _annualReportData.PlayedGamesPerMonth[date.Month - 1]++;
                     }
+                    
+                    // 统计游玩日期，用于计算连续天数
+                    playedDates.Add(date.Date);
+                    if (!dailyPlayData.TryGetValue(date.Date, out var gameDict))
+                    {
+                        gameDict = new Dictionary<Galgame, double>();
+                        dailyPlayData[date.Date] = gameDict;
+                    }
+                    if (!gameDict.TryAdd(game, t.Value))
+                    {
+                        gameDict[game] += t.Value;
+                    }
+                    // 统计星期几偏好
+                    var dayOfWeek = (int)date.DayOfWeek; // 0=Sunday, 1=Monday...
+                    _annualReportData.PlayTimePerDayOfWeek[dayOfWeek] += t.Value / 60.0;
                 }
                 if (playInYearMin >= _annualReportData.FavoriteGamePlayedTime * 60)
                 {
@@ -72,9 +93,105 @@ public partial class AnnualReportViewModel(IGalgameCollectionService gameService
                     // 游玩状态统计
                     if (!_annualReportData.PlayTypeCnt.TryAdd(game.PlayType, 1))
                         _annualReportData.PlayTypeCnt[game.PlayType]++;
+                    
+                    // 统计评分
+                    if (game.MyRate > 0)
+                    {
+                        totalRating += game.MyRate;
+                        ratedGamesCount++;
+                    }
+                    // 统计吐槽字数
+                    if (!string.IsNullOrEmpty(game.Comment))
+                    {
+                        _annualReportData.CommentWordCount += game.Comment.Length;
+                    }
+                    
+                    // 检查是否是月度之星
+                    var gameMonthlyPlayTime = new double[12];
+                    foreach (KeyValuePair<string, int> t in game.PlayedTime)
+                    {
+                        DateTime date = Utils.TryParseDateGuessCulture(t.Key);
+                        if (date.Year == AnnualReportData.Year)
+                        {
+                            gameMonthlyPlayTime[date.Month - 1] += t.Value / 60.0;
+                        }
+                    }
+                    for (var m = 0; m < 12; m++)
+                    {
+                        if (gameMonthlyPlayTime[m] > monthlyMaxPlayTime[m])
+                        {
+                            monthlyMaxPlayTime[m] = gameMonthlyPlayTime[m];
+                            _annualReportData.MonthlyBestGames[m] = game;
+                        }
+                    }
                 }
                 _annualReportData.PlayedTime += playInYearMin / 60.0;
+                
+                // 统计年度入库
+                if (game.AddTime.Year == AnnualReportData.Year)
+                {
+                    _annualReportData.NewGamesCount++;
+                }
             }
+            
+            // 计算最长连续游玩天数
+            if (playedDates.Count > 0)
+            {
+                List<DateTime> sortedDates = playedDates.OrderBy(d => d).ToList();
+                var currentStreak = 1;
+                var maxStreak = 1;
+                var currentStreakStart = sortedDates[0];
+                var maxStreakStart = sortedDates[0];
+                var maxStreakEnd = sortedDates[0];
+                for (var i = 1; i < sortedDates.Count; i++)
+                {
+                    if ((sortedDates[i] - sortedDates[i - 1]).Days == 1)
+                        currentStreak++;
+                    else
+                    {
+                        if (currentStreak > maxStreak)
+                        {
+                            maxStreak = currentStreak;
+                            maxStreakStart = currentStreakStart;
+                            maxStreakEnd = sortedDates[i - 1];
+                        }
+                        maxStreak = Math.Max(maxStreak, currentStreak);
+                        currentStreak = 1;
+                        currentStreakStart = sortedDates[i];
+                    }
+                }
+                if (currentStreak > maxStreak)
+                {
+                    maxStreak = currentStreak;
+                    maxStreakStart = currentStreakStart;
+                    maxStreakEnd = sortedDates[^1];
+                }
+                _annualReportData.LongestStreak = Math.Max(maxStreak, currentStreak);
+                
+                Dictionary<Galgame, double> streakGameTime = new();
+                for (var d = maxStreakStart; d <= maxStreakEnd; d = d.AddDays(1))
+                {
+                    if (dailyPlayData.TryGetValue(d, out var games))
+                    {
+                        foreach (var (g, time) in games)
+                        {
+                            if (!streakGameTime.TryAdd(g, time))
+                                streakGameTime[g] += time;
+                        }
+                    }
+                }
+                
+                if (streakGameTime.Count > 0)
+                {
+                    var best = streakGameTime.MaxBy(kv => kv.Value);
+                    _annualReportData.LongestStreakGame = best.Key;
+                    _annualReportData.LongestStreakGameTime = best.Value / 60.0;
+                }
+            }
+            
+            // 计算平均评分
+            if (ratedGamesCount > 0) _annualReportData.AverageRating = totalRating / ratedGamesCount;
+
             // 第二页数据
             Dictionary<string, int> tags = new();
             foreach (Galgame game in gameService.Galgames)
@@ -131,7 +248,7 @@ public partial class AnnualReportViewModel(IGalgameCollectionService gameService
     private void NextPage()
     {
         if (ContentFrame == null) return;
-        NavigateToPage(Math.Min(_currentPageIndex + 1, 2));
+        NavigateToPage(Math.Min(_currentPageIndex + 1, 5));
         UpdateSelectorBarSelection();
     }
 
@@ -161,9 +278,12 @@ public partial class AnnualReportViewModel(IGalgameCollectionService gameService
 
         Type pageType = pageIndex switch
         {
-            0 => typeof(Views.AnnualReportSubPage1),
-            1 => typeof(Views.AnnualReportSubPage2),
-            2 => typeof(Views.AnnualReportSubPage3),
+            0 => typeof(Views.AnnualReportSubPage1), // 总览
+            1 => typeof(Views.AnnualReportSubPage4), // 习惯
+            2 => typeof(Views.AnnualReportSubPage6), // 月度
+            3 => typeof(Views.AnnualReportSubPage5), // 鉴赏
+            4 => typeof(Views.AnnualReportSubPage2), // 词云
+            5 => typeof(Views.AnnualReportSubPage3), // 最爱
             _ => typeof(Views.AnnualReportSubPage1)
         };
 
@@ -187,7 +307,7 @@ public partial class AnnualReportViewModel(IGalgameCollectionService gameService
 /// </summary>
 public partial class AnnualReportData : ObservableObject
 {
-    public const int Year = 2024;
+    public const int Year = 2025;
     public const int TagFrequencyMax = 30;
     public static readonly int[] PlayedTimeRange = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
     public static readonly string[] BannedTags = ["PC", "汉化", "GAL", "galgame", "Galgame", "ADV", "R18", "AVG","游戏","生肉","硬盘已存"];
@@ -208,4 +328,12 @@ public partial class AnnualReportData : ObservableObject
     public Dictionary<string, int> TagFrequencies = new(); //Tag词频统计
     [ObservableProperty] private Category _favouriteDeveloper = new(); //最喜欢的开发商
     public List<Galgame> GamesInFavouriteDeveloper = new(); //今年玩过的最喜欢的开发商的游戏
+    public int LongestStreak; //最长连续游玩天数
+    public Galgame LongestStreakGame = new(); //最长连续游玩期间主要玩的游戏
+    public double LongestStreakGameTime; //最长连续游玩期间主要玩的游戏的时长
+    public double[] PlayTimePerDayOfWeek = new double[7]; //周一到周日的游玩时长，注意数组下标0表示周日
+    public int NewGamesCount; //年度入库统计
+    public double AverageRating; //年度评分概览
+    public int CommentWordCount; //吐槽字数统计
+    public Galgame?[] MonthlyBestGames = new Galgame?[12]; //月度之星
 }

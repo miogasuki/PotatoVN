@@ -341,7 +341,7 @@
   <data name="GalgamePage_Description.Text" xml:space="preserve">
     <value>概要</value>
   </data>
-  <data name="GalgameCollectionService_SelectSavePosition" xml:space="preserve">
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
     <value>セーブフォルダを選択</value>
   </data>
   <data name="GalgameCollectionService_NotExeFounded" xml:space="preserve">
@@ -3245,11 +3245,11 @@
   <data name="GlobalKeyMappingDialog_Button_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>キーマッピングが保存されました</value>
-  </data>
   <data name="GlobalKeyMappingDialog_Text_NoMappings.Text" xml:space="preserve">
     <value>キーマッピングがありません</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
+    <value>キーマッピングが保存されました</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
     <value>グローバルキーマッピング</value>
@@ -3274,9 +3274,6 @@
   </data>
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>マウスボタンキャプチャが有効、入力ボックス内でマウスボタンをクリックしてください</value>
-  </data>
-  <data name="KeyMapping_Info_KeyMappingSaved" xml:space="preserve">
-    <value>キーマッピングが保存されました</value>
   </data>
   <data name="KeyMapping_Info_GlobalKeyMappingSaved" xml:space="preserve">
     <value>グローバルキーマッピングが保存されました</value>
@@ -3325,6 +3322,12 @@
   </data>
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
     <value>キーマッピング編集</value>
+  </data>
+  <data name="Settings_Game_AutoDetectSavePath.Title" xml:space="preserve">
+    <value>セーブデータ保存場所の自動検出</value>
+  </data>
+  <data name="Settings_Game_AutoDetectSavePath.Description" xml:space="preserve">
+    <value>ファイルの変更を監視し、セーブデータの保存場所を自動的に特定します。(これは実験的な機能であり、すべての検出を保証するものではありません)</value>
   </data>
   <data name="Galgame_hotkey_common_QuickSave" xml:space="preserve">
     <value>クイックセーブ</value>
@@ -3376,6 +3379,21 @@
   </data>
   <data name="GameSaveDetectorTask_Title" xml:space="preserve">
     <value>ゲームセーブ位置検出タスク</value>
+  </data>
+  <data name="GameSaveDetector_Initializing" xml:space="preserve">
+    <value>セーブデータ検出を初期化中...</value>
+  </data>
+  <data name="GameSaveDetector_Monitoring" xml:space="preserve">
+    <value>ファイル変更を監視中... 検出された候補: {0}</value>
+  </data>
+  <data name="GameSaveDetector_Success" xml:space="preserve">
+    <value>セーブデータ検出完了: {0}</value>
+  </data>
+  <data name="GameSaveDetector_NotFound" xml:space="preserve">
+    <value>有効なセーブデータパスが見つかりませんでした。ゲームを手動で起動して保存してみてください。</value>
+  </data>
+  <data name="GameSaveDetector_Failed" xml:space="preserve">
+    <value>ファイルの変更は検出されましたが、最適なセーブデータディレクトリを特定できませんでした。</value>
   </data>
   <data name="GalgameSettingPage_EditSavePosition.Text" xml:space="preserve">
     <value>パスを編集</value>
@@ -3473,5 +3491,4 @@
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>キャラクターを削除しました</value>
   </data>
-
 </root>

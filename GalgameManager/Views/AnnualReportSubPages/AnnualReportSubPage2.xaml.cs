@@ -20,7 +20,7 @@ public sealed partial class AnnualReportSubPage2 : Page
 
     public AnnualReportSubPage2()
     {
-        ViewModel = App.GetService<ReportSubPage2ViewModel>();
+        ViewModel = new ReportSubPage2ViewModel();
         this.InitializeComponent();
         ViewModel.WordCloudCanvas = CloudCanvas;
     }

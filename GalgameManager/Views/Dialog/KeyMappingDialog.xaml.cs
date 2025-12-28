@@ -43,8 +43,8 @@ public sealed partial class KeyMappingDialog : ContentDialog
 
     public KeyMappingDialog(GalgameSettingViewModel viewModel)
     {
-        ViewModel = viewModel;
         InitializeComponent();
+        ViewModel = viewModel;
         RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : RequestedTheme;
         XamlRoot = App.MainWindow!.Content.XamlRoot;
         DefaultButton = ContentDialogButton.Primary;

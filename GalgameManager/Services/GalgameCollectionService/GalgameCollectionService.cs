@@ -18,6 +18,7 @@ using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using LiteDB;
+using FileAttributes = System.IO.FileAttributes;
 
 namespace GalgameManager.Services;
 
@@ -579,9 +580,34 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// <returns>存档文件夹地址，若用户取消返回null</returns>
     private async Task<string?> GetGalgameSaveAsync(Galgame galgame)
     {
-        List<string> subFolders = galgame.GetSubFolders();
-        FolderPickerDialog dialog = new(App.MainWindow!.Content.XamlRoot, "GalgameCollectionService_SelectSavePosition".GetLocalized(), subFolders);
-        return await dialog.ShowAndAwaitResultAsync();
+        ContentDialog folderOrFileSelector = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            Title = "Yes".GetLocalized(),
+            Content = "GalgameCollectionService_SelectSaveType".GetLocalized(),
+            PrimaryButtonText = "GalgameCollectionService_SelectSaveType_File".GetLocalized(),
+            SecondaryButtonText = "GalgameCollectionService_SelectSaveType_Folder".GetLocalized(),
+            CloseButtonText = "Cancel".GetLocalized(),
+        };
+        var typeResult = await folderOrFileSelector.ShowAsync();
+
+        switch (typeResult)
+        {
+            case ContentDialogResult.Primary:  // File
+            {
+                List<string> rootFiles = galgame.GetRootFiles();
+                FolderOrFilePickerDialog dialog = new(App.MainWindow!.Content.XamlRoot, "GalgameCollectionService_SelectSavePosition_File".GetLocalized(), rootFiles, false);
+                return await dialog.ShowAndAwaitResultAsync();
+            }
+            case ContentDialogResult.Secondary: // Folder
+            {
+                List<string> subFolders = galgame.GetSubFolders();
+                FolderOrFilePickerDialog dialog = new(App.MainWindow!.Content.XamlRoot, "GalgameCollectionService_SelectSavePosition_Folder".GetLocalized(), subFolders, true);
+                return await dialog.ShowAndAwaitResultAsync();
+            }
+        }
+
+        return null;
     }
     
     /// <summary>
@@ -653,6 +679,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             if (localSavePath == null) return;
             if (Utils.ArePathsEqual(remoteRoot, localSavePath))
                 throw new PvnException("GalgameCollectionService_SavePathIsCloudRoot".GetLocalized());
+            if (galgame.LocalPath != null && Utils.IsPathContained(localSavePath, galgame.LocalPath))
+                throw new PvnException("GalgameCollectionService_SavePathIsGameRoot".GetLocalized());
             if (FolderOperations.IsSymbolicLink(localSavePath))
             {
                 _infoService.Info(InfoBarSeverity.Warning, msg:"GalgameCollectionService_SavePathIsSymbolicLink".GetLocalized());
@@ -660,7 +688,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 await SaveGalgameAsync(galgame);
                 return;
             }
-            
+
+            var isSaveFolder  = (File.GetAttributes(localSavePath) & FileAttributes.Directory) == FileAttributes.Directory;
+
             var tmp = localSavePath[..localSavePath.LastIndexOf('\\')];
             var target = tmp[tmp.LastIndexOf('\\')..] + localSavePath[localSavePath.LastIndexOf('\\')..];
             remoteRoot += target;
@@ -685,7 +715,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     if (choose == 1)
                     {
                         new DirectoryInfo(remoteRoot).Delete(true); //删除云端文件夹
-                        FolderOperations.ConvertFolderToSymbolicLink(localSavePath, remoteRoot);
+                        FolderOperations.ConvertFolderOrFileToSymbolicLink(localSavePath, remoteRoot);
                     }
                     else if (choose == 2)
                     {
@@ -694,7 +724,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     }
                 }
                 else
-                    FolderOperations.ConvertFolderToSymbolicLink(localSavePath, remoteRoot);
+                    FolderOperations.ConvertFolderOrFileToSymbolicLink(localSavePath, remoteRoot);
                 galgame.SavePath = localSavePath;
             }
             catch (Exception e) //创建符号链接失败，把存档复制回去
@@ -871,33 +901,51 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     }
 }
 
-public class FolderPickerDialog : ContentDialog
+public class FolderOrFilePickerDialog : ContentDialog
 {
-    private string? _selectedFolder;
+    private string? _selectedItem;
     private readonly TaskCompletionSource<string?> _folderSelectedTcs = new TaskCompletionSource<string?>();
-    public FolderPickerDialog(XamlRoot xamlRoot, string title, List<string> files)
+    public FolderOrFilePickerDialog(XamlRoot xamlRoot, string title, List<string> files, bool isFolder = true)
     {
         XamlRoot = xamlRoot;
         Title = title;
         Content = CreateContent(files);
         PrimaryButtonText = "Yes".GetLocalized();
-        SecondaryButtonText = "GalgameCollectionService_FolderPickerDialog_ChoseAnotherFolder".GetLocalized();
+        SecondaryButtonText = "GalgameCollectionService_FolderOrFilePickerDialog_Other".GetLocalized();
         CloseButtonText = "Cancel".GetLocalized();
         IsPrimaryButtonEnabled = false;
-        PrimaryButtonClick += (_, _) => { _folderSelectedTcs.TrySetResult(_selectedFolder); };
+        
+        PrimaryButtonClick += (_, _) => { _folderSelectedTcs.TrySetResult(_selectedItem); };
         SecondaryButtonClick += async (_, _) =>
         {
-            FolderPicker folderPicker = new();
-            folderPicker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindow!.GetWindowHandle());
-            StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
+            if (isFolder)
             {
-                _selectedFolder = folder.Path;
-                _folderSelectedTcs.TrySetResult(folder.Path);
+                FolderPicker folderPicker = new();
+                folderPicker.FileTypeFilter.Add("*");
+                WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, App.MainWindow!.GetWindowHandle());
+                StorageFolder? folder = await folderPicker.PickSingleFolderAsync();
+                if (folder != null)
+                {
+                    _selectedItem = folder.Path;
+                    _folderSelectedTcs.TrySetResult(folder.Path);
+                }
+                else
+                    _folderSelectedTcs.TrySetResult(null);
             }
             else
-                _folderSelectedTcs.TrySetResult(null);
+            {
+                FileOpenPicker filesPicker = new();
+                filesPicker.FileTypeFilter.Add("*");
+                WinRT.Interop.InitializeWithWindow.Initialize(filesPicker, App.MainWindow!.GetWindowHandle());
+                StorageFile? folder = await filesPicker.PickSingleFileAsync();
+                if (folder != null)
+                {
+                    _selectedItem = folder.Path;
+                    _folderSelectedTcs.TrySetResult(folder.Path);
+                }
+                else
+                    _folderSelectedTcs.TrySetResult(null);
+            }
         };
         CloseButtonClick += (_, _) => { _folderSelectedTcs.TrySetResult(null); };
     }
@@ -919,7 +967,7 @@ public class FolderPickerDialog : ContentDialog
     private void RadioButton_Checked(object sender, RoutedEventArgs e)
     {
         RadioButton radioButton = (RadioButton)sender;
-        _selectedFolder = radioButton.Content.ToString()!;
+        _selectedItem = radioButton.Content.ToString()!;
         IsPrimaryButtonEnabled = true;
     }
     public async Task<string?> ShowAndAwaitResultAsync()

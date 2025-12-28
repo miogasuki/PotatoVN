@@ -109,8 +109,8 @@ public partial class PluginService(
         // 先移除内存中的 Plugin，触发 UI 更新，确保 UI 释放对 Plugin 程序集中类型的引用
         await UiThreadInvokeHelper.InvokeAsync(() => _plugins.Remove(plugin));
 
-        // 确保 UI 线程已经处理完集合变更引起的可视化树更新
-        await UiThreadInvokeHelper.InvokeAsync(() =>
+        // 非 UI 操作到后台线程，避免阻塞 UI，同时给予 UI 线程处理可视树更新的时间
+        await Task.Run(() =>
         {
             if (plugin.IsDevMode)
             {

@@ -100,19 +100,30 @@ public partial class PluginService(
             // 对于 Dev Plugin，我们立即删除对应的 Plugin，同时不进入 Offload State
             PluginOffloadInProgress = true;
         }
+
         if (plugin.IsDevMode)
         {
             await InvokePluginOnUninstall(plugin);
-            _pluginsDb.Delete(plugin.Info.Id);
-            if (deleteData)
-                PluginDeleteData(plugin);
-            plugin.ForceUnload();
         }
-        else
-        {
-            SavePlugin(plugin);
-        }
+
+        // 先移除内存中的 Plugin，触发 UI 更新，确保 UI 释放对 Plugin 程序集中类型的引用
         await UiThreadInvokeHelper.InvokeAsync(() => _plugins.Remove(plugin));
+
+        // 确保 UI 线程已经处理完集合变更引起的可视化树更新
+        await UiThreadInvokeHelper.InvokeAsync(() =>
+        {
+            if (plugin.IsDevMode)
+            {
+                _pluginsDb.Delete(plugin.Info.Id);
+                if (deleteData)
+                    PluginDeleteData(plugin);
+                plugin.ForceUnload();
+            }
+            else
+            {
+                SavePlugin(plugin);
+            }
+        });
     }
 
     public Task<ObservableCollection<PluginX>> GetAllPluginsAsync() => Task.FromResult(_plugins);

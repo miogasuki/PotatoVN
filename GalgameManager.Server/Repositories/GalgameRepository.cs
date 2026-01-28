@@ -131,4 +131,39 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         }
         return result;
     }
+
+    public async Task<Galgame?> GetGalgameByUidAsync(int userId, string? bgmId, string? vndbId, string? name)
+    {
+        IQueryable<Galgame> query = context.Galgame
+            .Where(g => g.UserId == userId && g.RedirectTo == 0); // 只搜索没有被redirect的游戏
+
+        var hasBgmId = !string.IsNullOrEmpty(bgmId);
+        var hasVndbId = !string.IsNullOrEmpty(vndbId);
+        // 如果有任何ID，尝试通过ID匹配
+        if (hasBgmId || hasVndbId)
+        {
+            List<Galgame> candidates = await query
+                .Where(g => (hasBgmId && g.BgmId == bgmId) || (hasVndbId && g.VndbId == vndbId))
+                .ToListAsync();
+            foreach (Galgame candidate in candidates)
+            {
+                // 冲突：双方都有某个ID且不相同
+                var bgmIdConflict = hasBgmId && !string.IsNullOrEmpty(candidate.BgmId) && candidate.BgmId != bgmId;
+                var vndbIdConflict = hasVndbId && !string.IsNullOrEmpty(candidate.VndbId) && candidate.VndbId != vndbId;
+                if (!bgmIdConflict && !vndbIdConflict)
+                    return candidate;
+            }
+            return null;
+        }
+
+        // 只有在没有任何ID时，才使用基于name的匹配
+        if (!string.IsNullOrEmpty(name))
+        {
+            Galgame? result = await query.FirstOrDefaultAsync(g => g.Name == name);
+            if (result is not null)
+                return result;
+        }
+
+        return null;
+    }
 }

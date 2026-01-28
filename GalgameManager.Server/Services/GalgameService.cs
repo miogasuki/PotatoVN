@@ -36,11 +36,16 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         }
         else
         {
-            galgame = new Galgame
+            // 当 Id 为空时，先检查该用户是否已经有这个游戏
+            galgame = await galRep.GetGalgameByUidAsync(userId, payload.BgmId, payload.VndbId, payload.Name);
+            if (galgame is null) // 该用户没有这个游戏，新分配一个游戏id
             {
-                UserId = userId,
-            };
-            await galRep.AddGalgameAsync(galgame);
+                galgame = new Galgame
+                {
+                    UserId = userId,
+                };
+                await galRep.AddGalgameAsync(galgame);
+            }
         }
 
         galgame.BgmId = payload.BgmId ?? galgame.BgmId;

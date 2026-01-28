@@ -40,4 +40,14 @@ public interface IGalgameRepository
     /// <param name="targetId">目标游戏ID</param>
     /// <returns>所有redirect到目标游戏的游戏ID表</returns>
     public Task<List<int>> GetRedirectChainAsync(int targetId);
+
+    /// <summary>
+    /// 根据游戏唯一标识（BgmId、VndbId或Name）查找用户的游戏
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="bgmId">Bangumi ID</param>
+    /// <param name="vndbId">VNDB ID</param>
+    /// <param name="name">游戏名称</param>
+    /// <returns>找到的游戏，如果不存在返回null</returns>
+    public Task<Galgame?> GetGalgameByUidAsync(int userId, string? bgmId, string? vndbId, string? name);
 }

@@ -109,14 +109,15 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
             throw new ArgumentException("Galgame not found.");
         if (galgame.UserId != userId)
             throw new UnauthorizedAccessException("You are not the owner of this galgame.");
-        PlayLog? log = await playLogRep.GetPlayLogAsync(galgameId, payload.DateTimeStamp);
+        var actualGameId = galgame.Id;
+        PlayLog? log = await playLogRep.GetPlayLogAsync(actualGameId, payload.DateTimeStamp);
         if (log is not null)
             log.Minute += payload.Minute;
         else
         {
             log = new()
             {
-                GalgameId = galgameId,
+                GalgameId = actualGameId,
                 DateTimeStamp = payload.DateTimeStamp,
                 Minute = payload.Minute
             };
@@ -136,12 +137,33 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         Galgame? gal = await galRep.GetGalgameAsync(id);
         if (gal is null) throw new ArgumentException("Galgame not found.");
         if (gal.UserId != userId) throw new UnauthorizedAccessException("You are not the owner of this galgame.");
+        var actualGameId = gal.Id; //最后指向游戏的id
         var timestamp = DateTime.Now.ToUnixTime();
-        await galRep.DeleteGalgameAsync(id);
+        // 删除 redirect 链上所有的游戏
+        List<int> redirectChain = await galRep.GetRedirectChainAsync(actualGameId);
+        List<Galgame> chainGames = await galRep.GetGalgamesAsync(redirectChain);
+        foreach (Galgame chainGame in chainGames)
+        {
+            if (chainGame.ImageLoc is not null) await ossService.DeleteObjectAsync(userId, chainGame.ImageLoc);
+            if (chainGame.HeaderImageOssPosition is not null) await ossService.DeleteObjectAsync(userId, chainGame.HeaderImageOssPosition);
+        }
+        foreach (var chainId in redirectChain)
+        {
+            await galRep.DeleteGalgameAsync(chainId);
+            await galDeletedRep.AddGalgameDeletedAsync(new GalgameDeleted
+            {
+                DeleteTimeStamp = timestamp,
+                GalgameId = chainId,
+                UserId = userId
+            });
+        }
+        
+        // 删除目标游戏本身
+        await galRep.DeleteGalgameAsync(actualGameId);
         await galDeletedRep.AddGalgameDeletedAsync(new GalgameDeleted
         {
             DeleteTimeStamp = timestamp,
-            GalgameId = id,
+            GalgameId = actualGameId,
             UserId = gal.UserId
         });
         await userService.UpdateLastModifiedAsync(gal.UserId, timestamp);
@@ -152,7 +174,7 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
     public async Task DeleteGalgamesAsync(int userId)
     {
         var timestamp = DateTime.Now.ToUnixTime();
-        PagedResult<Galgame> gals = await galRep.GetGalgamesAsync(userId, 0, 0, 1000000);
+        PagedResult<Galgame> gals = await galRep.GetGalgamesAsync(userId, 0, 0, 1000000, excludeRedirected: false);
         foreach (Galgame game in gals.Items)
         {
             if(game.ImageLoc is not null) await ossService.DeleteObjectAsync(userId, game.ImageLoc);

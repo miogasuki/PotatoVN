@@ -7,22 +7,46 @@ namespace GalgameManager.Server.Repositories;
 
 public class GalgameRepository (DataContext context): IGalgameRepository
 {
+    private const int MaxRedirectDepth = 10; // 防止循环redirect导致无限循环
+    
     public async Task<Galgame?> GetGalgameAsync(int id, bool includePlayTime = false)
     {
         IQueryable<Galgame> query = context.Galgame.AsQueryable();
         if(includePlayTime)
             query = query.Include(g => g.PlayTime);
-        return await query.FirstOrDefaultAsync(g => g.Id == id);
+        Galgame? result = await query.FirstOrDefaultAsync(g => g.Id == id);
+        result = await FollowRedirectAsync(result, query);
+        return result;
     }
     
     public async Task<Galgame?> GetGalgameCompleteAsync(int id)
     {
-        return await context.Galgame
+        IQueryable<Galgame> query = context.Galgame
             .Include(g => g.PlayTime)
             .Include(g => g.Characters)
             .Include(g => g.StaffGames)
-            .AsSplitQuery()
-            .FirstOrDefaultAsync(g => g.Id == id);
+            .AsSplitQuery();
+        Galgame? result = await query.FirstOrDefaultAsync(g => g.Id == id);
+        result = await FollowRedirectAsync(result, query);
+        return result;
+    }
+    
+    /// <summary>
+    /// 跟随redirect链获取最终的游戏
+    /// </summary>
+    private async Task<Galgame?> FollowRedirectAsync(Galgame? galgame, IQueryable<Galgame> query)
+    {
+        HashSet<int> visited = [];
+        Galgame? result = galgame;
+        while (result is not null && result.RedirectTo != 0)
+        {
+            if (!visited.Add(result.Id))
+                break; // 检测到循环，停止跟随
+            if (visited.Count > MaxRedirectDepth)
+                break; // 超过最大深度，停止跟随
+            result = await query.FirstOrDefaultAsync(g => g.Id == result.RedirectTo);
+        }
+        return result;
     }
     
     public Task<List<Galgame>> GetGalgamesAsync(List<int> ids)
@@ -30,13 +54,15 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         return context.Galgame.Where(g => ids.Contains(g.Id)).ToListAsync();
     }
 
-    public async Task<PagedResult<Galgame>> GetGalgamesAsync(int userId, long timestamp, int pageIndex, int pageSize)
+    public async Task<PagedResult<Galgame>> GetGalgamesAsync(int userId, long timestamp, int pageIndex, int pageSize,
+        bool excludeRedirected = true)
     {
         if(pageIndex < 0 || pageSize < 0)
             throw new ArgumentException("Invalid page index or page size");
         
         IQueryable<Galgame> query = context.Galgame
             .Where(g => g.UserId == userId && g.LastChangedTimeStamp > timestamp);
+        if (excludeRedirected) query = query.Where(g => g.RedirectTo == 0);
         var count = await query.CountAsync();
         List<Galgame> data = await query
             .AsSplitQuery()
@@ -79,5 +105,30 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         List<int> ids = await query.Select(g => g.Id).ToListAsync();
         await query.ExecuteDeleteAsync();
         return ids;
+    }
+    
+    public async Task<List<int>> GetRedirectChainAsync(int targetId)
+    {
+        // 获取所有直接或间接redirect到目标游戏的游戏ID
+        // 由于redirect链可能有多层，需要递归查找
+        List<int> result = [];
+        HashSet<int> visited = [targetId];
+        // 查找所有直接指向当前目标的游戏
+        Queue<int> toProcess = new();
+        toProcess.Enqueue(targetId);
+        while (toProcess.Count > 0)
+        {
+            var currentTarget = toProcess.Dequeue();
+            List<int> directRedirects = await context.Galgame
+                .Where(g => g.RedirectTo == currentTarget)
+                .Select(g => g.Id)
+                .ToListAsync();
+            foreach (var id in directRedirects.Where(id => visited.Add(id)))
+            {
+                result.Add(id);
+                toProcess.Enqueue(id);
+            }
+        }
+        return result;
     }
 }

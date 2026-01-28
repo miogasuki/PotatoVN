@@ -1,27 +1,26 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI.Collections;
+using CommunityToolkit.WinUI.Controls;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using GalgameManager.Models;
-using GalgameManager.Services;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.System;
-using CommunityToolkit.WinUI.Collections;
-using CommunityToolkit.WinUI.Controls;
 using GalgameManager.Helpers.Converter;
+using GalgameManager.Models;
 using GalgameManager.Models.Filters;
 using GalgameManager.Models.Sources;
+using GalgameManager.Services;
 using GalgameManager.Views.Dialog;
-using Newtonsoft.Json;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.System;
 
 // ReSharper disable CollectionNeverQueried.Global
 
@@ -43,7 +42,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     #region UI
     public readonly string PlayStatus = "HomePage_PlayStatus".GetLocalized();
-    private readonly string _uiSearch = "Search".GetLocalized();
     #endregion
 
     /// <summary>
@@ -65,7 +63,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         try
         {
-            SearchTitle = SearchKey == string.Empty ? _uiSearch : _uiSearch + " ●";
             Source.Source = _galgameService.Galgames;
             Filters = _filterService.GetFilters();
 
@@ -107,7 +104,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                 return false;
             };
             Source.Refresh();
-            UpdateFilterPanelDisplay(null,null!);
+            UpdateFilterPanelDisplay(null, null!);
         }
         catch (Exception e)
         {
@@ -130,7 +127,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         try
         {
             await Task.Delay(200); //等待动画结束
-            if(await _localSettingsService.ReadSettingAsync<bool>(KeyValues.KeepFilters) == false)
+            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.KeepFilters) == false)
                 _filterService.ClearFilters();
             _galgameService.PhrasedEvent -= OnGalgameServicePhrased;
             _galgameService.GalgameChangedEvent -= UpdateGalgame;
@@ -170,27 +167,27 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                     _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_TooManyItems".GetLocalized());
                     break;
                 default:
-                {
-                    // 只处理单个项目
-                    IStorageItem storageItem = items[0];
-                    if (storageItem is StorageFile file &&
-                        (file.FileType.Equals(".exe", StringComparison.OrdinalIgnoreCase) ||
-                         file.FileType.Equals(".bat", StringComparison.OrdinalIgnoreCase)))
                     {
-                        var folder = file.Path.Substring(0, file.Path.LastIndexOf('\\'));
-                        _ = AddGalgameInternal(folder);
-                    }
-                    else if (storageItem is StorageFolder folder)
-                    {
-                        _ = AddGalgameInternal(folder.Path);
-                    }
-                    else
-                    {
-                        _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_InvalidItem".GetLocalized());
-                    }
+                        // 只处理单个项目
+                        IStorageItem storageItem = items[0];
+                        if (storageItem is StorageFile file &&
+                            (file.FileType.Equals(".exe", StringComparison.OrdinalIgnoreCase) ||
+                             file.FileType.Equals(".bat", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var folder = file.Path.Substring(0, file.Path.LastIndexOf('\\'));
+                            _ = AddGalgameInternal(folder);
+                        }
+                        else if (storageItem is StorageFolder folder)
+                        {
+                            _ = AddGalgameInternal(folder.Path);
+                        }
+                        else
+                        {
+                            _infoService.Info(InfoBarSeverity.Error, "HomePage_Drop_InvalidItem".GetLocalized());
+                        }
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             DisplayDragArea = false;
@@ -246,7 +243,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task FilterInputTextChange(AutoSuggestBoxTextChangedEventArgs args)
     {
-        if(args.Reason != AutoSuggestionBoxTextChangeReason.UserInput) return;
+        if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput) return;
         if (FilterInputText == string.Empty)
         {
             FilterInputSuggestions.Clear();
@@ -297,7 +294,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void Search(string searchKey)
     {
-        SearchTitle = searchKey == string.Empty ? _uiSearch : _uiSearch + " ●";
         Source.RefreshFilter();
     }
 
@@ -362,8 +358,8 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             .ToDictionary(x => x.id, x => x.index);
         ObservableCollection<Galgame> collection = _galgameService.Galgames;
 
-        List<Galgame> inOrderItems = new ();
-        List<Galgame> missingItems = new ();
+        List<Galgame> inOrderItems = new();
+        List<Galgame> missingItems = new();
         foreach (var gal in collection)
         {
             if (indexMap.ContainsKey(gal.Uuid.ToString()))
@@ -576,7 +572,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private async Task AddVirtualGame()
     {
         BasicDialog dialog = new("GalgamePage_AddVirtualGame".GetLocalized(), inputBox: true,
-            inputBoxPlaceHolder: "GalgamePage_AddVirtualGame_PlaceHolder".GetLocalized(), minWidth:200);
+            inputBoxPlaceHolder: "GalgamePage_AddVirtualGame_PlaceHolder".GetLocalized(), minWidth: 200);
         await dialog.ShowAsync();
         if (!dialog.PrimaryButtonClicked) return;
         await AddGalgameInternal(dialog.InputText, true);
@@ -588,7 +584,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task GalFlyOutDelete(Galgame? galgame)
     {
-        if(galgame == null) return;
+        if (galgame == null) return;
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
@@ -609,7 +605,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void GalFlyOutEdit(Galgame? galgame)
     {
-        if(galgame == null) return;
+        if (galgame == null) return;
         // 在主线程中执行导航，修复appbarbutton描述文字延迟显示的问题
         App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
             _navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, galgame)
@@ -619,7 +615,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task GalFlyOutGetInfoFromRss(Galgame? galgame)
     {
-        if(galgame == null) return;
+        if (galgame == null) return;
         IsPhrasing = true;
         await _galgameService.ParseGalInfoAsync(galgame);
         IsPhrasing = false;

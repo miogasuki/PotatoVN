@@ -90,19 +90,12 @@
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="{StaticResource CommandBarMargin}">
                 <!-- 搜索 -->
-                <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}"
-                              AllowFocusOnInteraction="True">
-                    <AppBarButton.Flyout>
-                        <Flyout Placement="Bottom">
-                            <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}"
-                                                          SearchKey="{x:Bind ViewModel.SearchKey, Mode=TwoWay}"
-                                                          SearchSuggestionsProvider="{x:Bind ViewModel.GalgameSearchSuggestionsProvider}" />
-                        </Flyout>
-                    </AppBarButton.Flyout>
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="F" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
+                <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center">
+                    <control:InlineSearchAutoSuggestBox                       
+                        SearchCommand="{x:Bind ViewModel.SearchCommand}"
+                        SearchKey="{x:Bind ViewModel.SearchKey, Mode=TwoWay}"
+                        SearchSuggestionsProvider="{x:Bind ViewModel.GalgameSearchSuggestionsProvider}" />
+                </AppBarElementContainer>
                 <!-- 过滤 -->
                 <AppBarButton x:Uid="HomePage_Filter" Label="{x:Bind ViewModel.UiFilter, Mode=OneWay}">
                     <AppBarButton.Icon>

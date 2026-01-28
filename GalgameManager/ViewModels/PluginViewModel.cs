@@ -1,7 +1,5 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Contracts.Services;
@@ -12,10 +10,12 @@ using GalgameManager.Views.Dialog;
 using GalgameManager.WinApp.Base.Contracts.PluginUi;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace GalgameManager.ViewModels;
 
-public partial class PluginViewModel(IPluginService pluginService, IInfoService infoService, 
+public partial class PluginViewModel(IPluginService pluginService, IInfoService infoService,
     INavigationService navService)
     : ObservableRecipient, INavigationAware
 {
@@ -70,18 +70,51 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
     {
         try
         {
-            ObservableCollection<PluginX> sourcePlugins = await pluginService.GetAllPluginsAsync();
-            List<PluginX> pluginsSorted = sourcePlugins.ToList();
-            pluginsSorted.Sort();
-            
-            Plugins.Clear();
-            foreach (PluginX plugin in pluginsSorted)
-                Plugins.Add(new PluginSettingViewModel(plugin, pluginService));
+            if (e is null || e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                await ReloadPlugins();
+                return;
+            }
+
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add when e.NewItems is not null:
+                    foreach (PluginX newItem in e.NewItems)
+                    {
+                        PluginSettingViewModel newVm = new(newItem, pluginService);
+                        var index = 0;
+                        while (index < Plugins.Count && Plugins[index].Plugin.CompareTo(newItem) < 0) index++;
+                        Plugins.Insert(index, newVm);
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Remove when e.OldItems is not null:
+                    foreach (PluginX oldItem in e.OldItems)
+                    {
+                        PluginSettingViewModel? vm = Plugins.FirstOrDefault(p => p.Plugin == oldItem);
+                        if (vm is not null) Plugins.Remove(vm);
+                    }
+                    break;
+
+                default:
+                    await ReloadPlugins();
+                    break;
+            }
         }
         catch (Exception ex)
         {
             infoService.DeveloperEvent(e: ex);
         }
+    }
+
+    private async Task ReloadPlugins()
+    {
+        Plugins.Clear();
+        ObservableCollection<PluginX> sourcePlugins = await pluginService.GetAllPluginsAsync();
+        List<PluginX> sorted = [.. sourcePlugins];
+        sorted.Sort();
+        foreach (PluginX plugin in sorted)
+            Plugins.Add(new PluginSettingViewModel(plugin, pluginService));
     }
 }
 
@@ -104,11 +137,11 @@ public partial class PluginSettingViewModel (PluginX plugin, IPluginService plug
         }
         catch (Exception ex)
         {
-            App.GetService<IPluginService>().ThrowPluginExceptionEvent(Plugin, ex, 
+            App.GetService<IPluginService>().ThrowPluginExceptionEvent(Plugin, ex,
                 "PluginSettingViewModel_CreateUiFailed".GetLocalized());
         }
     }
-    
+
     [RelayCommand]
     private async Task DeletePlugin()
     {
@@ -119,7 +152,7 @@ public partial class PluginSettingViewModel (PluginX plugin, IPluginService plug
         if (!dialog.PrimaryButtonClicked) return;
         await pluginService.DeletePluginAsync(Plugin, dialog.CheckBoxChecked);
     }
-    
+
     [RelayCommand]
     private async Task HotReloadDevPlugin()
     {

@@ -18,6 +18,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
+using Microsoft.Windows.ApplicationModel.WindowsAppRuntime;
 using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
 using WindowExtensions = H.NotifyIcon.WindowExtensions;
 using LiveChartsCore;
@@ -46,7 +47,7 @@ public partial class App : Application
             throw new ArgumentException($"{typeof(T)} needs to be registered in ConfigureServices within App.xaml.cs.");
         return service;
     }
-    
+
     public static T GetResource<T>(string key)
     {
         if (Current.Resources[key] is not T resource)
@@ -57,7 +58,7 @@ public partial class App : Application
     private static Application _instance = null!;
     public static WindowEx? MainWindow { get; set; }
     public static TaskbarIcon? SystemTray { get; set; }
-    
+
     public static UIElement? AppTitlebar { get; set; }
     public static WindowMode Status = WindowMode.Booting;
     public static event Action? OnAppClosing;
@@ -65,6 +66,8 @@ public partial class App : Application
 
     public App()
     {
+        // 手动初始化Windows App SDK (防止测试项目把WinAppSDK拉起来导致COM注册错误)
+        InitializeWindowsAppRuntime();
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.
@@ -74,7 +77,7 @@ public partial class App : Application
         {
             // Utils
             services.AddAutoMapper(typeof(App).Assembly);
-            
+
             // 启动跳转处理
             // 从前往后依次处理，直到找到能处理的处理器
             // Launch Activation Handlers
@@ -185,7 +188,7 @@ public partial class App : Application
         if (Status != WindowMode.Booting)
             AppInstance.Restart("/safemode");
     }
-    
+
     /// <summary>
     /// 应用启动入口
     /// </summary>
@@ -197,7 +200,7 @@ public partial class App : Application
         _instance = this;
 #pragma warning disable CS0618 // 计划的一部分
         WinApp.Base.Helpers.UiThreadInvokeHelper.Init(DispatcherQueue);
-#pragma warning restore CS0618 // 
+#pragma warning restore CS0618 //
         Status = WindowMode.Booting;
         await GetService<IActivationService>().LaunchedAsync(AppInstance.GetCurrent().GetActivatedEventArgs());
     }
@@ -211,7 +214,7 @@ public partial class App : Application
             SetWindowMode(WindowMode.Normal);
         });
     }
-    
+
     /// <summary>
     /// 设置窗口模式<br/>
     /// <para>
@@ -229,7 +232,7 @@ public partial class App : Application
                 GetService<IPageService>().InitAsync();
                 MainWindow!.Activate();
                 MainWindow!.BringToFront();
-                MainWindow.Content.Visibility = Visibility.Visible; 
+                MainWindow.Content.Visibility = Visibility.Visible;
                 if (GetService<ILocalSettingsService>().ReadSettingAsync<string>(KeyValues.LastError)
                         .Result is { } error)
                 {
@@ -271,5 +274,16 @@ public partial class App : Application
         var packageName = Package.Current.Id.Name;
         // 商店版的包名是固定的，其他都是侧载版
         return packageName == storeVersionPackageName;
+    }
+
+    private static void InitializeWindowsAppRuntime()
+    {
+        DeploymentInitializeOptions options = new() { OnErrorShowUI = true };
+        DeploymentResult? result = DeploymentManager.Initialize(options);
+        if (result.Status != DeploymentStatus.Ok)
+        {
+            var hr = result.ExtendedError.HResult;
+            Environment.FailFast($"WindowsAppRuntime.DeploymentManager.Initialize error 0x{hr:X}");
+        }
     }
 }

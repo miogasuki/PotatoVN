@@ -146,7 +146,7 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         var timestamp = DateTime.Now.ToUnixTime();
         // 删除 redirect 链上所有的游戏
         List<int> redirectChain = await galRep.GetRedirectChainAsync(actualGameId);
-        List<Galgame> chainGames = await galRep.GetGalgamesAsync(redirectChain);
+        List<Galgame> chainGames = await galRep.GetGalgamesAsync(redirectChain, followRedirect: false);
         foreach (Galgame chainGame in chainGames)
         {
             if (chainGame.ImageLoc is not null) await ossService.DeleteObjectAsync(userId, chainGame.ImageLoc);

@@ -49,9 +49,21 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         return result;
     }
     
-    public Task<List<Galgame>> GetGalgamesAsync(List<int> ids)
+    public async Task<List<Galgame>> GetGalgamesAsync(List<int> ids, bool followRedirect = true)
     {
-        return context.Galgame.Where(g => ids.Contains(g.Id)).ToListAsync();
+        List<Galgame> games = await context.Galgame.Where(g => ids.Contains(g.Id)).ToListAsync();
+        if (!followRedirect) return games;
+        
+        List<Galgame> result = [];
+        HashSet<int> addedIds = [];
+        IQueryable<Galgame> query = context.Galgame.AsQueryable();
+        foreach (Galgame game in games)
+        {
+            Galgame? finalGame = await FollowRedirectAsync(game, query);
+            if (finalGame is not null && addedIds.Add(finalGame.Id))
+                result.Add(finalGame);
+        }
+        return result;
     }
 
     public async Task<PagedResult<Galgame>> GetGalgamesAsync(int userId, long timestamp, int pageIndex, int pageSize,

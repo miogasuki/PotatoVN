@@ -367,4 +367,174 @@ public class GalgameRepositoryRedirectTests : TestBase
     }
 
     #endregion
+
+    #region GetGalgamesAsync(List<int> ids) Redirect Tests
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_NoRedirect_ReturnsAllGames()
+    {
+        // Arrange
+        var game1 = new Galgame { UserId = TestUserId, Name = "Game 1", RedirectTo = 0 };
+        var game2 = new Galgame { UserId = TestUserId, Name = "Game 2", RedirectTo = 0 };
+        Context.Galgame.AddRange(game1, game2);
+        await Context.SaveChangesAsync();
+
+        // Act
+        var result = await _repository.GetGalgamesAsync([game1.Id, game2.Id]);
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Select(g => g.Id), Contains.Item(game1.Id));
+        Assert.That(result.Select(g => g.Id), Contains.Item(game2.Id));
+    }
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_SingleRedirect_ReturnsTargetGame()
+    {
+        // Arrange: A -> B
+        var gameB = new Galgame { UserId = TestUserId, Name = "Game B", RedirectTo = 0 };
+        Context.Galgame.Add(gameB);
+        await Context.SaveChangesAsync();
+
+        var gameA = new Galgame { UserId = TestUserId, Name = "Game A", RedirectTo = gameB.Id };
+        Context.Galgame.Add(gameA);
+        await Context.SaveChangesAsync();
+
+        // Act - 请求 gameA，应该返回 gameB（重定向目标）
+        var result = await _repository.GetGalgamesAsync([gameA.Id]);
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].Id, Is.EqualTo(gameB.Id));
+        Assert.That(result[0].Name, Is.EqualTo("Game B"));
+    }
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_ChainRedirect_ReturnsLastGame()
+    {
+        // Arrange: A -> B -> C
+        var gameC = new Galgame { UserId = TestUserId, Name = "Game C", RedirectTo = 0 };
+        Context.Galgame.Add(gameC);
+        await Context.SaveChangesAsync();
+
+        var gameB = new Galgame { UserId = TestUserId, Name = "Game B", RedirectTo = gameC.Id };
+        Context.Galgame.Add(gameB);
+        await Context.SaveChangesAsync();
+
+        var gameA = new Galgame { UserId = TestUserId, Name = "Game A", RedirectTo = gameB.Id };
+        Context.Galgame.Add(gameA);
+        await Context.SaveChangesAsync();
+
+        // Act
+        var result = await _repository.GetGalgamesAsync([gameA.Id]);
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].Id, Is.EqualTo(gameC.Id));
+        Assert.That(result[0].Name, Is.EqualTo("Game C"));
+    }
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_MultipleIdsRedirectToSameTarget_ReturnsOneTarget()
+    {
+        // Arrange: A -> C, B -> C
+        var gameC = new Galgame { UserId = TestUserId, Name = "Game C", RedirectTo = 0 };
+        Context.Galgame.Add(gameC);
+        await Context.SaveChangesAsync();
+
+        var gameA = new Galgame { UserId = TestUserId, Name = "Game A", RedirectTo = gameC.Id };
+        var gameB = new Galgame { UserId = TestUserId, Name = "Game B", RedirectTo = gameC.Id };
+        Context.Galgame.AddRange(gameA, gameB);
+        await Context.SaveChangesAsync();
+
+        // Act - 请求 gameA 和 gameB，它们都重定向到 gameC，应该只返回一个 gameC
+        var result = await _repository.GetGalgamesAsync([gameA.Id, gameB.Id]);
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].Id, Is.EqualTo(gameC.Id));
+    }
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_MixedRedirectAndNonRedirect_ReturnsCorrectGames()
+    {
+        // Arrange: A -> C (redirect), B (no redirect)
+        var gameC = new Galgame { UserId = TestUserId, Name = "Game C", RedirectTo = 0 };
+        var gameB = new Galgame { UserId = TestUserId, Name = "Game B", RedirectTo = 0 };
+        Context.Galgame.AddRange(gameC, gameB);
+        await Context.SaveChangesAsync();
+
+        var gameA = new Galgame { UserId = TestUserId, Name = "Game A", RedirectTo = gameC.Id };
+        Context.Galgame.Add(gameA);
+        await Context.SaveChangesAsync();
+
+        // Act - 请求 gameA 和 gameB
+        var result = await _repository.GetGalgamesAsync([gameA.Id, gameB.Id]);
+
+        // Assert - 应该返回 gameC（从 A 重定向）和 gameB
+        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Select(g => g.Id), Contains.Item(gameC.Id));
+        Assert.That(result.Select(g => g.Id), Contains.Item(gameB.Id));
+    }
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_RedirectToNonExistent_ExcludesInvalidGame()
+    {
+        // Arrange
+        var gameA = new Galgame { UserId = TestUserId, Name = "Game A", RedirectTo = 99999 };
+        var gameB = new Galgame { UserId = TestUserId, Name = "Game B", RedirectTo = 0 };
+        Context.Galgame.AddRange(gameA, gameB);
+        await Context.SaveChangesAsync();
+
+        // Act - 请求 gameA（重定向到不存在的游戏）和 gameB
+        var result = await _repository.GetGalgamesAsync([gameA.Id, gameB.Id]);
+
+        // Assert - gameA 应该被排除（因为重定向目标不存在），只返回 gameB
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].Id, Is.EqualTo(gameB.Id));
+    }
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_CircularRedirect_ReturnsOneGame()
+    {
+        // Arrange: A -> B -> A (circular)
+        var gameA = new Galgame { UserId = TestUserId, Name = "Game A", RedirectTo = 0 };
+        Context.Galgame.Add(gameA);
+        await Context.SaveChangesAsync();
+
+        var gameB = new Galgame { UserId = TestUserId, Name = "Game B", RedirectTo = gameA.Id };
+        Context.Galgame.Add(gameB);
+        await Context.SaveChangesAsync();
+
+        gameA.RedirectTo = gameB.Id;
+        await Context.SaveChangesAsync();
+
+        // Act - 不应该无限循环
+        var result = await _repository.GetGalgamesAsync([gameA.Id]);
+
+        // Assert - 应该返回循环中的某个游戏
+        Assert.That(result, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_EmptyList_ReturnsEmptyList()
+    {
+        // Act
+        var result = await _repository.GetGalgamesAsync([]);
+
+        // Assert
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetGalgamesAsync_ByIds_NonExistentIds_ReturnsEmptyList()
+    {
+        // Act
+        var result = await _repository.GetGalgamesAsync([99999, 99998]);
+
+        // Assert
+        Assert.That(result, Is.Empty);
+    }
+
+    #endregion
 }

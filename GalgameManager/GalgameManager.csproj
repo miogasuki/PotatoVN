@@ -167,15 +167,6 @@
     <Page Update="ViewModels\ReportSubPage3ViewModel.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\AnnualReportSubPage3.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="Views\AnnualReportSubPage2.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="Views\AnnualReportSubPage1.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Update="Views\ImportWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

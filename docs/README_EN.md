@@ -11,7 +11,7 @@
 
 ![123](https://img.shields.io/endpoint?color=blue&label=Microsoft%20Store%20Rating&url=https%3A%2F%2Fmicrosoft-store-badge.fly.dev%2Fapi%2Frating%3FstoreId%3D9P9CBKD5HR3W)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoldenPotato137%2FPotatoVN.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoldenPotato137%2FPotatoVN?ref=badge_shield)
-[![Telegram](https://img.shields.io/badge/Telegram%E5%90%B9%E6%B0%B4%E7%BE%A4-Join-green)](https://t.me/potato_vn)
+[![Telegram](https://img.shields.io/badge/Telegram-Join-green)](https://t.me/potato_vn)
   
 A visual novel management tool designed to provide galgame collectors with a convenient platform for managing their games.  
   
@@ -63,9 +63,9 @@ Thanks to the following organizations for supporting this project ❤️
   
 | Sponsor | Support |  
 |----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|  
-| <p align="center"><a href="https://signpath.io/"><img src="https://github.com/user-attachments/assets/2de96f21-4e01-4d2b-8d22-72aae5784906" alt="signpath logo" width="80px"></a></p> | Provides free code signing for the sideload installation packages of PotatoVN, greatly facilitating download and installation for users who cannot conveniently use the Microsoft Store |  
-| <p align="center"><a href="https://repoflow.io/"><img src="https://github.com/user-attachments/assets/f755e596-bba1-441d-bf61-5f073c95aa61" alt="repoflow logo" width="80px"></a></p> | [Repoflow](https://repoflow.io), a self-hostable package management platform, provides us with a license for our plugin management platform, greatly facilitating plugin downloads for users and plugin uploads for developers |  
-| <a href="https://www.jetbrains.com/"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png" alt="JetBrains logo." width="80px"></a> | Provides powerful IDEs with free legitimate licenses. Among them, the .NET development tool `Rider` has greatly facilitated the development of PotatoVN |  
+| <p align="center"><a href="https://signpath.io/"><img src="https://github.com/user-attachments/assets/2de96f21-4e01-4d2b-8d22-72aae5784906" alt="signpath logo" width="160px"></a></p> | Provides free code signing for the sideload installation packages of PotatoVN, greatly facilitating download and installation for users who cannot conveniently use the Microsoft Store |  
+| <p align="center"><a href="https://www.repoflow.io/"><img src="https://github.com/user-attachments/assets/f755e596-bba1-441d-bf61-5f073c95aa61" alt="repoflow logo" width="160px"></a></p> | [RepoFlow](https://www.repoflow.io), a self-hostable package management platform, provides us with a license for our plugin management platform, greatly facilitating plugin downloads for users and plugin uploads for developers |  
+| <a href="https://www.jetbrains.com/"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png" alt="JetBrains logo." width="160px"></a> | Provides powerful IDEs with free legitimate licenses. Among them, the .NET development tool `Rider` has greatly facilitated the development of PotatoVN |  
   
 ## Code signing policy  
   

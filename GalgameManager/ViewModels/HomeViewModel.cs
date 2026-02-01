@@ -364,6 +364,12 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void Search(string searchKey)
     {
+        SearchTitle = searchKey == string.Empty ? _uiSearch : _uiSearch + " ●";
+        RefreshFilterAndSelection();
+    }
+
+    private void RefreshFilterAndSelection()
+    {
         Source.RefreshFilter();
         NotifyBatchSelectionStateChanged();
     }

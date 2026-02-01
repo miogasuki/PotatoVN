@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using GalgameManager.Server.Contracts;
@@ -5,7 +7,12 @@ using GalgameManager.Server.Data;
 using GalgameManager.Server.Helpers;
 using GalgameManager.Server.Repositories;
 using GalgameManager.Server.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Minio;
@@ -50,7 +57,7 @@ public class Program
         {
             client.WithEndpoint(builder.Configuration["AppSettings:Minio:EndPoint"])
                 .WithCredentials(
-                    builder.Configuration["AppSettings:Minio:AccessKey"], 
+                    builder.Configuration["AppSettings:Minio:AccessKey"],
                     builder.Configuration["AppSettings:Minio:SecretKey"])
                 .WithSSL(Convert.ToBoolean(builder.Configuration["AppSettings:Minio:UseSSL"] ?? "False"));
         });
@@ -63,10 +70,10 @@ public class Program
         //     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         // });
         builder.Services.AddAutoMapper(typeof(Program).Assembly);
-        
+
         // Enable logging
         builder.Logging.AddConsole();
-        
+
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
@@ -77,12 +84,12 @@ public class Program
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey,
             });
-                
+
             options.OperationFilter<SecurityRequirementsOperationFilter>();
 
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "PotatoVN.Server", Version = $"v{Version}", 
+                Title = "PotatoVN.Server", Version = $"v{Version}",
                 Description = "PotatoVN 同步服务器\n最新更新：galgame新增playcount字段",
             });
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PotatoVN.Server.xml"));
@@ -109,7 +116,7 @@ public class Program
         });
 
         WebApplication app = builder.Build();
-        
+
         // DataBase Migration
         using (IServiceScope scope = app.Services.CreateScope())
         {
@@ -122,11 +129,11 @@ public class Program
                 Console.WriteLine($"Failed to migrate database:\n{e.Message}{e.StackTrace}");
                 return;
             }
-            
+
         }
 
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment()) 
+        if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
@@ -150,11 +157,11 @@ public class Program
         result = Check("AppSettings:Minio:EndPoint") && result;
         result = Check("AppSettings:Minio:AccessKey") && result;
         result = Check("AppSettings:Minio:SecretKey") && result;
-        
+
         result = CheckBoolValue("AppSettings:Minio:UseSSL", out _) && result;
         result = CheckBoolValue("AppSettings:Bangumi:OAuth2Enable", out var isBgmOAuth2Enable) && result;
         if (isBgmOAuth2Enable)
-        { 
+        {
             result = Check("AppSettings:Bangumi:AppId") && result;
             result = Check("AppSettings:Bangumi:AppSecret") && result;
             result = Check("AppSettings:Bangumi:RedirectUri") && result;
@@ -162,7 +169,7 @@ public class Program
         result = CheckBoolValue("AppSettings:User:Bangumi", out _) && result;
         result = CheckBoolValue("AppSettings:User:Default", out _) && result;
         result = CheckLongValue("AppSettings:User:OssSize", out _) && result;
-        
+
         return result;
 
         bool Check(string key)
@@ -177,7 +184,7 @@ public class Program
 
         bool CheckBoolValue(string key, out bool value)
         {
-            if (string.IsNullOrEmpty(builder.Configuration[key]) == false && 
+            if (string.IsNullOrEmpty(builder.Configuration[key]) == false &&
                 bool.TryParse(builder.Configuration[key], out _) == false)
             {
                 Console.WriteLine($"{key} is is not a valid boolean value.");

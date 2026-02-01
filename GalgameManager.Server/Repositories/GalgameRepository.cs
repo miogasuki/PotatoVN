@@ -1,4 +1,5 @@
-﻿using GalgameManager.Server.Contracts;
+﻿using System;
+using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Data;
 using GalgameManager.Server.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace GalgameManager.Server.Repositories;
 public class GalgameRepository (DataContext context): IGalgameRepository
 {
     private const int MaxRedirectDepth = 10; // 防止循环redirect导致无限循环
-    
+
     public async Task<Galgame?> GetGalgameAsync(int id, bool includePlayTime = false)
     {
         IQueryable<Galgame> query = context.Galgame.AsQueryable();
@@ -18,7 +19,7 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         result = await FollowRedirectAsync(result, query);
         return result;
     }
-    
+
     public async Task<Galgame?> GetGalgameCompleteAsync(int id)
     {
         IQueryable<Galgame> query = context.Galgame
@@ -30,7 +31,7 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         result = await FollowRedirectAsync(result, query);
         return result;
     }
-    
+
     /// <summary>
     /// 跟随redirect链获取最终的游戏
     /// </summary>
@@ -48,12 +49,12 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         }
         return result;
     }
-    
+
     public async Task<List<Galgame>> GetGalgamesAsync(List<int> ids, bool followRedirect = true)
     {
         List<Galgame> games = await context.Galgame.Where(g => ids.Contains(g.Id)).ToListAsync();
         if (!followRedirect) return games;
-        
+
         List<Galgame> result = [];
         HashSet<int> addedIds = [];
         IQueryable<Galgame> query = context.Galgame.AsQueryable();
@@ -71,7 +72,7 @@ public class GalgameRepository (DataContext context): IGalgameRepository
     {
         if(pageIndex < 0 || pageSize < 0)
             throw new ArgumentException("Invalid page index or page size");
-        
+
         IQueryable<Galgame> query = context.Galgame
             .Where(g => g.UserId == userId && g.LastChangedTimeStamp > timestamp);
         if (excludeRedirected) query = query.Where(g => g.RedirectTo == 0);
@@ -118,7 +119,7 @@ public class GalgameRepository (DataContext context): IGalgameRepository
         await query.ExecuteDeleteAsync();
         return ids;
     }
-    
+
     public async Task<List<int>> GetRedirectChainAsync(int targetId)
     {
         // 获取所有直接或间接redirect到目标游戏的游戏ID

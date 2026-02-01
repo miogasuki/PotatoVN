@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Models;
 using GalgameManager.Server.Repositories;
@@ -21,13 +22,13 @@ public class GalgameServiceRedirectTests : TestBase
     private Mock<IUserService> _userServiceMock = null!;
     private Mock<IOssService> _ossServiceMock = null!;
     private Mock<IMapper> _mapperMock = null!;
-    
+
     private const int TestUserId = 1;
 
     public override void Setup()
     {
         base.Setup();
-        
+
         _galRepository = new GalgameRepository(Context);
         _galDeletedRepMock = new Mock<IGalgameDeletedRepository>();
         _playLogRepMock = new Mock<IPlayLogRepository>();
@@ -127,7 +128,7 @@ public class GalgameServiceRedirectTests : TestBase
         // Assert - 应该更新目标游戏
         Assert.That(result.Id, Is.EqualTo(targetGame.Id));
         Assert.That(result.Name, Is.EqualTo("Updated Name"));
-        
+
         // 验证数据库中目标游戏已更新
         var dbTargetGame = await Context.Galgame.FindAsync(targetGame.Id);
         Assert.That(dbTargetGame!.Name, Is.EqualTo("Updated Name"));
@@ -157,7 +158,7 @@ public class GalgameServiceRedirectTests : TestBase
         // Assert - 应该更新目标游戏的 TotalPlayTime
         Assert.That(result!.Id, Is.EqualTo(targetGame.Id));
         Assert.That(result.TotalPlayTime, Is.EqualTo(60));
-        
+
         // 验证 PlayLog 是为目标游戏创建的
         _playLogRepMock.Verify(x => x.AddOrUpdatePlayLogAsync(
             It.Is<PlayLog>(p => p.GalgameId == targetGame.Id && p.Minute == 60)), Times.Once);
@@ -226,10 +227,10 @@ public class GalgameServiceRedirectTests : TestBase
     public async Task DeleteGalgameAsync_WithOssResources_DeletesAllOssResources()
     {
         // Arrange
-        var targetGame = new Galgame 
-        { 
-            UserId = TestUserId, 
-            Name = "Target Game", 
+        var targetGame = new Galgame
+        {
+            UserId = TestUserId,
+            Name = "Target Game",
             RedirectTo = 0,
             ImageLoc = "target/image.jpg",
             HeaderImageOssPosition = "target/header.jpg"
@@ -237,10 +238,10 @@ public class GalgameServiceRedirectTests : TestBase
         Context.Galgame.Add(targetGame);
         await Context.SaveChangesAsync();
 
-        var sourceGame = new Galgame 
-        { 
-            UserId = TestUserId, 
-            Name = "Source Game", 
+        var sourceGame = new Galgame
+        {
+            UserId = TestUserId,
+            Name = "Source Game",
             RedirectTo = targetGame.Id,
             ImageLoc = "source/image.jpg",
             HeaderImageOssPosition = "source/header.jpg"

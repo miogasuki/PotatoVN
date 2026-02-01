@@ -1,4 +1,5 @@
-﻿using GalgameManager.Server.Data;
+﻿using System;
+using GalgameManager.Server.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace GalgameManager.Server.Test;

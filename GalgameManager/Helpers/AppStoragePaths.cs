@@ -58,7 +58,7 @@ public static class AppStoragePaths
 
     private static string ComputeTempPath()
     {
-        if (IsPortable) return EnsureDirectory(Path.Combine(LocalDataPath, PortableTempFolderName));
+        if (IsPortable) return EnsureDirectory(Path.Combine(LocalDataPath, "..", PortableTempFolderName));
         if (RuntimeHelper.IsMSIX) return EnsureDirectory(ApplicationData.Current.TemporaryFolder.Path);
         // 无包身份：使用数据目录下的 Temp
         return EnsureDirectory(Path.Combine(LocalDataPath, PortableTempFolderName));
@@ -82,8 +82,9 @@ public static class AppStoragePaths
 
     private static string EnsureDirectory(string path)
     {
-        Directory.CreateDirectory(path);
-        return path;
+        DirectoryInfo di = new(path);
+        if (!di.Exists) di.Create();
+        return di.FullName;
     }
 
     private static bool IsTrue(string value)

@@ -421,6 +421,7 @@ public class LocalSettingsService : ILocalSettingsService
         {
             ApplicationData.Current.LocalSettings.Values.Remove(key);
         }
+        else if (!RuntimeHelper.IsMSIX && !isLarge) _settingCollection?.Delete(key);
         else
         {
             await InitializeAsync();

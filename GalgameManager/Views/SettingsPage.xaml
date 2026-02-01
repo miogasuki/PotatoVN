@@ -559,7 +559,7 @@
                     <control:SettingExpander.SettingContent>
                         <StackPanel Style="{StaticResource SettingStackPanelStyle}">
                             <!-- 开机自启 -->
-                            <control:Panel>
+                            <control:Panel Visibility="{x:Bind ViewModel.IsMSIXPackaged}">
                                 <StackPanel Spacing="{StaticResource SettingsPageStackPanelSpacing}">
                                     <!-- 是否开机自启 -->
                                     <local:SettingToggleSwitch

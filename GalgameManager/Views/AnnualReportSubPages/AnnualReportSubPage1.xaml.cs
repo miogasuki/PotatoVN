@@ -21,7 +21,7 @@ public sealed partial class AnnualReportSubPage1 : Page
 
     public AnnualReportSubPage1()
     {
-        ViewModel = App.GetService<ReportSubPage1ViewModel>();
+        ViewModel = new ReportSubPage1ViewModel();
         this.InitializeComponent();
     }
 

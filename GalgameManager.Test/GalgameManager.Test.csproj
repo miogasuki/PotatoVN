@@ -6,12 +6,18 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UseWinUI>true</UseWinUI>
-<!--        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>-->
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <PlatformTarget>x64</PlatformTarget>
         <EnableMsixTooling>true</EnableMsixTooling>
-        <Platforms>arm64;x64;x86</Platforms>
+        <Platforms>x86;x64;arm64</Platforms>
+        <!-- 指定默认运行设置文件，确保测试以 x64 平台运行 -->
+        <RunSettingsFilePath>$(MSBuildProjectDirectory)\test.runsettings</RunSettingsFilePath>
+        <!-- Disable Windows App SDK auto initialization for tests -->
+        <WindowsAppSdkBootstrapInitialize>false</WindowsAppSdkBootstrapInitialize>
+        <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
+        <WindowsAppSdkAutoInitialize>false</WindowsAppSdkAutoInitialize>
+        <WindowsAppSdkUndockedRegFreeWinRTInitialize>false</WindowsAppSdkUndockedRegFreeWinRTInitialize>
+        <WindowsAppSdkCompatibilityInitialize>false</WindowsAppSdkCompatibilityInitialize>
     </PropertyGroup>
 
     <ItemGroup>

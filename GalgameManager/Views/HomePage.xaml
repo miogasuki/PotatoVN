@@ -121,20 +121,12 @@
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="{StaticResource CommandBarMargin}">
                 <!-- 搜索 -->
-                <AppBarButton Icon="Find" Label="{x:Bind ViewModel.SearchTitle, Mode=OneWay}"
-                              AllowFocusOnInteraction="True"
-                              Visibility="{x:Bind ViewModel.IsBatchMode, Mode=OneWay, Converter={StaticResource InverseBoolToVisConverter}}">
-                    <AppBarButton.Flyout>
-                        <Flyout Placement="Bottom">
-                            <control:SearchAutoSuggestBox SearchCommand="{x:Bind ViewModel.SearchCommand}"
-                                                          SearchKey="{x:Bind ViewModel.SearchKey, Mode=TwoWay}"
-                                                          SearchSuggestionsProvider="{x:Bind ViewModel.GalgameSearchSuggestionsProvider}" />
-                        </Flyout>
-                    </AppBarButton.Flyout>
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="F" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
+                <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center">
+                    <control:InlineSearchAutoSuggestBox                       
+                        SearchCommand="{x:Bind ViewModel.SearchCommand}"
+                        SearchKey="{x:Bind ViewModel.SearchKey, Mode=TwoWay}"
+                        SearchSuggestionsProvider="{x:Bind ViewModel.GalgameSearchSuggestionsProvider}" />
+                </AppBarElementContainer>
                 <!-- 过滤 -->
                 <AppBarButton x:Uid="HomePage_Filter" Label="{x:Bind ViewModel.UiFilter, Mode=OneWay}"
                               Visibility="{x:Bind ViewModel.IsBatchMode, Mode=OneWay, Converter={StaticResource InverseBoolToVisConverter}}">
@@ -224,8 +216,7 @@
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <!-- 第一排序键 -->
-                            <MenuFlyoutSubItem x:Uid="HomePage_Sort_FirstKey">
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Custom"
+                            <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Custom"
                                                      Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
                                                      CommandParameter="Custom"
                                                      GroupName="PrimarySorting"
@@ -234,7 +225,7 @@
                                                          Converter={StaticResource EnumToBoolConverter},
                                                          ConverterParameter=Custom
                                                      }" />
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name"
+                            <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name"
                                                      Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
                                                      CommandParameter="Name"
                                                      GroupName="PrimarySorting"
@@ -243,7 +234,7 @@
                                                          Converter={StaticResource EnumToBoolConverter},
                                                          ConverterParameter=Name
                                                      }" />
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Developer"
+                            <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Developer"
                                                      Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
                                                      CommandParameter="Developer"
                                                      GroupName="PrimarySorting"
@@ -252,7 +243,7 @@
                                                          Converter={StaticResource EnumToBoolConverter},
                                                          ConverterParameter=Developer
                                                      }" />
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Rating"
+                            <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Rating"
                                                      Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
                                                      CommandParameter="Rating"
                                                      GroupName="PrimarySorting"
@@ -261,7 +252,7 @@
                                                          Converter={StaticResource EnumToBoolConverter},
                                                          ConverterParameter=Rating
                                                      }" />
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastPlay"
+                            <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastPlay"
                                                      Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
                                                      CommandParameter="LastPlay"
                                                      GroupName="PrimarySorting"
@@ -270,7 +261,7 @@
                                                          Converter={StaticResource EnumToBoolConverter},
                                                          ConverterParameter=LastPlay
                                                      }" />
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_ReleaseDate"
+                            <RadioMenuFlyoutItem x:Uid="HomePage_Sort_ReleaseDate"
                                                      Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
                                                      CommandParameter="ReleaseDate"
                                                      GroupName="PrimarySorting"
@@ -279,7 +270,7 @@
                                                          Converter={StaticResource EnumToBoolConverter},
                                                          ConverterParameter=ReleaseDate
                                                      }" />
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastFetchInfoTime"
+                            <RadioMenuFlyoutItem x:Uid="HomePage_Sort_LastFetchInfoTime"
                                                      Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
                                                      CommandParameter="LastFetchInfoTime"
                                                      GroupName="PrimarySorting"
@@ -288,7 +279,7 @@
                                                          Converter={StaticResource EnumToBoolConverter},
                                                          ConverterParameter=LastFetchInfoTime
                                                      }" />
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_AddTime"
+                            <RadioMenuFlyoutItem x:Uid="HomePage_Sort_AddTime"
                                                      Command="{x:Bind ViewModel.SetPrimaryKeyCommand}"
                                                      CommandParameter="AddTime"
                                                      GroupName="PrimarySorting"
@@ -297,11 +288,10 @@
                                                          Converter={StaticResource EnumToBoolConverter},
                                                          ConverterParameter=AddTime
                                                      }" />
-                                <MenuFlyoutSeparator />
-                                <ToggleMenuFlyoutItem x:Uid="HomePage_Sort_PrimaryDescending"
+                            <MenuFlyoutSeparator />
+                            <ToggleMenuFlyoutItem x:Uid="HomePage_Sort_PrimaryDescending"
                                                       IsChecked="{x:Bind ViewModel.IsPrimaryDescending, Mode=TwoWay}"
                                                       Command="{x:Bind ViewModel.ApplySortCommand}" />
-                            </MenuFlyoutSubItem>
                             <MenuFlyoutSeparator />
                             <!-- 第二排序键 -->
                             <MenuFlyoutSubItem x:Uid="HomePage_Sort_SecondKey">

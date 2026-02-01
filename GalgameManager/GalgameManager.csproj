@@ -27,7 +27,15 @@
     <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
     <!-- TODO: 要处理该警告需要用到.Net Preview的特性，等特性稳定（进入正式版）后再处理 -->
     <NoWarn>MVVMTK0045</NoWarn>
+
+    <!-- 关闭WinAppSDK自动初始化，手动在App里初始化（为了测试能正常运行） -->
+    <WindowsAppSdkBootstrapInitialize>false</WindowsAppSdkBootstrapInitialize>
+    <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
+    <WindowsAppSdkAutoInitialize>false</WindowsAppSdkAutoInitialize>
+    <WindowsAppSdkUndockedRegFreeWinRTInitialize>false</WindowsAppSdkUndockedRegFreeWinRTInitialize>
+    <WindowsAppSdkCompatibilityInitialize>false</WindowsAppSdkCompatibilityInitialize>
   </PropertyGroup>
+
   <ItemGroup>
     <Content Remove="Assets\Pictures\icon-dev\*" />
     <Content Remove="Assets\Pictures\icon-sideload\*" />
@@ -167,15 +175,6 @@
     <Page Update="ViewModels\ReportSubPage3ViewModel.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\AnnualReportSubPage3.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="Views\AnnualReportSubPage2.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="Views\AnnualReportSubPage1.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Update="Views\ImportWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -224,19 +223,19 @@
     <Content Include="Strings\en-US\Resources.resw" />
     <Content Include="Strings\ja-JP\Resources.resw" />
   </ItemGroup>
-  
+
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PRIResource Remove="Strings\zh-CN\Resources.resw" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Resource Remove="Themes\Generic.xaml" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Remove="Helpers\GalgameSourceCustomConverter.cs" />
   </ItemGroup>

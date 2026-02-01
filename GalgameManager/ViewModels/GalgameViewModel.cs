@@ -68,6 +68,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showTagPanel = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showCharacterPanel = Visibility.Collapsed;
+    [ObservableProperty] private Visibility _showDescriptionPanel = Visibility.Visible;
+    [ObservableProperty] private Visibility _showStaffPanel = Visibility.Visible;
     private bool IsNotLocalGame => !IsLocalGame;
 
     [ObservableProperty]
@@ -98,15 +100,33 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         try
         {
             UseNewLayout = newLayoutValue;
-            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            if (UseNewLayout)
+            {
+                ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+            else
+            {
+                ShowDescriptionPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowDescription)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowTags)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowCharacters)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowStaffPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowStaff)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
             Update(Item);
         }
         catch (Exception e)
@@ -126,15 +146,33 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             }
 
             UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
-            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            if (UseNewLayout)
+            {
+                ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+            else
+            {
+                ShowDescriptionPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowDescription)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowTags)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowCharacters)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                ShowStaffPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowStaff)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
 
             Item = param.Galgame;
             IsLocalGame = Item.IsLocalGame;

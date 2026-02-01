@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -28,24 +28,25 @@ public partial class PluginService(
     private ILiteCollection<PluginData> _pluginDataDb = null!;
 
     public bool PluginOffloadInProgress { get; private set; }
-    
+
     public void PluginSetData(PluginX plugin, string? data)
     {
-        PluginData newData = new() {
+        PluginData newData = new()
+        {
             PluginId = plugin.Id,
             Data = data,
         };
         _pluginDataDb.Upsert(newData);
     }
-    
+
     public void PluginDeleteData(PluginX plugin) => _pluginDataDb.Delete(plugin.Info.Id);
 
     public async Task AddPluginAsync(string path, bool isDev)
     {
         // 如果删除过正常插件，即使是 Dev 模式也会禁止加载新的插件。
-        if (PluginOffloadInProgress) 
+        if (PluginOffloadInProgress)
             throw new PvnException("PluginService_PluginOffloadInProgress".GetLocalized());
-        if (_plugins.Any(p => Utils.ArePathsEqual(path, p.Path)))   
+        if (_plugins.Any(p => Utils.ArePathsEqual(path, p.Path)))
             throw new PvnException($"plugin in {path} already initialized");
         (IPlugin plugin, PluginLoadContext contex) tmp = await LoadPluginInternalAsync(path, isDev);
         PluginX plugin = new(tmp.plugin, path, tmp.contex)
@@ -89,7 +90,7 @@ public partial class PluginService(
             );
         }
     }
-    
+
     public async Task DeletePluginAsync(PluginX plugin, bool deleteData)
     {
         plugin.ToDelete = true;
@@ -99,19 +100,30 @@ public partial class PluginService(
             // 对于 Dev Plugin，我们立即删除对应的 Plugin，同时不进入 Offload State
             PluginOffloadInProgress = true;
         }
+
         if (plugin.IsDevMode)
         {
             await InvokePluginOnUninstall(plugin);
-            _pluginsDb.Delete(plugin.Info.Id);
-            if (deleteData)
-                PluginDeleteData(plugin);
-            plugin.ForceUnload();
         }
-        else
-        {
-            SavePlugin(plugin);
-        }
+
+        // 先移除内存中的 Plugin，触发 UI 更新，确保 UI 释放对 Plugin 程序集中类型的引用
         await UiThreadInvokeHelper.InvokeAsync(() => _plugins.Remove(plugin));
+
+        // 非 UI 操作到后台线程，避免阻塞 UI，同时给予 UI 线程处理可视树更新的时间
+        await Task.Run(() =>
+        {
+            if (plugin.IsDevMode)
+            {
+                _pluginsDb.Delete(plugin.Info.Id);
+                if (deleteData)
+                    PluginDeleteData(plugin);
+                plugin.ForceUnload();
+            }
+            else
+            {
+                SavePlugin(plugin);
+            }
+        });
     }
 
     public Task<ObservableCollection<PluginX>> GetAllPluginsAsync() => Task.FromResult(_plugins);
@@ -183,26 +195,26 @@ public partial class PluginService(
     {
         await Task.CompletedTask; //预留异步
         if (!Directory.Exists(path)) throw new PvnPathNotExist(path);
-        
+
         // 查找与目录同名的 DLL
         var directoryName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         var pluginFile = Path.Combine(path, $"{directoryName}.dll");
         if (!File.Exists(pluginFile))
             pluginFile = Directory.GetFiles(path, "PotatoVN.App.PluginBase.dll").FirstOrDefault();
-        if (pluginFile == null || !File.Exists(pluginFile)) 
+        if (pluginFile == null || !File.Exists(pluginFile))
             throw new PvnException($"plugin dll of {path} not found");
-        PluginLoadContext loadContext = new(pluginFile);
+        PluginLoadContext loadContext = new(pluginFile, isDev);
 
         Assembly pluginAssembly;
         if (isDev)
         {
             var pdbPath = Path.ChangeExtension(pluginFile, ".pdb");
-            FileStream? pdbStream = File.Exists(pdbPath) 
-                ? new FileStream(pdbPath, FileMode.Open, FileAccess.Read, FileShare.Read) 
+            FileStream? pdbStream = File.Exists(pdbPath)
+                ? new FileStream(pdbPath, FileMode.Open, FileAccess.Read, FileShare.Read)
                 : null;
             await using (pdbStream)
             {
-                await using FileStream fs = new (pluginFile, FileMode.Open, FileAccess.Read);
+                await using FileStream fs = new(pluginFile, FileMode.Open, FileAccess.Read);
                 pluginAssembly = loadContext.LoadFromStream(fs, pdbStream);
             }
         }
@@ -210,7 +222,7 @@ public partial class PluginService(
         {
             pluginAssembly = loadContext.LoadFromAssemblyPath(pluginFile);
         }
-        
+
         Type? pluginType = pluginAssembly.GetTypes()
             .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsInterface);
         if (pluginType == null) throw new PvnException($"no valid plugin found in {path}");
@@ -226,7 +238,7 @@ public partial class PluginService(
     }
 }
 
-public class PluginLoadContext(string pluginPath) : AssemblyLoadContext(isCollectible: true)
+public class PluginLoadContext(string pluginPath, bool isDev = false) : AssemblyLoadContext(isCollectible: true)
 {
     private readonly AssemblyDependencyResolver _resolver = new(pluginPath);
     private readonly HashSet<string> _sharedAssembliesBlacklist = new(StringComparer.OrdinalIgnoreCase)
@@ -253,7 +265,20 @@ public class PluginLoadContext(string pluginPath) : AssemblyLoadContext(isCollec
     {
         var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
         if (assemblyPath != null && !_sharedAssembliesBlacklist.Contains(assemblyName.Name!))
+        {
+            if (isDev)
+            {
+                using var fs = new FileStream(assemblyPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var pdbPath = Path.ChangeExtension(assemblyPath, ".pdb");
+                if (File.Exists(pdbPath))
+                {
+                    using var pdbFs = new FileStream(pdbPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    return LoadFromStream(fs, pdbFs);
+                }
+                return LoadFromStream(fs);
+            }
             return LoadFromAssemblyPath(assemblyPath);
+        }
         // dll不存在/黑名单（WinAppSDK）dll
         return null;
     }

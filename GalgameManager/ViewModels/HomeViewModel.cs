@@ -1,28 +1,27 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI.Collections;
+using CommunityToolkit.WinUI.Controls;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
+using GalgameManager.Helpers.Converter;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
-using GalgameManager.Services;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.System;
-using CommunityToolkit.WinUI.Collections;
-using CommunityToolkit.WinUI.Controls;
-using GalgameManager.Helpers.Converter;
 using GalgameManager.Models.Filters;
 using GalgameManager.Models.Sources;
+using GalgameManager.Services;
 using GalgameManager.Views.Dialog;
-using Newtonsoft.Json;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.System;
 
 // ReSharper disable CollectionNeverQueried.Global
 
@@ -364,12 +363,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     [RelayCommand]
     private void Search(string searchKey)
-    {
-        SearchTitle = searchKey == string.Empty ? _uiSearch : _uiSearch + " ●";
-        RefreshFilterAndSelection();
-    }
-
-    private void RefreshFilterAndSelection()
     {
         Source.RefreshFilter();
         NotifyBatchSelectionStateChanged();

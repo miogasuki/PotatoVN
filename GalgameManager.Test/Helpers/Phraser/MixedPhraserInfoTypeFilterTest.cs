@@ -6,7 +6,7 @@ namespace GalgameManager.Test.Helpers.Phraser;
 
 /// <summary>
 /// Tests for MixedPhraser information type filtering functionality.
-/// Verifies that each information type (Name, Description, Developer, Tags, etc.) 
+/// Verifies that each information type (Name, Description, Developer, Tags, etc.)
 /// can be individually enabled/disabled through MixedPhraserEnabled configuration.
 /// </summary>
 [TestFixture]
@@ -17,7 +17,7 @@ public class MixedPhraserInfoTypeFilterTest
     private VndbPhraser _vndbPhraser = null!;
     private YmgalPhraser _ymgalPhraser = null!;
     private SteamParser _steamParser = null!;
-    
+
     [SetUp]
     public void Init()
     {
@@ -43,10 +43,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { NameEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Name.Value, Is.Not.Null);
@@ -65,14 +65,14 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { NameEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
-        // Name should remain as original input since it wasn't scraped
-        Assert.That(result!.Name.Value, Is.EqualTo(gameName));
+        // Name should remain empty since it wasn't scraped
+        Assert.That(result!.Name.Value, Is.EqualTo(string.Empty));
     }
 
     /// <summary>
@@ -86,15 +86,15 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { DescriptionEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Description.Value, Is.Not.Null);
         Assert.That(result.Description.Value, Is.Not.Empty);
-        Assert.That(result.Description.Value!.StartsWith("主人公身为大藏游星"), Is.True);
+        Assert.That(result.Description.Value!.StartsWith("主人公身为“大藏游星”"), Is.True);
     }
 
     /// <summary>
@@ -108,10 +108,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { DescriptionEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // Description should be empty/default when not scraped
@@ -129,10 +129,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { DeveloperEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Developer.Value, Is.Not.Null);
@@ -150,10 +150,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { DeveloperEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // Developer should be default value when not scraped
@@ -171,10 +171,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { TagsEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Tags.Value, Is.Not.Null);
@@ -192,10 +192,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { TagsEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // Tags should be empty when not scraped
@@ -213,10 +213,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { RatingEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Rating.Value, Is.GreaterThan(0));
@@ -233,10 +233,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { RatingEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // Rating should be 0 (default) when not scraped
@@ -254,10 +254,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { ExpectedPlayTimeEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // ExpectedPlayTime should have a value when scraped
@@ -275,10 +275,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { ExpectedPlayTimeEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // ExpectedPlayTime should be default when not scraped
@@ -296,10 +296,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { ReleaseDateEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.ReleaseDate.Value, Is.Not.EqualTo(DateTime.MinValue));
@@ -316,10 +316,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { ReleaseDateEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // ReleaseDate should be MinValue when not scraped
@@ -337,10 +337,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { CnNameEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.CnName, Is.Not.Null);
@@ -358,10 +358,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { CnNameEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // CnName should be empty when not scraped
@@ -379,10 +379,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { ImageUrlEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.ImageUrl, Is.Not.Null);
@@ -401,10 +401,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { ImageUrlEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // ImageUrl should be null or empty when not scraped
@@ -422,10 +422,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { CharactersEnabled = true };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Characters, Is.Not.Null);
@@ -443,10 +443,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled { CharactersEnabled = false };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // Characters should be empty when not scraped
@@ -469,17 +469,17 @@ public class MixedPhraserInfoTypeFilterTest
         };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // Disabled fields should not be scraped
         Assert.That(string.IsNullOrEmpty(result!.Description.Value), Is.True);
         Assert.That(result.Developer.Value, Is.EqualTo(Galgame.DefaultString));
         Assert.That(result.Tags.Value, Is.Null.Or.Empty);
-        
+
         // Enabled fields (by default) should still be scraped
         Assert.That(result.Name.Value, Is.Not.Empty);
         Assert.That(result.Rating.Value, Is.GreaterThan(0));
@@ -508,14 +508,14 @@ public class MixedPhraserInfoTypeFilterTest
         };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // All fields should have default/empty values
-        Assert.That(result!.Name.Value, Is.EqualTo(gameName)); // Original name
+        Assert.That(result!.Name.Value, Is.EqualTo(string.Empty));
         Assert.That(string.IsNullOrEmpty(result.Description.Value), Is.True);
         Assert.That(result.Developer.Value, Is.EqualTo(Galgame.DefaultString));
         Assert.That(result.Tags.Value, Is.Null.Or.Empty);
@@ -542,10 +542,10 @@ public class MixedPhraserInfoTypeFilterTest
         };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // Developer should be scraped (either directly or from tags)
@@ -569,10 +569,10 @@ public class MixedPhraserInfoTypeFilterTest
         };
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // Tags should not be scraped
@@ -592,10 +592,10 @@ public class MixedPhraserInfoTypeFilterTest
         var enabled = new MixedPhraserEnabled();
         _mixedPhraser = CreateMixedPhraser(enabled);
         var game = new Galgame(gameName);
-        
+
         // Act
         var result = await _mixedPhraser.GetGalgameInfo(game);
-        
+
         // Assert
         Assert.That(result, Is.Not.Null);
         // All fields should be scraped with default configuration

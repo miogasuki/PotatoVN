@@ -138,8 +138,7 @@ public class LocalSettingsService : ILocalSettingsService
     private async Task Upgrade()
     {
         if (_isUpgrade) return;
-        //public const string SortKey1 = "sortKey1";
-        //public const string SortKey2 = "sortKey2";
+        InitSettingDatabase(); //以下为最早会读取配置的地方，在此之前必须初始化SettingDatabase
         if (await ReadSettingAsync<bool>(KeyValues.SortKeysUpgraded) == false)
         {
             SortKeys? sortKey1 = await ReadSettingAsync<SortKeys?>("sortKey1");
@@ -165,6 +164,7 @@ public class LocalSettingsService : ILocalSettingsService
     public void InitSettingDatabase()
     {
         if (RuntimeHelper.IsMSIX) return;
+        if (_settingDatabase is not null) return;
         if (!SettingsFolder.Exists) SettingsFolder.Create();
         _settingDatabase = new(Path.Combine(SettingsFolder.FullName, SettingDatabaseFileName));
         _settingCollection = _settingDatabase.GetCollection<SettingItem>("settings");

@@ -39,6 +39,26 @@
     <StartupObject>GalgameManager.BootstrapProgram</StartupObject>
   </PropertyGroup>
 
+  <!--
+    - MSIX 模式下 RuntimeHelper.GetVersion() 读取 Package.appxmanifest 的 Identity Version
+    - 便携/非 MSIX 模式下读取程序集版本
+    为避免两边版本不一致，在构建时从 Package.appxmanifest 读取版本并写入程序集版本属性。
+  -->
+  <Target Name="DeriveAssemblyVersionFromMsixManifest"
+      BeforeTargets="GetAssemblyAttributes"
+          Condition="Exists('$(MSBuildProjectDirectory)\\Package.appxmanifest')">
+    <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)\\Package.appxmanifest"
+             Query="/*[local-name()='Package']/*[local-name()='Identity']/@Version">
+      <Output TaskParameter="Result" PropertyName="_MsixIdentityVersion" />
+    </XmlPeek>
+
+    <PropertyGroup Condition="'$(_MsixIdentityVersion)' != ''">
+      <AssemblyVersion>$(_MsixIdentityVersion)</AssemblyVersion>
+      <FileVersion>$(_MsixIdentityVersion)</FileVersion>
+      <InformationalVersion>$(_MsixIdentityVersion)</InformationalVersion>
+    </PropertyGroup>
+  </Target>
+
   <ItemGroup>
     <Content Remove="Assets\Pictures\icon-dev\*" />
     <Content Remove="Assets\Pictures\icon-sideload\*" />

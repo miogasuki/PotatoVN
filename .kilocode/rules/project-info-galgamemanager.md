@@ -1,5 +1,9 @@
 # GalgameManager Client (PotatoVN) - Detailed Knowledge Base
 
+> After finishing editing, please remember to run GalgameManager.Test to ensure no tests are broken.
+>
+> If you did not change code about parser, you can skip running parser tests since they are making request to external services and can be very slow.
+
 This document provides a detailed overview of the `GalgameManager` client application, which is the primary user-facing component of the PotatoVN project. It is intended for AI agents and developers needing a deeper understanding of the client's architecture, features, and key code areas.
 
 ## 1. Overview
@@ -37,7 +41,7 @@ The client application implements the core functionalities of PotatoVN:
           *   Use the `x:Uid` attribute on XAML elements to mark them for localization. For example: `<TextBlock x:Uid="MyUniqueControlUid" />`.
           *   In the `.resw` resource file (e.g., `Strings/zh-CN/Resources.resw`), create a `<data>` entry where the `name` attribute is the `x:Uid` value followed by a dot and the target property name. The property name varies by control type:
               *   `TextBlock`, `TextBox`, etc.: Use `.Text` (e.g., `MyUid.Text`)
-              *   `AppBarButton`, `Button`: Use `.Label` (e.g., `MyUid.Label`) 
+              *   `AppBarButton`, `Button`: Use `.Label` (e.g., `MyUid.Label`)
               *   `ContentDialog`: Use `.Title` for titles
               *   `ToolTip`: Use `.ToolTipService.ToolTip`
           *   Example for TextBlock:
@@ -57,7 +61,7 @@ The client application implements the core functionalities of PotatoVN:
                   </data>
                   ```
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
-          * When Editing localizations files, you should *never* directly read or edit the .resw files. 
+          * When Editing localizations files, you should *never* directly read or edit the .resw files.
           * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
           * Usage (note: on Windows PowerShell, use semicolon `;` to separate commands):
               ```bash

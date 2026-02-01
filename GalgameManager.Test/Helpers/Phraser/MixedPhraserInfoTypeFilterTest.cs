@@ -10,6 +10,7 @@ namespace GalgameManager.Test.Helpers.Phraser;
 /// can be individually enabled/disabled through MixedPhraserEnabled configuration.
 /// </summary>
 [TestFixture]
+[Category("Phraser")]
 public class MixedPhraserInfoTypeFilterTest
 {
     private MixedPhraser? _mixedPhraser;

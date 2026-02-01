@@ -5,6 +5,7 @@ using GalgameManager.Models;
 namespace GalgameManager.Test.Helpers.Phraser;
 
 [TestFixture]
+[Category("Phraser")]
 public class CngalPhraserTest
 {
     private CngalPhraser _phraser = new();

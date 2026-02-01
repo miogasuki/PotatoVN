@@ -186,6 +186,18 @@
   <data name="HomePage_Download" xml:space="preserve">
     <value>下载游戏信息</value>
   </data>
+  <data name="HomePage_BatchManage.Label" xml:space="preserve">
+    <value>批量管理</value>
+  </data>
+  <data name="HomePage_BatchManage_Done" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="HomePage_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="HomePage_SelectNone" xml:space="preserve">
+    <value>取消全选</value>
+  </data>
   <data name="HomePage_Remove" xml:space="preserve">
     <value>从库中移除游戏</value>
   </data>
@@ -218,6 +230,9 @@
   </data>
   <data name="HomePage_Remove_Message" xml:space="preserve">
     <value>确定要取消托管这个游戏吗</value>
+  </data>
+  <data name="HomePage_BatchRemove_Message" xml:space="preserve">
+    <value>确定要从库中移除这{0}个游戏吗</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>确定</value>

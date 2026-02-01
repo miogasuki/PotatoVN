@@ -16,12 +16,15 @@
     xmlns:cmtkAnimations="using:CommunityToolkit.WinUI.Animations"
     xmlns:helpers="using:GalgameManager.Helpers"
     xmlns:behaviors="using:GalgameManager.Behaviors"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Converters"
     mc:Ignorable="d"
     x:Name="Page"
     NavigationCacheMode="Required">
 
     <Page.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <toolkit:BoolToVisibilityConverter x:Key="InverseBoolToVisConverter" TrueValue="Collapsed" FalseValue="Visible" />
         <helpers:SortKeyToBooleanConverter x:Key="EnumToBoolConverter" />
 
         <MenuFlyout x:Name="GalFlyout" Opening="{x:Bind ViewModel.GalFlyout_Opening}">
@@ -76,6 +79,34 @@
             <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_Remove"
                             Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}" CommandParameter="{Binding}" />
         </MenuFlyout>
+        <MenuFlyout x:Name="BatchFlyout">
+            <MenuFlyoutSubItem x:Uid="LibraryPage_PlayStatusSubMenu">
+                <MenuFlyoutSubItem.Icon>
+                    <FontIcon FontFamily="Segoe Fluent Icons"
+                              Glyph="&#xE74C;" />
+                </MenuFlyoutSubItem.Icon>
+                <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlaying"
+                                Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                CommandParameter="Playing" />
+                <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusPlayed"
+                                Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                CommandParameter="Played" />
+                <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusOnHold"
+                                Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                CommandParameter="Shelved" />
+                <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusAbandoned"
+                                Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                CommandParameter="Abandoned" />
+                <MenuFlyoutItem x:Uid="LibraryPage_PlayStatusWantToPlay"
+                                Command="{x:Bind ViewModel.BatchChangePlayStatusCommand}"
+                                CommandParameter="WantToPlay" />
+            </MenuFlyoutSubItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Icon="Download" x:Uid="LibraryPage_Download"
+                            Command="{x:Bind ViewModel.BatchDownloadInfoCommand}" />
+            <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_Remove"
+                            Command="{x:Bind ViewModel.BatchRemoveCommand}" />
+        </MenuFlyout>
     </Page.Resources>
 
     <Grid AllowDrop="True" Drop="{x:Bind ViewModel.Grid_Drop}"
@@ -97,7 +128,8 @@
                         SearchSuggestionsProvider="{x:Bind ViewModel.GalgameSearchSuggestionsProvider}" />
                 </AppBarElementContainer>
                 <!-- 过滤 -->
-                <AppBarButton x:Uid="HomePage_Filter" Label="{x:Bind ViewModel.UiFilter, Mode=OneWay}">
+                <AppBarButton x:Uid="HomePage_Filter" Label="{x:Bind ViewModel.UiFilter, Mode=OneWay}"
+                              Visibility="{x:Bind ViewModel.IsBatchMode, Mode=OneWay, Converter={StaticResource InverseBoolToVisConverter}}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE71C;" />
                     </AppBarButton.Icon>
@@ -160,7 +192,8 @@
                 </AppBarButton>
                 <!-- 添加游戏 -->
                 <AppBarButton x:Uid="HomePage_AddNewGame" Icon="Add"
-                              IsEnabled="{x:Bind ViewModel.IsPhrasing, Mode=OneWay, Converter={StaticResource InverseBooleanConverter}}">
+                              IsEnabled="{x:Bind ViewModel.IsPhrasing, Mode=OneWay, Converter={StaticResource InverseBooleanConverter}}"
+                              Visibility="{x:Bind ViewModel.IsBatchMode, Mode=OneWay, Converter={StaticResource InverseBoolToVisConverter}}">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutItem x:Uid="HomePage_AddNewGame_Local"
@@ -173,6 +206,11 @@
                         <KeyboardAccelerator Modifiers="Control" Key="N" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
+                <!-- 全选/取消全选（批量模式） -->
+                <AppBarButton Icon="SelectAll"
+                              Label="{x:Bind ViewModel.BatchSelectLabel, Mode=OneWay}"
+                              Visibility="{x:Bind ViewModel.IsBatchMode, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                              Click="BatchSelectAll_Click" />
                 <!-- 排序 -->
                 <AppBarButton x:Uid="HomePage_Sort" Icon="Sort">
                     <AppBarButton.Flyout>
@@ -341,6 +379,9 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <CommandBar.SecondaryCommands>
+                    <AppBarToggleButton x:Uid="HomePage_BatchManage" Icon="AllApps"
+                                        IsChecked="{x:Bind ViewModel.IsBatchMode, Mode=OneWay}"
+                                        Command="{x:Bind ViewModel.ToggleBatchManageStateCommand}" />
                     <!-- 裁剪横图 -->
                     <AppBarToggleButton x:Uid="HomePage_FixHorizontalPicture" Icon="Crop"
                                         IsChecked="{x:Bind ViewModel.FixHorizontalPicture, Mode=TwoWay}" />
@@ -377,13 +418,16 @@
             <GridView
                 Grid.Row="1" x:Name="GridView"
                 ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                IsItemClickEnabled="True"
-                SelectionMode="None"
-                CanReorderItems="True"
+                IsItemClickEnabled="{x:Bind ViewModel.IsItemClickEnabled, Mode=OneWay}"
+                SelectionMode="{x:Bind ViewModel.GridSelectionMode, Mode=OneWay}"
+                IsMultiSelectCheckBoxEnabled="False"
+                CanReorderItems="{x:Bind ViewModel.CanReorderItems, Mode=OneWay}"
                 AllowDrop="True"
-                CanDragItems="True"
+                CanDragItems="{x:Bind ViewModel.CanDragItems, Mode=OneWay}"
                 DragItemsStarting="MainGridView_DragItemsStarting"
                 DragItemsCompleted="MainGridView_DragItemsCompleted"
+                SelectionChanged="MainGridView_SelectionChanged"
+                ContainerContentChanging="MainGridView_ContainerContentChanging"
                 ItemClick="MainGridView_ItemClick">
                 <behaviors:GridViewSpacingBehavior GridView="{x:Bind GridView}"
                                                    TargetWidth="175"
@@ -398,11 +442,19 @@
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:Galgame">
-                        <prefab:GalgamePrefab
-                            Galgame="{x:Bind}"
-                            ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
-                            PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
-                            Flyout="{StaticResource GalFlyout}" />
+                        <Grid>
+                            <prefab:GalgamePrefab x:Name="GalgamePrefabRoot"
+                                Galgame="{x:Bind}"
+                                ImageStretch="{Binding ElementName=Page, Path=ViewModel.Stretch, Mode=OneWay}"
+                                PlayTypeVisibility="{Binding ElementName=Page, Path=ViewModel.DisplayPlayTypePolygon, Mode=OneWay}"
+                                Flyout="{StaticResource GalFlyout}" />
+                            <CheckBox x:Name="SelectionCheckBox"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Top"
+                                      Margin="6"
+                                      Click="SelectionCheckBox_Click"
+                                      Visibility="{Binding ElementName=Page, Path=ViewModel.IsMultiSelectCheckBoxEnabled, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>

@@ -186,6 +186,18 @@
   <data name="HomePage_Download" xml:space="preserve">
     <value>Download Game Info</value>
   </data>
+  <data name="HomePage_BatchManage.Label" xml:space="preserve">
+    <value>Batch manage</value>
+  </data>
+  <data name="HomePage_BatchManage_Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="HomePage_SelectAll" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="HomePage_SelectNone" xml:space="preserve">
+    <value>Deselect All</value>
+  </data>
   <data name="HomePage_Remove" xml:space="preserve">
     <value>Remove Game from Library</value>
   </data>
@@ -215,6 +227,9 @@
   </data>
   <data name="HomePage_Remove_Message" xml:space="preserve">
     <value>Are you sure you want to unhost this game?</value>
+  </data>
+  <data name="HomePage_BatchRemove_Message" xml:space="preserve">
+    <value>Remove these {0} games from the library?</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>OK</value>

@@ -10,6 +10,7 @@ using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.Converter;
 using GalgameManager.Models;
+using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Filters;
 using GalgameManager.Models.Sources;
 using GalgameManager.Services;
@@ -33,6 +34,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private readonly ILocalSettingsService _localSettingsService;
     private readonly IFilterService _filterService;
     private readonly IInfoService _infoService;
+    private readonly IBgTaskService _bgTaskService;
     [ObservableProperty] private bool _isPhrasing;
     [ObservableProperty] private Stretch _stretch;
     [ObservableProperty] private bool _fixHorizontalPicture; // 是否修复横向图片（截断为标准的长方形）
@@ -42,27 +44,68 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     #region UI
     public readonly string PlayStatus = "HomePage_PlayStatus".GetLocalized();
+    private readonly string _uiSearch = "Search".GetLocalized();
+    private readonly string _batchSelectAllLabel = "HomePage_SelectAll".GetLocalized();
+    private readonly string _batchSelectNoneLabel = "HomePage_SelectNone".GetLocalized();
+    public readonly string BatchDownloadLabel = "HomePage_Download".GetLocalized();
+    public readonly string BatchRemoveLabel = "HomePage_Remove".GetLocalized();
     #endregion
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsItemClickEnabled))]
+    [NotifyPropertyChangedFor(nameof(CanDragItems))]
+    [NotifyPropertyChangedFor(nameof(CanReorderItems))]
+    [NotifyPropertyChangedFor(nameof(GridSelectionMode))]
+    [NotifyPropertyChangedFor(nameof(IsMultiSelectCheckBoxEnabled))]
+    [NotifyPropertyChangedFor(nameof(IsAllSelected))]
+    [NotifyPropertyChangedFor(nameof(BatchSelectLabel))]
+    private bool _isBatchMode;
+    public bool IsItemClickEnabled => !IsBatchMode;
+    public bool CanDragItems => !IsBatchMode;
+    public bool CanReorderItems => !IsBatchMode;
+    public ListViewSelectionMode GridSelectionMode =>
+        IsBatchMode ? ListViewSelectionMode.Multiple : ListViewSelectionMode.None;
+    public bool IsMultiSelectCheckBoxEnabled => IsBatchMode;
+    public bool IsAllSelected => IsBatchMode && Source.Count > 0 && SelectedGalgamesCount == Source.Count;
+    public string BatchSelectLabel => IsAllSelected ? _batchSelectNoneLabel : _batchSelectAllLabel;
 
     /// <summary>
     /// 一定要有ObservableProperty，不然切换页面后不会更新
     /// </summary>
     [ObservableProperty] private AdvancedCollectionView _source = new(new List<Galgame>(), true);
 
+    private readonly HashSet<Galgame> _selectedGalgames = new();
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(BatchChangePlayStatusCommand))]
+    [NotifyCanExecuteChangedFor(nameof(BatchDownloadInfoCommand))]
+    [NotifyCanExecuteChangedFor(nameof(BatchRemoveCommand))]
+    [NotifyPropertyChangedFor(nameof(HasBatchSelection))]
+    [NotifyPropertyChangedFor(nameof(IsAllSelected))]
+    [NotifyPropertyChangedFor(nameof(BatchSelectLabel))]
+    private int _selectedGalgamesCount;
+
+    public bool HasBatchSelection => SelectedGalgamesCount > 0;
+
+
     public HomeViewModel(INavigationService navigationService, IGalgameCollectionService dataCollectionService,
-        ILocalSettingsService localSettingsService, IFilterService filterService, IInfoService infoService)
+        ILocalSettingsService localSettingsService, IFilterService filterService, IInfoService infoService,
+        IBgTaskService bgTaskService)
     {
         _navigationService = navigationService;
         _galgameService = (GalgameCollectionService)dataCollectionService;
         _localSettingsService = localSettingsService;
         _filterService = filterService;
         _infoService = infoService;
+        _bgTaskService = bgTaskService;
     }
 
     public async void OnNavigatedTo(object parameter)
     {
         try
         {
+            IsBatchMode = false;
+            SearchTitle = SearchKey == string.Empty ? _uiSearch : _uiSearch + " ●";
             Source.Source = _galgameService.Galgames;
             Filters = _filterService.GetFilters();
 
@@ -93,7 +136,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             _galgameService.GalgameChangedEvent += UpdateGalgame;
             _galgameService.PhrasedEvent += OnGalgameServicePhrased;
             _localSettingsService.OnSettingChanged += OnSettingChanged;
-            _filterService.OnFilterChanged += () => Source.RefreshFilter();
+            _galgameService.Galgames.CollectionChanged += OnGalgamesCollectionChanged;
             Source.Filter = g =>
             {
                 if (g is Galgame game && _filterService.ApplyFilters(game))
@@ -133,12 +176,39 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             _galgameService.GalgameChangedEvent -= UpdateGalgame;
             _galgameService.GalgameLoadedEvent -= OnGalgameLoadedEvent;
             Filters.CollectionChanged -= UpdateFilterPanelDisplay;
+            _galgameService.Galgames.CollectionChanged -= OnGalgamesCollectionChanged;
             _localSettingsService.OnSettingChanged -= OnSettingChanged;
         }
         catch (Exception e)
         {
             _infoService.Event(EventType.PageError, InfoBarSeverity.Error, "Oops, something went wrong", e);
         }
+    }
+
+    partial void OnIsBatchModeChanged(bool value)
+    {
+        if (!value)
+        {
+            ResetBatchSelection();
+        }
+    }
+
+    private void OnGalgamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        NotifyBatchSelectionStateChanged();
+    }
+
+    private void NotifyBatchSelectionStateChanged()
+    {
+        if (!IsBatchMode) return;
+        OnPropertyChanged(nameof(IsAllSelected));
+        OnPropertyChanged(nameof(BatchSelectLabel));
+    }
+
+    private void ResetBatchSelection()
+    {
+        _selectedGalgames.Clear();
+        SelectedGalgamesCount = 0;
     }
 
     [RelayCommand]
@@ -222,7 +292,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         var hasActiveFilters = Filters.Count > 0 && (DisplayVirtualGame || Filters.Any(f => !(f is VirtualGameFilter)));
         UiFilter = "HomePage_Filter".GetLocalized() + (hasActiveFilters ? " ●" : string.Empty);
-        Source.RefreshFilter();
+        RefreshFilterAndSelection();
     }
 
     [RelayCommand]
@@ -295,6 +365,111 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private void Search(string searchKey)
     {
         Source.RefreshFilter();
+        NotifyBatchSelectionStateChanged();
+    }
+
+    #endregion
+
+    #region BATCH_MANAGE
+
+    [RelayCommand]
+    private void ToggleBatchManageState() => IsBatchMode = !IsBatchMode;
+
+    [RelayCommand]
+    private void MainGridViewSelectionChanged(SelectionChangedEventArgs args)
+    {
+        if (!IsBatchMode) return;
+        foreach (Galgame game in args.AddedItems.OfType<Galgame>())
+            _selectedGalgames.Add(game);
+        foreach (Galgame game in args.RemovedItems.OfType<Galgame>())
+            _selectedGalgames.Remove(game);
+        SelectedGalgamesCount = _selectedGalgames.Count;
+    }
+
+    [RelayCommand(CanExecute = nameof(HasBatchSelection))]
+    private async Task BatchChangePlayStatus(string playTypeString)
+    {
+        if (!Enum.TryParse(playTypeString, out PlayType playType)) return;
+        List<Galgame> selectedGalgames = GetSelectedGalgamesInViewOrder();
+        if (selectedGalgames.Count == 0) return;
+
+        var title = $"{PlayStatus} - {playType.GetLocalized()}";
+        BatchChangePlayStatusDialog dialog = new(selectedGalgames, title, playType);
+        dialog.Resources["ContentDialogMinWidth"] = App.MainWindow!.Bounds.Width * 0.4;
+        await dialog.ShowAsync();
+        if (dialog.Canceled) return;
+
+        foreach (Galgame game in selectedGalgames)
+        {
+            game.PlayType = PlayType.None; //确保分类事件能被触发
+            game.PlayType = dialog.SelectedPlayType;
+            game.MyRate = dialog.SelectedRate;
+            game.PrivateComment = dialog.PrivateComment;
+
+            if (dialog.UploadToBgm)
+            {
+                _infoService.Info(InfoBarSeverity.Informational,
+                    msg: "HomePage_UploadingToBgm".GetLocalized(),
+                    displayTimeMs: 1000 * 10);
+                (GalStatusSyncResult, string) result = await _galgameService.UploadPlayStatusAsync(game, RssType.Bangumi);
+                _infoService.Info(result.Item1.ToInfoBarSeverity(), result.Item2);
+                await Task.Delay(Random.Shared.Next(300, 801));
+            }
+
+            if (dialog.UploadToVndb)
+            {
+                _infoService.Info(InfoBarSeverity.Informational,
+                    msg: "HomePage_UploadingToVndb".GetLocalized(),
+                    displayTimeMs: 1000 * 10);
+                (GalStatusSyncResult, string) result = await _galgameService.UploadPlayStatusAsync(game, RssType.Vndb);
+                _infoService.Info(result.Item1.ToInfoBarSeverity(), result.Item2);
+                await Task.Delay(Random.Shared.Next(300, 801));
+            }
+
+            await _galgameService.SaveGalgameAsync(game);
+        }
+    }
+
+    private static readonly List<GetGalgameInfoFromRssTask> BatchRssTasks = [];
+
+    [RelayCommand(CanExecute = nameof(HasBatchSelection))]
+    private async Task BatchDownloadInfo()
+    {
+        if (_selectedGalgames.Count == 0) return;
+        if (!await ConfirmBatchActionAsync(BatchDownloadLabel)) return;
+
+        SelectGameInfoToFetchDialog selectInfoDialog = new(showIncludingSubSourcesCheckBox: false);
+        await selectInfoDialog.ShowAsync();
+        if (selectInfoDialog.Canceled) return;
+
+        GameParseType selectedParseTypes = selectInfoDialog.SelectedParseTypes;
+        var groups = _selectedGalgames
+            .Select(game => new { Game = game, Source = game.Sources.FirstOrDefault() })
+            .Where(item => item.Source is not null)
+            .GroupBy(item => item.Source!);
+
+        foreach (var group in groups)
+        {
+            var task = new GetGalgameInfoFromRssTask(group.Key, selectedParseTypes,
+                group.Select(item => item.Game).ToList());
+            BatchRssTasks.Add(task);
+            _ = _bgTaskService.AddBgTask(task);
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(HasBatchSelection))]
+    private async Task BatchRemove()
+    {
+        if (_selectedGalgames.Count == 0) return;
+        var title = "HomePage_Remove_Title".GetLocalized();
+        var message = "HomePage_BatchRemove_Message".GetLocalized(_selectedGalgames.Count);
+        if (!await ConfirmBatchActionAsync(title, message)) return;
+
+        foreach (Galgame game in _selectedGalgames.ToList())
+        {
+            await _galgameService.RemoveGalgame(game);
+        }
+        ResetBatchSelection();
     }
 
     #endregion
@@ -532,6 +707,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         Source.Source = _galgameService.Galgames;
         Source.Refresh();
+        NotifyBatchSelectionStateChanged();
     }
 
     private void UpdateGalgame(Galgame game)
@@ -655,7 +831,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         if (game == null) return;
 
-        ChangePlayStatusDialog dialog = new ChangePlayStatusDialog(game);
+        ChangePlayStatusDialog dialog = new(game);
         await dialog.ShowAsync();
 
         if (!dialog.Canceled)
@@ -682,6 +858,25 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     }
 
     #endregion
+
+    private async Task<bool> ConfirmBatchActionAsync(string title, string? message = null)
+    {
+        if (_selectedGalgames.Count == 0) return false;
+
+        List<Galgame> selectedGalgames = GetSelectedGalgamesInViewOrder();
+        BatchConfirmDialog dialog = new(selectedGalgames, title, message)
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot
+        };
+        dialog.Resources["ContentDialogMinWidth"] = App.MainWindow.Bounds.Width * 0.4;
+        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+    }
+
+    private List<Galgame> GetSelectedGalgamesInViewOrder()
+    {
+        List<Galgame> selectedGalgames = [.. Source.OfType<Galgame>().Where(game => _selectedGalgames.Contains(game))];
+        return selectedGalgames.Count > 0 ? selectedGalgames : [.. _selectedGalgames];
+    }
 
     partial void OnFixHorizontalPictureChanged(bool value)
     {

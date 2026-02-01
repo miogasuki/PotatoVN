@@ -18,7 +18,6 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
-using Microsoft.Windows.ApplicationModel.WindowsAppRuntime;
 using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
 using WindowExtensions = H.NotifyIcon.WindowExtensions;
 using LiveChartsCore;
@@ -66,8 +65,6 @@ public partial class App : Application
 
     public App()
     {
-        // 手动初始化Windows App SDK (防止测试项目把WinAppSDK拉起来导致COM注册错误)
-        InitializeWindowsAppRuntime();
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.
@@ -276,14 +273,4 @@ public partial class App : Application
         return packageName == storeVersionPackageName;
     }
 
-    private static void InitializeWindowsAppRuntime()
-    {
-        DeploymentInitializeOptions options = new() { OnErrorShowUI = true };
-        DeploymentResult? result = DeploymentManager.Initialize(options);
-        if (result.Status != DeploymentStatus.Ok)
-        {
-            var hr = result.ExtendedError.HResult;
-            Environment.FailFast($"WindowsAppRuntime.DeploymentManager.Initialize error 0x{hr:X}");
-        }
-    }
 }

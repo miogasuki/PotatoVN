@@ -10,13 +10,13 @@ public interface ILocalSettingsService
     /// 当设置值改变时触发，<b>从UI线程调用</b>
     /// </summary>
     public event Delegate? OnSettingChanged;
-    
+
     public DirectoryInfo LocalFolder { get; }
-    
+
     public DirectoryInfo TemporaryFolder { get; }
 
     public LiteDatabase Database { get; }
-    
+
     public bool IsDatabaseUsable { get; }
 
     /// <summary>
@@ -24,7 +24,13 @@ public interface ILocalSettingsService
     /// 事实上这个方法只会被ActivationService调用。若数据库链接失败（被占用等）会直接退出程序
     /// </summary>
     public void InitDatabase();
-    
+
+    /// <summary>
+    /// 初始化设置数据库链接，这个数据库仅在非MSIX模式下用于存储设置
+    /// 若数据库链接失败（被占用等）会直接退出程序
+    /// </summary>
+    public void InitSettingDatabase();
+
     Task<T?> ReadSettingAsync<T>(string key, bool isLarge = false, List<JsonConverter>? converters = null,
         bool typeNameHandling = false);
 
@@ -40,7 +46,7 @@ public interface ILocalSettingsService
         List<JsonConverter>? converters = null, bool typeNameHandling = false);
 
     Task RemoveSettingAsync(string key, bool isLarge = false);
-    
+
     public delegate void Delegate(string key, object? value);
 
     /// <summary>
@@ -58,14 +64,14 @@ public interface ILocalSettingsService
     /// <param name="key"></param>
     /// <returns></returns>
     Task AddToExportDirectlyAsync(string key);
-    
+
     /// <summary>
     /// 把图片添加到备份中，返回图片在备份中的路径，若添加失败（图片不存在，没有权限访问等）则返回null
     /// </summary>
     /// <param name="imagePath"></param>
     /// <returns></returns>
     Task<string?> AddImageToExportAsync(string? imagePath);
-    
+
     /// <summary>
     /// 导入时获取备份中的图片绝对路径<br/>
     /// <ul>

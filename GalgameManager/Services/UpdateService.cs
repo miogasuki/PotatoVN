@@ -21,11 +21,11 @@ public class UpdateService : IUpdateService
     private const string STORE_UPDATE_URL = "https://apps.microsoft.com/detail/9p9cbkd5hr3w";
     private const string SIDELOAD_STABLE_DOWNLOAD_URL = "https://download.potatovn.net/release";
     private const string SIDELOAD_BETA_DOWNLOAD_URL = "https://download.potatovn.net/flight-released";
-    
+
     private readonly bool _firstUpdate;
     private readonly ILocalSettingsService _localSettingsService;
     private readonly IInfoService _infoService;
-    
+
     // 本次启动是否已经更新失败过的标记
     private bool _updateFailedThisSession;
     // 本次启动是否已经取消过更新的标记
@@ -44,6 +44,11 @@ public class UpdateService : IUpdateService
         _firstUpdate = last != RuntimeHelper.GetVersion();
     }
 
+    private static async Task<StorageFolder> GetTempRootAsync()
+    {
+        return await StorageFolder.GetFolderFromPathAsync(AppStoragePaths.TempPath);
+    }
+
     private class VersionJson
     {
         [JsonProperty("released")]
@@ -53,7 +58,7 @@ public class UpdateService : IUpdateService
         [JsonProperty("flight-released")]
         public string Beta { get; set; } = string.Empty;
     }
-    
+
     public async Task<Version?> GetLatestVersionAsync()
     {
         if (_targetVersion is not null) return _targetVersion;
@@ -67,11 +72,11 @@ public class UpdateService : IUpdateService
             Version betaVersion = Version.Parse(version.Beta);
             Version storeVersion = Version.Parse(version.MsStore);
             Version currentVersion = Version.Parse(RuntimeHelper.GetVersion());
-            
+
             bool needsUpdate; // 判断当前版本是否需要更新
             var isStoreVersion = App.IsStoreVersion();
             var isBetaVersion = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.IsBetaChannel);
-            
+
             _targetVersion = isBetaVersion ? betaVersion : stableVersion;
             _targetVersion = isStoreVersion ? storeVersion : _targetVersion;
             if (isStoreVersion) // 商店版：只检查稳定版更新
@@ -112,7 +117,7 @@ public class UpdateService : IUpdateService
                     await _localSettingsService.SaveSettingAsync(KeyValues.UpdateUrl, GetDownloadUrl(updateType, isStoreVersion, stableVersion));
                 }
             }
-            
+
             await _localSettingsService.SaveSettingAsync(KeyValues.LastUpdateCheckResult, needsUpdate);
             return _targetVersion;
         }
@@ -163,7 +168,7 @@ public class UpdateService : IUpdateService
         {
             // 如果本次启动已经更新失败过、用户已取消过或已经执行过更新，不再返回可用更新
             if (_updateFailedThisSession || _updateCancelledThisSession || _updatePerformedThisSession) return null;
-            
+
             Version? newestVersion = await GetLatestVersionAsync();
             if (newestVersion is null) return null;
             if (newestVersion <= Version.Parse(RuntimeHelper.GetVersion()))
@@ -188,12 +193,12 @@ public class UpdateService : IUpdateService
         try
         {
             var isStoreVersion = App.IsStoreVersion();
-            
+
             var title = "UpdateService_UpdateAvailable_Title".GetLocalized();
-            var content = isStoreVersion 
+            var content = isStoreVersion
                 ? "UpdateService_StoreUpdate_Content".GetLocalized()
                 : "UpdateService_SideloadUpdate_Content".GetLocalized();
-            
+
             ContentDialog updateDialog = new()
             {
                 XamlRoot = App.MainWindow!.Content.XamlRoot,
@@ -267,7 +272,7 @@ public class UpdateService : IUpdateService
             // 设置本次启动更新失败标记
             _updateFailedThisSession = true;
             _infoService.Info(InfoBarSeverity.Error, "UpdateService_Update_Error".GetLocalized(), ex.Message);
-            
+
             // 对于侧载版，如果自动更新失败，提供手动安装选项
             if (!App.IsStoreVersion())
             {
@@ -304,7 +309,7 @@ public class UpdateService : IUpdateService
         try
         {
             _infoService.Info(InfoBarSeverity.Informational, "UpdateService_Download_Started".GetLocalized());
-            
+
             var downloadUrl = await _localSettingsService.ReadSettingAsync<string>(KeyValues.UpdateUrl);
             if (string.IsNullOrEmpty(downloadUrl))
             {
@@ -314,27 +319,28 @@ public class UpdateService : IUpdateService
                 if (version is null) throw new PvnException("UpdateService_FailedToGetVersion".GetLocalized());
                 downloadUrl = GetDownloadUrl(updateType, App.IsStoreVersion(), version);
             }
-            
+
             // 创建临时下载目录
-            StorageFolder? tempFolder = await ApplicationData.Current.TemporaryFolder.CreateFolderAsync(
+            StorageFolder tempRoot = await GetTempRootAsync();
+            StorageFolder? tempFolder = await tempRoot.CreateFolderAsync(
                 "UpdateDownload", CreationCollisionOption.ReplaceExisting);
-            
+
             // 下载更新包
             HttpClient client = Utils.GetDefaultHttpClient();
             HttpResponseMessage response = await client.GetAsync(downloadUrl);
             response.EnsureSuccessStatusCode();
-            
+
             StorageFile? msixFile = await tempFolder.CreateFileAsync("PotatoVN_Update.msix", CreationCollisionOption.ReplaceExisting);
             await using (Stream? fileStream = await msixFile.OpenStreamForWriteAsync())
             {
                 await response.Content.CopyToAsync(fileStream);
             }
-            
+
             _infoService.Info(InfoBarSeverity.Success, "UpdateService_Download_Completed".GetLocalized());
-            
+
             // 创建安装 PowerShell 脚本
             await CreateInstallPowerShellScriptAsync(msixFile.Path);
-            
+
             // 询问是否立即重启安装
             await ShowInstallConfirmationAsync();
         }
@@ -354,13 +360,16 @@ public class UpdateService : IUpdateService
     {
         try
         {
-            StorageFolder? tempFolder = ApplicationData.Current.TemporaryFolder;
+            if (!RuntimeHelper.IsMSIX)
+                throw new Exception("Unpackaged mode does not support MSIX install script.");
+
+            StorageFolder tempFolder = await GetTempRootAsync();
             StorageFile? psFile = await tempFolder.CreateFileAsync("InstallUpdate.ps1", CreationCollisionOption.ReplaceExisting);
-            
+
             // 获取当前应用的包信息用于重启
             var packageName = Package.Current.Id.FamilyName;
             var appId = Package.Current.Id.Name;
-            
+
             // 获取本地化文本
             var msgPreparing = "UpdateService_Script_Preparing".GetLocalized();
             var msgDoNotClose = "UpdateService_Script_DoNotClose".GetLocalized();
@@ -381,7 +390,7 @@ public class UpdateService : IUpdateService
             var msgAutoClose = "UpdateService_Script_AutoClose".GetLocalized();
 
             // 创建简单的日志文件路径（仅用于调试）
-            var logPath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "UpdateLog.txt");
+            var logPath = Path.Combine(AppStoragePaths.TempPath, "UpdateLog.txt");
 
             // PowerShell 脚本内容：等待应用关闭，然后安装更新包，安装成功后重启应用，最后清理临时文件
             var psContent = $@"# PotatoVN Update Install Script
@@ -447,46 +456,46 @@ try {{
     if ($existingPackage) {{
         Write-Log ""找到现有包: $($existingPackage.PackageFullName)""
     }}
-    
+
     # 使用 Add-AppxPackage 安装更新，强制安装标志
     Write-Log ""正在安装更新包...""
     Add-AppxPackage -Path ""{msixPath}"" -ForceApplicationShutdown -ErrorAction Stop
-    
+
     Write-Log ""{msgInstallSuccess}""
     Write-Host ""{msgInstallSuccess}"" -ForegroundColor Green
-    
+
     # 等待安装完成
     Write-Log ""{msgWaitingComplete}""
     Start-Sleep -Seconds 3
-    
+
          # 验证安装是否成功
      $newPackage = Get-AppxPackage -Name ""{appId}"" -ErrorAction SilentlyContinue
      if ($newPackage) {{
          Write-Log ""安装验证成功: $($newPackage.PackageFullName)""
-         
+
          # 等待安装完全完成
          Start-Sleep -Seconds 2
-         
+
          # 重新启动应用
          Write-Log ""{msgRestarting}""
-         
+
          try {{
              # 重新启动应用
              Write-Log ""正在启动应用...""
-             
+
              # 等待一下确保安装完全完成
              Start-Sleep -Seconds 3
-             
+
              # 使用多种方法尝试启动应用
              $launched = $false
-             
+
              # 方法1：使用包家族名和标准App ID启动
              try {{
                  $appUserModelId = ""{packageName}!App""
                  Write-Log ""尝试方法1: $appUserModelId""
                  Start-Process ""explorer.exe"" -ArgumentList ""shell:appsFolder\$appUserModelId"" -ErrorAction Stop
                  Start-Sleep -Seconds 3
-                 
+
                  # 检查是否启动成功
                  $process1 = Get-Process -Name ""GalgameManager"" -ErrorAction SilentlyContinue
                  if ($process1) {{
@@ -497,7 +506,7 @@ try {{
              catch {{
                  Write-Log ""方法1失败: $($_.Exception.Message)""
              }}
-             
+
              # 方法2：如果方法1失败，尝试从开始菜单查找并启动
              if (-not $launched) {{
                  try {{
@@ -508,7 +517,7 @@ try {{
                          Write-Log ""找到开始菜单项: $($app.Name), AppID: $($app.AppID)""
                          Start-Process ""explorer.exe"" -ArgumentList ""shell:appsFolder\$($app.AppID)"" -ErrorAction Stop
                          Start-Sleep -Seconds 3
-                         
+
                          $process2 = Get-Process -Name ""GalgameManager"" -ErrorAction SilentlyContinue
                          if ($process2) {{
                              Write-Log ""方法2启动成功，进程ID: $($process2.Id)""
@@ -523,7 +532,7 @@ try {{
                      Write-Log ""方法2失败: $($_.Exception.Message)""
                  }}
              }}
-             
+
              if ($launched) {{
                  Write-Host ""{msgRestarted}"" -ForegroundColor Green
              }}
@@ -548,12 +557,12 @@ catch {{
     Write-Host ""{msgManualInstall}: {msixPath}"" -ForegroundColor Yellow
     Write-Host ""更新安装失败，您可以手动双击MSIX文件进行安装"" -ForegroundColor Yellow
     Write-Host ""窗口将在10秒后自动关闭，或按任意键立即关闭..."" -ForegroundColor Gray
-    
+
     # 等待用户输入或10秒超时
     $host.UI.RawUI.FlushInputBuffer()
     $timeout = 10
     $timer = [System.Diagnostics.Stopwatch]::StartNew()
-    
+
     while ($timer.Elapsed.TotalSeconds -lt $timeout) {{
         if ($host.UI.RawUI.KeyAvailable) {{
             $null = $host.UI.RawUI.ReadKey(""NoEcho,IncludeKeyDown"")
@@ -561,7 +570,7 @@ catch {{
         }}
         Start-Sleep -Milliseconds 100
     }}
-    
+
     $timer.Stop()
     exit 1
 }}
@@ -596,11 +605,11 @@ catch {{
 Write-Host ""PowerShell 窗口将自动关闭..."" -ForegroundColor Gray
 Start-Sleep -Seconds 2
 ";
-            
+
             // 使用UTF-8 BOM编码保存PowerShell脚本，确保中文字符正确显示
             UTF8Encoding utf8WithBom = new System.Text.UTF8Encoding(true);
             await File.WriteAllTextAsync(psFile.Path, psContent, utf8WithBom);
-            
+
             // 保存 PowerShell 脚本文件路径
             await _localSettingsService.SaveSettingAsync(KeyValues.UpdateBatchPath, psFile.Path);
         }
@@ -659,7 +668,7 @@ Start-Sleep -Seconds 2
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             };
-            
+
             using Process? process = Process.Start(startInfo);
             if (process != null)
             {
@@ -686,15 +695,15 @@ Start-Sleep -Seconds 2
             {
                 throw new Exception("UpdateService_Install_Script_NotFound".GetLocalized());
             }
-            
+
             // 检查 PowerShell 是否可用
             if (!IsPowerShellAvailable())
             {
                 throw new Exception("UpdateService_PowerShell_NotAvailable".GetLocalized());
             }
-            
 
-            
+
+
             // 创建 PowerShell 进程启动信息
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -705,19 +714,19 @@ Start-Sleep -Seconds 2
                 WindowStyle = ProcessWindowStyle.Normal,
                 Verb = "runas" // 以管理员权限运行，确保能够安装 MSIX 包
             };
-            
+
             try
             {
                 // 启动 PowerShell 进程（在前台显示命令行窗口）
                 Process? process = Process.Start(startInfo);
-                
+
                 if (process == null)
                 {
                     throw new Exception("UpdateService_PowerShell_Start_Failed".GetLocalized());
                 }
-                
+
                 _infoService.Info(InfoBarSeverity.Informational, "UpdateService_Install_Started".GetLocalized());
-                
+
                 // 等待更长时间确保 PowerShell 脚本启动并获得焦点
                 await Task.Delay(2000);
             }
@@ -727,7 +736,7 @@ Start-Sleep -Seconds 2
                 _infoService.Info(InfoBarSeverity.Warning, "UpdateService_Install_UAC_Cancelled".GetLocalized());
                 return; // 不退出应用，让用户可以再次尝试
             }
-            
+
             // 退出应用
             Application.Current.Exit();
         }
@@ -753,7 +762,7 @@ Start-Sleep -Seconds 2
         try
         {
             // 查找MSIX文件
-            StorageFolder? tempFolder = ApplicationData.Current.TemporaryFolder;
+            StorageFolder tempFolder = await GetTempRootAsync();
             StorageFolder? updateFolder = await tempFolder.GetFolderAsync("UpdateDownload");
             IReadOnlyList<StorageFile>? files = await updateFolder.GetFilesAsync();
             StorageFile? msixFile = files.FirstOrDefault(f => f.FileType.ToLower() == ".msix");
@@ -777,7 +786,7 @@ Start-Sleep -Seconds 2
             };
 
             ContentDialogResult result = await manualInstallDialog.ShowAsync();
-            
+
             switch (result)
             {
                 case ContentDialogResult.Primary:
@@ -819,9 +828,9 @@ Start-Sleep -Seconds 2
     {
         try
         {
-            StorageFolder? tempFolder = ApplicationData.Current.TemporaryFolder;
+            StorageFolder tempFolder = await GetTempRootAsync();
             StorageFolder? updateFolder = await tempFolder.GetFolderAsync("UpdateDownload");
-            
+
             await Launcher.LaunchFolderAsync(updateFolder);
             _infoService.Info(InfoBarSeverity.Informational, "UpdateService_Update_Folder_Opened".GetLocalized());
         }

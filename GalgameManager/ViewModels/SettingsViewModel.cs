@@ -906,6 +906,21 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         {
             try
             {
+                if (!RuntimeHelper.IsMSIX)
+                {
+                    if (value)
+                    {
+                        _infoService.Info(
+                            InfoBarSeverity.Warning,
+                            "SettingsPage_Start_AutoStartFail".GetLocalized(),
+                            "免安装/便携模式不支持开机自启（需要 MSIX 包身份）");
+                        await UiThreadInvokeHelper.InvokeAsync(() => { AutoStartWhenLogin = false; });
+                    }
+
+                    await _localSettingsService.SaveSettingAsync(KeyValues.AutoStartWhenLogin, false);
+                    return;
+                }
+
                 StartupTask startupTask = await StartupTask.GetAsync("PotatoVNStartup");
                 if (value && (startupTask.State is StartupTaskState.DisabledByUser or StartupTaskState.DisabledByPolicy))
                 {
@@ -935,9 +950,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private async Task CreateDesktopShortcut()
     {
         bool isPinnedSuccessfully = false;
-        string shortcutPath = Empty;
-
-        shortcutPath = Path.Combine(
+        string shortcutPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
             "PotatoVN.lnk");
 
@@ -951,13 +964,37 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         {
             try
             {
-                var pkgFamilyName = Package.Current.Id.FamilyName;
-
-                if (StoreConfiguration.IsPinToDesktopSupported())
+                // 有包身份时优先走 StoreConfiguration
+                if (RuntimeHelper.IsMSIX)
                 {
-                    StoreConfiguration.PinToDesktop(pkgFamilyName);
-                    isPinnedSuccessfully = true;
+                    var pkgFamilyName = Package.Current.Id.FamilyName;
+
+                    if (StoreConfiguration.IsPinToDesktopSupported())
+                    {
+                        StoreConfiguration.PinToDesktop(pkgFamilyName);
+                        isPinnedSuccessfully = true;
+                        return;
+                    }
                 }
+
+                // 无包身份/不支持 PinToDesktop：直接创建 .lnk
+                var exePath = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "GalgameManager.exe");
+                var workDir = AppContext.BaseDirectory;
+                var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "WindowIcon.ico");
+
+                Type? shellType = Type.GetTypeFromProgID("WScript.Shell");
+                if (shellType == null) throw new Exception("WScript.Shell is not available");
+                dynamic shell = Activator.CreateInstance(shellType)!;
+                dynamic shortcut = shell.CreateShortcut(shortcutPath);
+                shortcut.TargetPath = exePath;
+                shortcut.WorkingDirectory = workDir;
+                shortcut.Description = "PotatoVN";
+                if (File.Exists(iconPath))
+                {
+                    shortcut.IconLocation = iconPath;
+                }
+                shortcut.Save();
+                isPinnedSuccessfully = true;
             }
             catch (Exception e)
             {

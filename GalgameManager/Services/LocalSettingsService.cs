@@ -21,6 +21,7 @@ public class LocalSettingsService : ILocalSettingsService
     private const string TmpBackupFolderName = "Export";
     private const string FailDataFolderName = "FailData";
     private const string DatabaseFileName = "pvn_data.db";
+    private const string SettingDatabaseFileName = "pvn_settings.db"; //这个数据库只在非MSIX模式下使用
 
     private readonly IFileService _fileService;
 
@@ -35,9 +36,12 @@ public class LocalSettingsService : ILocalSettingsService
     private bool _isUpgrade;
 
     public event ILocalSettingsService.Delegate? OnSettingChanged;
-    public DirectoryInfo LocalFolder => new(ApplicationData.Current.LocalFolder.Path);
-    public DirectoryInfo TemporaryFolder => new(ApplicationData.Current.TemporaryFolder.Path);
+    public DirectoryInfo LocalFolder => new(AppStoragePaths.LocalDataPath);
+    public DirectoryInfo TemporaryFolder => new(AppStoragePaths.TempPath);
+    private DirectoryInfo SettingsFolder => new(Path.Combine(LocalFolder.FullName, "../",  "Settings"));
     public LiteDatabase Database { get; private set; } = null!;
+    private LiteDatabase? _settingDatabase; //这个数据库只在非MSIX模式下使用
+    private ILiteCollection<SettingItem>? _settingCollection; //这个表只在非MSIX模式下使用
     public bool IsDatabaseUsable { get; private set; }
 
     public LocalSettingsService(IFileService fileService, IOptions<LocalSettingsOptions> options)
@@ -47,7 +51,7 @@ public class LocalSettingsService : ILocalSettingsService
 
         _serializerSettings = new JsonSerializerSettings();
 
-        _applicationDataFolder = ApplicationData.Current.LocalFolder.Path;
+        _applicationDataFolder = AppStoragePaths.LocalDataPath;
         _localsettingsFile = op.LocalSettingsFile ?? ErrorFileName;
 
         _settings = new Dictionary<string, object>();
@@ -56,6 +60,7 @@ public class LocalSettingsService : ILocalSettingsService
         {
             IsDatabaseUsable = false;
             Database.Dispose();
+            _settingDatabase?.Dispose();
             await _fileService.WaitForWriteFinishAsync();
         }
 
@@ -157,6 +162,14 @@ public class LocalSettingsService : ILocalSettingsService
         IsDatabaseUsable = true;
     }
 
+    public void InitSettingDatabase()
+    {
+        if (RuntimeHelper.IsMSIX) return;
+        if (!SettingsFolder.Exists) SettingsFolder.Create();
+        _settingDatabase = new(Path.Combine(SettingsFolder.FullName, SettingDatabaseFileName));
+        _settingCollection = _settingDatabase.GetCollection<SettingItem>("settings");
+    }
+
     /// <summary>
     /// 读取配置
     /// </summary>
@@ -178,6 +191,11 @@ public class LocalSettingsService : ILocalSettingsService
                 {
                     return obj is string ? JsonConvert.DeserializeObject<T>(obj.ToString()!, _serializerSettings) : default;
                 }
+            }
+            else if (!RuntimeHelper.IsMSIX && !isLarge)
+            {
+                SettingItem? settingItem = _settingCollection?.FindById(key);
+                if (settingItem != null) return JsonConvert.DeserializeObject<T>(settingItem.Value, _serializerSettings);
             }
             else
             {
@@ -373,6 +391,12 @@ public class LocalSettingsService : ILocalSettingsService
             {
                 ApplicationData.Current.LocalSettings.Values[key] = JsonConvert.SerializeObject(value, _serializerSettings);
             }
+            else if(!RuntimeHelper.IsMSIX && !isLarge)
+            {
+                SettingItem settingItem = _settingCollection?.FindById(key) ?? new SettingItem{Key = key};
+                settingItem.Value = JsonConvert.SerializeObject(value, _serializerSettings);
+                _settingCollection?.Upsert(settingItem);
+            }
             else if(value!=null)
             {
                 await InitializeAsync();
@@ -474,8 +498,8 @@ public class LocalSettingsService : ILocalSettingsService
 
     public async Task<StorageFolder> GetTmpExportFolder()
     {
-        StorageFolder? tmp = await ApplicationData.Current.TemporaryFolder
-            .CreateFolderAsync(TmpBackupFolderName, CreationCollisionOption.OpenIfExists);
+        StorageFolder tempRoot = await StorageFolder.GetFolderFromPathAsync(TemporaryFolder.FullName);
+        StorageFolder tmp = await tempRoot.CreateFolderAsync(TmpBackupFolderName, CreationCollisionOption.OpenIfExists);
         return tmp;
     }
 
@@ -547,5 +571,11 @@ public class LocalSettingsService : ILocalSettingsService
             App.GetService<IInfoService>().DeveloperEvent(e: e);
         }
 
+    }
+
+    public class SettingItem
+    {
+        [BsonId] public string Key { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
     }
 }

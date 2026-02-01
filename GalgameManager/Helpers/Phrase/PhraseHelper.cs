@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using GalgameManager.Enums;
 using GalgameManager.Models;
 using NugetPackage;
@@ -109,8 +109,8 @@ public static class ExVndb
         Assembly assembly = Assembly.GetExecutingAssembly();
         var sourceFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, DbFile);
 
-        // 获取LocalState文件夹路径
-        var localStateFolder = ApplicationData.Current.LocalFolder.Path;
+        // 获取数据文件夹路径（便携模式下位于程序目录旁）
+        var localStateFolder = AppStoragePaths.LocalDataPath;
         var localDbPath = Path.Combine(localStateFolder, LocalDbFile);
 
         // 如果LocalState中不存在数据库文件，则从安装目录复制

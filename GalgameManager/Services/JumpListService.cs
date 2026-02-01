@@ -2,6 +2,7 @@
 
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
+using GalgameManager.Helpers;
 using GalgameManager.Models;
 using Microsoft.UI.Xaml.Controls;
 
@@ -24,6 +25,7 @@ public class JumpListService (IInfoService infoService)  : IJumpListService
 
     public async Task CheckJumpListAsync(IList<Galgame> galgames)
     {
+        if (!RuntimeHelper.IsMSIX) return;
         try
         {
             if (_jumpList == null) await Init();
@@ -42,6 +44,7 @@ public class JumpListService (IInfoService infoService)  : IJumpListService
 
     public async Task AddToJumpListAsync(Galgame galgame)
     {
+        if (!RuntimeHelper.IsMSIX) return;
         try
         {
             if (_jumpList == null) await Init();
@@ -53,7 +56,7 @@ public class JumpListService (IInfoService infoService)  : IJumpListService
                 item.Logo = new Uri("ms-appx:///Assets/heart.png");
             }
             else
-                items.Remove(item); 
+                items.Remove(item);
             items.Insert(0, item);
             if (items.Count > MaxItems)
                 items.RemoveAt(items.Count-1);
@@ -67,6 +70,7 @@ public class JumpListService (IInfoService infoService)  : IJumpListService
 
     public async Task RemoveFromJumpListAsync(Galgame galgame)
     {
+        if (!RuntimeHelper.IsMSIX) return;
         try
         {
             if (_jumpList == null) await Init();

@@ -175,6 +175,15 @@ public class ActivationService : IActivationService
     {
         await _themeSelectorService.InitializeAsync().ConfigureAwait(false);
         UiDefaultValues.Init();
+        try
+        {
+            _localSettingsService.InitSettingDatabase();
+        }
+        catch (IOException) //数据库正在被占用
+        {
+            Application.Current.Exit();
+            return;
+        }
 
         // 初始化窗口
         if (IsRestart() == false)

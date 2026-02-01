@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using Windows.Storage;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -39,10 +38,10 @@ public class FaqService : IFaqService
     {
         if (!_isInitialized)
             await Init();
-        
+
         if (!forceRefresh && DateTime.Now - _lastUpdateDateTime < _minDateTime || IsUpdating)
             return _faqs;
-        
+
         IsUpdating = true;
         UpdateStatusChangeEvent?.Invoke();
         var local = ResourceExtensions.GetLocal();
@@ -50,7 +49,7 @@ public class FaqService : IFaqService
         await LoadFaqs();
         _lastUpdateDateTime = DateTime.Now;
         await _localSettingsService.SaveSettingAsync(KeyValues.FaqLastUpdate, _lastUpdateDateTime);
-        
+
         IsUpdating = false;
         UpdateStatusChangeEvent?.Invoke();
         return _faqs;
@@ -65,14 +64,9 @@ public class FaqService : IFaqService
             HttpResponseMessage response = await httpClient.GetAsync(jsonUrl);
             response.EnsureSuccessStatusCode();
             var data = await response.Content.ReadAsByteArrayAsync();
-            StorageFolder? localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile? storageFile =
-                await localFolder.CreateFileAsync(JsonName, CreationCollisionOption.ReplaceExisting);
-            Stream? fileStream = await storageFile.OpenStreamForWriteAsync();
-            MemoryStream memoryStream = new(data);
-            memoryStream.Position = 0;
-            await memoryStream.CopyToAsync(fileStream);
-            fileStream.Close();
+            var targetPath = Path.Combine(_localSettingsService.LocalFolder.FullName, JsonName);
+            Directory.CreateDirectory(_localSettingsService.LocalFolder.FullName);
+            await File.WriteAllBytesAsync(targetPath, data);
         }
         catch (Exception e)
         {
@@ -84,17 +78,13 @@ public class FaqService : IFaqService
     {
         try
         {
-            StorageFolder? localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile? storageFile = await localFolder.TryGetItemAsync(JsonName) as StorageFile;
-            if (storageFile != null)
+            var targetPath = Path.Combine(_localSettingsService.LocalFolder.FullName, JsonName);
+            if (File.Exists(targetPath))
             {
-                var json = await FileIO.ReadTextAsync(storageFile);
-                if (json != null)
-                {
-                    _faqs.Clear();
-                    _faqs = JsonConvert.DeserializeObject<ObservableCollection<Faq>>(json) ??
-                            new ObservableCollection<Faq>();
-                }
+                var json = await File.ReadAllTextAsync(targetPath);
+                _faqs.Clear();
+                _faqs = JsonConvert.DeserializeObject<ObservableCollection<Faq>>(json) ??
+                        new ObservableCollection<Faq>();
             }
         }
         catch (Exception e)

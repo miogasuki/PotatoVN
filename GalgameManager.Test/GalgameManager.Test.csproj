@@ -35,7 +35,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GalgameManager\GalgameManager.csproj" />
+      <ProjectReference Include="..\GalgameManager\GalgameManager.csproj"
+                Properties="Platform=x64;PlatformTarget=x64;RuntimeIdentifier=win-x64;EnableMsixTooling=false;GenerateAppxPackageOnBuild=false;PublishReadyToRun=false" />
     </ItemGroup>
 
 

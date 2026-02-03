@@ -5,7 +5,6 @@ using GalgameManager.Activation;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using GalgameManager.Models;
 using GalgameManager.Views;
 using H.NotifyIcon;
 using Microsoft.UI.Xaml;
@@ -155,6 +154,9 @@ public class ActivationService : IActivationService
 
         // Execute tasks after activation.
         await StartupAsync(activationArgs);
+
+        //健康检查模式：完成所有初始化后直接退出，用于端到端测试
+        if (IsHealthCheckMode()) Application.Current.Exit();
     }
 
     public async Task HandleActivationAsync(object activationArgs)
@@ -199,22 +201,26 @@ public class ActivationService : IActivationService
 
     private async Task StartupAsync(object activationArgs)
     {
+        var isHealthCheck = IsHealthCheckMode();
         await _galgameCollectionService.StartAsync();
         await _galgameFolderCollectionService.StartAsync();
-        var activateWindow = !IsRestart();
-        if (activationArgs is AppActivationArguments { Kind: ExtendedActivationKind.StartupTask })
+        var activateWindow = !IsRestart() && !isHealthCheck;
+        if (activationArgs is AppActivationArguments { Kind: ExtendedActivationKind.StartupTask } && !isHealthCheck)
             activateWindow = !await _localSettingsService.ReadSettingAsync<bool>(KeyValues.MinToTrayWhenAutoStart);
         if (activateWindow) App.SetWindowMode(WindowMode.Normal);
         await _pluginService.InitAsync();
-        if (IsRestart() == false)
+        if (IsRestart() == false && !isHealthCheck)
         {
             _pvnService.Startup();
             await _localSettingsService.StartupAsync();
             await _updateService.UpdateSettingsBadgeAsync();
         }
-        await _appCenterService.StartAsync();
-        if(IsRestart() == false) await _bgmOAuthService.Init();
-        await CheckFont();
+        if (!isHealthCheck)
+        {
+            await _appCenterService.StartAsync();
+            if (IsRestart() == false) await _bgmOAuthService.Init();
+            await CheckFont();
+        }
     }
 
     /// <summary>
@@ -316,6 +322,15 @@ public class ActivationService : IActivationService
         return false;
     }
 
+    /// <summary>
+    /// 健康检查模式：完成所有初始化后直接退出，用于端到端测试
+    /// </summary>
+    /// <returns></returns>
+    private static bool IsHealthCheckMode()
+    {
+        var args = Environment.GetCommandLineArgs();
+        return args.Any(a => string.Equals(a, "--healthcheck", StringComparison.OrdinalIgnoreCase));
+    }
 
     /// <summary>
     /// 检查数据根目录下是否有导入压缩包

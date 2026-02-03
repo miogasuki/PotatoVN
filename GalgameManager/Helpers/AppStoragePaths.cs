@@ -4,6 +4,10 @@ namespace GalgameManager.Helpers;
 
 public static class AppStoragePaths
 {
+    // 使用环境变量强制指定存储路径，优先级最高
+    private const string LocalDataPathOverrideEnvVar = "POTATOVN_LOCALDATA_PATH";
+    private const string TempPathOverrideEnvVar = "POTATOVN_TEMP_PATH";
+
     private const string PortableEnvVar = "POTATOVN_PORTABLE";
     private const string PortableFlagFileName = "portable.flag";
     private const string PortableDisableFlagFileName = "portable.disable";
@@ -47,6 +51,9 @@ public static class AppStoragePaths
 
     private static string ComputeLocalDataPath()
     {
+        var overridePath = Environment.GetEnvironmentVariable(LocalDataPathOverrideEnvVar);
+        if (!string.IsNullOrWhiteSpace(overridePath)) return EnsureDirectory(overridePath.Trim());
+
         if (IsPortable) return EnsureDirectory(Path.Combine(AppContext.BaseDirectory, PortableDataFolderName));
         // 非便携：优先使用包身份提供的 LocalFolder；无包身份时退回到 LocalAppData（不太可能发生）
         if (RuntimeHelper.IsMSIX) return EnsureDirectory(ApplicationData.Current.LocalFolder.Path);
@@ -58,6 +65,9 @@ public static class AppStoragePaths
 
     private static string ComputeTempPath()
     {
+        var overridePath = Environment.GetEnvironmentVariable(TempPathOverrideEnvVar);
+        if (!string.IsNullOrWhiteSpace(overridePath)) return EnsureDirectory(overridePath.Trim());
+
         if (IsPortable) return EnsureDirectory(Path.Combine(LocalDataPath, "..", PortableTempFolderName));
         if (RuntimeHelper.IsMSIX) return EnsureDirectory(ApplicationData.Current.TemporaryFolder.Path);
         // 无包身份：使用数据目录下的 Temp

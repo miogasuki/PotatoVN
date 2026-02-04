@@ -81,7 +81,7 @@ public class ActivationService : IActivationService
         // Execute tasks before activation.
         await InitializeAsync();
 
-        if (IsRestart() == false)
+        if (IsRestart() == false && !IsHealthCheckMode())
         {
             var result = await _authenticationService.StartAuthentication();
             if (!result)
@@ -177,6 +177,7 @@ public class ActivationService : IActivationService
     {
         await _themeSelectorService.InitializeAsync().ConfigureAwait(false);
         UiDefaultValues.Init();
+        if (IsHealthCheckMode()) return;
 
         // 初始化窗口
         if (IsRestart() == false)

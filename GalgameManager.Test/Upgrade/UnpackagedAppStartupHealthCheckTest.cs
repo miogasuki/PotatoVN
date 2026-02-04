@@ -30,8 +30,12 @@ public sealed class UnpackagedAppStartupHealthCheckTest
         var fixtureDir = UpgradeTestData.GetFixtureDir(version);
         Assert.That(Directory.Exists(fixtureDir), Is.True, $"未找到旧数据夹具目录: {fixtureDir}");
 
-        var expectedCount = UpgradeTestData.ReadExpectedGalgameCount(fixtureDir);
-        Assert.That(expectedCount, Is.GreaterThan(0), $"夹具版本 {version} 的游戏数应 > 0");
+        var expectedGalgameCount = UpgradeTestData.ReadExpectedGalgameCount(fixtureDir);
+        var expectedCategoryGroupCount = UpgradeTestData.ReadExpectedCategoryGroupCount(fixtureDir);
+        var expectedCategoryCount = UpgradeTestData.ReadExpectedCategoryCount(fixtureDir);
+        var expectedSourceCount = UpgradeTestData.ReadExpectedGalgameSourceCount(fixtureDir);
+        
+        Assert.That(expectedGalgameCount, Is.GreaterThan(0), $"夹具版本 {version} 的游戏数应 > 0");
 
         var runRoot = Path.Combine(Path.GetTempPath(), "PotatoVN.E2E", version, Guid.NewGuid().ToString("N"));
         var localDataPath = Path.Combine(runRoot, "LocalData");
@@ -81,8 +85,57 @@ public sealed class UnpackagedAppStartupHealthCheckTest
 
         Assert.That(File.Exists(dbPath), Is.True, $"未生成 LiteDB 数据库文件: {dbPath}");
 
-        var actualCount = await ReadGalgameCountWithRetryAsync(dbPath, timeout: TimeSpan.FromSeconds(10));
-        Assert.That(actualCount, Is.EqualTo(expectedCount), $"[{version}] LiteDB 游戏数应与旧数据一致");
+        // 验证 LiteDB 中的数据迁移
+        var dbTimeout = TimeSpan.FromSeconds(10);
+        
+        // 验证游戏数量
+        var actualGalgameCount = await ReadCollectionCountWithRetryAsync(dbPath, "galgame", dbTimeout);
+        Assert.That(actualGalgameCount, Is.EqualTo(expectedGalgameCount), $"[{version}] LiteDB 游戏数应与旧数据一致");
+        
+        // 验证分类组数量（如果夹具中有分类数据）
+        if (expectedCategoryGroupCount > 0)
+        {
+            // 真实 LiteDB 集合名以 snake_case 存储（见 CategoryService）
+            var actualCategoryGroupCount = await ReadCollectionCountWithRetryAsync(dbPath, "category_group", dbTimeout);
+
+            // 升级过程中可能会补齐内置分组（例如“游玩状态”），因此这里只保证“不少于旧数据”
+            Assert.That(actualCategoryGroupCount, Is.GreaterThanOrEqualTo(expectedCategoryGroupCount),
+                $"[{version}] LiteDB 分类组数不应少于旧数据（升级可能会新增内置分组）");
+
+            var groupTypes = await ReadIntFieldSetWithRetryAsync(dbPath, "category_group", "Type", dbTimeout);
+            Assert.That(groupTypes.Contains(1), Is.True, $"[{version}] 升级后应存在 Status 分类组(Type=1)");
+        }
+        
+        // 验证分类数量
+        if (expectedCategoryCount > 0)
+        {
+            var actualCategoryCount = await ReadCollectionCountWithRetryAsync(dbPath, "category", dbTimeout);
+
+            // 升级过程中会补齐缺失的状态分类（固定 GUID），因此分类总数可能增加；这里只保证不丢失旧分类。
+            Assert.That(actualCategoryCount, Is.GreaterThanOrEqualTo(expectedCategoryCount),
+                $"[{version}] LiteDB 分类数不应少于旧数据（升级可能会新增缺失的内置分类）");
+
+            var expectedCategories = UpgradeTestData.ReadExpectedCategories(fixtureDir);
+            var (actualCategoryIds, actualCategoryNames) = await ReadCategoryIdAndNameSetsWithRetryAsync(dbPath, dbTimeout);
+            foreach (var (id, name) in expectedCategories)
+            {
+                if (id is { } guid)
+                    Assert.That(actualCategoryIds.Contains(guid), Is.True, $"[{version}] 升级后应保留分类 Id={guid}");
+                else
+                    Assert.That(actualCategoryNames.Contains(name), Is.True, $"[{version}] 升级后应保留分类 Name={name}");
+            }
+        }
+        
+        // 验证游戏库数量
+        if (expectedSourceCount > 0)
+        {
+            // 真实 LiteDB 集合名（见 GalgameSourceCollectionService）
+            var actualSourceCount = await ReadCollectionCountWithRetryAsync(dbPath, "source", dbTimeout);
+
+            // 升级过程中可能会基于游戏路径补齐缺失的源（例如老版本记录的是游戏路径而不是库路径），因此这里也只保证不减少。
+            Assert.That(actualSourceCount, Is.GreaterThanOrEqualTo(expectedSourceCount),
+                $"[{version}] LiteDB 游戏库数不应少于旧数据（升级可能会补齐缺失的源）");
+        }
 
         try
         {
@@ -108,7 +161,7 @@ public sealed class UnpackagedAppStartupHealthCheckTest
         }
     }
 
-    private static async Task<int> ReadGalgameCountWithRetryAsync(string dbPath, TimeSpan timeout)
+    private static async Task<int> ReadCollectionCountWithRetryAsync(string dbPath, string collectionName, TimeSpan timeout)
     {
         Stopwatch start = Stopwatch.StartNew();
         Exception? last = null;
@@ -122,7 +175,7 @@ public sealed class UnpackagedAppStartupHealthCheckTest
                     ReadOnly = true,
                 });
 
-                ILiteCollection<BsonDocument>? col = db.GetCollection<BsonDocument>("galgame");
+                ILiteCollection<BsonDocument>? col = db.GetCollection<BsonDocument>(collectionName);
                 return col.Count();
             }
             catch (Exception e)
@@ -133,6 +186,83 @@ public sealed class UnpackagedAppStartupHealthCheckTest
         }
 
         throw new AssertionException($"在 {timeout.TotalSeconds}s 内无法打开 LiteDB：{dbPath}，最后错误：{last}");
+    }
+
+    private static async Task<HashSet<int>> ReadIntFieldSetWithRetryAsync(
+        string dbPath,
+        string collectionName,
+        string fieldName,
+        TimeSpan timeout)
+    {
+        Stopwatch start = Stopwatch.StartNew();
+        Exception? last = null;
+        while (start.Elapsed < timeout)
+        {
+            try
+            {
+                using LiteDatabase db = new(new ConnectionString
+                {
+                    Filename = dbPath,
+                    ReadOnly = true,
+                });
+
+                var col = db.GetCollection<BsonDocument>(collectionName);
+                var set = new HashSet<int>();
+                foreach (var doc in col.FindAll())
+                {
+                    if (doc.TryGetValue(fieldName, out var v) && v.IsInt32)
+                        set.Add(v.AsInt32);
+                }
+
+                return set;
+            }
+            catch (Exception e)
+            {
+                last = e;
+                await Task.Delay(200);
+            }
+        }
+
+        throw new AssertionException($"在 {timeout.TotalSeconds}s 内无法读取集合 {collectionName} 字段 {fieldName}：{dbPath}，最后错误：{last}");
+    }
+
+    private static async Task<(HashSet<Guid> Ids, HashSet<string> Names)> ReadCategoryIdAndNameSetsWithRetryAsync(
+        string dbPath,
+        TimeSpan timeout)
+    {
+        Stopwatch start = Stopwatch.StartNew();
+        Exception? last = null;
+        while (start.Elapsed < timeout)
+        {
+            try
+            {
+                using LiteDatabase db = new(new ConnectionString
+                {
+                    Filename = dbPath,
+                    ReadOnly = true,
+                });
+
+                var col = db.GetCollection<BsonDocument>("category");
+                var ids = new HashSet<Guid>();
+                var names = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var doc in col.FindAll())
+                {
+                    if (doc.TryGetValue("_id", out var idVal) && idVal.IsGuid)
+                        ids.Add(idVal.AsGuid);
+                    if (doc.TryGetValue("Name", out var nameVal) && nameVal.IsString)
+                        names.Add(nameVal.AsString);
+                }
+
+                return (ids, names);
+            }
+            catch (Exception e)
+            {
+                last = e;
+                await Task.Delay(200);
+            }
+        }
+
+        throw new AssertionException($"在 {timeout.TotalSeconds}s 内无法读取 LiteDB 分类集合：{dbPath}，最后错误：{last}");
     }
 
     private static string InferConfigurationFromTestOutput()

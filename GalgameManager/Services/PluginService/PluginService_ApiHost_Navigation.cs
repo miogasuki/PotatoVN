@@ -3,6 +3,7 @@ using GalgameManager.ViewModels;
 using GalgameManager.WinApp.Base.Contracts;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
+using Microsoft.UI.Xaml;
 
 namespace GalgameManager.Services;
 
@@ -11,6 +12,8 @@ public partial class PluginService
     public partial class PotatoVnApiHost : IPotatoVnApi
     {
         private readonly INavigationService _navigationService = App.GetService<INavigationService>();
+
+        public Window? GetMainWindow() => App.MainWindow;
 
         public void NavigateTo(PageEnum page, object? parameter = null)
         {

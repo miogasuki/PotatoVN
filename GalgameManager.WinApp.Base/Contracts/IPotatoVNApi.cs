@@ -7,6 +7,7 @@ using GalgameManager.Enums;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
 
@@ -133,8 +134,14 @@ public interface IPotatoVnApi
 
     #endregion
 
-    //与界面相关的API（例如界面跳转）
+    //与界面相关的API
     #region PAGE
+
+    /// <summary>
+    /// 软件窗口，注意软件处于最小化到托盘时该值为null
+    /// </summary>
+    /// <returns></returns>
+    Window? GetMainWindow();
 
     /// <summary>
     /// 跳转到指定页面

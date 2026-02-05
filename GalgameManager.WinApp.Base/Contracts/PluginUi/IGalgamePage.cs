@@ -14,7 +14,7 @@ public interface IGalgamePage
     /// </summary>
     /// <param name="game">要显示的游戏</param>
     /// <returns></returns>
-    FrameworkElement CreateUi(Galgame game);
+    Task<FrameworkElement> CreateUiAsync(Galgame game);
 }
 
 public interface IGalgamePageSetting

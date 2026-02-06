@@ -340,10 +340,6 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.GalgamePageNewLayout_ShowRating:
             case KeyValues.GalgamePageNewLayout_ShowTags:
             case KeyValues.GalgamePageNewLayout_ShowCharacters:
-            case KeyValues.GalgamePageOldLayout_ShowDescription:
-            case KeyValues.GalgamePageOldLayout_ShowTags:
-            case KeyValues.GalgamePageOldLayout_ShowCharacters:
-            case KeyValues.GalgamePageOldLayout_ShowStaff:
                 return (T?)(object)true;
             case KeyValues.MixedPhraserOrder:
                 LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;

@@ -19,10 +19,11 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.ComponentModel;
 using System.Globalization;
-using GalgameManager.Core.Helpers;
 using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.WinApp.Base.Models.Msgs;
 using GalgameManager.Views.GalgamePagePanel;
+using GalgameManager.WinApp.Base.Contracts.PluginUi;
+using GalgameManager.WinApp.Base.Models;
 using ValveKeyValue;
 
 namespace GalgameManager.ViewModels;
@@ -39,6 +40,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private readonly IBgTaskService _bgTaskService;
     private readonly IPvnService _pvnService;
     private readonly IInfoService _infoService;
+    private readonly IPluginService _pluginService;
     [ObservableProperty] private Galgame? _item;
     public ObservableCollection<GamePanelBase> Panels { get; } = [];
     [NotifyCanExecuteChangedFor(nameof(PlayCommand))]
@@ -69,16 +71,17 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private Visibility _showTagPanel = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showCharacterPanel = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showDescriptionPanel = Visibility.Visible;
-    [ObservableProperty] private Visibility _showStaffPanel = Visibility.Visible;
     private bool IsNotLocalGame => !IsLocalGame;
-
-    [ObservableProperty]
-    private bool _useNewLayout;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(SettingAvailable))] private IGalgamePage? _plugin; //第三方游戏详情页插件
+    private PluginInfo? _pluginInfo;
+    public bool SettingAvailable => Plugin is null or IGalgamePageSetting;
+    [ObservableProperty] private UIElement? _pluginUi;
 
     public GalgameViewModel(IGalgameCollectionService dataCollectionService, IStaffService staffService,
         INavigationService navigationService, IJumpListService jumpListService,
         ILocalSettingsService localSettingsService, IBgTaskService bgTaskService,
-        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService)
+        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService,
+        IPluginService pluginService)
     {
         _galgameService = (GalgameCollectionService)dataCollectionService;
         _sourceService = (GalgameSourceCollectionService)sourceService;
@@ -89,50 +92,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         _bgTaskService = bgTaskService;
         _pvnService = pvnService;
         _infoService = infoService;
-
-        // 订阅布局更改事件
-        ManageGalgamePageLayoutDialog.LayoutChanged += OnLayoutChanged;
-    }
-
-    // 布局更改时更新视图
-    private async void OnLayoutChanged(object? sender, bool newLayoutValue)
-    {
-        try
-        {
-            UseNewLayout = newLayoutValue;
-            if (UseNewLayout)
-            {
-                ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-            }
-            else
-            {
-                ShowDescriptionPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowDescription)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowTags)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowCharacters)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                ShowStaffPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowStaff)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-            }
-            Update(Item);
-        }
-        catch (Exception e)
-        {
-            _infoService.DeveloperEvent(e: e);
-        }
+        _pluginService = pluginService;
     }
 
     public async void OnNavigatedTo(object parameter)
@@ -145,34 +105,17 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 return;
             }
 
-            UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
-            if (UseNewLayout)
-            {
-                ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
+            ShowBackgroundImage =
+                await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
                     ? Visibility.Visible
                     : Visibility.Collapsed;
-                ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
+            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            ShowCharacterPanel =
+                await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
                     ? Visibility.Visible
                     : Visibility.Collapsed;
-                ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-            }
-            else
-            {
-                ShowDescriptionPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowDescription)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowTags)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowCharacters)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                ShowStaffPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageOldLayout_ShowStaff)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-            }
 
             Item = param.Galgame;
             IsLocalGame = Item.IsLocalGame;
@@ -181,6 +124,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             _staffService.OnGameStaffChanged += Update;
             // 初始化面板
             Update(Item);
+
+            PluginX? p = (await _pluginService.GetAllPluginsAsync()).FirstOrDefault(p => p is
+                { IsLoaded: true, Plugin: IGalgamePage });
+            Plugin = p?.Plugin as IGalgamePage;
+            _pluginInfo = p?.Info;
+            if (Plugin is not null)
+                PluginUi = await PluginInvokeHelper.InvokeAsync(_pluginInfo!,
+                    () => Plugin.CreateUiAsync(param.Galgame), _infoService);
 
             if ((param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
                 || param.ForceStartGame)
@@ -214,7 +165,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         _galgameService.PhrasedEvent2 -= Update;
         _staffService.OnGameStaffChanged -= Update;
-        ManageGalgamePageLayoutDialog.LayoutChanged -= OnLayoutChanged;
     }
 
     /// <summary>
@@ -897,8 +847,13 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
     // 管理游戏详情页布局
     [RelayCommand]
-    private void ManageLayout()
+    private async Task ManageLayout()
     {
+        if (Plugin is IGalgamePageSetting setting)
+        {
+            await PluginInvokeHelper.InvokeAsync(_pluginInfo!, setting.SettingAsync, _infoService);
+            return;
+        }
         ManageGalgamePageLayoutDialog dialog = new();
         _ = dialog.ShowAsync();
     }

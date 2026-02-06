@@ -105,7 +105,6 @@ public static class KeyValues
     public const string TransparentNavigationView = "transparentNavigationView"; //bool, 是否使用透明导航视图背景
     public const string GalgamePagePrimaryTitleType = "GalgamePagePrimaryTitleType"; //string, 游戏页主标题类型
     public const string GalgamePageSecondaryTitleType = "GalgamePageSecondaryTitleType"; //string, 游戏页副标题类型
-    public const string GalgamePageNewLayout = "galgamePageNewLayout"; //bool, 游戏页是否使用新界面
     public const string GalgamePageNewLayout_ShowPainter = "galgamePageNewLayout_showPainter"; //bool, 游戏页是否显示原画
     public const string GalgamePageNewLayout_ShowSeiyu = "galgamePageNewLayout_showSeiyu"; //bool, 游戏页是否显示声优
     public const string GalgamePageNewLayout_ShowWriter = "galgamePageNewLayout_showWriter"; //bool, 游戏页是否显示剧本
@@ -117,11 +116,6 @@ public static class KeyValues
     public const string GalgamePageNewLayout_ShowRating = "galgamePageNewLayout_showRating"; //bool, 游戏页是否显示评分
     public const string GalgamePageNewLayout_ShowTags = "galgamePageNewLayout_showTags"; //bool, 游戏页是否显示标签
     public const string GalgamePageNewLayout_ShowCharacters = "galgamePageNewLayout_showCharacters"; //bool, 游戏页是否显示角色
-    public const string GalgamePageOldLayout_ShowDescription = "galgamePageOldLayout_showDescription"; //bool, 旧版游戏页是否显示简介
-    public const string GalgamePageOldLayout_ShowTags = "galgamePageOldLayout_showTags"; //bool, 旧版游戏页是否显示标签
-    public const string GalgamePageOldLayout_ShowCharacters = "galgamePageOldLayout_showCharacters"; //bool, 旧版游戏页是否显示角色
-    public const string GalgamePageOldLayout_ShowStaff = "galgamePageOldLayout_showStaff"; //bool, 旧版游戏页是否显示Staff
-    public const string GalgameSourcePageShowSubSourceGames = "galgameSourcePageShowSubSourceGames"; //bool, 游戏源页面是否显示子源游戏
     public const string ShowGameNameInControl = "showGameNameInControl"; //bool, 游戏控件是否显示游戏名称
     public const string CustomSortOrder = "customSortOrder"; //List<string>, 记录自定义排序
     public const string PrimarySortKey = "primarySortKey"; //string, 主排序的key，默认是"playtime"，可选值有：playtime（游玩时间）/lastUpdate（最后更新时间）/name（名称）/releaseDate（发售日期）/rating（评分）/category（分类）
@@ -185,4 +179,10 @@ public static class KeyValues
     public const string SearchChildFolderDepth = "searchChildFolderDepth"; //int, 搜索子文件夹的深度，默认是0（不搜索），新版本改成智能搜索，不需要这个了
     public const string UpdateBatchPath = "UpdateBatchPath";
     public const string SaveBackupMetadata = "saveBackupMetadata"; //bool, 是否备份元数据到存档文件夹（原来是全局设置，新版本改成支持各个库独立设置了）
+    public const string GalgamePageNewLayout = "galgamePageNewLayout"; //bool, 游戏页是否使用新界面（旧界面已迁移到插件里）
+    public const string GalgamePageOldLayout_ShowDescription = "galgamePageOldLayout_showDescription"; //bool, 旧版游戏页是否显示简介
+    public const string GalgamePageOldLayout_ShowTags = "galgamePageOldLayout_showTags"; //bool, 旧版游戏页是否显示标签
+    public const string GalgamePageOldLayout_ShowCharacters = "galgamePageOldLayout_showCharacters"; //bool, 旧版游戏页是否显示角色
+    public const string GalgamePageOldLayout_ShowStaff = "galgamePageOldLayout_showStaff"; //bool, 旧版游戏页是否显示Staff
+    public const string GalgameSourcePageShowSubSourceGames = "galgameSourcePageShowSubSourceGames"; //bool, 游戏源页面是否显示子源游戏
 }

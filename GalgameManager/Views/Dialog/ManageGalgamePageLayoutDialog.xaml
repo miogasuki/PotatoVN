@@ -21,7 +21,7 @@
         <!-- 标题和说明 -->
         <TextBlock x:Uid="ManageGalgamePageLayoutDialog_Description"
                    Style="{StaticResource DescriptionTextStyle}"/>
-        
+
         <!-- 使用ListView并限制高度 -->
         <ListView x:Name="SettingsListView"
                   SelectionMode="None"
@@ -35,15 +35,14 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.Items>
-                <!-- 标题设置部分 (仅新界面有效) -->
-                <StackPanel Spacing="0" HorizontalAlignment="Stretch"
-                            Visibility="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <!-- 标题设置部分-->
+                <StackPanel Spacing="0" HorizontalAlignment="Stretch">
                     <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        
+
                         <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_PrimaryTitle"
                                    VerticalAlignment="Center"
@@ -61,13 +60,13 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                     </Grid>
-                    
+
                     <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        
+
                         <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_SecondaryTitle"
                                    VerticalAlignment="Center"
@@ -85,42 +84,21 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                     </Grid>
-                    
-                    <!-- 分隔线 -->
-                    <Rectangle Height="1" Margin="0,8,0,8"
-                               Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
                 </StackPanel>
-
-                <!-- 全局新界面开关 -->
-                <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <TextBlock Grid.Column="0"
-                               x:Uid="ManageGalgamePageLayoutDialog_NewLayout"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Left"/>
-                    <ToggleSwitch x:Name="GalgamePageNewLayoutToggle" Grid.Column="1"
-                                  IsOn="{x:Bind GalgamePageNewLayout, Mode=TwoWay}"
-                                  HorizontalAlignment="Right"/>
-                </Grid>
 
                 <!-- 分隔线 -->
                 <Rectangle Height="1" Margin="0,8,0,8"
                            Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
 
                 <!-- 新版界面设置组 -->
-                <StackPanel Spacing="0" HorizontalAlignment="Stretch"
-                            Visibility="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="0" HorizontalAlignment="Stretch">
                     <!-- 单独选项：画师 -->
                     <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowPainter"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -135,7 +113,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowSeiyu"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -150,7 +128,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowWriter"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -165,7 +143,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowMusician"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -173,14 +151,14 @@
                                       IsOn="{x:Bind GalgamePageNewLayout_ShowMusician, Mode=TwoWay}"
                                       HorizontalAlignment="Right"/>
                     </Grid>
-                    
+
                     <!-- 单独选项：显示背景图 -->
                     <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowBackground"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -189,14 +167,14 @@
                                       IsOn="{x:Bind GalgamePageNewLayout_ShowBackground, Mode=TwoWay}"
                                       HorizontalAlignment="Right"/>
                     </Grid>
-                    
+
                     <!-- 单独选项：显示封面图 -->
                     <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowCover"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -205,7 +183,7 @@
                                       IsOn="{x:Bind GalgamePageNewLayout_ShowCover, Mode=TwoWay}"
                                       HorizontalAlignment="Right"/>
                     </Grid>
-                                  
+
                     <!-- 单独选项：在没有背景图时显示封面图 -->
                     <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
@@ -226,7 +204,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowPlayTime"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -241,7 +219,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowRating"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -256,7 +234,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowTags"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
@@ -272,81 +250,12 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0"
                                    x:Uid="ManageGalgamePageLayoutDialog_ShowCharacters"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Left"/>
                         <ToggleSwitch Grid.Column="1"
                                       IsOn="{x:Bind GalgamePageNewLayout_ShowCharacters, Mode=TwoWay}"
-                                      HorizontalAlignment="Right"/>
-                    </Grid>
-                </StackPanel>
-
-                <!-- 旧版界面设置组 -->
-                <StackPanel Spacing="0" HorizontalAlignment="Stretch"
-                            Visibility="{x:Bind GalgamePageNewLayoutToggle.IsOn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
-                    <!-- 旧版界面设置标题 -->
-                    <TextBlock x:Uid="ManageGalgamePageLayoutDialog_OldLayoutSettings"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               />
-
-                    <!-- 旧版界面：简介 -->
-                    <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
-                                   x:Uid="ManageGalgamePageLayoutDialog_ShowDescription"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Left"/>
-                        <ToggleSwitch Grid.Column="1"
-                                      IsOn="{x:Bind GalgamePageOldLayout_ShowDescription, Mode=TwoWay}"
-                                      HorizontalAlignment="Right"/>
-                    </Grid>
-
-                    <!-- 旧版界面：Tags (reuse Uid) -->
-                    <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
-                                   x:Uid="ManageGalgamePageLayoutDialog_ShowTags"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Left"/>
-                        <ToggleSwitch Grid.Column="1"
-                                      IsOn="{x:Bind GalgamePageOldLayout_ShowTags, Mode=TwoWay}"
-                                      HorizontalAlignment="Right"/>
-                    </Grid>
-
-                    <!-- 旧版界面：Characters (reuse Uid) -->
-                    <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
-                                   x:Uid="ManageGalgamePageLayoutDialog_ShowCharacters"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Left"/>
-                        <ToggleSwitch Grid.Column="1"
-                                      IsOn="{x:Bind GalgamePageOldLayout_ShowCharacters, Mode=TwoWay}"
-                                      HorizontalAlignment="Right"/>
-                    </Grid>
-
-                    <!-- 旧版界面：Staff -->
-                    <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
-                                   x:Uid="ManageGalgamePageLayoutDialog_ShowStaff"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Left"/>
-                        <ToggleSwitch Grid.Column="1"
-                                      IsOn="{x:Bind GalgamePageOldLayout_ShowStaff, Mode=TwoWay}"
                                       HorizontalAlignment="Right"/>
                     </Grid>
                 </StackPanel>

@@ -10,13 +10,13 @@
     xmlns:control="using:GalgameManager.Views.Control"
     xmlns:galgamePagePanel="using:GalgameManager.Views.GalgamePagePanel"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:behaviors="using:GalgameManager.Behaviors"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:ImagePathConverter x:Key="ImagePathConverter" />
+        <converters:AnyToVisibilityConverter x:Key="AnyToVisConv"/>
     </Page.Resources>
 
     <Grid>
@@ -25,8 +25,8 @@
                         Margin="{StaticResource CommandBarMargin}">
                 <!-- 开始游戏 -->
                 <AppBarButton x:Uid="GalgamePage_Play" Command="{x:Bind ViewModel.PlayCommand}"
-                              Visibility="{x:Bind ViewModel.IsLocalGame, 
-                              Converter={StaticResource BoolToVisibilityConverter}, 
+                              Visibility="{x:Bind ViewModel.IsLocalGame,
+                              Converter={StaticResource BoolToVisibilityConverter},
                               ConverterParameter = False, Mode=OneWay}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE768;" />
@@ -39,7 +39,7 @@
                                 <Button Command="{x:Bind ViewModel.ResetExePathCommand}"
                                         local:FlyoutHelper.CloseFlyoutOnClick="True"
                                         x:Uid="YesButton"
-                                        Margin="{StaticResource SmallTopMargin}" HorizontalAlignment="Center" 
+                                        Margin="{StaticResource SmallTopMargin}" HorizontalAlignment="Center"
                                         Flyout="{x:Bind ClearExeFlyout}"/>
                             </StackPanel>
                         </Flyout>
@@ -47,8 +47,8 @@
                 </AppBarButton>
                 <!-- 设置本地路径 -->
                 <AppBarButton x:Uid="GalgamePage_SetLocalPath" Command="{x:Bind ViewModel.SetLocalPathCommand}"
-                              Visibility="{x:Bind ViewModel.IsLocalGame, 
-                              Converter={StaticResource BoolToVisibilityConverter}, 
+                              Visibility="{x:Bind ViewModel.IsLocalGame,
+                              Converter={StaticResource BoolToVisibilityConverter},
                               ConverterParameter = True, Mode=OneWay}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE723;" />
@@ -73,7 +73,7 @@
                                 <Button Command="{x:Bind ViewModel.ClearTextCommand}"
                                         local:FlyoutHelper.CloseFlyoutOnClick="True"
                                         x:Uid="YesButton"
-                                        Margin="{StaticResource SmallTopMargin}" HorizontalAlignment="Center" 
+                                        Margin="{StaticResource SmallTopMargin}" HorizontalAlignment="Center"
                                         Flyout="{x:Bind ClearTextFlyout}"/>
                             </StackPanel>
                         </Flyout>
@@ -145,40 +145,40 @@
                     </AppBarToggleButton>
                     <AppBarSeparator/>
                     <!-- 在BGM中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInBgm, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInBgm,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 在Vndb中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInVndb" Command="{x:Bind ViewModel.OpenInVndbCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInVndb, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInVndb" Command="{x:Bind ViewModel.OpenInVndbCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInVndb,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 在Ymgal中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInYmgal" Command="{x:Bind ViewModel.OpenInYmgalCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInYmgal, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInYmgal" Command="{x:Bind ViewModel.OpenInYmgalCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInYmgal,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 在Cngal中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInCngal" Command="{x:Bind ViewModel.OpenInCngalCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInCngal, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInCngal" Command="{x:Bind ViewModel.OpenInCngalCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInCngal,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 在Steam中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInSteam" Command="{x:Bind ViewModel.OpenInSteamCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInSteam, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInSteam" Command="{x:Bind ViewModel.OpenInSteamCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInSteam,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
@@ -187,7 +187,7 @@
                     <!-- 下载游玩状态 -->
                     <AppBarButton x:Uid="GalgamePage_SyncFromBgm"
                             Command="{x:Bind ViewModel.SyncFromBgmCommand}"
-                                  Visibility="{x:Bind ViewModel.CanOpenInBgm, 
+                                  Visibility="{x:Bind ViewModel.CanOpenInBgm,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons"
@@ -196,7 +196,7 @@
                     </AppBarButton>
                     <AppBarButton x:Uid="GalgamePage_SyncFromVndb"
                             Command="{x:Bind ViewModel.SyncFromVndbCommand}"
-                                  Visibility="{x:Bind ViewModel.CanOpenInVndb, 
+                                  Visibility="{x:Bind ViewModel.CanOpenInVndb,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons"
@@ -205,7 +205,7 @@
                     </AppBarButton>
                     <AppBarSeparator/>
                     <!-- 手动选择进程 -->
-                    <AppBarButton 
+                    <AppBarButton
                         x:Uid="GalgamePage_SelectThread"
                         Command="{x:Bind ViewModel.SelectProcessCommand}"
                         Visibility="{x:Bind ViewModel.IsSelectProcessVisible, Mode=OneWay}">
@@ -224,7 +224,7 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 重置exe和文本路径 -->
-                    <AppBarButton 
+                    <AppBarButton
                         x:Uid="GalgamePage_ResetPath"
                         Command="{x:Bind ViewModel.ResetPathCommand}"
                         Visibility="{x:Bind ViewModel.IsResetPathVisible, Mode=OneWay}">
@@ -232,11 +232,11 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74E;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-  
                     <AppBarSeparator/>
                     <!-- 设置界面显示的元素 -->
                     <AppBarButton x:Uid="GalgamePage_ManageLayout"
-                            Command="{x:Bind ViewModel.ManageLayoutCommand}">
+                            Command="{x:Bind ViewModel.ManageLayoutCommand}"
+                            IsEnabled="{x:Bind ViewModel.SettingAvailable, Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons"
                                     Glyph="&#xE713;"/>
@@ -267,29 +267,12 @@
                                   IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
                 </CommandBar.SecondaryCommands>
             </CommandBar>
-            <!-- Layout Old -->
-            <Grid Grid.Row="1" RowDefinitions="*"
-                  Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, 
-                      Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
-                <ScrollViewer IsTabStop="True">
-                    <StackPanel>
-                        <galgamePagePanel:GameHeaderOldPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                        <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                                                               Visibility="{x:Bind ViewModel.ShowDescriptionPanel, Mode=OneWay}"/>
-                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                                                       Visibility="{x:Bind ViewModel.ShowTagPanel, Mode=OneWay}"/>
-                        <galgamePagePanel:GameCharacterPanel
-                            Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                            AddCharacterCommand="{x:Bind ViewModel.AddCharacterCommand}"
-                            DeleteCharacterCommand="{x:Bind ViewModel.DeleteCharacterCommand}"
-                            Visibility="{x:Bind ViewModel.ShowCharacterPanel, Mode=OneWay}"/>
-                        <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                                                         Visibility="{x:Bind ViewModel.ShowStaffPanel, Mode=OneWay}"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </Grid>
+
+            <ContentPresenter Grid.Row="1" Content="{x:Bind ViewModel.PluginUi, Mode=OneWay}"
+                              Visibility="{x:Bind ViewModel.Plugin, Converter={StaticResource AnyToVisConv}}"/>
             <!-- Layout New -->
-            <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.PluginUi, Mode=OneWay,
+                    Converter={StaticResource AnyToVisConv}, ConverterParameter=false}">
                 <ScrollViewer IsTabStop="True" Margin="-55 0 -55 0" CornerRadius="8">
                     <Grid RowDefinitions="*,*">
                         <Image Grid.Row="0"
@@ -297,7 +280,7 @@
                                VerticalAlignment="Top"
                                Stretch="Uniform" HorizontalAlignment="Stretch"
                                Source="{x:Bind ViewModel.Item.HeaderImagePath, Mode=OneWay,
-                                         FallbackValue={x:Null}, Converter={StaticResource ImagePathConverter}, 
+                                         FallbackValue={x:Null}, Converter={StaticResource ImagePathConverter},
                                          ConverterParameter='null_ignoreDefaultPotato'}"/>
 
                         <StackPanel Grid.Row="0" Grid.RowSpan="2">

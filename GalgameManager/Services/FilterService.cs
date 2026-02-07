@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.Models.Filters;
+using GalgameManager.WinApp.Base.Models.Filters;
 
 namespace GalgameManager.Services;
 
@@ -64,7 +64,7 @@ public class FilterService : IFilterService
         if (key == KeyValues.DisplayVirtualGame)
             await SetFiltersAsync();
     }
-    
+
     private async Task SetFiltersAsync()
     {
         if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.DisplayVirtualGame))

@@ -17,6 +17,7 @@
     xmlns:helpers="using:GalgameManager.Helpers"
     xmlns:behaviors="using:GalgameManager.Behaviors"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Converters"
+    xmlns:filters1="using:GalgameManager.WinApp.Base.Models.Filters"
     mc:Ignorable="d"
     x:Name="Page"
     NavigationCacheMode="Required">
@@ -156,7 +157,7 @@
                                     </DataTemplate>
                                 </cmtkControl:TokenizingTextBox.SuggestedItemTemplate>
                                 <cmtkControl:TokenizingTextBox.TokenItemTemplate>
-                                    <DataTemplate x:DataType="filters:FilterBase">
+                                    <DataTemplate x:DataType="filters1:FilterBase">
                                         <TextBlock Text="{x:Bind ToString() }" />
                                     </DataTemplate>
                                 </cmtkControl:TokenizingTextBox.TokenItemTemplate>

@@ -1,6 +1,6 @@
-﻿using GalgameManager.Models;
+using GalgameManager.Models;
 
-namespace GalgameManager.Contracts;
+namespace GalgameManager.WinApp.Base.Contracts;
 
 public interface IFilter
 {
@@ -9,5 +9,5 @@ public interface IFilter
     /// </summary>
     /// <param name="galgame">待检查游戏</param>
     /// <returns>是否符合过滤条件</returns>
-    public bool Apply(Galgame galgame);
+    bool Apply(Galgame galgame);
 }

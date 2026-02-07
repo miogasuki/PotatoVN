@@ -7,6 +7,7 @@ using GalgameManager.Enums;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi;
+using GalgameManager.WinApp.Base.Models.Filters;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
@@ -23,6 +24,39 @@ public interface IPotatoVnApi
     /// </summary>
     /// <returns></returns>
     public List<Galgame> GetAllGames();
+
+    #endregion
+
+    // 与游戏列表界面过滤器相关的 API
+    #region FILTERS
+
+    /// <summary>
+    /// 游戏列表界面（GameListPage）使用的过滤器。
+    /// 这些 API 只影响“游戏列表”的筛选/显示结果，不会修改任何游戏数据。
+    /// </summary>
+    /// <remarks>
+    /// 宿主会在 UI 线程执行这些操作；插件可以从任意线程调用。
+    /// </remarks>
+    void AddFilter(FilterBase filter);
+
+    /// <summary>
+    /// 从游戏列表界面移除一个过滤器（不存在则忽略）。
+    /// </summary>
+    void DeleteFilter(FilterBase filter);
+
+    /// <summary>
+    /// 清空游戏列表界面的过滤器（宿主会保留必要的内置过滤器，例如虚拟游戏开关相关过滤器）。
+    /// </summary>
+    void ClearFilters();
+
+    /// <summary>
+    /// 获取游戏列表界面当前启用的过滤器列表（快照）。
+    /// </summary>
+    /// <remarks>
+    /// 返回的是当前列表的复制品，用于插件侧展示/判断；
+    /// 若要修改过滤器，请使用 <see cref="AddFilter"/> / <see cref="DeleteFilter"/> / <see cref="ClearFilters"/>。
+    /// </remarks>
+    Task<List<FilterBase>> GetFiltersAsync();
 
     #endregion
 

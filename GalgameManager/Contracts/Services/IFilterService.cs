@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using GalgameManager.Models;
-using GalgameManager.Models.Filters;
+using GalgameManager.WinApp.Base.Models.Filters;
 
 namespace GalgameManager.Contracts.Services;
 
@@ -10,12 +10,12 @@ public interface IFilterService
     /// 初始化过滤器
     /// </summary>
     public Task InitAsync();
-    
+
     /// <summary>
     /// 获取所有过滤器
     /// </summary>
     public ObservableCollection<FilterBase> GetFilters();
-    
+
     /// <summary>
     /// 检查是否满足所有过滤器
     /// </summary>
@@ -43,7 +43,7 @@ public interface IFilterService
     /// </summary>
     /// <param name="str">当前输入字符串</param>
     public Task<List<FilterBase>> SearchFilters(string str);
-    
+
     /// <summary>
     /// 当过滤器发生变化时触发
     /// </summary>

@@ -1,4 +1,6 @@
-﻿namespace GalgameManager.Models.Filters;
+﻿using GalgameManager.WinApp.Base.Models.Filters;
+
+namespace GalgameManager.Models.Filters;
 
 public class StaffFilter (Staff staff) : FilterBase
 {

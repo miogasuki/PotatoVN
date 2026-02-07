@@ -22,6 +22,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
+using GalgameManager.WinApp.Base.Models.Filters;
 
 // ReSharper disable CollectionNeverQueried.Global
 

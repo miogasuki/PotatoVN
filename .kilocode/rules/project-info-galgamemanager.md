@@ -132,6 +132,10 @@ This section highlights important files and directories specific to the client a
     *   **Plugin Models**:
         *   **`PluginX.cs`**: Represents a loaded plugin at runtime. It wraps the `IPlugin` instance and contains metadata like `Info`, `LoadContext`, and enabled status. It handles UI retrieval with timeout protection.
         *   **`StorePlugin.cs`**: Represents a plugin as displayed in the plugin store. It is a lightweight model used specifically for the store UI to avoid confusion with active plugins (`PluginX`). It includes properties like `DescriptionShort` for concise display in the store list.
+    *   **Plugin Host API**:
+        *   **`GalgameManager.WinApp.Base/Contracts/IPotatoVNApi.cs`** defines the host API surface exposed to plugins.
+        *   It now exposes **game list page filters** (GameListPage) operations: add/delete/clear filters, and reading the current filter list via `GetFiltersAsync()` (snapshot).
+        *   The filter base types are in the shared library: `GalgameManager.WinApp.Base/Models/Filters/FilterBase.cs` and `GalgameManager.WinApp.Base/Contracts/IFilter.cs`.
 *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.

@@ -4,6 +4,7 @@ using GalgameManager.Models;
 using GalgameManager.Models.Filters;
 using GalgameManager.ViewModels;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
+using GalgameManager.WinApp.Base.Models.Filters;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SourceFilter = GalgameManager.Models.Filters.SourceFilter;

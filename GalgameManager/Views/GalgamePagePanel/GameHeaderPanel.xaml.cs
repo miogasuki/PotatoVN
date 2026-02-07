@@ -9,6 +9,7 @@ using GalgameManager.Models.Filters;
 using GalgameManager.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
 
 namespace GalgameManager.Views.GalgamePagePanel;
 
@@ -223,7 +224,7 @@ public partial class GameHeaderPanel
     {
         if (sender is not HyperlinkButton button || button.DataContext is not Staff staff) return;
         NavigationHelper.NavigateToStaffPage(_navigationService,
-            new StaffViewModel.StaffPageNavigationParameter { Staff = staff });
+            new StaffPageNavParameter { Staff = staff });
     }
 
     private void TitleSizeChanged(object sender, SizeChangedEventArgs e)

@@ -5,6 +5,7 @@ using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
+using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
 using Microsoft.UI.Xaml;
 
 namespace GalgameManager.ViewModels;
@@ -23,13 +24,20 @@ public partial class GalgameCharacterViewModel (
 
     public void OnNavigatedTo(object parameter)
     {
-        if (parameter is not GalgameCharacterParameter param) //参数不正确，返回主菜单
+        GalgameCharacter? character = parameter switch
+        {
+            GalgameCharacterPageNavParameter p => p.GalgameCharacter,
+            GalgameCharacterParameter p => p.GalgameCharacter, // 兼容旧的内部参数类型
+            _ => null
+        };
+
+        if (character is null) //参数不正确，返回主菜单
         {
             navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
             return;
         }
 
-        Character = param.GalgameCharacter;
+        Character = character;
         
         // 初始化日期
         if (Character.BirthYear.HasValue && Character.BirthMon.HasValue && Character.BirthDay.HasValue)

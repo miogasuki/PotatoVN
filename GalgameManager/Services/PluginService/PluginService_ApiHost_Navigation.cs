@@ -1,4 +1,5 @@
 ﻿using GalgameManager.Contracts.Services;
+using GalgameManager.Models;
 using GalgameManager.ViewModels;
 using GalgameManager.WinApp.Base.Contracts;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi;
@@ -40,6 +41,72 @@ public partial class PluginService
                 case PageEnum.LibraryPage:
                     LibraryPageNavParameter? param = parameter as LibraryPageNavParameter;
                     _navigationService.NavigateTo(typeof(LibraryViewModel).FullName!, param?.TargetSource);
+                    break;
+                case PageEnum.SettingsPage:
+                    _navigationService.NavigateTo(typeof(SettingsViewModel).FullName!);
+                    break;
+                case PageEnum.PluginPage:
+                    _navigationService.NavigateTo(typeof(PluginViewModel).FullName!);
+                    break;
+                case PageEnum.PluginStorePage:
+                    _navigationService.NavigateTo(typeof(PluginStoreViewModel).FullName!);
+                    break;
+                case PageEnum.AccountPage:
+                    _navigationService.NavigateTo(typeof(AccountViewModel).FullName!);
+                    break;
+                case PageEnum.InfoPage:
+                    _navigationService.NavigateTo(typeof(InfoViewModel).FullName!);
+                    break;
+                case PageEnum.StaffPage:
+                    if (parameter is not StaffPageNavParameter staffParam)
+                        throw new ArgumentException(null, nameof(parameter));
+                    _navigationService.NavigateTo(typeof(StaffViewModel).FullName!, staffParam);
+                    break;
+                case PageEnum.PlayedTimePage:
+                    if (parameter is not Galgame playedTimeTarget)
+                        throw new ArgumentException(null, nameof(parameter));
+                    _navigationService.NavigateTo(typeof(PlayedTimeViewModel).FullName!, playedTimeTarget);
+                    break;
+                case PageEnum.ScanResultPage:
+                    if (parameter is not Guid scanResultId)
+                        throw new ArgumentException(null, nameof(parameter));
+                    _navigationService.NavigateTo(typeof(ScanResultViewModel).FullName!, scanResultId);
+                    break;
+                case PageEnum.HelpPage:
+                    _navigationService.NavigateTo(typeof(HelpViewModel).FullName!);
+                    break;
+                case PageEnum.UpdateContentPage:
+                    if (parameter is bool displayTitle)
+                        _navigationService.NavigateTo(typeof(UpdateContentViewModel).FullName!, displayTitle);
+                    else
+                        _navigationService.NavigateTo(typeof(UpdateContentViewModel).FullName!);
+                    break;
+                case PageEnum.AnnualReportPage:
+                    _navigationService.NavigateTo(typeof(AnnualReportViewModel).FullName!);
+                    break;
+                case PageEnum.CategorySettingPage:
+                    if (parameter is not Category category)
+                        throw new ArgumentException(null, nameof(parameter));
+                    _navigationService.NavigateTo(typeof(CategorySettingViewModel).FullName!, category);
+                    break;
+                case PageEnum.GalgameSettingPage:
+                    if (parameter is not Galgame galgame)
+                        throw new ArgumentException(null, nameof(parameter));
+                    _navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, galgame);
+                    break;
+                case PageEnum.GalgameSourcePage:
+                    _navigationService.NavigateTo(typeof(GalgameSourceViewModel).FullName!, parameter);
+                    break;
+                case PageEnum.GalgameCharacterPage:
+                    if (parameter is not GalgameCharacterPageNavParameter characterParam)
+                        throw new ArgumentException(null, nameof(parameter));
+                    _navigationService.NavigateTo(typeof(GalgameCharacterViewModel).FullName!, characterParam);
+                    break;
+                case PageEnum.MultiStreamPage:
+                    if (parameter is bool retry)
+                        _navigationService.NavigateTo(typeof(MultiStreamViewModel).FullName!, retry);
+                    else
+                        _navigationService.NavigateTo(typeof(MultiStreamViewModel).FullName!);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(page), page, null);

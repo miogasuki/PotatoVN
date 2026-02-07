@@ -26,6 +26,31 @@ public interface IPotatoVnApi
 
     #endregion
 
+    // 与 staff 相关的 API
+    #region STAFF
+
+    /// <summary>
+    /// 根据 staffId 获取 staff，不存在则返回 null
+    /// </summary>
+    Staff? GetStaff(Guid? id);
+
+    /// <summary>
+    /// 获取所有 staff 列表（快照）
+    /// </summary>
+    List<Staff> GetStaffs();
+
+    /// <summary>
+    /// 获取某个游戏关联的 staff 列表（快照）
+    /// </summary>
+    List<Staff> GetStaffs(Galgame game);
+
+    /// <summary>
+    /// 保存 staff（新增 / 修改）。默认会触发同步逻辑（若宿主启用）。
+    /// </summary>
+    void SaveStaff(Staff staff, bool sync = true);
+
+    #endregion
+
     //与插件数据存储相关的API
     #region DATA
 

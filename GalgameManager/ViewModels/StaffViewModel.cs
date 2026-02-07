@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Collections.Generic;
 using GalgameManager.Views.Dialog;
+using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
 using Windows.Storage.Pickers;
 using Windows.Storage;
 
@@ -42,7 +43,7 @@ public partial class StaffViewModel(
 
     public void OnNavigatedTo(object parameter)
     {
-        if (parameter is not StaffPageNavigationParameter staffPageNavigationParameter)
+        if (parameter is not StaffPageNavParameter staffPageNavigationParameter)
         {
             Debug.Assert(false, "Invalid navigation parameter");
             return;
@@ -76,11 +77,6 @@ public partial class StaffViewModel(
         NavigationHelper.NavigateToHomePage(navigationService, filterService, [new StaffFilter(Staff)]);
     }
     
-    public class StaffPageNavigationParameter
-    {
-        public required Staff Staff { get; set; }
-    }
-
     [RelayCommand]
     private void EditStaff()
     {

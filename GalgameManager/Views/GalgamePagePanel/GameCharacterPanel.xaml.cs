@@ -1,6 +1,7 @@
 ﻿using GalgameManager.Contracts.Services;
 using GalgameManager.Models;
 using GalgameManager.ViewModels;
+using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -28,7 +29,7 @@ public partial class GameCharacterPanel
     {
         if (sender is not Button button || button.DataContext is not GalgameCharacter character) return;
         _navigationService.NavigateTo(typeof(GalgameCharacterViewModel).FullName!,
-            new GalgameCharacterParameter { GalgameCharacter = character });
+            new GalgameCharacterPageNavParameter { GalgameCharacter = character });
     }
 
     private void ButtonBase_OnRightTapped(object sender, RightTappedRoutedEventArgs e)

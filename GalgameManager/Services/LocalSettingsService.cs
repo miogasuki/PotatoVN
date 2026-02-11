@@ -157,6 +157,11 @@ public class LocalSettingsService : ILocalSettingsService
     public void InitDatabase()
     {
         BsonMapper.Global.EnumAsInteger = true;
+        BsonMapper.Global.RegisterType<Version>
+        (
+            serialize: v => v.ToString(),
+            deserialize: b => Version.Parse(b.AsString)
+        );
         Database = new(Path.Combine(LocalFolder.FullName, DatabaseFileName));
         IsDatabaseUsable = true;
     }

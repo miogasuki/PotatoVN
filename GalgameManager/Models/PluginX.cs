@@ -15,7 +15,8 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
 {
     [BsonId] public Guid Id { get; init; }
     [BsonIgnore] public IPlugin? Plugin { get; set; }
-    public PluginInfo Info { get; set; } 
+    public PluginInfo Info { get; set; }
+    public Version Version { get; set; } //插件版本，只有商店下载的插件才有效
     [ObservableProperty] private string _path;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(Logo))] private string? _logoUrl;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(Logo))] private string? _logoPath;
@@ -31,10 +32,10 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
     /// 是否已经加载
     [BsonIgnore] public bool IsLoaded { get; set; } = false;
     [BsonIgnore] public PluginLoadContext LoadContext { get; set; }
-    
+
     // 插件是否是在 Dev 模式下加载的
     [ObservableProperty] private bool _isDevMode = false;
-    
+
     [Obsolete("For deserialization only", true)]
     public PluginX()
     {
@@ -42,6 +43,7 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
         Info = null!;
         _path = string.Empty;
         LoadContext = null!;
+        Version = null!;
     }
 
     /// <inheritdoc/>
@@ -52,6 +54,7 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
         LoadContext = context;
         Info = plugin.Info.ShallowClone();
         Id = Info.Id;
+        Version = new();
     }
 
     /// <summary>
@@ -124,7 +127,7 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
             await uninstallTask;
         }
     }
-    
+
     public void ForceUnload()
     {
         IsLoaded = false;
@@ -137,12 +140,12 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
     public int CompareTo(PluginX? other) {
         if (other is null) return 0;
         // 优先级1: IsDevMode 降序 (true 在前)
-        var devCompare = other.IsDevMode.CompareTo(IsDevMode); 
+        var devCompare = other.IsDevMode.CompareTo(IsDevMode);
         if (devCompare != 0) return devCompare;
         // 优先级2: Name 升序
         return string.Compare(Info.Name, other.Info.Name, StringComparison.OrdinalIgnoreCase);
     }
-    
+
     public override bool Equals(object? obj)
     {
         if (obj is PluginX other)
@@ -151,7 +154,7 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
         }
         return false;
     }
-    
+
     public override int GetHashCode()
     {
         return Id.GetHashCode();

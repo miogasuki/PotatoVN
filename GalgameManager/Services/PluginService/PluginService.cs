@@ -229,7 +229,7 @@ public partial class PluginService(
         return ((IPlugin)Activator.CreateInstance(pluginType)!, loadContext);
     }
 
-    private void SavePlugin(PluginX plugin) => _pluginsDb.Update(plugin);
+    public void SavePlugin(PluginX plugin) => _pluginsDb.Update(plugin);
 
     public class PluginData
     {

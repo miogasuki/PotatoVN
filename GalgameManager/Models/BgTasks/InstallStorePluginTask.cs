@@ -24,6 +24,8 @@ public class InstallStorePluginTask : BgTaskBase
     /// 仅用于显示的插件名称。
     /// </summary>
     public string PluginName { get; set; } = string.Empty;
+    private Guid _pluginId = Guid.Empty;
+    private Version _version = new();
 
     public InstallStorePluginTask()
     {
@@ -38,6 +40,8 @@ public class InstallStorePluginTask : BgTaskBase
         // 插件目录：pluginService.PluginDir/{pluginName}
         var folderName = FileHelper.RemoveInvalidFileNameChars(plugin.Name);
         PluginFolderPath = Path.Combine(pluginService.PluginDir.FullName, folderName);
+        _version = version.Version;
+        _pluginId = plugin.Id;
     }
 
     protected override Task RecoverFromJsonInternal() => Task.CompletedTask;
@@ -64,6 +68,12 @@ public class InstallStorePluginTask : BgTaskBase
             IPluginService pluginService = App.GetService<IPluginService>();
             // 从商店安装的 plugin 永远非 dev 模式。
             await pluginService.AddPluginAsync(PluginFolderPath, false);
+            PluginX? plugin = (await pluginService.GetAllPluginsAsync()).FirstOrDefault(p => p.Info.Id == _pluginId);
+            if (plugin is not null)
+            {
+                plugin.Version = _version; //插件版本由商店提供
+                pluginService.SavePlugin(plugin);
+            }
 
             ChangeProgress(1, 1, "InstallStorePluginTask_Installed".GetLocalized(PluginName));
         }

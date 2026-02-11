@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using GalgameManager.Enums;
 
 namespace GalgameManager.Models;
 
@@ -29,6 +30,8 @@ public partial class StorePlugin : ObservableObject
     [ObservableProperty] private DateTime _releaseDate;
     /// 插件各个版本与下载链接
     public List<StorePluginVersion> Versions { get; set; } = [];
+    /// 插件类别
+    public List<PluginType> Types { get; set; } = [];
 
     [ObservableProperty] private StorePluginStatus _status = StorePluginStatus.NotInstalled;
     [ObservableProperty] private Version? _installedVersion;

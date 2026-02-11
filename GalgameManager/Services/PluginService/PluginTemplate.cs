@@ -35,7 +35,6 @@ public class PluginTemplate :
         Id = Guid.Parse("8f0c2dc8-3bb5-4b65-aecf-1c6d2b116f74"),
         Name = "PluginTemplate",
         Description = "Template plugin that implements all plugin extension interfaces (stub).",
-        Version = new Version(1, 0, 0)
     };
 
     public PluginInfo Info => TemplateInfo;

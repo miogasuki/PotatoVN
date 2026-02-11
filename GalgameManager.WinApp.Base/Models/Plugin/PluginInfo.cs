@@ -19,9 +19,4 @@ public class PluginInfo
     /// 插件描述
     /// </summary>
     public required string Description { get; set; }
-
-    /// <summary>
-    /// 插件版本
-    /// </summary>
-    public Version Version { get; set; } = new(1, 0, 0);
 }

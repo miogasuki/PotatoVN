@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:GalgameManager.Models"
     xmlns:converter="using:GalgameManager.Helpers.Converter"
+    xmlns:viewModels="using:GalgameManager.ViewModels"
     x:Name="Page"
     mc:Ignorable="d">
 
@@ -16,7 +17,16 @@
         <converter:StorePluginStatusToTextConverter x:Key="StorePluginStatusToTextConverter" />
     </Page.Resources>
 
-    <Grid>
+    <NavigationView IsBackButtonVisible="Collapsed" IsBackEnabled="False" OpenPaneLength="150"
+                    MenuItemsSource="{x:Bind ViewModel.PluginTypes}"
+                    SelectedItem="{x:Bind ViewModel.SelectedPluginType, Mode=TwoWay}"
+                    IsSettingsVisible="False">
+        <NavigationView.MenuItemTemplate>
+            <DataTemplate x:DataType="viewModels:PluginTypeViewModel">
+                <NavigationViewItem Content="{x:Bind Title}"
+                                    Icon="{x:Bind Icon}"/>
+            </DataTemplate>
+        </NavigationView.MenuItemTemplate>
         <ScrollViewer>
             <ItemsRepeater ItemsSource="{x:Bind ViewModel.Plugins}" Margin="20">
                 <ItemsRepeater.ItemTemplate>
@@ -82,5 +92,5 @@
                 </ItemsRepeater.Layout>
             </ItemsRepeater>
         </ScrollViewer>
-    </Grid>
+    </NavigationView>
 </Page>

@@ -1,12 +1,13 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.WinUI.Collections;
 using GalgameManager.Contracts.Services;
+using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Helpers.API.RepoFlow;
 using Newtonsoft.Json;
 
 namespace GalgameManager.Models.BgTasks;
 
-public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : QueueTaskBase<StorePlugin>
+public class GetStorePluginTask(AdvancedCollectionView pluginList) : QueueTaskBase<StorePlugin>
 {
     protected override int MaxRunning() => 5;
     private readonly IRepoFlowApi _api = RepoFlowApi.GetApi();
@@ -52,7 +53,7 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
             PluginX? installedPlugin = (await _pluginService.GetAllPluginsAsync()).FirstOrDefault(p => p.Info.Id == item.Id);
             if (installedPlugin != null)
             {
-                item.InstalledVersion = installedPlugin.Info.Version;
+                item.InstalledVersion = installedPlugin.Version;
                 if (item.Versions.Count > 0 && item.Versions[0].Version > item.InstalledVersion)
                     item.Status = StorePluginStatus.UpdateAvailable;
                 else
@@ -72,6 +73,7 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
         await UiThreadInvokeHelper.InvokeAsync(() =>
         {
             pluginList.Add(item);
+            pluginList.RefreshFilter();
         });
     }
 
@@ -100,6 +102,7 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
             plugin.Developer = info.Developer;
             plugin.DeveloperUrl = info.DeveloperUrl;
             plugin.ProjectUrl = info.ProjectUrl;
+            plugin.Types = PluginTypeHelper.Separate(info.PluginType);
         });
     }
 
@@ -132,6 +135,7 @@ public class GetStorePluginTask(ObservableCollection<StorePlugin> pluginList) : 
         [JsonProperty("developer")] public string? Developer;
         [JsonProperty("developer_url")] public string? DeveloperUrl;
         [JsonProperty("project_url")] public string? ProjectUrl;
+        [JsonProperty("types")] public int PluginType;
 #pragma warning restore CS0649
     }
 }

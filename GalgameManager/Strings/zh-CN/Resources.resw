@@ -4513,4 +4513,28 @@
   <data name="StorePluginDialog_Installed" xml:space="preserve">
     <value>已安装</value>
   </data>
+  <data name="PluginType_All" xml:space="preserve">
+      <value>全部插件</value>
+  </data>
+  <data name="PluginType_Official" xml:space="preserve">
+      <value>官方插件</value>
+  </data>
+  <data name="PluginType_Parser" xml:space="preserve">
+      <value>搜刮器</value>
+  </data>
+  <data name="PluginType_Huge" xml:space="preserve">
+      <value>大型插件</value>
+  </data>
+  <data name="PluginType_Theme" xml:space="preserve">
+      <value>主题</value>
+  </data>
+  <data name="PluginType_View" xml:space="preserve">
+      <value>界面优化</value>
+  </data>
+  <data name="PluginType_Utility" xml:space="preserve">
+      <value>功能优化</value>
+  </data>
+  <data name="PluginType_Library" xml:space="preserve">
+      <value>库</value>
+  </data>
 </root>

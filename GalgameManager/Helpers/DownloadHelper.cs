@@ -20,7 +20,7 @@ public static class DownloadHelper
     /// <param name="client">下载图片时使用的client，若不提供则使用软件默认client</param>
     /// <param name="targetFolder">保存图片的位置，若不指定则使用数据目录的images文件夹</param>
     /// <returns>本地文件路径, 如果下载失败则返回null</returns>
-    public static async Task<string?> DownloadAndSaveImageAsync(string? imageUrl, int retry = 0, 
+    public static async Task<string?> DownloadAndSaveImageAsync(string? imageUrl, int retry = 0,
         string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null,
         DirectoryInfo? targetFolder = null)
     {
@@ -28,8 +28,8 @@ public static class DownloadHelper
         {
             if (imageUrl == null) return null;
             HttpClient httpClient = client ?? Utils.GetDefaultHttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(10); // 10s内收不到响应则超时
-            HttpResponseMessage response = await httpClient.GetAsync(imageUrl);
+            using CancellationTokenSource cts = new(TimeSpan.FromSeconds(10)); //10s超时
+            HttpResponseMessage response = await httpClient.GetAsync(imageUrl, cts.Token);
             response.EnsureSuccessStatusCode();
 
             var imageBytes = await response.Content.ReadAsByteArrayAsync();
@@ -73,29 +73,29 @@ public static class DownloadHelper
         }
         catch (Exception e)
         {
-            if (e is (TaskCanceledException or TimeoutException or HttpRequestException) 
+            if (e is (TaskCanceledException or TimeoutException or HttpRequestException)
                 and not HttpRequestException { StatusCode: HttpStatusCode.NotFound })
             {
                 if (retry < 3)
                 {
                     await Task.Delay(1000);
                     return await DownloadAndSaveImageAsync(imageUrl, retry + 1, fileNameWithoutExtension, onException,
-                        targetFolder: targetFolder);
+                        targetFolder: targetFolder, client: client);
                 }
             }
             onException?.Invoke(e);
             return null;
         }
     }
-    
-    public static Task<string?> DownloadAndSaveImageWithDiffThread(string? imageUrl, int retry = 0, 
+
+    public static Task<string?> DownloadAndSaveImageWithDiffThread(string? imageUrl, int retry = 0,
         string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null,
         DirectoryInfo? targetFolder = null)
     {
-        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException, 
+        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException,
             client, targetFolder));
     }
-    
+
     /// <summary>
     /// 试图识别图片格式
     /// </summary>
@@ -205,13 +205,13 @@ public static class DownloadHelper
             });
         }
     }
-    
+
     private static float CalcAlpha(int col, int row, int width, int height)
     {
         if (width <= 1 || height <= 1) return 1f; // 避免除零
         float normX = (float)col / (width - 1), normY = (float)row / (height - 1);
         var globalAlpha = 0.35f;
-            
+
         // --- Rule 1: 左侧渐变 (非线性) ---
         var alphaLeft = 1.0f;
         if (normX <= 0.7f)

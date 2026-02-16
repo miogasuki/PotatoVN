@@ -12,13 +12,15 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using GalgameManager.Enums;
 
 namespace GalgameManager.ViewModels;
 
 public partial class PluginViewModel(IPluginService pluginService, IInfoService infoService,
-    INavigationService navService)
+    INavigationService navService, ILocalSettingsService settingsService)
     : ObservableRecipient, INavigationAware
 {
+    [ObservableProperty] private bool _isDevMode;
     public ObservableCollection<PluginSettingViewModel> Plugins = [];
     private ObservableCollection<PluginX> _plugins = null!;
 
@@ -29,6 +31,7 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
             _plugins = await pluginService.GetAllPluginsAsync();
             PluginsOnCollectionChanged(null!, null!);
             _plugins.CollectionChanged += PluginsOnCollectionChanged;
+            IsDevMode = await settingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode);
         }
         catch (Exception)
         {

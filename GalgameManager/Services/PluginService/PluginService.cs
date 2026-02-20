@@ -135,7 +135,29 @@ public partial class PluginService(
         _pluginDataDb = settingService.Database.GetCollection<PluginData>("plugin_data");
         PluginDir = new DirectoryInfo((await FileHelper.GetFolderAsync(FileHelper.FolderType.Plugins)).Path);
         if (!PluginDir.Exists) PluginDir.Create();
-        _ = bgTaskService.AddBgTask(new LoadPluginTask());
+        _ = Task.Run(async () =>
+        {
+            // 先完成插件升级再加载插件
+            try
+            {
+                List<ToInstallStorePlugin> list =
+                    await settingService.ReadSettingAsync<List<ToInstallStorePlugin>>(KeyValues.ToUpgradePlugin) ?? [];
+                List<Task> tasks = [];
+                foreach (ToInstallStorePlugin item in list)
+                    tasks.Add(bgTaskService.AddBgTask(new InstallStorePluginTask(item.Plugin, item.Version)));
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception e)
+            {
+                infoService.Event(EventType.PluginError, InfoBarSeverity.Warning,
+                    "PluginService_UpgradePluginFailed".GetLocalized(), exception: e);
+            }
+            finally
+            {
+                await settingService.RemoveSettingAsync(KeyValues.ToUpgradePlugin);
+            }
+            _ = bgTaskService.AddBgTask(new LoadPluginTask());
+        });
     }
 
     public async Task LoadPluginAsync(PluginX plugin, bool load)
@@ -183,6 +205,16 @@ public partial class PluginService(
     }
 
     public DirectoryInfo PluginDir { get; private set; } = null!;
+
+    public bool PluginInDb(Guid pluginId) => _pluginsDb.FindById(pluginId) != null;
+
+    public void SetPluginVersion(Guid pluginId, Version version)
+    {
+        PluginX? plugin = _pluginsDb.FindById(pluginId);
+        if (plugin is null) return; //不应该发生
+        plugin.Version = version;
+        _pluginsDb.Update(plugin);
+    }
 
     public void ThrowPluginExceptionEvent(PluginX plugin, Exception e, string msgHeader)
     {

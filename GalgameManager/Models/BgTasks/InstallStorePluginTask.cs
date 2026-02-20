@@ -6,7 +6,7 @@ using SharpCompress.Common;
 namespace GalgameManager.Models.BgTasks;
 
 /// <summary>
-/// 从插件商店下载安装插件的后台任务。
+/// 从插件商店下载安装/更新插件的后台任务。
 /// </summary>
 public class InstallStorePluginTask : BgTaskBase
 {
@@ -67,13 +67,10 @@ public class InstallStorePluginTask : BgTaskBase
 
             IPluginService pluginService = App.GetService<IPluginService>();
             // 从商店安装的 plugin 永远非 dev 模式。
-            await pluginService.AddPluginAsync(PluginFolderPath, false);
-            PluginX? plugin = (await pluginService.GetAllPluginsAsync()).FirstOrDefault(p => p.Info.Id == _pluginId);
-            if (plugin is not null)
-            {
-                plugin.Version = _version; //插件版本由商店提供
-                pluginService.SavePlugin(plugin);
-            }
+            // 已经安装过的插件（在数据库里）调用这个bgTask是升级插件，不需要再添加插件了，只覆盖文件和版本号，后面的加载步骤会把插件加载进来
+            if (!pluginService.PluginInDb(_pluginId))
+                await pluginService.AddPluginAsync(PluginFolderPath, false);
+            pluginService.SetPluginVersion(_pluginId, _version); //插件版本由商店提供
 
             ChangeProgress(1, 1, "InstallStorePluginTask_Installed".GetLocalized(PluginName));
         }

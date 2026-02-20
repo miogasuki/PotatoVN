@@ -4537,4 +4537,10 @@
   <data name="PluginType_Library" xml:space="preserve">
       <value>库</value>
   </data>
+  <data name="PluginService_UpgradePluginFailed" xml:space="preserve">
+      <value>插件升级失败</value>
+  </data>
+  <data name="PluginStorePage_UpgradeQueued" xml:space="preserve">
+      <value>新版本的插件将在下次启动时安装并启用~</value>
+  </data>
 </root>

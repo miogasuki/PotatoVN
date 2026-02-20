@@ -107,9 +107,8 @@ public class BgTaskService : IBgTaskService
             UiThreadInvokeHelper.Invoke(() => BgTaskAdded?.Invoke(bgTask));
 
             Task runTask = bgTask.Run();
-            _ = HandleBgTaskCompletionAsync(bgTask, runTask);
 
-            return Task.CompletedTask;
+            return HandleBgTaskCompletionAsync(bgTask, runTask);
         }
         catch (Exception e)
         {

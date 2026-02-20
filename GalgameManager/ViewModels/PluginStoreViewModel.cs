@@ -13,7 +13,11 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.ViewModels;
 
-public partial class PluginStoreViewModel(IInfoService infoService, IBgTaskService bgTaskService, IPluginService pluginService)
+public partial class PluginStoreViewModel(
+    IInfoService infoService,
+    IBgTaskService bgTaskService,
+    IPluginService pluginService,
+    ILocalSettingsService settingsService)
     : ObservableRecipient, INavigationAware
 {
     public AdvancedCollectionView Plugins { get; } = new();
@@ -46,6 +50,15 @@ public partial class PluginStoreViewModel(IInfoService infoService, IBgTaskServi
             if (result == ContentDialogResult.Primary)
             {
                 StorePluginVersion version = dialog.SelectedVersion;
+                if ((await pluginService.GetAllPluginsAsync()).Any(p => p.Id == clickedItem.Id))
+                {
+                    List<ToInstallStorePlugin> list = await settingsService.ReadSettingAsync<List<ToInstallStorePlugin>>
+                                                          (KeyValues.ToUpgradePlugin) ?? [];
+                    list.Add(new ToInstallStorePlugin{Plugin = clickedItem, Version = version});
+                    await settingsService.SaveSettingAsync(KeyValues.ToUpgradePlugin, list);
+                    infoService.Info(InfoBarSeverity.Success, "PluginStorePage_UpgradeQueued".GetLocalized());
+                    return;
+                }
                 await bgTaskService.AddBgTask(new InstallStorePluginTask(clickedItem, version));
             }
         }

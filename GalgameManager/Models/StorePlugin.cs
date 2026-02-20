@@ -50,3 +50,9 @@ public class StorePluginVersion
     public string DownloadUrl = string.Empty;
     public DateTime ReleaseDate;
 }
+
+public class ToInstallStorePlugin
+{
+    public StorePlugin Plugin = null!;
+    public StorePluginVersion Version = null!;
+}

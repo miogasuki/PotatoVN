@@ -75,6 +75,7 @@ public static class KeyValues
     public const string CategoryGroups = "categoryGroups"; // List<CategoryGroup>,分类组
     public const string MultiStreamPageList = "multiStreamPageList"; //List<IGalgameManager.MultiStreamPage.Lists.IList>, 主页列表
     public const string PluginPaths = "pluginPaths"; // List<string>,插件路径列表
+    public const string ToUpgradePlugin = "toUpgradePlugin"; // List<ToInstallStorePlugin>, 待升级的插件列表，下次启动时升级
     //数据同步
     public const string PvnSyncTimestamp = "pvnSyncTimestamp"; //long, 上一次同步时间戳
     public const string PvnSyncStaffTimestamp = "pvnSyncStaffTimestamp"; //long, 上次同步staff的时间戳

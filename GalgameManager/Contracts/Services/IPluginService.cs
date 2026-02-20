@@ -47,6 +47,13 @@ public interface IPluginService
     public DirectoryInfo PluginDir { get; }
 
     /// <summary>
+    /// 检查插件是否在数据库里
+    /// </summary>
+    /// <param name="pluginId"></param>
+    /// <returns></returns>
+    public bool PluginInDb (Guid pluginId);
+
+    /// <summary>
     /// 是否有正在等待取消加载/删除的插件
     /// </summary>
     public bool PluginOffloadInProgress { get; }
@@ -63,6 +70,15 @@ public interface IPluginService
     /// </summary>
     /// <param name="plugin"></param>
     public void SavePlugin(PluginX plugin);
+
+    /// <summary>
+    /// 直接操作数据库，设置某个插件的版本号
+    /// 这个函数只用于升级插件任务：因为升级插件时加载插件时插件不会走正常的加载程序，而是等待后续的加载任务把升级过后的插件加载进来
+    /// 这个时候任务列表里还没有插件，但需要修改插件版本号，只能直接编辑数据库
+    /// </summary>
+    /// <param name="pluginId"></param>
+    /// <param name="version"></param>
+    public void SetPluginVersion (Guid pluginId, Version version);
 
     /// <summary>
     /// 当调用插件功能抛出异常时可以调用此方法提醒用户（内部会调用infoService发送一个Event）

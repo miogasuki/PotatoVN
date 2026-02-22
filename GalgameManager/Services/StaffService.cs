@@ -170,8 +170,10 @@ public class StaffService : IStaffService
     {
         try
         {
-            IGalStaffParser? phraser = _galgameService.PhraserList[(int)galgame.RssType] as IGalStaffParser ??
-                                       _galgameService.PhraserList[(int)RssType.Mixed] as IGalStaffParser;
+            IGalStaffParser? phraser = _galgameService.PhraserList[(int)RssType.Mixed] as IGalStaffParser;
+            if (_galgameService.PhraserList.TryGetValue((int)galgame.RssType, out IGalInfoPhraser? tmpPhraser)
+                && tmpPhraser is IGalStaffParser tmpStaffPhraser)
+                phraser = tmpStaffPhraser;
             if (phraser is null) return; //按理来说根本不会发生
             List<StaffRelation> tmpStaffs = await phraser.GetStaffsAsync(galgame);
             {

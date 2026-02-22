@@ -18,7 +18,7 @@ public partial class GalgameFolderSource : GalgameSourceBase
 
     public GalgameFolderSource()
     {
-        
+
     }
 
     public override bool IsInSource(string path)
@@ -29,7 +29,7 @@ public partial class GalgameFolderSource : GalgameSourceBase
     public async override IAsyncEnumerable<(string?, string)> ScanAllGalgames()
     {
         ILocalSettingsService localSettings = App.GetService<ILocalSettingsService>();
-        
+
         List<string> fileMustContain = new();
         List<string> fileShouldContain = new();
         var searchSubFolder = await localSettings.ReadSettingAsync<bool>(KeyValues.SearchChildFolder);
@@ -39,7 +39,7 @@ public partial class GalgameFolderSource : GalgameSourceBase
         tmp = await localSettings.ReadSettingAsync<string>(KeyValues.GameFolderShouldContain);
         if (!string.IsNullOrEmpty(tmp))
             fileShouldContain = tmp.Split('\r', '\n').ToList();
-        
+
         Queue<(string Path, int Depth)> pathToCheck = new();
         pathToCheck.Enqueue((Path, 0));
         while (pathToCheck.Count > 0)
@@ -55,11 +55,11 @@ public partial class GalgameFolderSource : GalgameSourceBase
                 yield return (currentPath, "");
                 continue;
             }
-            if (!searchSubFolder) continue;
+            if (!searchSubFolder && currentDepth > 0) continue;
             foreach (var subPath in Directory.GetDirectories(currentPath))
             {
                 // 对于属于子源的路径，不应该由当前源来处理（因为如果是批量扫描的，子源会有自己的扫描任务，会处理属于它的路径）
-                if (SubSources.Any(s => s is GalgameFolderSource source 
+                if (SubSources.Any(s => s is GalgameFolderSource source
                                         && Utils.ArePathsEqual(source.Path, subPath)))
                     continue;
                 pathToCheck.Enqueue((subPath, currentDepth + 1));
@@ -94,7 +94,7 @@ public partial class GalgameFolderSource : GalgameSourceBase
             return false;
         }
     }
-    
+
     /// <summary>
     /// 判断文件夹是否是游戏文件夹
     /// </summary>
@@ -116,7 +116,7 @@ public partial class GalgameFolderSource : GalgameSourceBase
             }
         return shouldContain;
     }
-    
+
     public static string GetGalgameName(string path)
     {
         return SystemPath.GetFileName(

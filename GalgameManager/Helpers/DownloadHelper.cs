@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using GalgameManager.Contracts.Services;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -147,7 +149,7 @@ public static class DownloadHelper
 
     public static void DeleteImgIfExists(string? path)
     {
-        if (path == null) return;
+        if (path == null || !File.Exists(path)) return;
         try
         {
             File.Delete(path);
@@ -155,6 +157,73 @@ public static class DownloadHelper
         catch (Exception e)
         {
             App.GetService<IInfoService>().DeveloperEvent(e: e);
+        }
+    }
+
+    /// <summary>
+    /// 尝试从剪贴板读取图片并保存为 PNG。
+    /// </summary>
+    /// <param name="fileNameWithoutExtension">目标文件名（不含扩展名）</param>
+    /// <param name="targetFolder">保存图片的位置，若不指定则使用数据目录的images文件夹</param>
+    /// <returns>保存成功返回本地文件路径，否则返回null</returns>
+    public static async Task<string?> TrySaveClipboardImageAsPngAsync(string fileNameWithoutExtension,
+        DirectoryInfo? targetFolder = null)
+    {
+        DataPackageView? data = Clipboard.GetContent();
+        Stream? inputStream = null;
+        try
+        {
+            if (data.Contains(StandardDataFormats.Bitmap))
+            {
+                RandomAccessStreamReference? bitmapRef = await data.GetBitmapAsync();
+                if (bitmapRef is null) return null;
+                IRandomAccessStreamWithContentType? randomAccessStream = await bitmapRef.OpenReadAsync();
+                inputStream = randomAccessStream.AsStreamForRead();
+            }
+            else if (data.Contains(StandardDataFormats.StorageItems))
+            {
+                IReadOnlyList<IStorageItem>? items = await data.GetStorageItemsAsync();
+                StorageFile? file = items?.OfType<StorageFile>().FirstOrDefault();
+                if (file is null) return null;
+                inputStream = await file.OpenStreamForReadAsync();
+            }
+            else
+            {
+                return null;
+            }
+
+            if (inputStream is null) return null;
+            if (inputStream.CanSeek) inputStream.Position = 0;
+
+            Image<Rgba32> image;
+            try
+            {
+                image = Image.Load<Rgba32>(inputStream);
+            }
+            catch
+            {
+                return null;
+            }
+
+            using (image)
+            {
+                StorageFolder localFolder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Images);
+                if (targetFolder != null)
+                {
+                    if (!targetFolder.Exists) targetFolder.Create();
+                    localFolder = await StorageFolder.GetFolderFromPathAsync(targetFolder.FullName);
+                }
+
+                var safeName = $"{fileNameWithoutExtension}.png".RemoveInvalidChars();
+                StorageFile storageFile = await localFolder.CreateFileAsync(safeName, CreationCollisionOption.ReplaceExisting);
+                await using Stream fileStream = await storageFile.OpenStreamForWriteAsync();
+                await image.SaveAsPngAsync(fileStream);
+                return storageFile.Path;
+            }
+        }
+        finally
+        {
+            inputStream?.Dispose();
         }
     }
 

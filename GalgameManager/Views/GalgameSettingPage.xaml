@@ -254,6 +254,9 @@
                                                                     CommandParameter="Image"/>
                                                     <MenuFlyoutItem x:Uid="GalgameSettingPage_PickImageLocal"
                                                                     Command="{x:Bind ViewModel.PickImageCommand}"/>
+                                                    <MenuFlyoutItem x:Uid="GalgameSettingPage_PickImageFromClipboard"
+                                                                    Command="{x:Bind ViewModel.PickImageFromClipboardCommand}"
+                                                                    CommandParameter="Image"/>
                                                 </MenuFlyout>
                                             </Button.Flyout>
                                         </Button>
@@ -277,6 +280,9 @@
                                                                     CommandParameter="HeaderImage"/>
                                                     <MenuFlyoutItem x:Uid="GalgameSettingPage_PickImageLocal"
                                                                     Command="{x:Bind ViewModel.PickHeaderImageCommand}"/>
+                                                    <MenuFlyoutItem x:Uid="GalgameSettingPage_PickImageFromClipboard"
+                                                                    Command="{x:Bind ViewModel.PickImageFromClipboardCommand}"
+                                                                    CommandParameter="HeaderImage"/>
                                                 </MenuFlyout>
                                             </Button.Flyout>
                                         </Button>

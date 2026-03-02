@@ -208,31 +208,19 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     {
         var newFile = await DownloadHelper.PickImageAsync();
         if (newFile is null) return;
-        DownloadHelper.DeleteImgIfExists(Gal.HeaderImagePath.Value);
-        Gal.HeaderImagePath.Value = null;
-        var targetPath = Path.Combine((await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
-            $"{Gal.Name.Value}_Header.png");
-        await Task.Run(() =>
-        {
-            DownloadHelper.ProcessImage(newFile, targetPath, false);
-        });
-        Gal.HeaderImagePath.Value = targetPath;
-        Gal.HeaderImageUrl = null; //置空，让同步服务上传手动指定的图片
-        if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&
-            await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
-            Gal.PvnUploadProperties |= PvnUploadProperties.HeaderImageLoc;
+        await SetHeaderImgAsync(newFile, null, false);
+        _infoService.Info(InfoBarSeverity.Success, "SettingSuccess".GetLocalized());
     }
 
     [RelayCommand]
     private async Task PickImageFromRssAsync(object? parameter)
     {
         GameParseType parseType = parameter is string typeStr && Enum.TryParse(typeStr, out GameParseType pt)
-            ? pt
-            : GameParseType.Image;
+            ? pt : GameParseType.Image;
 
-        IsPhrasing = true;
         try
         {
+            IsPhrasing = true;
             List<string> imageUrls = await _galService.ParserGalImagesAsync(Gal, parseType);
             IsPhrasing = false;
 
@@ -247,91 +235,119 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
                 XamlRoot = App.MainWindow!.Content.XamlRoot
             };
             dialog.Resources["ContentDialogMaxWidth"] = App.MainWindow.Bounds.Width * 0.8;
-
             ContentDialogResult result = await dialog.ShowAsync();
+            if (result != ContentDialogResult.Primary || string.IsNullOrEmpty(dialog.SelectedImageUrl)) return;
 
-            if (result != ContentDialogResult.Primary || string.IsNullOrEmpty(dialog.SelectedImageUrl))
-            {
-                return;
-            }
+            IsPhrasing = true;
+            if (parseType == GameParseType.HeaderImage) await SetHeaderImgAsync(null, dialog.SelectedImageUrl);
+            else await SetImgAsync(null, dialog.SelectedImageUrl);
 
-            // --- 开始处理图片 ---
-            var isHeader = parseType == GameParseType.HeaderImage;
-            var timestamp = DateTime.Now.ToUnixTime(); // 统一时间戳
-            string? finalPath = null; // 最终成功保存的文件路径
-
-            if (isHeader)
-            {
-                // === Header 处理逻辑 ===
-                var tempFileName = $"{Gal.Name.Value}_Header_{timestamp}_tmp";
-                var targetFileName = $"{Gal.Name.Value}_Header_{timestamp}.png";
-                var imagesFolder = (await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path;
-                var targetPath = Path.Combine(imagesFolder, targetFileName);
-
-                // 下载临时文件
-                var tempFile = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dialog.SelectedImageUrl,
-                    fileNameWithoutExtension: tempFileName);
-
-                if (tempFile != null)
-                {
-                    try
-                    {
-                        // 在后台线程处理图片 (裁剪/转换)
-                        await Task.Run(() => DownloadHelper.ProcessImage(tempFile, targetPath, true));
-                        finalPath = targetPath; // 标记成功
-
-                        // 设置 Header 特有的属性
-                        DownloadHelper.DeleteImgIfExists(Gal.HeaderImagePath.Value); // 删旧图
-                        Gal.HeaderImagePath.Value = finalPath;
-                        Gal.HeaderImageUrl = dialog.SelectedImageUrl;
-
-                        // 设置同步标记
-                        if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&
-                            await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
-                        {
-                            Gal.PvnUploadProperties |= PvnUploadProperties.HeaderImageLoc;
-                        }
-                    }
-                    finally
-                    {
-                        // 确保清理临时文件
-                        if (File.Exists(tempFile)) File.Delete(tempFile);
-                    }
-                }
-            }
-            else
-            {
-                // === 普通封面 处理逻辑 ===
-                var fileName = $"{Gal.Name.Value}_{timestamp}_cover";
-
-                // 直接下载为最终文件
-                var newFile = await DownloadHelper.DownloadAndSaveImageWithDiffThread(dialog.SelectedImageUrl,
-                    fileNameWithoutExtension: fileName);
-
-                if (newFile != null)
-                {
-                    finalPath = newFile; // 标记成功
-                    DownloadHelper.DeleteImgIfExists(Gal.ImagePath.Value); // 删旧图
-                    Gal.ImagePath.Value = finalPath;
-                    Gal.PvnUploadProperties |= PvnUploadProperties.ImageLoc;
-                }
-            }
-
-            // 5. 统一的保存与通知逻辑
-            // 只要 finalPath 不为空，说明上面的步骤（无论是Header还是Cover）成功了
-            if (finalPath != null)
-            {
-                await _galService.SaveGalgameAsync(Gal);
-                _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_ImageSaved".GetLocalized());
-            }
+            await _galService.SaveGalgameAsync(Gal);
+            _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_ImageSaved".GetLocalized());
         }
         catch (Exception e)
         {
-            _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
+            if (e is PvnException pvnE)
+                _infoService.Info(InfoBarSeverity.Error, pvnE.Message);
+            else
+                _infoService.DeveloperEvent(e: e);
         }
         finally
         {
             IsPhrasing = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task PickImageFromClipboardAsync(object? parameter)
+    {
+        GameParseType parseType = parameter is string typeStr && Enum.TryParse(typeStr, out GameParseType pt)
+            ? pt : GameParseType.Image;
+
+        var isHeader = parseType == GameParseType.HeaderImage;
+        var timestamp = DateTime.Now.ToUnixTime();
+
+        try
+        {
+            var tempName = $"{Gal.Name.Value}_{timestamp}_clipboard_tmp".RemoveInvalidChars();
+            var tempPath = await DownloadHelper.TrySaveClipboardImageAsPngAsync(tempName);
+            if (tempPath is null) throw new PvnException("GalgameSettingPage_ClipboardNotImage".GetLocalized());
+            if (isHeader)
+                await SetHeaderImgAsync(tempPath, null);
+            else
+                await SetImgAsync(tempPath, null, false);
+        }
+        catch (Exception e)
+        {
+            _infoService.Info(InfoBarSeverity.Error, "GalgameSettingPage_ClipboardReadFailed".GetLocalized(), e.Message);
+        }
+    }
+
+    private async Task SetHeaderImgAsync(string? imagePath, string? imgUrl, bool deletePathImg = true)
+    {
+        string? tempFile = null; //如果是从URL下载的图片，tempFile用于存储下载的临时文件路径
+        var processing = IsPhrasing;
+        try
+        {
+            IsPhrasing = true;
+            if (string.IsNullOrEmpty(imagePath) && string.IsNullOrEmpty(imgUrl))
+                throw new PvnException("Both imagePath and imgUrl are null or empty"); //不应该发生
+            if (!string.IsNullOrEmpty(imagePath) && !File.Exists(imagePath))
+                throw new FileNotFoundException("Specified image file not found", imagePath); //不应该发生
+
+            if (imgUrl is not null)
+            {
+                tempFile = await DownloadHelper.DownloadAndSaveImageWithDiffThread(imgUrl,
+                    fileNameWithoutExtension: DateTime.Now.ToUnixTime().ToString());
+                imagePath = tempFile;
+            }
+
+            if (string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath))
+                throw new PvnException("DownloadImageFailed".GetLocalized());
+            DownloadHelper.DeleteImgIfExists(Gal.HeaderImagePath.Value);
+            Gal.HeaderImagePath.Value = null;
+            var targetPath = Path.Combine((await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
+                $"{Gal.Name.Value}_Header_{DateTime.Now.ToUnixTime()}.png");
+            await Task.Run(() =>
+            {
+                DownloadHelper.ProcessImage(imagePath, targetPath, false);
+            });
+            Gal.HeaderImagePath.Value = targetPath;
+            Gal.HeaderImageUrl = imgUrl; //若imgUrl不为空，说明是从网络获取的图片，优先使用URL以便同步服务上传；若imgUrl为空，同步系统会上传选择图片
+            if (await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncGames) &&
+                await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncHeaderImage))
+                Gal.PvnUploadProperties |= PvnUploadProperties.HeaderImageLoc;
+        }
+        finally
+        {
+            IsPhrasing = processing;
+            DownloadHelper.DeleteImgIfExists(tempFile);
+            if (deletePathImg)
+                DownloadHelper.DeleteImgIfExists(imagePath);
+        }
+    }
+
+    private async Task SetImgAsync(string? imagePath, string? imgUrl, bool deletePathImg = true)
+    {
+        if (string.IsNullOrEmpty(imagePath) && string.IsNullOrEmpty(imgUrl))
+            throw new PvnException("Both imagePath and imgUrl are null or empty"); //不应该发生
+        if (!File.Exists(imagePath) && string.IsNullOrEmpty(imgUrl))
+            throw new PvnException($"{imagePath} is not found");
+        try
+        {
+            var tmp = imagePath;
+            if (!string.IsNullOrEmpty(imgUrl))
+                tmp = await DownloadHelper.DownloadAndSaveImageWithDiffThread(imgUrl,
+                    fileNameWithoutExtension: $"{Gal.Name.Value}_{DateTime.Now.ToUnixTime()}_cover");
+            if (!File.Exists(tmp)) throw new PvnException("DownloadImageFailed".GetLocalized());
+            DownloadHelper.DeleteImgIfExists(Gal.ImagePath.Value);
+            Gal.ImagePath.Value = tmp;
+            Gal.PvnUploadProperties |= PvnUploadProperties.ImageLoc;
+        }
+        finally
+        {
+            if (deletePathImg)
+                DownloadHelper.DeleteImgIfExists(imagePath);
         }
     }
 

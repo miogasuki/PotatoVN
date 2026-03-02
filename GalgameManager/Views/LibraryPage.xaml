@@ -303,7 +303,6 @@
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="sources:GalgameSourceBase">
                                 <Button Style="{StaticResource TransparentButtonWithHover}"
-                                        Margin="0,0,8,8"
                                         DataContext="{x:Bind}"
                                         Command="{Binding ElementName=Page, Path=ViewModel.NavigateToCommand}"
                                         CommandParameter="{x:Bind}"

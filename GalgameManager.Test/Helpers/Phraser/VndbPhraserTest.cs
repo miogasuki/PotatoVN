@@ -17,6 +17,35 @@ public class VndbPhraserTest
     }
 
     [Test]
+    [TestCase("r2166", "v1129")]
+    public async Task GetVndbIdFromReleaseId_ShouldResolve_ToVnId(string releaseId, string expectedVnId)
+    {
+        var vnId = await _vndbPhraser.GetVndbIdFromReleaseId(releaseId);
+        Assert.That(vnId, Is.EqualTo(expectedVnId));
+    }
+
+    [Test]
+    [TestCase("r2166", "メタモルファンタジーSP", "https://t.vndb.org/cv/15/89715.jpg", "Escu:de")]
+    public async Task ParseGameWithReleaseId_ShouldPreferReleaseTitleAndCover(
+        string releaseId,
+        string expectedReleaseTitleJa,
+        string expectedReleaseCoverUrl,
+        string expectedDeveloper)
+    {
+        // 这里用一个“无关名称”来确保解析是由 releaseId 驱动，而不是依赖 search/name。
+        Galgame input = new("dummy");
+        input.Ids[(int)RssType.Vndb] = releaseId;
+
+        Galgame? game = await _vndbPhraser.GetGalgameInfo(input);
+
+        Assert.That(game, Is.Not.Null);
+        Assert.That(game!.Id, Is.EqualTo(releaseId));
+        Assert.That(game.Name.Value, Is.EqualTo(expectedReleaseTitleJa));
+        Assert.That(game.ImageUrl, Is.EqualTo(expectedReleaseCoverUrl));
+        Assert.That(game.Developer.Value, Is.EqualTo(expectedDeveloper));
+    }
+
+    [Test]
     [TestCase("スタディ§ステディ", "24689", "スタディ§ステディ", null, new string[] { })]
     [TestCase("サノバウィッチ", "16044", null, null, new string[] { })]
     [TestCase("喫茶ステラと死神の蝶", "26414", null, "星光咖啡馆与死神之蝶", new[] { "明月 栞那" })]

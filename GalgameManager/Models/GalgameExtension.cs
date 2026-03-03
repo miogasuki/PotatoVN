@@ -28,13 +28,25 @@ public static class GalgameExtension
             game.ErrorOccurred?.Invoke(e);
         }
     }
-    
+
     public static bool ApplySearchKey(this Galgame game, string searchKey)
     {
-        return game.Name.Value!.ContainX(searchKey) || 
-               game.ChineseName.Value!.ContainX(searchKey) ||
-               game.OriginalName.Value!.ContainX(searchKey) ||
-               game.Developer.Value!.ContainX(searchKey) || 
-               game.Tags.Value!.Any(str => str.ContainX(searchKey));
+        return Contain(game.Name.Value) ||
+               Contain(game.ChineseName.Value) ||
+               Contain(game.OriginalName.Value) ||
+               Contain(game.Developer.Value) ||
+               (game.Tags.Value??[]).Any(Contain);
+
+        bool Contain(string? str)
+        {
+            try
+            {
+                return str is not null && str.ContainX(searchKey);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

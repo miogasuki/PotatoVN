@@ -22,10 +22,10 @@ public class PvnSyncTask : BgTaskBase
     private readonly IBgTaskService _bgTaskService = App.GetService<IBgTaskService>();
     private readonly IMapper _mapper = App.GetService<IMapper>();
     private PvnServerInfo _serverInfo = null!;
-    
+
     public string Result { get; set; } = string.Empty;
     private readonly object _resultLock = new();
-    
+
     protected override Task RecoverFromJsonInternal() => Task.CompletedTask;
 
     protected async override Task RunInternal()
@@ -81,7 +81,7 @@ public class PvnSyncTask : BgTaskBase
     public override string Title { get; } = "PvnSyncTask_Title".GetLocalized();
 
     public override bool OnSearch(string key) => true;
-    
+
     private async Task PullUpdates(IPvnService pvnService, GalgameCollectionService gameService,
         ILocalSettingsService settingsService, long latest)
     {
@@ -199,7 +199,7 @@ public class PvnSyncTask : BgTaskBase
             pullTask.AddRange(changedList);
             await _bgTaskService.AddBgTask(pullTask);
         }
-        
+
         await _settingsService.SaveSettingAsync(KeyValues.PvnSyncStaffTimestamp, DateTime.Now.ToUnixTime());
     }
 
@@ -284,14 +284,21 @@ public class PvnSyncTask : BgTaskBase
         else if (!string.IsNullOrEmpty(s.ImagePath) && !string.IsNullOrEmpty(s.Name))
             payload.ImageLoc = (await _pvnService.UploadFileAsync(s.ImagePath, $"staff/{s.Name}"))!;
 
-        StaffDto tmp = await api.StaffPatchAsync(payload);
-        lock (_resultLock)
+        try
         {
-            Result += "PvnSyncTask_Staff_Commit_Success".GetLocalized(s.Name ?? string.Empty, tmp.Id) + "\n";
+            StaffDto tmp = await api.StaffPatchAsync(payload);
+            s.Ids[(int)RssType.PotatoVn] = tmp.Id.ToString();
+            lock (_resultLock)
+            {
+                Result += "PvnSyncTask_Staff_Commit_Success".GetLocalized(s.Name ?? string.Empty, tmp.Id) + "\n";
+            }
+        }
+        catch (Exception)
+        {
+            //ignore
         }
         await _settingsService.SaveSettingAsync(KeyValues.PvnSyncStaffTimestamp, DateTime.Now.ToUnixTime());
         s.RequirePvnSync = false;
-        s.Ids[(int)RssType.PotatoVn] = tmp.Id.ToString();
         _staffService.Save(s, false);
     }
 
@@ -303,7 +310,7 @@ public class PvnSyncTask : BgTaskBase
         GalgameUpdateDto payload = new();
 
         if (galgame.Ids[(int)RssType.PotatoVn].IsNullOrEmpty() == false &&
-            int.TryParse(galgame.Ids[(int)RssType.PotatoVn], out var id)) 
+            int.TryParse(galgame.Ids[(int)RssType.PotatoVn], out var id))
             payload.Id = id;
 
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.Infos))
@@ -319,7 +326,7 @@ public class PvnSyncTask : BgTaskBase
             payload.ReleaseDateTimeStamp = galgame.ReleaseDate.Value.Date.ToUnixTime();
             payload.Tags = (galgame.Tags.Value ?? []).ToList();
         }
-        
+
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.ImageLoc) &&
             string.IsNullOrEmpty(galgame.ImagePath) == false && galgame.ImagePath != Galgame.DefaultImagePath)
         {
@@ -358,7 +365,7 @@ public class PvnSyncTask : BgTaskBase
             payload.MyRate = galgame.MyRate;
             payload.PrivateComment = galgame.PrivateComment;
         }
-        
+
         if (galgame.PvnUploadProperties.HasFlag(PvnUploadProperties.PlayTime))
         {
             payload.TotalPlayTime = galgame.TotalPlayTime;

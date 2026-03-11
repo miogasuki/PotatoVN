@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
@@ -26,6 +27,7 @@ public class CategoryService : ICategoryService
     private readonly DispatcherQueue? _dispatcher;
     private ILiteCollection<CategoryGroup> _groupDbSet = null!;
     private ILiteCollection<Category> _categoryDbSet = null!;
+    private readonly IMessenger _bus;
 
     public CategoryGroup? GetGroup(Guid id) => _categoryGroups.FirstOrDefault(group => group.Id == id);
 
@@ -33,13 +35,14 @@ public class CategoryService : ICategoryService
     public CategoryGroup DeveloperGroup => _developerGroup!;
 
     public CategoryService(ILocalSettingsService localSettings, IGalgameCollectionService galgameService,
-        IInfoService infoService)
+        IInfoService infoService, IMessenger bus)
     {
         _localSettings = localSettings;
         _infoService = infoService;
         _galgameService = (galgameService as GalgameCollectionService)!;
         _bgmPhraser = (BgmPhraser)_galgameService.PhraserList[(int)RssType.Bangumi];
         _dispatcher = DispatcherQueue.GetForCurrentThread();
+        _bus = bus;
         Thread worker = new(Worker)
         {
             IsBackground = true
@@ -57,11 +60,11 @@ public class CategoryService : ICategoryService
         await LoadDataAsync();
         await Upgrade();
         await ImportAsync();
-        
+
         InitStatusGroup();
         InitDeveloperGroup();
-        
-        foreach (Galgame g in _galgameService.Galgames) 
+
+        foreach (Galgame g in _galgameService.Galgames)
             g.GalPropertyChanged += HandleGalPropertyChanged;
         _galgameService.GalgameAddedEvent += galgame =>
         {
@@ -82,7 +85,7 @@ public class CategoryService : ICategoryService
                 category.Remove(galgame);
                 Save(category);
             }
-        }; 
+        };
 
         // 给Galgame注入Category
         foreach (Category category in _categoryGroups.SelectMany(group => group.Categories))
@@ -94,7 +97,7 @@ public class CategoryService : ICategoryService
 
         _isInit = true;
         return;
-        
+
         void HandleGalPropertyChanged(Galgame gal, string name, object? _)
         {
             switch (name)
@@ -114,7 +117,7 @@ public class CategoryService : ICategoryService
                     break;
             }
         }
-        
+
         async Task LoadDataAsync()
         {
             await Task.Run(() =>
@@ -160,9 +163,10 @@ public class CategoryService : ICategoryService
         CategoryGroup newGroup = new(name, CategoryGroupType.Custom);
         _categoryGroups.Add(newGroup);
         Save(categoryGroup: newGroup);
+        NotifyCategoryGroupChanged(newGroup, CategoryGroupChangeType.GroupAdded);
         return newGroup;
     }
-    
+
     /// <summary>
     /// 删除分类组
     /// </summary>
@@ -179,8 +183,9 @@ public class CategoryService : ICategoryService
         }
         _categoryGroups.Remove(categoryGroup);
         _groupDbSet.Delete(categoryGroup.Id);
+        NotifyCategoryGroupChanged(categoryGroup, CategoryGroupChangeType.GroupRemoved);
     }
-    
+
     /// <summary>
     /// 将源分类合并到目标分类，然后删除源分类 <br/>
     /// 如果目标分类和源分类相同，则不进行任何操作
@@ -215,9 +220,30 @@ public class CategoryService : ICategoryService
         foreach (CategoryGroup categoryGroup in _categoryGroups)
         {
             var result = categoryGroup.Categories.Remove(category);
-            if (result) Save(categoryGroup: categoryGroup);
+            if (result)
+            {
+                Save(categoryGroup: categoryGroup);
+                NotifyCategoryGroupChanged(categoryGroup, CategoryGroupChangeType.CategoryRemoved, category);
+            }
         }
         _categoryDbSet.Delete(category.Id);
+    }
+
+    public void AddCategoryToGroup(CategoryGroup categoryGroup, Category category)
+    {
+        if (categoryGroup.Categories.Contains(category)) return;
+
+        categoryGroup.Categories.Add(category);
+        Save(categoryGroup: categoryGroup);
+        NotifyCategoryGroupChanged(categoryGroup, CategoryGroupChangeType.CategoryAdded, category);
+    }
+
+    public void RemoveCategoryFromGroup(CategoryGroup categoryGroup, Category category)
+    {
+        if (categoryGroup.Categories.Remove(category) == false) return;
+
+        Save(categoryGroup: categoryGroup);
+        NotifyCategoryGroupChanged(categoryGroup, CategoryGroupChangeType.CategoryRemoved, category);
     }
 
     /// <summary>
@@ -239,7 +265,7 @@ public class CategoryService : ICategoryService
             await UpdateCategory(game, updateDeveloper: true, updateStatus: true);
         //todo:空Category删除
     }
-    
+
     /// <summary>
     /// 根据某个游戏的信息更新各种分类（受设置中自动分类控制，若关闭自动分类则什么都不做）
     /// </summary>
@@ -250,7 +276,7 @@ public class CategoryService : ICategoryService
     {
         if (_isInit == false) await Init();
         // 更新开发商分类组
-        if (updateDeveloper && await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory) 
+        if (updateDeveloper && await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory)
             && galgame.Developer.Value != Galgame.DefaultString && galgame.Developer.Value != string.Empty)
         {
             //移除旧的开发商分类
@@ -260,21 +286,20 @@ public class CategoryService : ICategoryService
                 old.Remove(galgame);
                 Save(category: old);
             }
-            
+
             var developerStrings = galgame.Developer.Value!.Split(',');
             foreach (var developerStr in developerStrings)
             {
                 Producer producer = ProducerDataHelper.Producers.FirstOrDefault(p =>
                     p.Names.Any(name => string.Equals(name, developerStr, StringComparison.CurrentCultureIgnoreCase))) ?? new Producer(developerStr);
-                Category? developer = _developerGroup!.Categories.FirstOrDefault(c => 
+                Category? developer = _developerGroup!.Categories.FirstOrDefault(c =>
                         producer.Names.Any(name => string.Equals(name, c.Name, StringComparison.CurrentCultureIgnoreCase)));
                 if (developer is null)
                 {
                     developer = new Category(producer.Name);
                     _queue.Add(developer);
-                    _developerGroup!.Categories.Add(developer);
                     Save(category: developer);
-                    Save(categoryGroup: _developerGroup);
+                    AddCategoryToGroup(_developerGroup!, developer);
                 }
                 developer.Add(galgame);
                 Save(category: developer);
@@ -328,7 +353,20 @@ public class CategoryService : ICategoryService
                 _categoryDbSet.Upsert(c);
         }
     }
-    
+
+    private void NotifyCategoryGroupChanged(CategoryGroup group, CategoryGroupChangeType changeType,
+        Category? category = null)
+    {
+        if (!_isInit) return;
+
+        _bus.Send(new CategoryGroupChangedArg
+        {
+            Group = group,
+            Category = category,
+            ChangeType = changeType
+        });
+    }
+
     /// <summary>
     /// 保存所有分类信息
     /// </summary>
@@ -342,7 +380,7 @@ public class CategoryService : ICategoryService
                 _categoryDbSet.Upsert(group.Categories);
         }); //防止阻塞UI线程
     }
-    
+
     public async Task ExportAsync(Action<string, int, int>? progress)
     {
         ObservableCollection<CategoryGroup> tmp = new(_categoryGroups.Select(g => g.Clone()));
@@ -412,7 +450,7 @@ public class CategoryService : ICategoryService
         {
             _infoService.DeveloperEvent(e: e);
         }
-        
+
         _statusGroup = _categoryGroups.FirstOrDefault(group => group.Type == CategoryGroupType.Status);
         if (_statusGroup is null)
         {
@@ -420,7 +458,7 @@ public class CategoryService : ICategoryService
                 CategoryGroupType.Status);
             _categoryGroups.Add(_statusGroup);
             SetStatusCategory();
-            foreach(Galgame game in _galgameService.Galgames.Where(g => GetStatusCategory(g) is null)) 
+            foreach(Galgame game in _galgameService.Galgames.Where(g => GetStatusCategory(g) is null))
                 _statusCategory[(int)game.PlayType].Add(game);
         }
         else
@@ -445,9 +483,8 @@ public class CategoryService : ICategoryService
                 if (category is null)
                 {
                     category = new Category(type.GetLocalized()) { Id = guid };
-                    _statusGroup.Categories.Add(category);
                     Save(category: category);
-                    Save(categoryGroup: _statusGroup);
+                    AddCategoryToGroup(_statusGroup, category);
                 }
                 _statusCategory[(int)type] = category;
             }
@@ -487,14 +524,14 @@ public class CategoryService : ICategoryService
     }
 
     #region UPGRADE
-    
+
     /// <summary>
     /// 旧的存储格式与新的存储格式不兼容，需要升级
     /// </summary>
     private async Task Upgrade()
     {
         LocalSettingStatus status =
-            await _localSettings.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true) 
+            await _localSettings.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true)
             ?? new();
         // 改变游戏索引格式，since v1.8.0
         await UpdateGameIndexFormat(status);
@@ -573,9 +610,8 @@ public class CategoryService : ICategoryService
                     statusGroup.Categories.Any(c => c.Id == new Guid("00000000-0000-0000-0000-000000000006"));
                 if (!containsWantToPlay)
                 {
-                    statusGroup.Categories.Add(new Category(PlayType.WantToPlay.GetLocalized())
+                    AddCategoryToGroup(statusGroup, new Category(PlayType.WantToPlay.GetLocalized())
                         { Id = new Guid("00000000-0000-0000-0000-000000000006") });
-                    await SaveAllAsync();
                 }
             }
             status.CategoryAddWantToPlay = true;
@@ -616,7 +652,7 @@ public class CategoryService : ICategoryService
         status.CategoryLiteDbUpgrade = true;
         await _localSettings.SaveSettingAsync(KeyValues.DataStatus, status, true);
     }
-    
+
     #endregion
 
     /// <summary>

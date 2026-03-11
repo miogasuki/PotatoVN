@@ -136,7 +136,8 @@ This section highlights important files and directories specific to the client a
         *   **`GalgameManager.WinApp.Base/Contracts/IPotatoVNApi.cs`** defines the host API surface exposed to plugins.
         *   It now exposes **game list page filters** (GameListPage) operations: add/delete/clear filters, and reading the current filter list via `GetFiltersAsync()` (snapshot).
         *   The filter base types are in the shared library: `GalgameManager.WinApp.Base/Models/Filters/FilterBase.cs` and `GalgameManager.WinApp.Base/Contracts/IFilter.cs`.
-*   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
+ *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
+    *   `CategoryService.cs`: Manages category groups/categories and publishes `CategoryGroupChangedArg` through `IMessenger` only for category-group structural changes (group add/remove, category add/remove from a group), so reactive UI/filter features can refresh without reacting to category content edits.
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.
     *   File operations.

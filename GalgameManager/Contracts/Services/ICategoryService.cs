@@ -42,6 +42,20 @@ public interface ICategoryService
     public void DeleteCategory(Category category);
 
     /// <summary>
+    /// 向分类组添加分类
+    /// </summary>
+    /// <param name="categoryGroup">分类组</param>
+    /// <param name="category">分类</param>
+    public void AddCategoryToGroup(CategoryGroup categoryGroup, Category category);
+
+    /// <summary>
+    /// 从分类组移除分类
+    /// </summary>
+    /// <param name="categoryGroup">分类组</param>
+    /// <param name="category">分类</param>
+    public void RemoveCategoryFromGroup(CategoryGroup categoryGroup, Category category);
+
+    /// <summary>
     /// 将源分类合并到目标分类，然后删除源分类 <br/>
     /// 如果目标分类和源分类相同，则不进行任何操作
     /// </summary>

@@ -127,6 +127,9 @@ public static class KeyValues
     public const string SecondarySortDescending = "SecondarySortDescending"; //bool, 次排序是否降序排列，默认是false（升序）
     public const string DefaultGameName = "defaultGameName"; //string, 默认游戏名称
 
+    //游戏列表界面
+    public const string GameFilterClickCnt = "gameFilterClickCnt"; //Map<string, int>，某个filter被添加的次数，key为filter.SuggestName
+
     //库页面
     public const string LibraryNavBar = "libraryNavBar"; //bool, 是否显示库页面的导航栏
     public const string LibraryStatistics = "libraryStatistics"; //bool, 是否显示库页面的统计信息（当前页游戏库/游戏数）

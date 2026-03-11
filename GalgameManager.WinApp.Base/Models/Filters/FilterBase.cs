@@ -15,5 +15,7 @@ public abstract class FilterBase : IFilter
     /// </summary>
     protected abstract string SuggestName { get; }
 
+    public bool Revert { get; set; }
+
     public override string ToString() => SuggestName;
 }

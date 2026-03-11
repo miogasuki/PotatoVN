@@ -45,6 +45,12 @@ public interface IFilterService
     public Task<List<FilterBase>> SearchFilters(string str);
 
     /// <summary>
+    /// 某个filter发生内部属性变化后应该调用它，确保OnFilterChanged能被触发
+    /// </summary>
+    /// <param name="filter"></param>
+    public void SetFilter(FilterBase filter);
+
+    /// <summary>
     /// 当过滤器发生变化时触发
     /// </summary>
     event Action OnFilterChanged;

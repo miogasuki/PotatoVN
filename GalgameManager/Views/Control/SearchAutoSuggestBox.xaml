@@ -6,14 +6,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <AutoSuggestBox x:Uid="SearchAutoSuggestBox_Search" AllowFocusOnInteraction="True" MinWidth="250"
+    <AutoSuggestBox x:Name="SuggestBox" x:Uid="SearchAutoSuggestBox_Search" AllowFocusOnInteraction="True"
                     Text="{x:Bind SearchKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    ItemsSource="{x:Bind SearchSuggestions, Mode=OneWay}" 
+                    ItemsSource="{x:Bind SearchSuggestions, Mode=OneWay}"
                     MaxSuggestionListHeight="500"
                     AutoMaximizeSuggestionArea="True"
                     PlaceholderText="{x:Bind PlaceholderText}"
-                    TextChanged="AutoSuggestBox_OnTextChanged" 
+                    TextChanged="AutoSuggestBox_OnTextChanged"
                     QuerySubmitted="AutoSuggestBox_OnQuerySubmitted">
-        
+
     </AutoSuggestBox>
 </UserControl>

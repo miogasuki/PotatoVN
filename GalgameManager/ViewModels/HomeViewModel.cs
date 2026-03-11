@@ -22,6 +22,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.WinApp.Base.Models.Filters;
 
 // ReSharper disable CollectionNeverQueried.Global
@@ -32,10 +33,12 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 {
     private readonly INavigationService _navigationService;
     private readonly GalgameCollectionService _galgameService;
+    private readonly IGalgameSourceCollectionService _sourceService;
     private readonly ILocalSettingsService _localSettingsService;
     private readonly IFilterService _filterService;
     private readonly IInfoService _infoService;
     private readonly IBgTaskService _bgTaskService;
+    private readonly ICategoryService _categoryService;
     [ObservableProperty] private bool _isPhrasing;
     [ObservableProperty] private Stretch _stretch;
     [ObservableProperty] private bool _fixHorizontalPicture; // 是否修复横向图片（截断为标准的长方形）
@@ -91,14 +94,18 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     public HomeViewModel(INavigationService navigationService, IGalgameCollectionService dataCollectionService,
         ILocalSettingsService localSettingsService, IFilterService filterService, IInfoService infoService,
-        IBgTaskService bgTaskService)
+        IBgTaskService bgTaskService, ICategoryService categoryService, IGalgameSourceCollectionService sourceService,
+        IMessenger bus)
     {
         _navigationService = navigationService;
         _galgameService = (GalgameCollectionService)dataCollectionService;
+        _sourceService = sourceService;
         _localSettingsService = localSettingsService;
         _filterService = filterService;
         _infoService = infoService;
         _bgTaskService = bgTaskService;
+        _categoryService = categoryService;
+        bus.Register<CategoryGroupChangedArg>(this, HandleCategoryGroupChanged);
     }
 
     public async void OnNavigatedTo(object parameter)
@@ -108,7 +115,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             IsBatchMode = false;
             SearchTitle = SearchKey == string.Empty ? _uiSearch : _uiSearch + " ●";
             Source.Source = _galgameService.Galgames;
-            Filters = _filterService.GetFilters();
 
             //Read Settings
             Stretch = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.FixHorizontalPicture)
@@ -125,6 +131,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
             SecondaryKey = (SortKeys)_localSettingsService.ReadSettingAsync<int>(KeyValues.SecondarySortKey).Result;
             IsSecondaryDescending = _localSettingsService.ReadSettingAsync<bool>(KeyValues.SecondarySortDescending).Result;
+            FilterInit();
 
             var customOrderList = _localSettingsService
                                  .ReadSettingAsync<List<string>>(KeyValues.CustomSortOrder, true).Result
@@ -132,12 +139,13 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             ApplySort(customOrderList);
 
             //Add Event
-            Filters.CollectionChanged += UpdateFilterPanelDisplay;
             _galgameService.GalgameLoadedEvent += OnGalgameLoadedEvent;
             _galgameService.GalgameChangedEvent += UpdateGalgame;
             _galgameService.PhrasedEvent += OnGalgameServicePhrased;
             _localSettingsService.OnSettingChanged += OnSettingChanged;
             _galgameService.Galgames.CollectionChanged += OnGalgamesCollectionChanged;
+            _sourceService.OnSourceChanged += HandleSourceChanged;
+            _filterService.OnFilterChanged += HandleFilterChanged;
             Source.Filter = g =>
             {
                 if (g is Galgame game && _filterService.ApplyFilters(game))
@@ -148,7 +156,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                 return false;
             };
             Source.Refresh();
-            UpdateFilterPanelDisplay(null, null!);
         }
         catch (Exception e)
         {
@@ -176,9 +183,10 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             _galgameService.PhrasedEvent -= OnGalgameServicePhrased;
             _galgameService.GalgameChangedEvent -= UpdateGalgame;
             _galgameService.GalgameLoadedEvent -= OnGalgameLoadedEvent;
-            Filters.CollectionChanged -= UpdateFilterPanelDisplay;
             _galgameService.Galgames.CollectionChanged -= OnGalgamesCollectionChanged;
+            _sourceService.OnSourceChanged -= HandleSourceChanged;
             _localSettingsService.OnSettingChanged -= OnSettingChanged;
+            _filterService.OnFilterChanged -= HandleFilterChanged;
         }
         catch (Exception e)
         {
@@ -286,73 +294,178 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private string _uiFilter = string.Empty; //过滤器在AppBar上的文本
     [ObservableProperty] private bool _keepFilters; //是否保留过滤器
     [ObservableProperty] private string _filterInputText = string.Empty; //过滤器输入框的文本
-    public ObservableCollection<FilterBase> Filters = null!;
-    public readonly ObservableCollection<FilterBase> FilterInputSuggestions = new();
+    public AdvancedCollectionView TagFilters = [], DeveloperFilters = [], SourceFilters = [], PlayStatusFilters = [];
+    private readonly ObservableCollection<HomeViewModelFilter> _tagFiltersC = [], _developerFiltersC = [],
+        _sourceFiltersC = [], _playStatusFiltersC = [];
+    [ObservableProperty] private string _tagFilterSearchKey = string.Empty;
+    [ObservableProperty] private string _developerFilterSearchKey = string.Empty;
+    [ObservableProperty] private HomeViewModelFilter? _selectedPlayStatus;
 
-    private void UpdateFilterPanelDisplay(object? sender, NotifyCollectionChangedEventArgs e)
+    private bool _tagFilterCalc;
+    private bool _developerFilterCalc;
+    private bool _sourceFilterCalc;
+    private bool _playStatusInit;
+
+    private void FilterInit()
     {
-        var hasActiveFilters = Filters.Count > 0 && (DisplayVirtualGame || Filters.Any(f => !(f is VirtualGameFilter)));
-        UiFilter = "HomePage_Filter".GetLocalized() + (hasActiveFilters ? " ●" : string.Empty);
-        RefreshFilterAndSelection();
+        TagFilters.Source = _tagFiltersC;
+        DeveloperFilters.Source = _developerFiltersC;
+        SourceFilters.Source = _sourceFiltersC;
+        PlayStatusFilters.Source = _playStatusFiltersC;
+        _tagFilterCalc = false;
+        UpdateFilterMsg();
     }
 
     [RelayCommand]
-    private void FilterRemoved(object args)
+    private async Task OnFilterFlyoutOpening(object arg)
     {
-        if (args is FilterBase filter)
+        try
         {
-            _filterService.RemoveFilter(filter);
-
-            // 如果删除的是虚拟游戏过滤器，同步更新DisplayVirtualGame属性
-            if (filter is VirtualGameFilter)
+            if (!_tagFilterCalc)
             {
-                DisplayVirtualGame = false;
+                Dictionary<string, int> allTags = []; //value为包含该tag的游戏数量
+                await Task.Run(() =>
+                {
+                    foreach (Galgame game in _galgameService.Galgames)
+                    foreach (var tag in game.Tags.Value ?? [])
+                        if (!string.IsNullOrWhiteSpace(tag))
+                        {
+                            allTags.TryAdd(tag, 0);
+                            allTags[tag]++;
+                        }
+                });
+                await SetFilterList(TagFilters, allTags, tag => new TagFilter(tag),
+                    (filter, tag) => filter is TagFilter t && t.Name == tag);
+                TagFilters.Filter = f => f is HomeViewModelFilter filter &&
+                                         filter.Title.ContainX(TagFilterSearchKey);
+                _tagFilterCalc = true;
+            }
+            if (!_developerFilterCalc)
+            {
+                Dictionary<Category, int> allDev = []; //value为包含该开发商(分类)的游戏数量
+                foreach (Category dev in _categoryService.DeveloperGroup.Categories)
+                {
+                    allDev.TryAdd(dev, 0);
+                    allDev[dev] = dev.GalgamesX.Count;
+                }
+                await SetFilterList(DeveloperFilters, allDev, category => new CategoryFilter(category),
+                    (filter, category) => filter is CategoryFilter c && c.Category.Id == category.Id);
+                DeveloperFilters.Filter = f => f is HomeViewModelFilter filter &&
+                                              filter.Title.ContainX(DeveloperFilterSearchKey);
+                _developerFilterCalc = true;
+            }
+            if (!_sourceFilterCalc)
+            {
+                Dictionary<GalgameSourceBase, int> allSource = [];
+                foreach (GalgameSourceBase source in _sourceService.GetGalgameSources())
+                {
+                    allSource.TryAdd(source, 0);
+                    allSource[source] = source.GetGalgameList().Count();
+                }
+                await SetFilterList(SourceFilters, allSource, source => new SourceFilter(source),
+                    (filter, source) => filter is SourceFilter s && s.Source == source);
+                _sourceFilterCalc = true;
+            }
+            if (!_playStatusInit)
+            {
+                CategoryGroup group = _categoryService.StatusGroup;
+                Dictionary<Category, int> allStatus = [];
+                for(var i = 0; i < group.Categories.Count; i++)
+                    allStatus.Add(group.Categories[i], i);
+                await SetFilterList(PlayStatusFilters, allStatus, status => new CategoryFilter(status),
+                    (filter, status) => filter is CategoryFilter ps && ps.Category.Id == status.Id);
+                _playStatusInit = true;
             }
         }
-    }
-
-    [RelayCommand]
-    private async Task FilterInputTextChange(AutoSuggestBoxTextChangedEventArgs args)
-    {
-        if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput) return;
-        if (FilterInputText == string.Empty)
+        catch (Exception e)
         {
-            FilterInputSuggestions.Clear();
-            return;
+            _infoService.Log(msg: e.ToString());
         }
-        List<FilterBase> result = await _filterService.SearchFilters(FilterInputText);
-        FilterInputSuggestions.Clear();
-        foreach (FilterBase filter in result)
-            FilterInputSuggestions.Add(filter);
-    }
+        return;
 
-    [RelayCommand]
-    private async Task FilterInputTokenItemAdding(TokenItemAddingEventArgs args)
-    {
-        var i = args.Item;
-        var t = args.TokenText;
-        args.Cancel = true;
-        args.Item = null;
-        if (i is FilterBase filter)
-            _filterService.AddFilter(filter);
-        else if (string.IsNullOrEmpty(t) == false)
+        async Task SetFilterList<T>(AdvancedCollectionView list, Dictionary<T, int> iter,
+            Func<T, FilterBase> makeNewFilter, Func<FilterBase, T, bool> matchFilter) where T : notnull
         {
-            List<FilterBase> result = await _filterService.SearchFilters(t);
-            if (result.Count > 1)
-                _filterService.AddFilter(result[0]);
-            else
-                _infoService.Info(InfoBarSeverity.Error, msg: "HomePage_Filter_Not_Found".GetLocalized());
+            list.Clear();
+            Dictionary<string, int> clickCount = await _localSettingsService
+                .ReadSettingAsync<Dictionary<string, int>>(KeyValues.GameFilterClickCnt) ?? [];
+            var maxTagCnt = iter.Values.Max();
+            HashSet<FilterBase> activeFilters = new(_filterService.GetFilters());
+            foreach (KeyValuePair<T, int> kv in iter)
+            {
+                FilterBase? existFilter = activeFilters.FirstOrDefault(f => matchFilter(f, kv.Key));
+                FilterBase tmp = existFilter ?? makeNewFilter(kv.Key);
+                list.Add(new HomeViewModelFilter(tmp,
+                    kv.Value + maxTagCnt * clickCount.GetValueOrDefault(tmp.ToString()) * 0.3,
+                    _filterService, _localSettingsService, existFilter is null ? false : existFilter.Revert ? null : true));
+            }
+            list.SortDescriptions.Clear();
+            list.SortDescriptions.Add(new SortDescription(nameof(HomeViewModelFilter.SortPoint), SortDirection.Descending));
+            list.RefreshSorting();
         }
-
     }
 
     [RelayCommand]
-    private void OnFilterFlyoutOpening(object arg)
+    private void SearchTagFilter()
     {
-        UpdateFilterPanelDisplay(null, null!);
+        try
+        {
+            TagFilters.RefreshFilter();
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
     }
+
+    [RelayCommand]
+    private void SearchDeveloperFilter()
+    {
+        try
+        {
+            DeveloperFilters.RefreshFilter();
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
+    }
+
+    [RelayCommand]
+    private void ClearPlayStatus() => SelectedPlayStatus = null;
 
     partial void OnKeepFiltersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.KeepFilters, value);
+
+    private void HandleFilterChanged()
+    {
+        UpdateFilterMsg();
+        Source.Refresh();
+    }
+
+    private void UpdateFilterMsg()
+    {
+        ObservableCollection<FilterBase> filters = _filterService.GetFilters();
+        var hasActiveFilters = filters.Count > 0 && (DisplayVirtualGame || filters.Any(f => !(f is VirtualGameFilter)));
+        UiFilter = "HomePage_Filter".GetLocalized() + (hasActiveFilters ? " ●" : string.Empty);
+    }
+
+    private void HandleCategoryGroupChanged(object recipient, CategoryGroupChangedArg message)
+    {
+        if (message.Group.Type != CategoryGroupType.Developer) return;
+        _developerFilterCalc = false;
+    }
+
+    private void HandleSourceChanged() => _sourceFilterCalc = false;
+
+    partial void OnSelectedPlayStatusChanged(HomeViewModelFilter? value)
+    {
+        HashSet<Category> playStatus = new(_categoryService.StatusGroup.Categories);
+        FilterBase? existFilter = _filterService.GetFilters()
+                .FirstOrDefault(f => f is CategoryFilter c && playStatus.Contains(c.Category));
+        if (existFilter is not null) _filterService.RemoveFilter(existFilter);
+        if (value?.Filter is not CategoryFilter) return;
+        _filterService.AddFilter(value.Filter);
+    }
 
     #endregion
 
@@ -719,6 +832,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     private void UpdateGalgame(Galgame game)
     {
+        _tagFilterCalc = false;
         //通过Remove和Add来刷新某个具体的Item
         UiThreadInvokeHelper.Invoke(() =>
         {
@@ -925,4 +1039,48 @@ public class GalgameSearchSuggestionsProvider : ISearchSuggestionsProvider
     {
         return await _galgameCollectionService.GetSearchSuggestions(key, _searchName, _searchDeveloper, _searchTags, _searchChineseName, _searchOriginalName);
     }
+}
+
+public partial class HomeViewModelFilter : ObservableRecipient
+{
+    public FilterBase Filter { get; }
+    [ObservableProperty] private bool? _isChecked = false;
+    private readonly double _baseSortPoint;
+    private readonly IFilterService _filterService;
+    private readonly ILocalSettingsService _settingsService;
+
+    public HomeViewModelFilter(FilterBase filter, double baseSortPoint, IFilterService filterService,
+        ILocalSettingsService settingsService, bool? initialState)
+    {
+        Filter = filter;
+        _baseSortPoint = baseSortPoint;
+        _filterService = filterService;
+        _settingsService = settingsService;
+        IsChecked = initialState;
+    }
+
+    public string Title => Filter.Name;
+    public double SortPoint => _baseSortPoint + (IsChecked is true ? 1 : 0) * 1e7;
+
+    partial void OnIsCheckedChanged(bool? value)
+    {
+        if (value is true)
+        {
+            Filter.Revert = false;
+            _filterService.AddFilter(Filter);
+            Dictionary<string, int> cntMap =
+                _settingsService.ReadSettingAsync<Dictionary<string, int>>(KeyValues.GameFilterClickCnt).Result ?? [];
+            var cnt = cntMap.GetValueOrDefault(Filter.ToString()) + 1;
+            cntMap[Filter.ToString()] = cnt;
+            _settingsService.SaveSettingAsync(KeyValues.GameFilterClickCnt, cntMap);
+        }
+        else if (value is false) _filterService.RemoveFilter(Filter);
+        else
+        {
+            Filter.Revert = true;
+            _filterService.SetFilter(Filter);
+        }
+    }
+
+    public override string ToString() => Title;
 }

@@ -30,7 +30,7 @@ public class FilterService : IFilterService
 
     public bool ApplyFilters(Galgame galgame)
     {
-        return Filters.All(filter => filter.Apply(galgame));
+        return Filters.All(filter => filter.Revert ^ filter.Apply(galgame));
     }
 
     public void AddFilter(FilterBase filter)
@@ -58,6 +58,8 @@ public class FilterService : IFilterService
             Filters.Remove(filter);
         OnFilterChanged?.Invoke();
     }
+
+    public void SetFilter(FilterBase filter) => OnFilterChanged?.Invoke();
 
     private async Task OnSettingChangedAsync(string key)
     {

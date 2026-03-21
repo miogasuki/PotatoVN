@@ -4,6 +4,7 @@ using GalgameManager.Server.Enums;
 using GalgameManager.Server.Models;
 using GalgameManager.Server.Repositories;
 using GalgameManager.Server.Services;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace GalgameManager.Server.Test.Services;
@@ -44,7 +45,7 @@ public class StaffServiceRedirectTests : TestBase
         var mapperConfig = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<StaffProfile>();
-        });
+        }, NullLoggerFactory.Instance);
         _mapper = mapperConfig.CreateMapper();
 
         _service = new StaffService(

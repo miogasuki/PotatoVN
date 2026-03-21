@@ -69,7 +69,7 @@ public class Program
         // {
         //     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         // });
-        builder.Services.AddAutoMapper(typeof(Program).Assembly);
+        builder.Services.AddAutoMapper(_ => { }, typeof(Program));
 
         // Enable logging
         builder.Logging.AddConsole();

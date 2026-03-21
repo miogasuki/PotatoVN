@@ -366,6 +366,8 @@ public class LocalSettingsService : ILocalSettingsService
             case KeyValues.AutoExportInterval:
                 return (T?)(object)168.0;
             case KeyValues.VndbTranslateTags:
+            case KeyValues.VndbCensorTags:
+            case KeyValues.VndbRemoveSpoilerTags:
                 return (T?)(object)true;
             default:
                 return default;

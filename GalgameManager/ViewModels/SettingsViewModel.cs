@@ -141,6 +141,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         //RSS
         RssType = _localSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType).Result;
         _vndbTranslateTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbTranslateTags).Result;
+        _vndbCensorTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbCensorTags).Result;
+        _vndbRemoveSpoilerTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbRemoveSpoilerTags).Result;
         //DOWNLOAD_BEHAVIOR
         // _overrideLocalName = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalName).Result;
         // _overrideLocalNameWithChinese = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalNameWithChinese).Result;
@@ -643,6 +645,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     // ReSharper disable once CollectionNeverQueried.Global
     public readonly List<RssType> RssTypes = RssHelperX.GetAvailableTypes(App.GetService<IGalgameCollectionService>());
     [ObservableProperty] private bool _vndbTranslateTags;
+    [ObservableProperty] private bool _vndbCensorTags;
+    [ObservableProperty] private bool _vndbRemoveSpoilerTags;
 
     partial void OnRssTypeChanged(RssType value)
     {
@@ -693,6 +697,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     partial void OnDownloadCharactersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.DownloadCharacters, value);
 
     partial void OnVndbTranslateTagsChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.VndbTranslateTags, value);
+
+    partial void OnVndbCensorTagsChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.VndbCensorTags, value);
+
+    partial void OnVndbRemoveSpoilerTagsChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.VndbRemoveSpoilerTags, value);
 
     [RelayCommand]
     private async Task CategoryNow()

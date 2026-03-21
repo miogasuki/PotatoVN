@@ -913,17 +913,21 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     private async Task<VndbPhraserData> GetVndbData()
     {
         LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
-        bool _isChineseCulture = language == LanguageEnum.ChineseSimplified ||
+        var isChineseCulture = language == LanguageEnum.ChineseSimplified ||
                                 (language == LanguageEnum.Auto &&
                                  System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
 
-        bool translateTags = await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.VndbTranslateTags);
+        var translateTags = await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.VndbTranslateTags);
+        var censorTags = await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.VndbCensorTags);
+        var removeSpoilerTags = await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.VndbRemoveSpoilerTags);
 
         VndbPhraserData data = new()
         {
             Token = (await LocalSettingsService.ReadSettingAsync<VndbAccount>(KeyValues.VndbAccount))?.Token,
-            IsChineseCulture = _isChineseCulture,
-            TranslateTags = translateTags
+            IsChineseCulture = isChineseCulture,
+            TranslateTags = translateTags,
+            CensorTags = censorTags,
+            RemoveSpoilerTags = removeSpoilerTags
         };
         return data;
     }
@@ -948,6 +952,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 PhraserList[(int)RssType.Vndb].UpdateData(await GetVndbData());
                 break;
             case KeyValues.VndbTranslateTags:
+            case KeyValues.VndbCensorTags:
+            case KeyValues.VndbRemoveSpoilerTags:
                 PhraserList[(int)RssType.Vndb].UpdateData(await GetVndbData());
                 break;
             case KeyValues.MixedPhraserOrder:

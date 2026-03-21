@@ -180,16 +180,20 @@
                                 <StackPanel>
                                     <HyperlinkButton x:Uid="SettingsPage_Rss_VNDB"
                                             Padding="0"/>
-                                    <TextBlock x:Uid="SettingsPage_Rss_VNDB_Description"
-                                            TextWrapping="Wrap"
-                                               Style="{StaticResource DescriptionTextStyle}"
-                                               Margin="{StaticResource XSmallBottomMargin}"/>
-                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
-                                                               IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"
-                                                               Visibility="{x:Bind ViewModel.IsChineseCulture, Mode=OneWay, 
-                                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                </StackPanel>
-                            </control:Panel>
+                                     <TextBlock x:Uid="SettingsPage_Rss_VNDB_Description"
+                                             TextWrapping="Wrap"
+                                                Style="{StaticResource DescriptionTextStyle}"
+                                                Margin="{StaticResource XSmallBottomMargin}"/>
+                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
+                                                                IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"
+                                                                Visibility="{x:Bind ViewModel.IsChineseCulture, Mode=OneWay, 
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_CensorTags"
+                                                                IsOn="{x:Bind ViewModel.VndbCensorTags, Mode=TwoWay}"/>
+                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_RemoveSpoilerTags"
+                                                                IsOn="{x:Bind ViewModel.VndbRemoveSpoilerTags, Mode=TwoWay}"/>
+                                 </StackPanel>
+                             </control:Panel>
                             <!-- Mixed -->
                             <control:Panel
                                 Visibility="{x:Bind ViewModel.RssType, Mode=OneWay, Converter={StaticResource RssTypeToVisibilityConverter}, ConverterParameter=Mixed}">
@@ -205,17 +209,21 @@
                                                 MinWidth="{StaticResource ButtonMinWidth}"
                                                 Command="{x:Bind ViewModel.SetMixedPhraserOrderCommand}"/>
                                     </control:Setting>
-                                    <control:Setting x:Uid="SettingsPage_Rss_Mixed_Enable">
-                                        <Button Content="Go"
-                                                MinWidth="{StaticResource ButtonMinWidth}"
-                                                Command="{x:Bind ViewModel.SetMixedPhraserEnabledCommand}"/>
-                                    </control:Setting>
-                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
-                                                               IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"
-                                                               Visibility="{x:Bind ViewModel.IsChineseCulture, Mode=OneWay, 
-                                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                </StackPanel>
-                            </control:Panel>
+                                     <control:Setting x:Uid="SettingsPage_Rss_Mixed_Enable">
+                                         <Button Content="Go"
+                                                 MinWidth="{StaticResource ButtonMinWidth}"
+                                                 Command="{x:Bind ViewModel.SetMixedPhraserEnabledCommand}"/>
+                                     </control:Setting>
+                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
+                                                                IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"
+                                                                Visibility="{x:Bind ViewModel.IsChineseCulture, Mode=OneWay, 
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_CensorTags"
+                                                                IsOn="{x:Bind ViewModel.VndbCensorTags, Mode=TwoWay}"/>
+                                     <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_RemoveSpoilerTags"
+                                                                IsOn="{x:Bind ViewModel.VndbRemoveSpoilerTags, Mode=TwoWay}"/>
+                                 </StackPanel>
+                             </control:Panel>
 
                             <control:Panel>
                                 <StackPanel>

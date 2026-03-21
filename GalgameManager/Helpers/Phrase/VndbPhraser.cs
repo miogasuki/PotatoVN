@@ -37,6 +37,8 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
     private bool _authed;
     private bool _isChineseCulture = true;
     private bool _translateTags = true;
+    private bool _censorTags = true;
+    private bool _removeSpoilerTags = true;
     private Task? _checkAuthTask;
 
     public VndbPhraser()
@@ -76,6 +78,8 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             // 更新语言
             _isChineseCulture = vndbData.IsChineseCulture;
             _translateTags = vndbData.TranslateTags;
+            _censorTags = vndbData.CensorTags;
+            _removeSpoilerTags = vndbData.RemoveSpoilerTags;
             _init = false;
         }
     }
@@ -235,15 +239,19 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             result.Tags.Value = new ObservableCollection<string>();
             if (rssItem.Tags != null)
             {
-                var tmpTags = rssItem.Tags.OrderByDescending(t => t.Rating)
-                    .Where(t => t.Spoiler == null || t.Spoiler <= 1);  // 过滤掉剧透程度大于1的标签（仅显示轻微剧透）
+                IEnumerable<VnTag> tmpTags = rssItem.Tags.OrderByDescending(t => t.Rating);
+                if (_removeSpoilerTags)
+                    tmpTags = tmpTags.Where(t => t.Spoiler == null || t.Spoiler <= 1);
+
                 foreach (VndbTag tag in tmpTags)
                 {
                     if (!int.TryParse(tag.Id![1..], out var i)) continue;
                     if (_tagDb.TryGetValue(i, out JToken? tagInfo))
                     {
-                        // 仅保留一般性的tag，跳过sexual content 和 technical tags.
-                        if (tagInfo["cat"]!.ToString() != "cont") continue;
+                        var category = tagInfo["cat"]?.ToString() ?? string.Empty;
+                        if (category == "tech") continue;
+                        if (_censorTags && category == "ero") continue;
+                        if (category != "cont" && category != "ero") continue;
                         result.Tags.Value.Add(tagInfo["name"]!.ToString() ?? "");
                     }
                 }
@@ -860,13 +868,18 @@ public class VndbPhraserData : IGalInfoPhraserData
     public string? Token;
     public bool IsChineseCulture;
     public bool TranslateTags;
+    public bool CensorTags = true;
+    public bool RemoveSpoilerTags = true;
 
     public VndbPhraserData() { }
 
-    public VndbPhraserData(string? token, bool isChineseCulture = true, bool translateTags = true)
+    public VndbPhraserData(string? token, bool isChineseCulture = true, bool translateTags = true,
+        bool censorTags = true, bool removeSpoilerTags = true)
     {
         Token = token;
         IsChineseCulture = isChineseCulture;
         TranslateTags = translateTags;
+        CensorTags = censorTags;
+        RemoveSpoilerTags = removeSpoilerTags;
     }
 }

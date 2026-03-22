@@ -25,6 +25,32 @@ public interface IPotatoVnApi
     /// <returns></returns>
     public List<Galgame> GetAllGames();
 
+    /// <summary>
+    /// 以“本地文件夹游戏”的方式添加一个游戏。
+    /// </summary>
+    /// <param name="path">游戏根目录的绝对路径。通常应传入包含主 exe 的文件夹路径，而不是 exe / bat 文件本身。</param>
+    /// <param name="force">当信息源未搜到该游戏时是否仍强制加入库中</param>
+    /// <param name="requireConfirm">是否弹出搜刮结果确认对话框。批量导入或后台任务通常建议传 <c>false</c>，否则插件会等待用户确认。</param>
+    /// <returns>
+    /// 返回最终加入列表中的 <see cref="Galgame"/>。如果宿主识别为已存在且可合并的游戏，返回值可能是已有对象而不是新对象。
+    /// </returns>
+    /// <remarks><b>注意捕获异常；</b>该函数可在非UI线程上调用</remarks>
+    public Task<Galgame> AddGame(string path, bool force = true, bool requireConfirm = true);
+
+    /// <summary>
+    /// 添加一个虚拟游戏（非本地游戏）。
+    /// </summary>
+    /// <param name="name">虚拟游戏显示名。这里传的是游戏名，不是文件路径。</param>
+    /// <param name="force">当信息源未搜到该游戏时是否仍强制加入库中。</param>
+    /// <param name="requireConfirm">是否弹出搜刮结果确认对话框</param>
+    /// <returns>返回最终加入列表中的 <see cref="Galgame"/>。</returns>
+    /// <remarks>
+    /// <b>注意捕获异常；</b>该函数可在非UI线程上调用 <br/>
+    /// 若库中已存在同一游戏（例如同 UID / 同名占位条目），宿主通常会抛出“已在库中”异常，而不是重复创建。<br/>
+    /// 创建纯占位条目的常见写法：<c>await hostApi.AddVirtualGame(name, requireConfirm: false)</c>。
+    /// </remarks>
+    public Task<Galgame> AddVirtualGame(string name, bool force = true, bool requireConfirm = true);
+
     #endregion
 
     // 与游戏列表界面过滤器相关的 API

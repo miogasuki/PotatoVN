@@ -135,6 +135,7 @@ This section highlights important files and directories specific to the client a
     *   **Plugin Host API**:
         *   **`GalgameManager.WinApp.Base/Contracts/IPotatoVNApi.cs`** defines the host API surface exposed to plugins.
         *   It now exposes **game list page filters** (GameListPage) operations: add/delete/clear filters, and reading the current filter list via `GetFiltersAsync()` (snapshot).
+        *   It exposes game creation helpers for plugins: `AddGame(...)` for local folder games and `AddVirtualGame(...)` for non-local placeholder entries. These host calls are marshalled to the UI thread and may show parse confirmation UI unless `requireConfirm` is disabled.
         *   The filter base types are in the shared library: `GalgameManager.WinApp.Base/Models/Filters/FilterBase.cs` and `GalgameManager.WinApp.Base/Contracts/IFilter.cs`.
  *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
      *   `PluginService.cs`: The plugin loader recognizes a plugin by scanning DLLs in the selected plugin output folder and finding a non-abstract type that implements `IPlugin`; it does not rely on the DLL name matching the folder or template project name.

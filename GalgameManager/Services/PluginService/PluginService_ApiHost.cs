@@ -5,6 +5,7 @@ using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
+using GalgameManager.Models.Sources;
 using GalgameManager.WinApp.Base.Contracts;
 using LiteDB;
 using Microsoft.UI.Xaml.Controls;
@@ -25,6 +26,18 @@ public partial class PluginService
         #region GAMES
 
         public List<Galgame> GetAllGames() => _gameService.Galgames.ToList();
+
+        public async Task<Galgame> AddGame(string path, bool force = true, bool requireConfirm = true)
+        {
+            Galgame? result = await _gameService.AddGameAsync(GalgameSourceType.LocalFolder, path, force, requireConfirm);
+            return result ?? throw new InvalidOperationException("Failed to add game.");
+        }
+
+        public async Task<Galgame> AddVirtualGame(string name, bool force = true, bool requireConfirm = true)
+        {
+            Galgame? result = await _gameService.AddGameAsync(GalgameSourceType.Virtual, name, force, requireConfirm);
+            return result ?? throw new InvalidOperationException("Failed to add virtual game.");
+        }
 
         #endregion
 

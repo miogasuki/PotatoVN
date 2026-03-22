@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -228,37 +228,95 @@ public partial class PluginService(
         await Task.CompletedTask; //预留异步
         if (!Directory.Exists(path)) throw new PvnPathNotExist(path);
 
-        // 查找与目录同名的 DLL
-        var directoryName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-        var pluginFile = Path.Combine(path, $"{directoryName}.dll");
-        if (!File.Exists(pluginFile))
-            pluginFile = Directory.GetFiles(path, "PotatoVN.App.PluginBase.dll").FirstOrDefault();
-        if (pluginFile == null || !File.Exists(pluginFile))
-            throw new PvnException($"plugin dll of {path} not found");
+        var pluginFile = await FindPluginAssemblyPathAsync();
         PluginLoadContext loadContext = new(pluginFile, isDev);
 
-        Assembly pluginAssembly;
+        Assembly pluginAssembly = await LoadAssemblyAsync(loadContext, pluginFile, isDev);
+        Type? pluginType = FindPluginType(pluginAssembly);
+        if (pluginType == null) throw new PvnException($"no valid plugin found in {path}");
+
+        var pluginInstance = Activator.CreateInstance(pluginType)!;
+        if (pluginInstance is not IPlugin plugin)
+            throw new PvnException($"plugin type {pluginType.FullName} in {path} is incompatible with current host api");
+
+        return (plugin, loadContext);
+
+        async Task<string> FindPluginAssemblyPathAsync()
+        {
+            var directoryName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            List<string> candidates = Directory.GetFiles(path, "*.dll")
+                .OrderByDescending(GetCandidatePriority)
+                .ThenByDescending(File.GetLastWriteTimeUtc)
+                .ThenBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            foreach (var candidate in candidates)
+            {
+                PluginLoadContext? tmpContext = null;
+                try
+                {
+                    tmpContext = new PluginLoadContext(candidate, isDev);
+                    Assembly assembly = await LoadAssemblyAsync(tmpContext, candidate, isDev);
+                    if(FindPluginType(assembly) is not null) return candidate;
+                }
+                catch { /*ignore*/ }
+                finally
+                {
+                    tmpContext?.Unload();
+                }
+            }
+            throw new PvnException($"plugin dll of {path} not found");
+
+            int GetCandidatePriority(string assemblyPath)
+            {
+                var fileName = Path.GetFileName(assemblyPath);
+                if (fileName.Equals($"{directoryName}.dll", StringComparison.OrdinalIgnoreCase)) return 300;
+                if (fileName.Equals("PotatoVN.App.PluginBase.dll", StringComparison.OrdinalIgnoreCase)) return 250;
+                if (fileName.Contains("Plugin", StringComparison.OrdinalIgnoreCase)) return 200;
+                if (fileName.StartsWith("GalgameManager.WinApp.Base", StringComparison.OrdinalIgnoreCase)) return -100;
+                if (fileName.StartsWith("System.", StringComparison.OrdinalIgnoreCase)) return -100;
+                if (fileName.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase)) return -100;
+                if (fileName.StartsWith("CommunityToolkit.", StringComparison.OrdinalIgnoreCase)) return -100;
+                if (fileName.StartsWith("WinRT.", StringComparison.OrdinalIgnoreCase)) return -100;
+                return 0;
+            }
+        }
+
+        Type? FindPluginType(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes().FirstOrDefault(IsPluginType);
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                return e.Types.Where(t => t != null).FirstOrDefault(t => IsPluginType(t!));
+            }
+
+            bool IsPluginType(Type type)
+            {
+                if (type.IsInterface || type.IsAbstract) return false;
+                if (typeof(IPlugin).IsAssignableFrom(type)) return true;
+                return type.GetInterfaces().Any(i => i.FullName == typeof(IPlugin).FullName);
+            }
+        }
+    }
+
+    private static async Task<Assembly> LoadAssemblyAsync(PluginLoadContext loadContext, string assemblyPath, bool isDev)
+    {
         if (isDev)
         {
-            var pdbPath = Path.ChangeExtension(pluginFile, ".pdb");
+            var pdbPath = Path.ChangeExtension(assemblyPath, ".pdb");
             FileStream? pdbStream = File.Exists(pdbPath)
                 ? new FileStream(pdbPath, FileMode.Open, FileAccess.Read, FileShare.Read)
                 : null;
             await using (pdbStream)
             {
-                await using FileStream fs = new(pluginFile, FileMode.Open, FileAccess.Read);
-                pluginAssembly = loadContext.LoadFromStream(fs, pdbStream);
+                await using FileStream fs = new(assemblyPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                return loadContext.LoadFromStream(fs, pdbStream);
             }
         }
-        else
-        {
-            pluginAssembly = loadContext.LoadFromAssemblyPath(pluginFile);
-        }
 
-        Type? pluginType = pluginAssembly.GetTypes()
-            .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsInterface);
-        if (pluginType == null) throw new PvnException($"no valid plugin found in {path}");
-        return ((IPlugin)Activator.CreateInstance(pluginType)!, loadContext);
+        return loadContext.LoadFromAssemblyPath(assemblyPath);
     }
 
     public void SavePlugin(PluginX plugin) => _pluginsDb.Update(plugin);
@@ -275,6 +333,8 @@ public class PluginLoadContext(string pluginPath, bool isDev = false) : Assembly
     private readonly AssemblyDependencyResolver _resolver = new(pluginPath);
     private readonly HashSet<string> _sharedAssembliesBlacklist = new(StringComparer.OrdinalIgnoreCase)
     {
+        // Host plugin api
+        "GalgameManager.WinApp.Base",
         // WinAppSDK & WinUI
         "Microsoft.WinUI",
         "Microsoft.WindowsAppRuntime.Bootstrap.Net",
@@ -295,8 +355,9 @@ public class PluginLoadContext(string pluginPath, bool isDev = false) : Assembly
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
+        if (_sharedAssembliesBlacklist.Contains(assemblyName.Name!)) return TryLoadSharedAssembly(assemblyName);
         var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
-        if (assemblyPath != null && !_sharedAssembliesBlacklist.Contains(assemblyName.Name!))
+        if (assemblyPath != null)
         {
             if (isDev)
             {
@@ -311,7 +372,22 @@ public class PluginLoadContext(string pluginPath, bool isDev = false) : Assembly
             }
             return LoadFromAssemblyPath(assemblyPath);
         }
-        // dll不存在/黑名单（WinAppSDK）dll
+        // dll不存在
         return null;
+
+        Assembly? TryLoadSharedAssembly(AssemblyName asName)
+        {
+            Assembly? loadedAssembly =
+                Default.Assemblies.FirstOrDefault(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), asName));
+            if (loadedAssembly != null) return loadedAssembly;
+            try
+            {
+                return Default.LoadFromAssemblyName(asName);
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

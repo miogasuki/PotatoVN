@@ -1,4 +1,4 @@
-# GalgameManager Client (PotatoVN) - Detailed Knowledge Base
+﻿# GalgameManager Client (PotatoVN) - Detailed Knowledge Base
 
 > After finishing editing, please remember to run GalgameManager.Test to ensure no tests are broken.
 >
@@ -137,7 +137,8 @@ This section highlights important files and directories specific to the client a
         *   It now exposes **game list page filters** (GameListPage) operations: add/delete/clear filters, and reading the current filter list via `GetFiltersAsync()` (snapshot).
         *   The filter base types are in the shared library: `GalgameManager.WinApp.Base/Models/Filters/FilterBase.cs` and `GalgameManager.WinApp.Base/Contracts/IFilter.cs`.
  *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
-    *   `CategoryService.cs`: Manages category groups/categories and publishes `CategoryGroupChangedArg` through `IMessenger` only for category-group structural changes (group add/remove, category add/remove from a group), so reactive UI/filter features can refresh without reacting to category content edits.
+     *   `PluginService.cs`: The plugin loader recognizes a plugin by scanning DLLs in the selected plugin output folder and finding a non-abstract type that implements `IPlugin`; it does not rely on the DLL name matching the folder or template project name.
+     *   `CategoryService.cs`: Manages category groups/categories and publishes `CategoryGroupChangedArg` through `IMessenger` only for category-group structural changes (group add/remove, category add/remove from a group), so reactive UI/filter features can refresh without reacting to category content edits.
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.
     *   File operations.

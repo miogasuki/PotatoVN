@@ -171,9 +171,21 @@ public partial class PluginService(
                 plugin.Plugin = tmp.plugin;
                 plugin.LoadContext = tmp.contex;
             }
-            plugin.Info = plugin.Plugin.Info;
-            await plugin.Plugin.InitializeAsync(new PotatoVnApiHost(plugin));
-            plugin.IsLoaded = true;
+            plugin.XamlRegistration?.Dispose();
+            plugin.XamlRegistration = await PluginXamlHost.RegisterPluginAssemblyAsync(
+                plugin.Plugin.GetType().Assembly, plugin.Path);
+            try
+            {
+                plugin.Info = plugin.Plugin.Info;
+                await plugin.Plugin.InitializeAsync(new PotatoVnApiHost(plugin));
+                plugin.IsLoaded = true;
+            }
+            catch
+            {
+                plugin.XamlRegistration?.Dispose();
+                plugin.XamlRegistration = null;
+                throw;
+            }
         }
         if (_plugins.All(p => p.Info.Id != plugin.Info.Id))
             await UiThreadInvokeHelper.InvokeAsync(() => _plugins.Add(plugin));

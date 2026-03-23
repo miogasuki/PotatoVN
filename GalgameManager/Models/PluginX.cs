@@ -32,6 +32,7 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
     /// 是否已经加载
     [BsonIgnore] public bool IsLoaded { get; set; } = false;
     [BsonIgnore] public PluginLoadContext LoadContext { get; set; }
+    [BsonIgnore] public IDisposable? XamlRegistration { get; set; }
 
     // 插件是否是在 Dev 模式下加载的
     [ObservableProperty] private bool _isDevMode = false;
@@ -132,6 +133,8 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
     {
         IsLoaded = false;
         Info = null!;
+        XamlRegistration?.Dispose();
+        XamlRegistration = null;
         Plugin = null;
         LoadContext.Unload();
         LoadContext = null!;

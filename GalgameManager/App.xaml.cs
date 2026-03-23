@@ -66,6 +66,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        PluginXamlHost.Initialize(this);
 
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().

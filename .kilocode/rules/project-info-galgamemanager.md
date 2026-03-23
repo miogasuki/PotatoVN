@@ -138,6 +138,7 @@ This section highlights important files and directories specific to the client a
         *   It exposes game creation helpers for plugins: `AddGame(...)` for local folder games and `AddVirtualGame(...)` for non-local placeholder entries. These host calls are marshalled to the UI thread and may show parse confirmation UI unless `requireConfirm` is disabled.
         *   The filter base types are in the shared library: `GalgameManager.WinApp.Base/Models/Filters/FilterBase.cs` and `GalgameManager.WinApp.Base/Contracts/IFilter.cs`.
  *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
+     *   `PluginService.cs`: The plugin loader now registers each loaded plugin assembly with the host WinUI XAML metadata pipeline before plugin initialization, so plugin XAML can resolve nested custom controls/UserControls when the plugin output includes its generated `.pri` and compiled XAML resources.
      *   `PluginService.cs`: The plugin loader recognizes a plugin by scanning DLLs in the selected plugin output folder and finding a non-abstract type that implements `IPlugin`; it does not rely on the DLL name matching the folder or template project name.
      *   `CategoryService.cs`: Manages category groups/categories and publishes `CategoryGroupChangedArg` through `IMessenger` only for category-group structural changes (group add/remove, category add/remove from a group), so reactive UI/filter features can refresh without reacting to category content edits.
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
@@ -153,8 +154,9 @@ This section highlights important files and directories specific to the client a
         *   `SteamSourceService.cs`: Handles Steam-based game libraries. Supports meta backup/restore functionality by creating `.PotatoVN` folders within Steam game directories to store `meta.json` and associated images. Does not support move operations or file system monitoring due to Steam's managed nature.
         *   `VirtualSourceService.cs`: Handles virtual game libraries for organizational purposes.
         *   All source services implement `IGalgameSourceService` interface which defines standard operations like `SaveMetaAsync`, `LoadMetaAsync`, `RemoveMetaAsync` for meta information management.
-*   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
-    *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
+ *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
+     *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
+     *   `GalgameManager/Services/PluginService/PluginXamlHost.cs`: Bridges dynamically loaded plugin assemblies into the host app's WinUI XAML system by loading plugin PRI resources and registering plugin `IXamlMetadataProvider` implementations before plugin UI is initialized.
     *   **`Helpers/Phrase/`**: Contains the mixed phraser system for aggregating game information from multiple sources:
         *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration.
         *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, and `SteamEnabled`, all defaulting to true.

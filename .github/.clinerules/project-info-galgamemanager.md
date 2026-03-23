@@ -125,6 +125,7 @@ This section highlights important files and directories specific to the client a
         *   `PvnUploadProperties` (enum `PvnUploadProperties`): A flags enum specifying which particular properties of the game need to be uploaded to the server. The `PlayTime` flag is used to indicate that `PlayedTime`, `TotalPlayTime`, and `PlayCount` should be synced.
         *   `Ids` (string?[]): An array storing IDs from different data sources (Bangumi, VNDB, etc.). The array size is defined by `PhraserNumber` constant. All methods accessing this array include bounds checking to prevent `IndexOutOfRangeException` for legacy data with smaller arrays.
 *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
+    *   `PluginService.cs`: The plugin loader now registers each loaded plugin assembly with the host WinUI XAML metadata pipeline before plugin initialization, so plugin XAML can resolve nested custom controls/UserControls when the plugin output includes its generated `.pri` and compiled XAML resources.
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.
     *   File operations.
@@ -140,6 +141,7 @@ This section highlights important files and directories specific to the client a
         *   All source services implement `IGalgameSourceService` interface which defines standard operations like `SaveMetaAsync`, `LoadMetaAsync`, `RemoveMetaAsync` for meta information management.
 *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
     *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
+    *   `GalgameManager/Services/PluginService/PluginXamlHost.cs`: Bridges dynamically loaded plugin assemblies into the host app's WinUI XAML system by loading plugin PRI resources and registering plugin `IXamlMetadataProvider` implementations before plugin UI is initialized.
     *   **`Helpers/Phrase/`**: Contains the mixed phraser system for aggregating game information from multiple sources:
         *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration.
         *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, and `SteamEnabled`, all defaulting to true.

@@ -173,7 +173,7 @@ public partial class PluginService(
             }
             plugin.XamlRegistration?.Dispose();
             plugin.XamlRegistration = await PluginXamlHost.RegisterPluginAssemblyAsync(
-                plugin.Plugin.GetType().Assembly, plugin.Path);
+                plugin.Plugin.GetType().Assembly, plugin.Path, plugin.IsDevMode);
             try
             {
                 plugin.Info = plugin.Plugin.Info;

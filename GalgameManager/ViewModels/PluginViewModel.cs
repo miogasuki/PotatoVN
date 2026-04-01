@@ -24,6 +24,13 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
     public ObservableCollection<PluginSettingViewModel> Plugins = [];
     private ObservableCollection<PluginX> _plugins = null!;
 
+    public static event Action<Guid>? DevPluginHotReloaded;
+
+    public static void NotifyDevPluginHotReloaded(Guid pluginId)
+    {
+        DevPluginHotReloaded?.Invoke(pluginId);
+    }
+
     public async void OnNavigatedTo(object parameter)
     {
         try
@@ -121,11 +128,24 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
     }
 }
 
-public partial class PluginSettingViewModel (PluginX plugin, IPluginService pluginService) : ObservableRecipient
+public partial class PluginSettingViewModel(PluginX plugin, IPluginService pluginService) : ObservableRecipient
 {
     public PluginX Plugin { get; } = plugin;
     [ObservableProperty] private FrameworkElement? _ui;
     [ObservableProperty] private bool _isExpanded;
+
+    static PluginSettingViewModel()
+    {
+        PluginViewModel.DevPluginHotReloaded += pluginId =>
+        {
+            foreach (PluginSettingViewModel vm in App.GetService<PluginViewModel>().Plugins)
+            {
+                if (vm.Plugin.Id != pluginId) continue;
+                vm.Ui = null;
+                vm.IsExpanded = false;
+            }
+        };
+    }
 
     partial void OnIsExpandedChanged(bool value)
     {
@@ -135,7 +155,9 @@ public partial class PluginSettingViewModel (PluginX plugin, IPluginService plug
         if (Plugin.Plugin is not IPluginSetting setting) return;
         try
         {
-            FrameworkElement pluginUi = setting.CreateSettingUi();
+            FrameworkElement pluginUi = PluginInvokeHelper.Invoke(Plugin.Info, setting.CreateSettingUi,
+                App.GetService<IInfoService>())!;
+            if (pluginUi is null) return;
             Ui = pluginUi;
         }
         catch (Exception ex)
@@ -165,7 +187,11 @@ public partial class PluginSettingViewModel (PluginX plugin, IPluginService plug
         await dialog.ShowAsync();
         if (!dialog.PrimaryButtonClicked) return;
         var pluginPath = Plugin.Path;
+        IsExpanded = false;
+        Ui = null;
         await pluginService.DeletePluginAsync(Plugin, dialog.CheckBoxChecked);
         await pluginService.AddPluginAsync(pluginPath, true);
+        PluginViewModel.NotifyDevPluginHotReloaded(Plugin.Id);
     }
+
 }

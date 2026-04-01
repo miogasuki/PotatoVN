@@ -126,7 +126,19 @@ public partial class PluginService
                 targetFolder: pluginImgDir);
         }
 
-        public string GetPluginPath() => plugin.Path;
+        public string GetPluginPath()
+        {
+            if (plugin.Plugin is null) return plugin.Path;
+            try
+            {
+                //对于热重载插件，其目录是一个临时目录
+                return PluginXamlHost.GetRuntimePath(plugin.Plugin.GetType().Assembly);
+            }
+            catch
+            {
+                return plugin.Path;
+            }
+        }
 
         public void InvokeOnMainThread(Action action) => UiThreadInvokeHelper.Invoke(action);
 

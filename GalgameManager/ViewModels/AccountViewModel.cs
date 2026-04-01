@@ -67,7 +67,7 @@ public partial class AccountViewModel : ObservableObject, INavigationAware
             {
                 if (p.Plugin is not IPluginAccount accPlugin) continue;
                 if (_loadedPluginIds.Contains(p.Id)) continue;
-                UIElement? ui = p.GetPluginUi(accPlugin.CreateAccountUi);
+                UIElement? ui = PluginInvokeHelper.Invoke(p.Info, accPlugin.CreateAccountUi, _infoService);
                 if (ui is null) continue;
                 PluginUis.Add(ui);
                 _loadedPluginIds.Add(p.Id);

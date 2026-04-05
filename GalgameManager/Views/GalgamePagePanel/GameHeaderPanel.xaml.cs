@@ -220,6 +220,20 @@ public partial class GameHeaderPanel
         _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
     }
 
+    private void ClickEngine(object sender, RoutedEventArgs e)
+    {
+        if (Game is null) return;
+        Category? category = _categoryService.GetEngineCategory(Game);
+        if (category is null)
+        {
+            _infoService.Info(InfoBarSeverity.Error, msg: "HomePage_NoEngineCategory".GetLocalized());
+            return;
+        }
+        _filterService.ClearFilters();
+        _filterService.AddFilter(new CategoryFilter(category));
+        _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
+    }
+
     private void ClickStaff(object sender, RoutedEventArgs e)
     {
         if (sender is not HyperlinkButton button || button.DataContext is not Staff staff) return;

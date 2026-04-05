@@ -294,15 +294,17 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private string _uiFilter = string.Empty; //过滤器在AppBar上的文本
     [ObservableProperty] private bool _keepFilters; //是否保留过滤器
     [ObservableProperty] private string _filterInputText = string.Empty; //过滤器输入框的文本
-    public AdvancedCollectionView TagFilters = [], DeveloperFilters = [], SourceFilters = [], PlayStatusFilters = [];
+    public AdvancedCollectionView TagFilters = [], DeveloperFilters = [], EngineFilters = [], SourceFilters = [], PlayStatusFilters = [];
     private readonly ObservableCollection<HomeViewModelFilter> _tagFiltersC = [], _developerFiltersC = [],
-        _sourceFiltersC = [], _playStatusFiltersC = [];
+        _engineFiltersC = [], _sourceFiltersC = [], _playStatusFiltersC = [];
     [ObservableProperty] private string _tagFilterSearchKey = string.Empty;
     [ObservableProperty] private string _developerFilterSearchKey = string.Empty;
+    [ObservableProperty] private string _engineFilterSearchKey = string.Empty;
     [ObservableProperty] private HomeViewModelFilter? _selectedPlayStatus;
 
     private bool _tagFilterCalc;
     private bool _developerFilterCalc;
+    private bool _engineFilterCalc;
     private bool _sourceFilterCalc;
     private bool _playStatusInit;
 
@@ -310,6 +312,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         TagFilters.Source = _tagFiltersC;
         DeveloperFilters.Source = _developerFiltersC;
+        EngineFilters.Source = _engineFiltersC;
         SourceFilters.Source = _sourceFiltersC;
         PlayStatusFilters.Source = _playStatusFiltersC;
         _tagFilterCalc = false;
@@ -353,6 +356,20 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                 DeveloperFilters.Filter = f => f is HomeViewModelFilter filter &&
                                               filter.Title.ContainX(DeveloperFilterSearchKey);
                 _developerFilterCalc = true;
+            }
+            if (!_engineFilterCalc)
+            {
+                Dictionary<Category, int> allEngines = []; //value为包含该引擎(分类)的游戏数量
+                foreach (Category engine in _categoryService.EngineGroup.Categories)
+                {
+                    allEngines.TryAdd(engine, 0);
+                    allEngines[engine] = engine.GalgamesX.Count;
+                }
+                await SetFilterList(EngineFilters, allEngines, category => new CategoryFilter(category),
+                    (filter, category) => filter is CategoryFilter c && c.Category.Id == category.Id);
+                EngineFilters.Filter = f => f is HomeViewModelFilter filter &&
+                                           filter.Title.ContainX(EngineFilterSearchKey);
+                _engineFilterCalc = true;
             }
             if (!_sourceFilterCalc)
             {
@@ -432,6 +449,19 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
+    private void SearchEngineFilter()
+    {
+        try
+        {
+            EngineFilters.RefreshFilter();
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+        }
+    }
+
+    [RelayCommand]
     private void ClearPlayStatus() => SelectedPlayStatus = null;
 
     partial void OnKeepFiltersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.KeepFilters, value);
@@ -451,8 +481,10 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
     private void HandleCategoryGroupChanged(object recipient, CategoryGroupChangedArg message)
     {
-        if (message.Group.Type != CategoryGroupType.Developer) return;
-        _developerFilterCalc = false;
+        if (message.Group.Type == CategoryGroupType.Developer)
+            _developerFilterCalc = false;
+        else if (message.Group.Type == CategoryGroupType.Engine)
+            _engineFilterCalc = false;
     }
 
     private void HandleSourceChanged() => _sourceFilterCalc = false;

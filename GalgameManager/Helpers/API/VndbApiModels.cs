@@ -98,6 +98,7 @@ public class VndbVn
 public class VndbRelease
 {
     public string? Id { get; set; }
+    public string? Engine { get; set; }
     public List<VndbLanguage>? Languages { get; set; }
     public List<VndbVn>? Vns { get; set; }
     public List<VndbProducer>? Producers { get; set; }
@@ -267,6 +268,18 @@ public class VndbFilters
     public static VndbFilters NotEqual(string name, string value)
     {
         JArray jsonArray = new(name, "!=", value);
+        return new VndbFilters(jsonArray);
+    }
+
+    public static VndbFilters Equal(string name, bool value)
+    {
+        JArray jsonArray = new(name, "=", value);
+        return new VndbFilters(jsonArray);
+    }
+
+    public static VndbFilters NotEqual(string name, object? value)
+    {
+        JArray jsonArray = new(name, "!=", value ?? JValue.CreateNull());
         return new VndbFilters(jsonArray);
     }
 

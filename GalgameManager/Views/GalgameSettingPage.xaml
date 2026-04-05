@@ -222,6 +222,13 @@
                                     Value="{x:Bind ViewModel.Gal.Developer.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     IsLock="{x:Bind ViewModel.Gal.Developer.IsLock, Mode=TwoWay}" />
                             </control:Panel>
+                            <!-- 游戏引擎 -->
+                            <control:Panel>
+                                <control:LockableTextBox
+                                    x:Uid="GalgameSettingPage_GalgameEngine"
+                                    Value="{x:Bind ViewModel.Gal.Engine.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsLock="{x:Bind ViewModel.Gal.Engine.IsLock, Mode=TwoWay}" />
+                            </control:Panel>
                             <!-- 预计游玩时长 -->
                             <control:Panel>
                                 <control:LockableTextBox

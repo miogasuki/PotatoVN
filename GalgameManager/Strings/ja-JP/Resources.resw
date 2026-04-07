@@ -677,7 +677,7 @@
     <value>自動カテゴリ</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>有効にすると、開発会社とプレイ状況に基づいてゲームを自動的に分類します。</value>
+    <value>有効にすると、開発会社、ゲームエンジン、およびプレイ状況に基づいてゲームを自動的に分類します。</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
     <value>すべてのゲームをカテゴリ分け</value>
@@ -729,6 +729,9 @@
   </data>
   <data name="CategoryPage_CategoryNow.Label" xml:space="preserve">
     <value>すべてのゲームを分類</value>
+  </data>
+  <data name="CategoryPage_CategoryNow.ToolTipService.ToolTip" xml:space="preserve">
+    <value>プレイ状態、制作会社、ゲームエンジンですべてのゲームを分類</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
     <value>認証</value>
@@ -2942,7 +2945,7 @@
     <value>すべてのゲームを分類</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmMsg" xml:space="preserve">
-    <value>ゲームの制作会社とPotatoVN内での実際のプレイ状況に基づいて分類します。
+    <value>制作会社、ゲームエンジン、およびPotatoVN内の実際のプレイ状況に従ってゲームを分類します。
 これにより、現在分類されている制作会社とプレイ状況が部分的に上書きされます。</value>
   </data>
   <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
@@ -3617,5 +3620,14 @@
   </data>
   <data name="HomePage_EngineFilter.Text" xml:space="preserve">
     <value>エンジン</value>
+  </data>
+  <data name="HomePage_NoEngineCategory" xml:space="preserve">
+    <value>このゲームを含むエンジンカテゴリはありません</value>
+  </data>
+  <data name="MixedPhraserOrderDialog_It_Engine" xml:space="preserve">
+    <value>ゲームエンジン</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_EngineCheckBox.Content" xml:space="preserve">
+    <value>ゲームエンジンを取得</value>
   </data>
 </root>

@@ -729,7 +729,7 @@
     <value>自动分类</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>启用后自动按制作公司和游玩状态对游戏进行分类</value>
+    <value>启用后自动按制作公司、游戏引擎和游玩状态对游戏进行分类</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
     <value>分类所有游戏</value>
@@ -786,7 +786,7 @@
     <value>分类所有游戏</value>
   </data>
   <data name="CategoryPage_CategoryNow.ToolTipService.ToolTip" xml:space="preserve">
-    <value>根据游玩状态和制作公司对所有游戏进行分类</value>
+    <value>根据游玩状态、制作公司和游戏引擎对所有游戏进行分类</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
     <value>身份验证</value>
@@ -3131,7 +3131,7 @@
     <value>分类所有游戏</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmMsg" xml:space="preserve">
-    <value>按照游戏的制作公司和PotatoVN内的实际游玩情况进行分类
+    <value>按照游戏的制作公司、游戏引擎和PotatoVN内实际游玩情况进行分类
 这将部分覆盖目前已分类的制作公司和游玩状态</value>
   </data>
   <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
@@ -4587,5 +4587,11 @@
   </data>
   <data name="HomePage_EngineFilter.Text" xml:space="preserve">
     <value>游戏引擎</value>
+  </data>
+  <data name="MixedPhraserOrderDialog_It_Engine" xml:space="preserve">
+    <value>游戏引擎</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_EngineCheckBox.Content" xml:space="preserve">
+    <value>获取游戏引擎</value>
   </data>
 </root>

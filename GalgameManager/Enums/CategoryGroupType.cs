@@ -1,9 +1,9 @@
-﻿namespace GalgameManager.Enums;
+namespace GalgameManager.Enums;
 
 public enum CategoryGroupType
 {
     Developer,
-    Engine,
     Status,
-    Custom
+    Custom,
+    Engine
 }

@@ -585,7 +585,6 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             if (response.Results == null || response.Results.Count == 0) return null;
             // 返回第一个有引擎值的记录
             var engine = response.Results.FirstOrDefault(r => !string.IsNullOrEmpty(r.Engine))?.Engine;
-            System.Diagnostics.Debug.WriteLine($"GetEngineAsync: Selected engine='{engine ?? "null"}'");
             return engine;
         }
         catch (Exception e)

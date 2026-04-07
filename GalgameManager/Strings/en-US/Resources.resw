@@ -677,7 +677,7 @@ Since multiple data sources are involved, you need to configure relevant setting
     <value>Automatic categorization</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>After enabling, games will be automatically categorized by developer and play status</value>
+    <value>After enabling, games will be automatically categorized by developer, game engine, and play status</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
     <value>Categorize all games</value>
@@ -729,6 +729,9 @@ Since multiple data sources are involved, you need to configure relevant setting
   </data>
   <data name="CategoryPage_CategoryNow.Label" xml:space="preserve">
     <value>Categorize all games</value>
+  </data>
+  <data name="CategoryPage_CategoryNow.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Categorize all games by play status, developer, and game engine</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
     <value>Authentication</value>
@@ -2936,7 +2939,7 @@ If play time can record correctly, just cancel this popup.
     <value>Categorize all games</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmMsg" xml:space="preserve">
-    <value>Categorize by game developer and actual play status within PotatoVN.\nThis will partially overwrite currently categorized developers and play statuses.</value>
+    <value>Categorize games by developer, game engine, and actual play status in PotatoVN.\nThis will partially overwrite currently categorized developers and play statuses.</value>
   </data>
   <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
     <value>Rename category group</value>
@@ -3697,5 +3700,14 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="HomePage_EngineFilter.Text" xml:space="preserve">
     <value>Engine</value>
+  </data>
+  <data name="HomePage_NoEngineCategory" xml:space="preserve">
+    <value>No engine category contains this game</value>
+  </data>
+  <data name="MixedPhraserOrderDialog_It_Engine" xml:space="preserve">
+    <value>Game Engine</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_EngineCheckBox.Content" xml:space="preserve">
+    <value>Fetch Game Engine</value>
   </data>
 </root>

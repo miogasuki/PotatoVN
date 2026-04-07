@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI;
@@ -329,7 +329,7 @@ public class CategoryService : ICategoryService
         }
         // 更新引擎分类组
         if (updateEngine && await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory)
-            && !string.IsNullOrEmpty(galgame.Engine.Value))
+            && !string.IsNullOrWhiteSpace(galgame.Engine.Value) && galgame.Engine.Value != Galgame.DefaultString)
         {
             //移除旧的引擎分类
             Category? old = GetEngineCategory(galgame);

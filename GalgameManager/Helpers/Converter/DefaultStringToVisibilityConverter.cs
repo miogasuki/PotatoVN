@@ -11,7 +11,7 @@ public class DefaultStringToVisibilityConverter : IValueConverter
         if (value is not string str)
             return Visibility.Collapsed;
 
-        return string.IsNullOrEmpty(str) || str == Galgame.DefaultString
+        return string.IsNullOrWhiteSpace(str) || str == Galgame.DefaultString
             ? Visibility.Collapsed
             : Visibility.Visible;
     }

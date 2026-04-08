@@ -39,6 +39,7 @@ public sealed partial class MixedPhraserOrderDialog
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Character".GetLocalized(), _order.CharactersOrder),
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_CnName".GetLocalized(), _order.CnNameOrder),
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Dev".GetLocalized(), _order.DeveloperOrder),
+            new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Engine".GetLocalized(), _order.EngineOrder),
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Tag".GetLocalized(), _order.TagsOrder),
             new MixedPhraserOrderDialogItem("MixedPhraserOrderDialog_It_Staff".GetLocalized(), _order.StaffOrder),
         };

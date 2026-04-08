@@ -243,6 +243,13 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
                     result.Developer = tmp;
             }
         }
+        // engine
+        if (_data.Enabled.EngineEnabled)
+        {
+            result.Engine = GetValue(metas, nameof(Galgame.Engine),
+                meta => CheckStr(meta.Engine),
+                new LockableProperty<string>(Galgame.DefaultString));
+        }
 
         _bus?.Send(new GalgameParsingEventArgs(galgame, "done!"));
         return result;
@@ -381,7 +388,7 @@ public class MixedPhraserOrder
 {
     // 版本号，每次添加新搜刮器/添加新字段的时候都应该把这个数字+1，以便galgameCollectionService能够更新配置中已有的顺序配置
     // 更新配置不需要手动编写，已经在GalgameCollectionService中使用反射实现，会自动添加新的默认配置
-    public const int Version = 12;
+    public const int Version = 13;
     
     // 为什么使用ObservableCollection：为了能够在MixedPhraserOrderDialog中使顺序能够drag&drop
     // 所有变量都应该命名为：{字段名}Order，此处字段名应该与Galgame中对应的字段名一致（为了让GetValue中的反射能够找到对应的字段）
@@ -394,6 +401,7 @@ public class MixedPhraserOrder
     public ObservableCollection<RssType> CharactersOrder { get; set; } = new();
     public ObservableCollection<RssType> CnNameOrder { get; set; } = new();
     public ObservableCollection<RssType> DeveloperOrder { get; set; } = new();
+    public ObservableCollection<RssType> EngineOrder { get; set; } = new();
     public ObservableCollection<RssType> TagsOrder { get; set; } = new();
     public ObservableCollection<RssType> StaffOrder { get; set; } = new();
 
@@ -412,6 +420,7 @@ public class MixedPhraserOrder
             CharactersOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             CnNameOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
             DeveloperOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb, RssType.Steam };
+            EngineOrder = new() { RssType.Vndb };
             TagsOrder = new() { RssType.Bangumi, RssType.Vndb, RssType.Steam };
             StaffOrder = new() { RssType.Bangumi, RssType.Ymgal, RssType.Vndb };
         }
@@ -427,6 +436,7 @@ public class MixedPhraserOrder
             CharactersOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
             CnNameOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
             DeveloperOrder = new() { RssType.Vndb, RssType.Steam, RssType.Ymgal, RssType.Bangumi };
+            EngineOrder = new() { RssType.Vndb };
             TagsOrder = new() { RssType.Vndb, RssType.Steam, RssType.Bangumi };
             StaffOrder = new() { RssType.Vndb, RssType.Ymgal, RssType.Bangumi };
         }
@@ -447,11 +457,12 @@ public class MixedPhraserEnabled
     public bool VndbEnabled { get; set; } = true;
     public bool YmgalEnabled { get; set; } = true;
     public bool SteamEnabled { get; set; } = true;
-    
+
     // Information type scraping toggles
     public bool NameEnabled { get; set; } = true;
     public bool DescriptionEnabled { get; set; } = true;
     public bool DeveloperEnabled { get; set; } = true;
+    public bool EngineEnabled { get; set; } = true;
     public bool TagsEnabled { get; set; } = true;
     public bool RatingEnabled { get; set; } = true;
     public bool ExpectedPlayTimeEnabled { get; set; } = true;

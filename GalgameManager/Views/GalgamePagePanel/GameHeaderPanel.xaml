@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <local:GamePanelBase
     x:Class="GalgameManager.Views.GalgamePagePanel.GameHeaderPanel"
@@ -17,6 +17,7 @@
         <converter:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converter:ImagePathConverter x:Key="ImagePathConverter"/>
+        <converter:DefaultStringToVisibilityConverter x:Key="DefaultStringToVisibilityConverter" />
     </UserControl.Resources>
 
     <Grid x:Name="ContentRoot">
@@ -79,6 +80,14 @@
                                     <cmtkControls:WrapLayout Orientation="Horizontal" HorizontalSpacing="5" />
                                 </ItemsRepeater.Layout>
                             </ItemsRepeater>
+                        </StackPanel>
+                        <!-- 游戏引擎 -->
+                        <StackPanel Style="{StaticResource KeyValue}"
+                                    Visibility="{x:Bind Game.Engine.Value, Mode=OneWay, Converter={StaticResource DefaultStringToVisibilityConverter}}">
+                            <TextBlock x:Uid="GalgamePage_Engine"
+                                       Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <HyperlinkButton Content="{x:Bind Game.Engine.Value, Mode=OneWay, FallbackValue={}}"
+                                             Click="ClickEngine" Padding="0" Margin="0"/>
                         </StackPanel>
                         <!-- 发布日期 -->
                         <StackPanel Style="{StaticResource KeyValue}" Margin="0 -1 0 0">

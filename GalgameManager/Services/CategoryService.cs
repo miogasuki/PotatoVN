@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI;
@@ -18,7 +18,7 @@ public class CategoryService : ICategoryService
     private ObservableCollection<CategoryGroup> _categoryGroups = new();
     private readonly GalgameCollectionService _galgameService;
     private readonly IInfoService _infoService;
-    private CategoryGroup? _developerGroup, _statusGroup;
+    private CategoryGroup? _developerGroup, _statusGroup, _engineGroup;
     private readonly Category[] _statusCategory = new Category[6];
     private bool _isInit;
     private readonly ILocalSettingsService _localSettings;
@@ -33,6 +33,7 @@ public class CategoryService : ICategoryService
 
     public CategoryGroup StatusGroup => _statusGroup!;
     public CategoryGroup DeveloperGroup => _developerGroup!;
+    public CategoryGroup EngineGroup => _engineGroup!;
 
     public CategoryService(ILocalSettingsService localSettings, IGalgameCollectionService galgameService,
         IInfoService infoService, IMessenger bus)
@@ -63,6 +64,7 @@ public class CategoryService : ICategoryService
 
         InitStatusGroup();
         InitDeveloperGroup();
+        InitEngineGroup();
 
         foreach (Galgame g in _galgameService.Galgames)
             g.GalPropertyChanged += HandleGalPropertyChanged;
@@ -71,11 +73,15 @@ public class CategoryService : ICategoryService
             if (_isInit == false) return;
             galgame.GalPropertyChanged += HandleGalPropertyChanged;
             HandleGalPropertyChanged(galgame, nameof(Galgame.Developer), galgame.Developer.Value);
+            HandleGalPropertyChanged(galgame, nameof(Galgame.Engine), galgame.Engine.Value);
             HandleGalPropertyChanged(galgame, nameof(Galgame.PlayType), galgame.PlayType);
             HandleGalPropertyChanged(galgame, nameof(Galgame.LastPlayTime), galgame.LastPlayTime);
         };
         _galgameService.GalgameChangedEvent += galgame =>
+        {
             HandleGalPropertyChanged(galgame, nameof(Galgame.Developer), galgame.Developer.Value);
+            HandleGalPropertyChanged(galgame, nameof(Galgame.Engine), galgame.Engine.Value);
+        };
         _galgameService.GalgameDeletedEvent += galgame =>
         {
             galgame.GalPropertyChanged -= HandleGalPropertyChanged;
@@ -104,6 +110,9 @@ public class CategoryService : ICategoryService
             {
                 case nameof(Galgame.Developer):
                     Task __ = UpdateCategory(gal, updateDeveloper: true);
+                    break;
+                case nameof(Galgame.Engine):
+                    Task ____ = UpdateCategory(gal, updateEngine: true);
                     break;
                 case nameof(Galgame.PlayType):
                     Task ___ = UpdateCategory(gal, updateStatus: true);
@@ -262,7 +271,7 @@ public class CategoryService : ICategoryService
     {
         IList<Galgame> games = _galgameService.Galgames;
         foreach (Galgame game in games)
-            await UpdateCategory(game, updateDeveloper: true, updateStatus: true);
+            await UpdateCategory(game, updateDeveloper: true, updateStatus: true, updateEngine: true);
         //todo:空Category删除
     }
 
@@ -272,7 +281,7 @@ public class CategoryService : ICategoryService
     /// <param name="galgame">游戏</param>
     /// <param name="updateDeveloper">是否根据开发商信息更新开发商分类组</param>
     /// <param name="updateStatus">是否根据游玩状态信息更新游玩状态分类组</param>
-    private async Task UpdateCategory(Galgame galgame, bool updateDeveloper = false, bool updateStatus = false)
+    private async Task UpdateCategory(Galgame galgame, bool updateDeveloper = false, bool updateStatus = false, bool updateEngine = false)
     {
         if (_isInit == false) await Init();
         // 更新开发商分类组
@@ -317,6 +326,30 @@ public class CategoryService : ICategoryService
             }
             _statusCategory[(int)galgame.PlayType].Add(galgame);
             Save(category: _statusCategory[(int)galgame.PlayType]);
+        }
+        // 更新引擎分类组
+        if (updateEngine && await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory)
+            && !string.IsNullOrWhiteSpace(galgame.Engine.Value) && galgame.Engine.Value != Galgame.DefaultString)
+        {
+            //移除旧的引擎分类
+            Category? old = GetEngineCategory(galgame);
+            if (old is not null)
+            {
+                old.Remove(galgame);
+                Save(category: old);
+            }
+
+            var engineString = galgame.Engine.Value!;
+            Category? engine = _engineGroup!.Categories.FirstOrDefault(c =>
+                string.Equals(c.Name, engineString, StringComparison.CurrentCultureIgnoreCase));
+            if (engine is null)
+            {
+                engine = new Category(engineString);
+                Save(category: engine);
+                AddCategoryToGroup(_engineGroup!, engine);
+            }
+            engine.Add(galgame);
+            Save(category: engine);
         }
 
     }
@@ -406,6 +439,17 @@ public class CategoryService : ICategoryService
     {
         foreach(Category category in galgame.Categories)
             if(_developerGroup!.Categories.Contains(category))
+                return category;
+        return null;
+    }
+
+    /// <summary>
+    /// 获取引擎分类，如果没有则返回null
+    /// </summary>
+    public Category? GetEngineCategory(Galgame galgame)
+    {
+        foreach(Category category in galgame.Categories)
+            if(_engineGroup!.Categories.Contains(category))
                 return category;
         return null;
     }
@@ -504,6 +548,22 @@ public class CategoryService : ICategoryService
                 CategoryGroupType.Developer);
             _categoryGroups.Add(_developerGroup);
             Save(categoryGroup: _developerGroup);
+        }
+    }
+
+    private void InitEngineGroup()
+    {
+        try
+        {
+            _engineGroup = _categoryGroups.First(cg => cg.Type == CategoryGroupType.Engine);
+            _engineGroup.Name = ResourceExtensions.GetLocalized("CategoryService_Engine");
+        }
+        catch
+        {
+            _engineGroup = new CategoryGroup(ResourceExtensions.GetLocalized("CategoryService_Engine"),
+                CategoryGroupType.Engine);
+            _categoryGroups.Add(_engineGroup);
+            Save(categoryGroup: _engineGroup);
         }
     }
 

@@ -138,7 +138,7 @@
                     </AppBarButton.Icon>
                     <AppBarButton.Flyout>
                         <Flyout Placement="Bottom">
-                            <Grid ColumnDefinitions="*,*,*" RowDefinitions="*,Auto,Auto" Height="260" Width="400" ColumnSpacing="10">
+                            <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="*,Auto,Auto" Height="260" Width="400" ColumnSpacing="10">
                                 <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,*">
                                     <TextBlock Grid.Row="0" x:Uid="HomePage_PlayStatusFilter"
                                                FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
@@ -169,6 +169,23 @@
                                     </ScrollViewer>
                                 </Grid>
                                 <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
+                                    <TextBlock Grid.Row="0" x:Uid="HomePage_EngineFilter"
+                                                 FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
+                                    <control:SearchAutoSuggestBox Grid.Row="1" MinWidth="0"
+                                                                    SearchKey="{x:Bind ViewModel.EngineFilterSearchKey, Mode=TwoWay}"
+                                                                    SearchCommand="{x:Bind ViewModel.SearchEngineFilterCommand}"
+                                                                    Margin="0 0 10 0"/>
+                                    <ScrollViewer Grid.Row="2">
+                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.EngineFilters}">
+                                            <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
+                                                <CheckBox IsThreeState="True"
+                                                            IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                                            Content="{x:Bind Title}"/>
+                                            </DataTemplate>
+                                        </ItemsRepeater>
+                                    </ScrollViewer>
+                                </Grid>
+                                <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*">
                                     <TextBlock Grid.Row="0" x:Uid="HomePage_DeveloperFilter"
                                                FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
                                     <control:SearchAutoSuggestBox Grid.Row="1" MinWidth="0"
@@ -185,7 +202,7 @@
                                         </ItemsRepeater>
                                     </ScrollViewer>
                                 </Grid>
-                                <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*">
+                                <Grid Grid.Column="3" RowDefinitions="Auto,Auto,*">
                                     <TextBlock Grid.Row="0" x:Uid="HomePage_TagFilter"
                                                FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
                                     <control:SearchAutoSuggestBox SearchKey="{x:Bind ViewModel.TagFilterSearchKey, Mode=TwoWay}"

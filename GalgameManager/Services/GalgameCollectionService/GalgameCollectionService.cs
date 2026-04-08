@@ -412,6 +412,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                     galgame.Description.Value = tmp.Description.Value;
                 if (tmp.Developer != Galgame.DefaultString)
                     galgame.Developer.Value = tmp.Developer.Value;
+                if (tmp.Engine != Galgame.DefaultString && !string.IsNullOrEmpty(tmp.Engine.Value))
+                    galgame.Engine.Value = tmp.Engine.Value;
                 if (tmp.ExpectedPlayTime != Galgame.DefaultString)
                     galgame.ExpectedPlayTime.Value = tmp.ExpectedPlayTime.Value;
                 switch (await LocalSettingsService.ReadSettingAsync<DisplayName>(KeyValues.DefaultGameName))

@@ -19,6 +19,11 @@ public interface ICategoryService
     /// 开发商分类组
     /// </summary>
     public CategoryGroup DeveloperGroup { get; }
+
+    /// <summary>
+    /// 游戏引擎分类组
+    /// </summary>
+    public CategoryGroup EngineGroup { get; }
     
     public Task Init();
 
@@ -83,6 +88,13 @@ public interface ICategoryService
     /// <param name="galgame"></param>
     /// <returns></returns>
     Category? GetDeveloperCategory(Galgame galgame);
+
+    /// <summary>
+    /// 获取某个游戏的游戏引擎分类，若没有则返回null
+    /// </summary>
+    /// <param name="galgame"></param>
+    /// <returns></returns>
+    Category? GetEngineCategory(Galgame galgame);
 
     /// <summary>
     /// 保存分类信息

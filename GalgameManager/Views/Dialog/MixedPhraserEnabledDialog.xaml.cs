@@ -20,6 +20,7 @@ public sealed partial class MixedPhraserEnabledDialog
             NameEnabled = enabled.NameEnabled,
             DescriptionEnabled = enabled.DescriptionEnabled,
             DeveloperEnabled = enabled.DeveloperEnabled,
+            EngineEnabled = enabled.EngineEnabled,
             TagsEnabled = enabled.TagsEnabled,
             RatingEnabled = enabled.RatingEnabled,
             ExpectedPlayTimeEnabled = enabled.ExpectedPlayTimeEnabled,
@@ -39,6 +40,7 @@ public sealed partial class MixedPhraserEnabledDialog
         NameCheckBox.IsChecked = enabled.NameEnabled;
         DescriptionCheckBox.IsChecked = enabled.DescriptionEnabled;
         DeveloperCheckBox.IsChecked = enabled.DeveloperEnabled;
+        EngineCheckBox.IsChecked = enabled.EngineEnabled;
         TagsCheckBox.IsChecked = enabled.TagsEnabled;
         RatingCheckBox.IsChecked = enabled.RatingEnabled;
         ExpectedPlayTimeCheckBox.IsChecked = enabled.ExpectedPlayTimeEnabled;
@@ -62,6 +64,7 @@ public sealed partial class MixedPhraserEnabledDialog
         Result.NameEnabled = NameCheckBox.IsChecked ?? false;
         Result.DescriptionEnabled = DescriptionCheckBox.IsChecked ?? false;
         Result.DeveloperEnabled = DeveloperCheckBox.IsChecked ?? false;
+        Result.EngineEnabled = EngineCheckBox.IsChecked ?? false;
         Result.TagsEnabled = TagsCheckBox.IsChecked ?? false;
         Result.RatingEnabled = RatingCheckBox.IsChecked ?? false;
         Result.ExpectedPlayTimeEnabled = ExpectedPlayTimeCheckBox.IsChecked ?? false;

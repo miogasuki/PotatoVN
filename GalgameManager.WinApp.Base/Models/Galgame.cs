@@ -63,6 +63,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private LockableProperty<string> _chineseName = "";
     [ObservableProperty] private LockableProperty<string> _description = "";
     [ObservableProperty] private LockableProperty<string> _developer = DefaultString;
+    [ObservableProperty] private LockableProperty<string> _engine = DefaultString;
     [ObservableProperty] private DateTime _lastPlayTime = DateTime.MinValue; //上次游玩时间（新）
     [ObservableProperty] private LockableProperty<string> _expectedPlayTime = DefaultString;
     [ObservableProperty] private LockableProperty<float> _rating = 0;

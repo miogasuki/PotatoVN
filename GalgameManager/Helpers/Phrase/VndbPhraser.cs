@@ -235,6 +235,17 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             result.ReleaseDate = (rssItem.Released != null
                 ? IGalInfoPhraser.GetDateTimeFromString(rssItem.Released)
                 : null) ?? DateTime.MinValue;
+            // Engine
+            var vnIdForEngine = id.StartsWith("v") ? id : "v" + id;
+            try
+            {
+                var engine = await GetEngineAsync(vnIdForEngine);
+                result.Engine.Value = engine ?? string.Empty;
+            }
+            catch (Exception)
+            {
+                result.Engine.Value = string.Empty;
+            }
             // Tags
             result.Tags.Value = new ObservableCollection<string>();
             if (rssItem.Tags != null)
@@ -546,6 +557,41 @@ public class VndbPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser
             if (e is not ThrottledException || retry) return null;
             await Task.Delay(60 * 1000); // 1 minute
             return await GetReleaseAsync(releaseId, true);
+        }
+    }
+
+    /// <summary>
+    /// 获取游戏引擎信息
+    /// </summary>
+    private async Task<string?> GetEngineAsync(string? vnId, bool retry = false)
+    {
+        if (string.IsNullOrEmpty(vnId)) return null;
+        try
+        {
+            VndbResponse<VndbRelease> response = await _vndbApi.GetReleaseAsync(new VndbQuery
+            {
+                Fields = "engine",
+                Filters = VndbFilters.And(
+                    VndbFilters.Equal("vn", VndbFilters.Equal("id", vnId)),
+                    VndbFilters.Equal("official", true),
+                    VndbFilters.Equal("platform", "win"),
+                    VndbFilters.NotEqual("released", "TBA"),
+                    VndbFilters.Equal("rtype", "complete")
+                ),
+                Results = 100,
+                Sort = "released",
+                Reverse = true
+            });
+            if (response.Results == null || response.Results.Count == 0) return null;
+            // 返回第一个有引擎值的记录
+            var engine = response.Results.FirstOrDefault(r => !string.IsNullOrEmpty(r.Engine))?.Engine;
+            return engine;
+        }
+        catch (Exception e)
+        {
+            if (e is not ThrottledException || retry) return null;
+            await Task.Delay(60 * 1000); // 1 minute
+            return await GetEngineAsync(vnId, true);
         }
     }
 

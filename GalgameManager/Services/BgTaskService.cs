@@ -29,12 +29,14 @@ public class BgTaskService : IBgTaskService
         _bgTasksString[typeof(UnpackGameTask)] = "-unpack";
         _bgTasksString[typeof(SourceMoveTask)] = "-sourceMove";
         _bgTasksString[typeof(GetGalgameCharactersFromRssTask)] = "-getGalChar";
+        _bgTasksString[typeof(DownloadCategoryImageTask)] = "-getCategoryImg";
         _bgTasksString[typeof(CallMagpieTask)] = "-callMagpie";
         _bgTasksString[typeof(GameMuteTask)] = "-gameMute";
         _bgTasksString[typeof(KeyMappingTask)] = "-keyMap";
         _bgTasksString[typeof(GameSaveDetectorTask)] = "-saveDetector";
 
         _converters.Add(new GalgameAndUidConverter());
+        _converters.Add(new CategoryAndUuidConverter());
     }
 
     public void SaveBgTasksString()

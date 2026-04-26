@@ -1,14 +1,11 @@
-using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using GalgameManager.Helpers.Phrase;
 using GalgameManager.Models;
+using GalgameManager.Models.BgTasks;
 using LiteDB;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Services;
@@ -17,14 +14,12 @@ public class CategoryService : ICategoryService
 {
     private ObservableCollection<CategoryGroup> _categoryGroups = new();
     private readonly GalgameCollectionService _galgameService;
+    private readonly IBgTaskService _bgTaskService;
     private readonly IInfoService _infoService;
     private CategoryGroup? _developerGroup, _statusGroup, _engineGroup;
     private readonly Category[] _statusCategory = new Category[6];
     private bool _isInit;
     private readonly ILocalSettingsService _localSettings;
-    private readonly BlockingCollection<Category> _queue = new();
-    private readonly BgmPhraser _bgmPhraser;
-    private readonly DispatcherQueue? _dispatcher;
     private ILiteCollection<CategoryGroup> _groupDbSet = null!;
     private ILiteCollection<Category> _categoryDbSet = null!;
     private readonly IMessenger _bus;
@@ -36,19 +31,13 @@ public class CategoryService : ICategoryService
     public CategoryGroup EngineGroup => _engineGroup!;
 
     public CategoryService(ILocalSettingsService localSettings, IGalgameCollectionService galgameService,
-        IInfoService infoService, IMessenger bus)
+        IInfoService infoService, IMessenger bus, IBgTaskService bgTaskService)
     {
         _localSettings = localSettings;
         _infoService = infoService;
         _galgameService = (galgameService as GalgameCollectionService)!;
-        _bgmPhraser = (BgmPhraser)_galgameService.PhraserList[(int)RssType.Bangumi];
-        _dispatcher = DispatcherQueue.GetForCurrentThread();
         _bus = bus;
-        Thread worker = new(Worker)
-        {
-            IsBackground = true
-        };
-        worker.Start();
+        _bgTaskService = bgTaskService;
     }
 
     public async Task Init()
@@ -261,7 +250,7 @@ public class CategoryService : ICategoryService
     /// <param name="category"></param>
     public void UpdateCategory(Category category)
     {
-        _queue.Add(category);
+        _ = EnqueueCategoryImageDownloadAsync(category);
     }
 
     /// <summary>
@@ -306,9 +295,9 @@ public class CategoryService : ICategoryService
                 if (developer is null)
                 {
                     developer = new Category(producer.Name);
-                    _queue.Add(developer);
                     Save(category: developer);
                     AddCategoryToGroup(_developerGroup!, developer);
+                    await EnqueueCategoryImageDownloadAsync(developer);
                 }
                 developer.Add(galgame);
                 Save(category: developer);
@@ -354,18 +343,26 @@ public class CategoryService : ICategoryService
 
     }
 
-    private async void Worker()
+    private async Task EnqueueCategoryImageDownloadAsync(Category category)
     {
-        foreach (Category category in _queue.GetConsumingEnumerable())
+        try
         {
-            var imgUrl = await _bgmPhraser.GetDeveloperImageUrlAsync(category.Name);
-            if (imgUrl is null) continue;
-            var imagPath = await DownloadHelper.DownloadAndSaveImageWithDiffThread(imgUrl);
-            if (imagPath is not null && _dispatcher is not null)
+            if (_isInit == false) await Init();
+            if (IsInCategoryGroup(category, CategoryGroupType.Developer) == false) return;
+
+            DownloadCategoryImageTask? task = _bgTaskService.GetBgTask<DownloadCategoryImageTask>(string.Empty);
+            var isNew = false;
+            if (task is null)
             {
-                await _dispatcher.EnqueueAsync(() => { category.ImagePath = imagPath; });
-                Save(category: category);
+                task = new DownloadCategoryImageTask();
+                isNew = true;
             }
+            task.AddCategory(category);
+            if (isNew) _ = _bgTaskService.AddBgTask(task);
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(msg: "failed to enqueue category image download task", e: e);
         }
     }
 

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace GalgameManager.Helpers;
 
-public class CategoryAndUuidConverter(ICategoryService categoryService) : JsonConverter<Category>
+public class CategoryAndUuidConverter(ICategoryService? categoryService = null) : JsonConverter<Category>
 {
     public override void WriteJson(JsonWriter writer, Category? value, JsonSerializer serializer)
     {
@@ -15,6 +15,7 @@ public class CategoryAndUuidConverter(ICategoryService categoryService) : JsonCo
         JsonSerializer serializer)
     {
         Guid? uid = serializer.Deserialize<Guid?>(reader);
-        return uid is null ? null : categoryService.GetCategory(uid.Value);
+        ICategoryService service = categoryService ?? App.GetService<ICategoryService>();
+        return uid is null ? null : service.GetCategory(uid.Value);
     }
 }

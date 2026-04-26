@@ -106,9 +106,9 @@ public class NavigationService : INavigationService
 
     public string? Title { get; private set; }
 
-    public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false)
+    public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false, string title = "")
     {
-        Title = null;
+        Title = string.IsNullOrEmpty(title) ? null : title;
         return NavigateTo(pageKey, null, parameter, clearNavigation);
     }
 

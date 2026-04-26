@@ -17,7 +17,7 @@ public interface INavigationService
         get; set;
     }
 
-    bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false);
+    bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false, string title = "");
 
     /// <summary>
     /// 跳转到某个界面，其中pageType应该为typeof(界面（继承page的类）) <br/>

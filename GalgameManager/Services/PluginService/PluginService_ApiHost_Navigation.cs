@@ -2,6 +2,7 @@
 using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.ViewModels;
+using GalgameManager.Views;
 using GalgameManager.WinApp.Base.Contracts;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
@@ -35,11 +36,17 @@ public partial class PluginService
             if (pageType.Assembly != pluginType.Assembly)
                 throw new InvalidOperationException("PageType must belong to the current plugin assembly.");
 
+            var pageTypeFullName = pageType.FullName ?? throw new ArgumentException("pageType must have a full name.");
             var resolvedTitle = string.IsNullOrWhiteSpace(title) ? plugin.Info.Name : title;
+            PluginPageNavigationParameter navParameter = new()
+            {
+                PluginInfo = plugin.Info.ShallowClone(),
+                PageTypeFullName = pageTypeFullName,
+                Parameter = parameter,
+            };
             InvokeOnUiThread(() =>
             {
-                using IDisposable scope = PluginXamlHost.EnterScope(pluginType.Assembly);
-                _navigationService.NavigateTo(pageType, resolvedTitle, parameter, clearNavigation);
+                _navigationService.NavigateTo(typeof(PluginHostPageViewModel).FullName!, navParameter, clearNavigation, resolvedTitle);
             });
         }
 

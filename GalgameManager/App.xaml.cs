@@ -166,6 +166,8 @@ public partial class App : Application
             services.AddTransient<ScanResultPage>();
             services.AddTransient<PluginViewModel>();
             services.AddTransient<PluginPage>();
+            services.AddTransient<PluginHostPage>();
+            services.AddTransient<PluginHostPageViewModel>();
 
             // Configuration
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));

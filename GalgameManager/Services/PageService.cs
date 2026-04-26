@@ -35,6 +35,7 @@ public class PageService : IPageService
         Configure<ScanResultViewModel, ScanResultPage>();
         Configure<PluginStoreViewModel, PluginStorePage>();
         Configure<PluginViewModel, PluginPage>();
+        Configure<PluginHostPageViewModel, PluginHostPage>();
     }
     
     private readonly Dictionary<string, Type> _pages = new();

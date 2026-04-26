@@ -167,10 +167,7 @@ public sealed partial class ShellPage : Page
     {
         if (args.InvokedItemContainer?.Tag is not string uniqueId) return; //对于内置按钮没有设置tag，这个tag是插件按钮用的
         if (_sidebarService.IsPluginButton(uniqueId) == false) return;
-
-        NavigationViewControl.SelectedItem = ViewModel.Selected;
         await _sidebarService.InvokeButtonAsync(uniqueId);
-        NavigationViewControl.SelectedItem = ViewModel.Selected;
     }
 
     private void RefreshSidebarButtons()

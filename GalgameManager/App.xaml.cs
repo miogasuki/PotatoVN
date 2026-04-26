@@ -110,6 +110,7 @@ public partial class App : Application
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddSingleton<IBgmOAuthService, BgmOAuthService>();
             services.AddSingleton<IInfoService, InfoService>();
+            services.AddSingleton<ISidebarService, SidebarService>();
             services.AddSingleton<IBgTaskService, BgTaskService>();
             services.AddSingleton<IPvnService, PvnService>();
             services.AddSingleton<IVndbAuthService, VndbAuthService>();

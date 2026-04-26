@@ -187,6 +187,10 @@ public partial class PluginService(
                 throw;
             }
         }
+        else
+        {
+            App.GetService<ISidebarService>().UnregisterAllPluginButtons(plugin.Id);
+        }
         if (_plugins.All(p => p.Info.Id != plugin.Info.Id))
             await UiThreadInvokeHelper.InvokeAsync(() => _plugins.Add(plugin));
         plugin.PropertyChanged -= OnPluginOnPropertyChanged;
@@ -203,6 +207,7 @@ public partial class PluginService(
                     await LoadPluginAsync(plugin, true);
                 else
                 {
+                    App.GetService<ISidebarService>().UnregisterAllPluginButtons(plugin.Id);
                     infoService.Info(InfoBarSeverity.Success, msg: "PluginService_PluginUnloaded".GetLocalized());
                     PluginOffloadInProgress = true;
                 }

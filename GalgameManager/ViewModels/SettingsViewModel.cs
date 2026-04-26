@@ -40,6 +40,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private readonly ICategoryService _categoryService;
     private readonly IInfoService _infoService;
     private readonly IBgTaskService _bgTaskService;
+    private readonly ISidebarService _sidebarService;
     private string _versionDescription;
 
     #region UI_STRINGS //历史遗留，不要继续使用这种方式获取字符串
@@ -102,7 +103,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     public SettingsViewModel(IThemeSelectorService themeSelectorService, ILocalSettingsService localSettingsService,
         IGalgameCollectionService galgameService, IUpdateService updateService, INavigationService navigationService,
-        ICategoryService categoryService, IInfoService infoService, IBgTaskService bgTaskService)
+        ICategoryService categoryService, IInfoService infoService, IBgTaskService bgTaskService,
+        ISidebarService sidebarService)
     {
         _categoryService = categoryService;
         _themeSelectorService = themeSelectorService;
@@ -113,6 +115,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _localSettingsService = localSettingsService;
         _infoService = infoService;
         _bgTaskService = bgTaskService;
+        _sidebarService = sidebarService;
 
         //THEME
         _elementTheme = themeSelectorService.Theme;
@@ -544,6 +547,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private void UpdateMagpieHotkeysString()
     {
         MagpieHotkeysString = Join(" + ", _magpieHotkeys.Select(vk => ((VirtualKey)vk).ToString()));
+    }
+
+    [RelayCommand]
+    private async Task ManageSidebarButtons()
+    {
+        SidebarButtonVisibilityDialog dialog = new(_sidebarService.GetButtons());
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary) return;
+        _infoService.Info(InfoBarSeverity.Success, msg: "SettingSuccess".GetLocalized());
     }
 
     [RelayCommand]

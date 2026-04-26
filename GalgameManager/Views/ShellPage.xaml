@@ -2,11 +2,18 @@
     x:Class="GalgameManager.Views.ShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:helpers="using:GalgameManager.Helpers"
     xmlns:viewmodels="using:GalgameManager.ViewModels"
     xmlns:control="using:GalgameManager.Views.Control"
+    mc:Ignorable="d"
     ActualThemeChanged="{x:Bind OnActualThemeChanged}"
     Loaded="OnLoaded">
+
+    <Page.Resources>
+        <x:String x:Key="SidebarButtonDefaultGlyph">&#xE10F;</x:String>
+    </Page.Resources>
 
     <Grid>
         <Grid x:Name="AppTitleBar"
@@ -40,6 +47,7 @@
             Header="{x:Bind ViewModel.SelectedPageTitle, Mode=OneWay, FallbackValue=''}">
             <NavigationView.MenuItems>
                 <NavigationViewItem
+                    x:Name="MultiStreamNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.MultiStreamViewModel"
                     Width="70">
                     <NavigationViewItem.Content>
@@ -62,6 +70,7 @@
                 </NavigationViewItem>
 
                 <NavigationViewItem
+                    x:Name="HomeNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HomeViewModel"
                     Width="70">
                     <NavigationViewItem.Content>
@@ -84,6 +93,7 @@
                 </NavigationViewItem>
 
                 <NavigationViewItem
+                    x:Name="LibraryNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.LibraryViewModel"
                     Width="70">
                     <NavigationViewItem.Content>
@@ -106,6 +116,7 @@
                 </NavigationViewItem>
 
                 <NavigationViewItem
+                    x:Name="CategoryNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.CategoryViewModel"
                     Width="70">
                     <NavigationViewItem.Content>
@@ -143,10 +154,11 @@
                 <NavigationViewItem x:Uid="Shell_PluginStore" helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.PluginStoreViewModel"
                                     Visibility="Collapsed"/>
             </NavigationView.MenuItems>
-            
+
             <!-- 年度报告 -->
             <NavigationView.FooterMenuItems>
                 <NavigationViewItem
+                    x:Name="AnnualReportNavItem"
                     Visibility="Visible"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AnnualReportViewModel"
                     Width="70">
@@ -170,6 +182,7 @@
                 </NavigationViewItem>
 
                 <NavigationViewItem
+                    x:Name="InfoNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.InfoViewModel"
                     Width="70">
                     <NavigationViewItem.Content>
@@ -187,7 +200,7 @@
                                         TextAlignment="Center"
                                         TextWrapping="NoWrap"
                                         Margin="0,0,0,16"/>
-                            
+
                             <!-- InfoBadge 放置在Grid内，使用定位确保在右上角 -->
                             <InfoBadge  Value="{x:Bind ViewModel.InfoPageBadgeCount, Mode=OneWay}"
                                         Visibility="{x:Bind ViewModel.InfoPageBadgeVisibility, Mode=OneWay}"
@@ -199,6 +212,7 @@
                 </NavigationViewItem>
 
                 <NavigationViewItem
+                    x:Name="HelpNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.HelpViewModel"
                     Width="70">
                     <NavigationViewItem.Content>
@@ -221,6 +235,7 @@
                 </NavigationViewItem>
 
                 <NavigationViewItem
+                    x:Name="AccountNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.AccountViewModel"
                     Width="70">
                     <NavigationViewItem.Content>
@@ -241,8 +256,9 @@
                         </Grid>
                     </NavigationViewItem.Content>
                 </NavigationViewItem>
-                
+
                 <NavigationViewItem
+                    x:Name="PluginNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.PluginViewModel"
                     Width="70">
                     <NavigationViewItem.Content>
@@ -262,6 +278,7 @@
                 </NavigationViewItem>
 
                 <NavigationViewItem
+                    x:Name="SettingsNavItem"
                     helpers:NavigationHelper.NavigateTo="GalgameManager.ViewModels.SettingsViewModel"
                     Width="70">
                     <NavigationViewItem.Content>

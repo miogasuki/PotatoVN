@@ -138,6 +138,13 @@
                                     </ComboBox>
                                 </control:Setting>
                             </control:Panel>
+                            <control:Panel>
+                                <control:Setting x:Uid="SettingsPage_Theme_SidebarButtons">
+                                    <Button Content="Go"
+                                            MinWidth="{StaticResource ButtonMinWidth}"
+                                            Command="{x:Bind ViewModel.ManageSidebarButtonsCommand}"/>
+                                </control:Setting>
+                            </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
                 </control:SettingExpander>

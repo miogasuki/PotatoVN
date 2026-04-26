@@ -16,10 +16,6 @@ public class NavigationViewService : INavigationViewService
 
     private NavigationView? _navigationView;
 
-    public IList<object>? MenuItems => _navigationView?.MenuItems;
-
-    public object? SettingsItem => _navigationView?.SettingsItem;
-
     public NavigationViewService(INavigationService navigationService, IPageService pageService)
     {
         _navigationService = navigationService;

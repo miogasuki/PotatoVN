@@ -8,6 +8,7 @@ using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi;
 using GalgameManager.WinApp.Base.Models.Filters;
+using GalgameManager.WinApp.Base.Models.Plugin;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
@@ -234,6 +235,26 @@ public interface IPotatoVnApi
     /// <param name="page">要跳转到的界面</param>
     /// <param name="parameter">跳转参数，可为空</param>
     void NavigateTo(PageEnum page, object? parameter = null);
+
+    #endregion
+
+    #region SIDEBAR
+
+    /// <summary>
+    /// 向侧边栏注册一个按钮。
+    /// </summary>
+    /// <remarks>
+    /// 按钮的显示/隐藏由宿主统一管理；用户可以在设置中关闭插件注册的按钮。<br/>
+    /// 同一个插件内，<see cref="SidebarButtonInfo.Id"/> 需要稳定且唯一，用于持久化显示状态。<br/>
+    /// 宿主会在 UI 线程调用回调；若插件需要耗时操作，请自行切换线程或使用异步实现。<br/>
+    /// 重复注册同一个 Id 会覆盖旧按钮。
+    /// </remarks>
+    void RegisterSidebarButton(SidebarButtonInfo button, Func<Task> onClick);
+
+    /// <summary>
+    /// 取消注册当前插件的某个侧边栏按钮。
+    /// </summary>
+    void UnregisterSidebarButton(string buttonId);
 
     #endregion
 

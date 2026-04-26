@@ -51,6 +51,7 @@ public class LoadPluginTask : BgTaskBase
         {
             try
             {
+                App.GetService<ISidebarService>().UnregisterAllPluginButtons(plugin.Id);
                 // 处理所有延迟删除的 Plugin，注意 dev plugin 不存在延迟删除机制。
                 if (plugin.IsDevMode)
                 {

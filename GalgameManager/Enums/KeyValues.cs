@@ -24,6 +24,7 @@ public static class KeyValues
     public const string AuthenticationType = "authenticationType"; // AuthenticationType,身份验证类型
     public const string FontInstalled = "fontInstalled"; //bool, 是否安装了Segoe Fluent Icons字体
     public const string CustomTextFileExtensions = "CustomTextFileExtensions"; // List<string>, 用户自定义的文本文件扩展名列表
+    public const string SidebarButtonVisibility = "SidebarButtonVisibility"; // Dictionary<string, bool>, 侧边栏按钮显示状态
 
     //自动导出相关
     public const string AutoExport = "autoExport"; //bool, 是否启用自动导出

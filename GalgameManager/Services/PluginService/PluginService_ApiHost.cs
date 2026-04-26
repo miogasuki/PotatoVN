@@ -7,6 +7,7 @@ using GalgameManager.Models;
 using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Sources;
 using GalgameManager.WinApp.Base.Contracts;
+using GalgameManager.WinApp.Base.Models.Plugin;
 using LiteDB;
 using Microsoft.UI.Xaml.Controls;
 
@@ -22,6 +23,7 @@ public partial class PluginService
         private readonly IBgTaskService _bgTaskService = App.GetService<IBgTaskService>();
         private readonly IGalgameCollectionService _gameService = App.GetService<IGalgameCollectionService>();
         private readonly ILocalSettingsService _settingService = App.GetService<ILocalSettingsService>();
+        private readonly ISidebarService _sidebarService = App.GetService<ISidebarService>();
 
         #region GAMES
 
@@ -111,6 +113,16 @@ public partial class PluginService
         public object? ActivationArgs => ActivationService.ActivationArgs;
 
         public LanguageEnum Language => _settingService.ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+
+        #endregion
+
+        #region SIDEBAR
+
+        public void RegisterSidebarButton(SidebarButtonInfo button, Func<Task> onClick)
+            => _sidebarService.RegisterPluginButton(plugin.Info.Id, plugin.Info.Name, button, onClick);
+
+        public void UnregisterSidebarButton(string buttonId)
+            => _sidebarService.UnregisterPluginButton(plugin.Info.Id, buttonId);
 
         #endregion
 

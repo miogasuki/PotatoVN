@@ -307,6 +307,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     private bool _engineFilterCalc;
     private bool _sourceFilterCalc;
     private bool _playStatusInit;
+    private bool _playStatusSelectedInit;
 
     private void FilterInit()
     {
@@ -316,6 +317,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         SourceFilters.Source = _sourceFiltersC;
         PlayStatusFilters.Source = _playStatusFiltersC;
         _tagFilterCalc = false;
+        _playStatusSelectedInit = false;
         UpdateFilterMsg();
     }
 
@@ -393,6 +395,22 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
                     (filter, status) => filter is CategoryFilter ps && ps.Category.Id == status.Id);
                 _playStatusInit = true;
             }
+            if (!_playStatusSelectedInit)
+            {
+                HashSet<Category> playStatusC = new(_categoryService.StatusGroup.Categories);
+                CategoryFilter? existStatusCf = _filterService.GetFilters()
+                    .FirstOrDefault(f => f is CategoryFilter cf && playStatusC.Contains(cf.Category)) as CategoryFilter;
+                if (existStatusCf is not null)
+                {
+                    foreach (HomeViewModelFilter status in _playStatusFiltersC)
+                        if (status.Filter is CategoryFilter cf && cf.Category.Id == existStatusCf.Category.Id)
+                        {
+                            SelectedPlayStatus = status;
+                            break;
+                        }
+                }
+                _playStatusSelectedInit = true;
+            }
         }
         catch (Exception e)
         {
@@ -406,7 +424,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             list.Clear();
             Dictionary<string, int> clickCount = await _localSettingsService
                 .ReadSettingAsync<Dictionary<string, int>>(KeyValues.GameFilterClickCnt) ?? [];
-            var maxTagCnt = iter.Values.Max();
+            var maxTagCnt = iter.Count > 0 ? iter.Values.Max() : 0;
             HashSet<FilterBase> activeFilters = new(_filterService.GetFilters());
             foreach (KeyValuePair<T, int> kv in iter)
             {
@@ -494,6 +512,9 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         HashSet<Category> playStatus = new(_categoryService.StatusGroup.Categories);
         FilterBase? existFilter = _filterService.GetFilters()
                 .FirstOrDefault(f => f is CategoryFilter c && playStatus.Contains(c.Category));
+        if ((existFilter as CategoryFilter) is { } existStatusCf && value?.Filter is CategoryFilter newStatusCf
+                                                                 && existStatusCf.Category.Id == newStatusCf.Category.Id)
+            return; //如果选择了相同的状态则不做任何操作
         if (existFilter is not null) _filterService.RemoveFilter(existFilter);
         if (value?.Filter is not CategoryFilter) return;
         _filterService.AddFilter(value.Filter);

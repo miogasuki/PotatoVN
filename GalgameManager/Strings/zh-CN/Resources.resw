@@ -4660,4 +4660,7 @@
   <data name="DownloadCategoryImageTask_Progress_Waiting" xml:space="preserve">
     <value>还有 {0} 个分类图片下载任务在队列中</value>
   </data>
+  <data name="PluginService_ApiHost_PageTypeFault" xml:space="preserve">
+      <value>要导航的页面必须继承自Page这个类</value>
+  </data>
 </root>

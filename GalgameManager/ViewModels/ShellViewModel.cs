@@ -16,20 +16,17 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty] private bool _isDeveloperMode;
     private int _unreadInfos;
     private readonly IBgTaskService _bgTaskService;
+    private string? _forcedTitle;
     [ObservableProperty] private bool _updateBadgeVisibility;
     [ObservableProperty] private string? _title;
     [ObservableProperty] private bool _infoPageBadgeVisibility;
     [ObservableProperty] private int _infoPageBadgeCount;
 
-    partial void OnSelectedChanged(object? value)
-    {
-        // 当Selected属性变化时，通知绑定系统SelectedPageTitle也发生了变化
-        OnPropertyChanged(nameof(SelectedPageTitle));
-    }
     public string? SelectedPageTitle
     {
         get
         {
+            if (_forcedTitle != null) return _forcedTitle;
             if (Selected is NavigationViewItem navigationViewItem)
             {
                 // 导航项的 Content 是一个 Grid
@@ -74,7 +71,7 @@ public partial class ShellViewModel : ObservableObject
         _bgTaskService = bgTaskService;
 
         _isDeveloperMode = localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result;
-        
+
         NavigationService.Navigated += OnNavigated;
         updateService.SettingBadgeEvent += result => UpdateBadgeVisibility = result;
         _bgTaskService.BgTaskAdded += _ => UpdateInfoPageBadge();
@@ -89,21 +86,19 @@ public partial class ShellViewModel : ObservableObject
         localSettingsService.OnSettingChanged += HandleLocalSettingChanged;
         infoService.OnInfo += (severity, title, msg, displayTime) =>
             _ = DisplayInfoMsgAsync(severity, title, msg, displayTime);
-        infoService.OnEvent += (severity, title, msg, callbackAction, callbackButtonText) => 
+        infoService.OnEvent += (severity, title, msg, callbackAction, callbackButtonText) =>
             _ = DisplayEventMsgAsync(severity, title, msg, callbackAction: callbackAction, callbackButtonText: callbackButtonText);
-        
+
         UpdateInfoPageBadge();
     }
 
     private void OnNavigated(object sender, NavigationEventArgs e)
     {
         IsBackEnabled = NavigationService.CanGoBack;
-
+        _forcedTitle = NavigationService.Title;
         var selectedItem = NavigationViewService.GetSelectedItem(e.SourcePageType);
-        if (selectedItem != null)
-        {
-            Selected = selectedItem;
-        }
+        if (selectedItem != null) Selected = selectedItem;
+        OnPropertyChanged(nameof(SelectedPageTitle));
 
         IsInfoBarOpen = false;
     }
@@ -113,13 +108,13 @@ public partial class ShellViewModel : ObservableObject
         if (key == KeyValues.DevelopmentMode)
             IsDeveloperMode = value as bool? ?? false;
     }
-    
+
     private void UpdateInfoPageBadge()
     {
         InfoPageBadgeCount = _bgTaskService.GetBgTasks().Count() + _unreadInfos;
         InfoPageBadgeVisibility = InfoPageBadgeCount > 0;
     }
-    
+
     #region INFO_BAR_CTRL
 
     private int _infoBarIndex;
@@ -137,7 +132,7 @@ public partial class ShellViewModel : ObservableObject
             IsInfoBarOpen = false;
             return;
         }
-        
+
         var currentIndex = ++_infoBarIndex;
         InfoBarSeverity = infoBarSeverity;
         InfoBarTitle = title;
@@ -161,7 +156,7 @@ public partial class ShellViewModel : ObservableObject
             }
             msg += "...";
         }
-        
+
         if(ShellEvents.Count > 3) ShellEvents.RemoveAt(0); // 最多同时显示3个事件
         ShellEventViewModel shellEvent = new()
         {
@@ -175,7 +170,7 @@ public partial class ShellViewModel : ObservableObject
         await Task.Delay(delayMs);
         ShellEvents.Remove(shellEvent);
     }
-    
+
     [RelayCommand]
     private void NavigateToInfoPage()
     {
@@ -192,7 +187,7 @@ public partial class ShellEventViewModel
     public InfoBarSeverity Severity;
     public Action? CallbackAction { get; init; }
     public string? CallbackButtonText { get; init; }
-    
+
     [RelayCommand]
     private void ExecuteCallback() => CallbackAction?.Invoke();
 }

@@ -236,6 +236,20 @@ public interface IPotatoVnApi
     /// <param name="parameter">跳转参数，可为空</param>
     void NavigateTo(PageEnum page, object? parameter = null);
 
+    /// <summary>
+    /// 跳转到当前插件自己的 <see cref="Page"/>。
+    /// </summary>
+    /// <remarks>
+    /// <paramref name="pageType"/> 需要是当前插件提供的页面类型，且必须继承自 <see cref="Page"/>。<br/>
+    /// 若 <paramref name="title"/> 为空，宿主会默认使用插件名作为标题。<br/>
+    /// 宿主会在需要时自动切换到 UI 线程执行导航。
+    /// </remarks>
+    /// <param name="pageType">要跳转到的插件页面类型</param>
+    /// <param name="title">页面标题，可为空</param>
+    /// <param name="parameter">跳转参数，可为空</param>
+    /// <param name="clearNavigation">是否清空返回栈</param>
+    void NavigateTo(Type pageType, string? title = null, object? parameter = null, bool clearNavigation = false);
+
     #endregion
 
     #region SIDEBAR

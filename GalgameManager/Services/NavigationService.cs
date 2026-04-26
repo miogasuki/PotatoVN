@@ -21,6 +21,7 @@ public class NavigationService : INavigationService
     private Frame? _frame;
     private bool _isMemoryImprove;
     private (string pageKey, object? param, bool clearNavigation)? _lastFailedNavigation;
+    private Stack<string?> _historyTitles = [];
 
     public event NavigatedEventHandler? Navigated;
 
@@ -86,7 +87,11 @@ public class NavigationService : INavigationService
     {
         if (CanGoBack)
         {
+            _historyTitles.Pop();
+            Title = _historyTitles.Count > 0 ? _historyTitles.Peek() : null;
             var vmBeforeNavigation = _frame.GetPageViewModel();
+            Type? backPageType = _frame.BackStack.LastOrDefault()?.SourcePageType;
+            using IDisposable scope = EnterPageXamlScope(backPageType);
             _frame.GoBack();
             if (vmBeforeNavigation is INavigationAware navigationAware)
             {
@@ -99,17 +104,33 @@ public class NavigationService : INavigationService
         return false;
     }
 
+    public string? Title { get; private set; }
+
     public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false)
     {
-        var pageType = _pageService.GetPageType(pageKey);
+        Title = null;
+        return NavigateTo(pageKey, null, parameter, clearNavigation);
+    }
 
+    public bool NavigateTo(Type pageType,  string title = "", object? parameter = null, bool clearNavigation = false)
+    {
+        Title = title;
+        return NavigateTo(null, pageType, parameter, clearNavigation);
+    }
+
+    private bool NavigateTo(string? pageKey = null, Type? pageType = null, object? parameter = null, bool clearNavigation = false)
+    {
+        if (pageKey is null && pageType is null) throw new ArgumentException("Either pageKey or pageType must be provided."); //不应该发生
+        pageType ??= _pageService.GetPageType(pageKey!);
         if (_frame != null && (_frame.Content?.GetType() != pageType || (parameter != null && !parameter.Equals(_lastParameterUsed))))
         {
             _frame.Tag = clearNavigation;
             var vmBeforeNavigation = _frame.GetPageViewModel();
+            using IDisposable scope = EnterPageXamlScope(pageType);
             var navigated = _frame.Navigate(pageType, parameter);
             if (navigated)
             {
+                _historyTitles.Push(Title);
                 _lastParameterUsed = parameter;
                 if (vmBeforeNavigation is INavigationAware navigationAware)
                 {
@@ -118,11 +139,9 @@ public class NavigationService : INavigationService
                 if(_isMemoryImprove)
                     GC.Collect(); //临时解决切换界面时内存不释放的问题（见：https://github.com/microsoft/microsoft-ui-xaml/issues/5978）
             }
-
             return navigated;
         }
-
-        _lastFailedNavigation = (pageKey, parameter, clearNavigation);
+        if (pageKey is not null) _lastFailedNavigation = (pageKey, parameter, clearNavigation);
         return false;
     }
 
@@ -142,6 +161,18 @@ public class NavigationService : INavigationService
             }
 
             Navigated?.Invoke(sender, e);
+        }
+    }
+
+    private static IDisposable EnterPageXamlScope(Type? pageType)
+        => pageType is null ? EmptyScope.Instance : PluginXamlHost.EnterScope(pageType.Assembly);
+
+    private sealed class EmptyScope : IDisposable
+    {
+        public static readonly EmptyScope Instance = new();
+
+        public void Dispose()
+        {
         }
     }
 

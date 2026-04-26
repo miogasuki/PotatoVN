@@ -1,10 +1,12 @@
 ﻿using GalgameManager.Contracts.Services;
+using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.ViewModels;
 using GalgameManager.WinApp.Base.Contracts;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi;
 using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Services;
 
@@ -17,6 +19,31 @@ public partial class PluginService
         public Window? GetMainWindow() => App.MainWindow;
 
         public void NavigateTo(PageEnum page, object? parameter = null)
+            => InvokeOnUiThread(() => NavigateToBuiltInPage(page, parameter));
+
+        public void NavigateTo(Type pageType, string? title = null, object? parameter = null,
+            bool clearNavigation = false)
+        {
+            ArgumentNullException.ThrowIfNull(pageType);
+
+            if (typeof(Page).IsAssignableFrom(pageType) == false)
+                throw new ArgumentException("PluginService_ApiHost_PageTypeFault".GetLocalized(), nameof(pageType));
+            if (plugin.Plugin is null) //不应该发生
+                throw new InvalidOperationException("Plugin is not loaded.");
+
+            Type pluginType = plugin.Plugin.GetType();
+            if (pageType.Assembly != pluginType.Assembly)
+                throw new InvalidOperationException("PageType must belong to the current plugin assembly.");
+
+            var resolvedTitle = string.IsNullOrWhiteSpace(title) ? plugin.Info.Name : title;
+            InvokeOnUiThread(() =>
+            {
+                using IDisposable scope = PluginXamlHost.EnterScope(pluginType.Assembly);
+                _navigationService.NavigateTo(pageType, resolvedTitle, parameter, clearNavigation);
+            });
+        }
+
+        private void NavigateToBuiltInPage(PageEnum page, object? parameter = null)
         {
             switch (page)
             {
@@ -111,6 +138,16 @@ public partial class PluginService
                 default:
                     throw new ArgumentOutOfRangeException(nameof(page), page, null);
             }
+        }
+
+        private static void InvokeOnUiThread(Action action)
+        {
+            if (App.DispatcherQueue.HasThreadAccess)
+            {
+                action();
+                return;
+            }
+            UiThreadInvokeHelper.InvokeAsync(action).GetAwaiter().GetResult();
         }
     }
 }

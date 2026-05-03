@@ -13,6 +13,8 @@ using Microsoft.UI.Xaml.Controls;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using GalgameManager.Enums;
+using SharpCompress.Archives;
+using SharpCompress.Common;
 
 namespace GalgameManager.ViewModels;
 
@@ -67,6 +69,85 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
         {
             infoService.Info(InfoBarSeverity.Error, "PluginPage_Add_Failed".GetLocalized(),
                 e is PvnException pvnE ? pvnE.FullMsg : e.ToString());
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddPluginFromLocalZip()
+    {
+        try
+        {
+            PvnFilePicker filePicker = new()
+            {
+                AllowMultiSelect = false,
+                Filters =
+                [
+                    new PvnFilePicker.Filter
+                    {
+                        Name = "Zip",
+                        Pattern = "*.zip",
+                    },
+                ],
+            };
+            PickerResult result = filePicker.ShowDialog(App.MainWindow!.GetWindowHandle());
+            if (result != PickerResult.OK || filePicker.SelectedPath is null) return;
+
+            var folderName = FileHelper.RemoveInvalidFileNameChars(Path.GetFileNameWithoutExtension(filePicker.SelectedPath));
+            var pluginFolderPath = await GetPluginFolderPathAsync(folderName);
+            if (Directory.Exists(pluginFolderPath)) Directory.Delete(pluginFolderPath, true);
+            Directory.CreateDirectory(pluginFolderPath);
+
+            try
+            {
+                await ExtractPluginAsync(filePicker.SelectedPath, pluginFolderPath);
+                await pluginService.AddPluginAsync(pluginFolderPath, false);
+            }
+            catch
+            {
+                try
+                {
+                    if (Directory.Exists(pluginFolderPath))
+                        Directory.Delete(pluginFolderPath, true);
+                }
+                catch
+                {
+                    // ignore
+                }
+                throw;
+            }
+        }
+        catch (Exception e)
+        {
+            infoService.Info(InfoBarSeverity.Error, "PluginPage_Add_Failed".GetLocalized(),
+                e is PvnException pvnE ? pvnE.FullMsg : e.ToString());
+        }
+        return;
+
+        async Task<string> GetPluginFolderPathAsync(string folderName)
+        {
+            if (string.IsNullOrWhiteSpace(folderName))
+                folderName = Guid.NewGuid().ToString();
+            ObservableCollection<PluginX> plugins = await pluginService.GetAllPluginsAsync();
+            for (var i = 0; ; i++)
+            {
+                var currentFolderName = i == 0 ? folderName : $"{folderName}_{i}";
+                var path = Path.Combine(pluginService.PluginDir.FullName, currentFolderName);
+                if (plugins.All(p => !Utils.ArePathsEqual(path, p.Path)))
+                    return path;
+            }
+        }
+
+        static Task ExtractPluginAsync(string zipPath, string targetDirectory)
+        {
+            return Task.Run(() =>
+            {
+                using IArchive archive = ArchiveFactory.Open(zipPath);
+                archive.WriteToDirectory(targetDirectory, new ExtractionOptions
+                {
+                    ExtractFullPath = true,
+                    Overwrite = true,
+                });
+            });
         }
     }
 

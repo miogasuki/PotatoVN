@@ -3743,4 +3743,7 @@ If play time can record correctly, just cancel this popup.
   <data name="DownloadCategoryImageTask_Progress_Waiting" xml:space="preserve">
     <value>There are {0} category image download tasks queued</value>
   </data>
+  <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
+    <value>Add plugin (local archive)</value>
+  </data>
 </root>

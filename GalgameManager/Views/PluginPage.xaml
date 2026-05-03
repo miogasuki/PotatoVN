@@ -21,6 +21,11 @@
                     <control:ConditionalFontIcon Symbol="Add" FluentGlyph="&#xE710;" />
                 </AppBarButton.Icon>
             </AppBarButton>
+            <AppBarButton x:Uid="PluginPage_Add_LocalZip" Command="{x:Bind ViewModel.AddPluginFromLocalZipCommand}">
+                <AppBarButton.Icon>
+                    <control:ConditionalFontIcon Symbol="Add" FluentGlyph="&#xE710;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
             <AppBarButton x:Uid="PluginPage_Add_Dev" Command="{x:Bind ViewModel.AddPluginFromDevCommand}"
                           Visibility="{x:Bind ViewModel.IsDevMode, Mode=OneWay}">
                 <AppBarButton.Icon>

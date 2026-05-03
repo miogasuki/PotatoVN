@@ -3663,4 +3663,7 @@
   <data name="DownloadCategoryImageTask_Progress_Waiting" xml:space="preserve">
     <value>{0} 件のカテゴリ画像ダウンロードが待機中です</value>
   </data>
+  <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
+    <value>プラグインを追加（ローカル圧縮ファイル）</value>
+  </data>
 </root>

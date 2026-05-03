@@ -4663,4 +4663,7 @@
   <data name="PluginService_ApiHost_PageTypeFault" xml:space="preserve">
       <value>要导航的页面必须继承自Page这个类</value>
   </data>
+  <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
+    <value>添加插件（本地压缩包）</value>
+  </data>
 </root>

@@ -229,6 +229,11 @@
                                         <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
                                     </CheckBox.RenderTransform>
                                 </CheckBox>
+                                <HyperlinkButton Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="2" x:Uid="HomePage_ClearFilters"
+                                                 FontSize="{StaticResource SmallFontSize}"
+                                                 Command="{x:Bind ViewModel.ClearAllFiltersCommand}"
+                                                 VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                 Margin="0 0 0 -11"/>
                             </Grid>
                             <interactivity:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Opening">

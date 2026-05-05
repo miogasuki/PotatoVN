@@ -3746,4 +3746,7 @@ If play time can record correctly, just cancel this popup.
   <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
     <value>Add plugin (local archive)</value>
   </data>
+  <data name="HomePage_ClearFilters.Content" xml:space="preserve">
+    <value>Clear all filters</value>
+  </data>
 </root>

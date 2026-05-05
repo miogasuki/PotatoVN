@@ -482,6 +482,23 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void ClearPlayStatus() => SelectedPlayStatus = null;
 
+    [RelayCommand]
+    private void ClearAllFilters()
+    {
+        SelectedPlayStatus = null;
+        ClearFilterSelection(TagFilters);
+        ClearFilterSelection(DeveloperFilters);
+        ClearFilterSelection(EngineFilters);
+        ClearFilterSelection(SourceFilters);
+        return;
+
+        static void ClearFilterSelection(AdvancedCollectionView filters)
+        {
+            foreach (HomeViewModelFilter filter in filters.OfType<HomeViewModelFilter>())
+                filter.IsChecked = false;
+        }
+    }
+
     partial void OnKeepFiltersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.KeepFilters, value);
 
     private void HandleFilterChanged()

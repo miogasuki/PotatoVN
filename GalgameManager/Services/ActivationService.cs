@@ -25,6 +25,7 @@ public class ActivationService : IActivationService
     private readonly IAppCenterService _appCenterService;
     private readonly ICategoryService _categoryService;
     private readonly IStaffService _staffService;
+    private readonly ISidebarService _sidebarService;
     private readonly IAuthenticationService _authenticationService;
     private readonly IBgmOAuthService _bgmOAuthService;
     private readonly ILocalSettingsService _localSettingsService;
@@ -43,7 +44,7 @@ public class ActivationService : IActivationService
         ICategoryService categoryService,IBgmOAuthService bgmOAuthService,
         IAuthenticationService authenticationService, ILocalSettingsService localSettingsService,
         IFilterService filterService, IPageService pageService, IBgTaskService bgTaskService, IPvnService pvnService,
-        IInfoService infoService, IStaffService staffService, IPluginService pluginService)
+        IInfoService infoService, IStaffService staffService, IPluginService pluginService, ISidebarService sidebarService)
     {
         _activationHandlers = activationHandlers;
         _themeSelectorService = themeSelectorService;
@@ -62,6 +63,7 @@ public class ActivationService : IActivationService
         _infoService = infoService;
         _staffService = staffService;
         _pluginService = pluginService;
+        _sidebarService = sidebarService;
     }
 
     public async Task LaunchedAsync(object activationArgs)
@@ -203,6 +205,7 @@ public class ActivationService : IActivationService
     private async Task StartupAsync(object activationArgs)
     {
         var isHealthCheck = IsHealthCheckMode();
+        await _sidebarService.InitAsync();
         await _galgameCollectionService.StartAsync();
         await _galgameFolderCollectionService.StartAsync();
         var activateWindow = !IsRestart() && !isHealthCheck;

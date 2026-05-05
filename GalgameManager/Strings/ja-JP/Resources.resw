@@ -3666,4 +3666,7 @@
   <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
     <value>プラグインを追加（ローカル圧縮ファイル）</value>
   </data>
+  <data name="HomePage_ClearFilters.Content" xml:space="preserve">
+    <value>すべてのフィルターをクリア</value>
+  </data>
 </root>

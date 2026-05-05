@@ -135,6 +135,22 @@ public class SidebarService : ISidebarService
         }
     }
 
+    public async Task InitAsync()
+    {
+        if (!await _localSettingsService.ReadSettingAsync<bool>(KeyValues.HideYearReport2026))
+        {
+            try
+            {
+                await SetVisibilityAsync(SidebarButtonIds.AnnualReport, false);
+                await _localSettingsService.SaveSettingAsync(KeyValues.HideYearReport2026, true);
+            }
+            catch (Exception)
+            {
+                //ignore
+            }
+        }
+    }
+
     public async Task SaveVisibilityAsync(IReadOnlyDictionary<string, bool> visibility)
     {
         Dictionary<string, bool> map;
@@ -149,6 +165,15 @@ public class SidebarService : ISidebarService
 
         await _localSettingsService.SaveSettingAsync(KeyValues.SidebarButtonVisibility, map);
         RaiseButtonsChanged();
+    }
+
+    public async Task SetVisibilityAsync(string uniqueId, bool isVisible)
+    {
+        if (uniqueId == SidebarButtonIds.Settings) return;
+        if (_builtInButtons.All(button => button.UniqueId != uniqueId) && !_pluginButtons.ContainsKey(uniqueId))
+            throw new PvnException($"No button with uniqueId '{uniqueId}' exists.");
+        _visibilityMap[uniqueId] = isVisible;
+        await SaveVisibilityAsync(_visibilityMap);
     }
 
     public void RegisterPluginButton(Guid pluginId, string pluginName, SidebarButtonInfo button, Func<Task> onClick)

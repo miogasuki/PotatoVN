@@ -4666,4 +4666,7 @@
   <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
     <value>添加插件（本地压缩包）</value>
   </data>
+  <data name="HomePage_ClearFilters.Content" xml:space="preserve">
+    <value>清除所有过滤器</value>
+  </data>
 </root>

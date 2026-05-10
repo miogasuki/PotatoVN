@@ -1,17 +1,21 @@
 using System.Globalization;
-using Windows.System;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.ViewModels;
 using GalgameManager.Views.Dialog;
+using GalgameManager.WinApp.Base.Models.Msgs;
 using Microsoft.UI.Input;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.VisualBasic;
+using Windows.Storage;
+using Windows.System;
 
 namespace GalgameManager.Views;
 
@@ -69,7 +73,7 @@ public sealed partial class ShellPage : Page
 
     private void MainWindowOnClosed(AppWindow appWindow, AppWindowClosingEventArgs appWindowClosingEventArgs)
     {
-        if(App.Status == WindowMode.Close) return;
+        if (App.Status == WindowMode.Close) return;
         WindowMode closeMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.CloseMode).Result;
         if (closeMode == WindowMode.Normal)
         {
@@ -92,7 +96,7 @@ public sealed partial class ShellPage : Page
         App.SetWindowMode(dialog.Result);
     }
 
-    private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         TitleBarHelper.UpdateTitleBar(RequestedTheme);
 
@@ -101,7 +105,130 @@ public sealed partial class ShellPage : Page
 
         NavigationViewControl.AddHandler(PointerPressedEvent,
             new PointerEventHandler(NavigationViewControl_OnPointerPressed), false);
+
+        await RefreshBackgroundAsync();
+        //横幅图真，刷新加载横幅图
+        WeakReferenceMessenger.Default.Register<GalgamePlayedMessage>
+            (
+            this, async (sender, e) =>
+            {
+                var isCustom = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.CustomBackgroundEnabled);
+                if (!isCustom)
+                { await RefreshBackgroundAsync(); }
+            }
+            );
     }
+    /// <summary>
+    /// 刷新图像,优先级：自定义 > 横幅 > 无
+    /// </summary>
+    /// <returns></returns>
+    public async Task RefreshBackgroundAsync()
+    {
+        var isCustom = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.CustomBackgroundEnabled);
+        if (isCustom)
+        {
+            await LoadCustomImageAsync();
+            return;
+        }
+
+        var useBanner = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.UseBannerAsBackground);
+        if (useBanner)
+        {
+            await LoadBannerAsync();
+        }
+        else { CustomBackgroundBrush.ImageSource = null; }
+    }
+
+    // 加载最后启动游戏的横幅图（仅横幅，不用封面，封面其实也可以实现，但是太糊了，还是算了吧）
+    private async Task LoadBannerAsync()
+    {
+        try
+        {
+            var galgameservice = App.GetService<IGalgameCollectionService>();
+            var LastGame = galgameservice.Galgames.Where(g => g.LastPlayTime > DateTime.MinValue).MaxBy(g => g.LastPlayTime);
+            var bannerPath = LastGame?.HeaderImagePath.Value;
+            if (string.IsNullOrEmpty(bannerPath) || !System.IO.File.Exists(bannerPath))
+            {
+                CustomBackgroundBrush.ImageSource = null;
+                return;
+            }
+
+            var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+            using var stream = System.IO.File.OpenRead(bannerPath);
+            await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+            CustomBackgroundBrush.ImageSource = bitmap;
+        }
+        catch
+        {
+            CustomBackgroundBrush.ImageSource = null;
+        }
+    }
+
+    //图片选择器
+    public static async Task SetCustomBackgroundAsync(string imagePath)
+    {
+        var shell = App.MainWindow?.Content as ShellPage;
+        if (shell == null) return;
+
+        try
+        {
+            var folder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Background);
+            var destFile = await folder.CreateFileAsync("custom.jpg", CreationCollisionOption.ReplaceExisting);
+            var srcFile = await StorageFile.GetFileFromPathAsync(imagePath);
+            await srcFile.CopyAndReplaceAsync(destFile);
+
+            var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+            using var stream = await destFile.OpenReadAsync();
+            await bitmap.SetSourceAsync(stream);
+            shell.CustomBackgroundBrush.ImageSource = bitmap;
+
+            await shell._localSettingsService.SaveSettingAsync(KeyValues.CustomBackgroundEnabled, true);
+        }
+        catch { }
+    }
+
+    //加载图像
+    private async Task LoadCustomImageAsync()
+    {
+        try
+        {
+            var folder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Background);
+            var file = await folder.GetFileAsync("custom.jpg");
+            if (file != null)
+            {
+                var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                using var stream = await file.OpenReadAsync();
+                await bitmap.SetSourceAsync(stream);
+                CustomBackgroundBrush.ImageSource = bitmap;
+            }
+        }
+        catch { }
+    }
+
+    //清理图片
+    public static async Task ClearCustomBackgroundAsync()
+    {
+        var shell = App.MainWindow?.Content as ShellPage;
+        if (shell == null)
+        {
+            return;
+        }
+        try
+        {
+            var folder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Background);
+            var file = await folder.TryGetItemAsync("custom.jpg");
+            if (file != null)
+            {
+                await file.DeleteAsync();
+            }
+        }
+        catch { }
+
+        await shell._localSettingsService.SaveSettingAsync(KeyValues.CustomBackgroundEnabled, false);
+        await shell.RefreshBackgroundAsync();
+
+    }
+
 
     private void OnActualThemeChanged(FrameworkElement sender, object args)
     {
@@ -159,7 +286,7 @@ public sealed partial class ShellPage : Page
     private void NavigationViewControl_OnPointerPressed(object sender, PointerRoutedEventArgs e)
     {
         PointerPointProperties? properties = e.GetCurrentPoint(sender as UIElement).Properties;
-        if(properties.IsXButton1Pressed)
+        if (properties.IsXButton1Pressed)
             App.GetService<INavigationService>().GoBack();
     }
 

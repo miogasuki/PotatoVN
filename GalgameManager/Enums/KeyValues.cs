@@ -129,6 +129,8 @@ public static class KeyValues
     public const string PrimarySortDescending = "PrimarySortDescending"; //bool, 主排序是否降序排列，默认是false（升序）
     public const string SecondarySortDescending = "SecondarySortDescending"; //bool, 次排序是否降序排列，默认是false（升序）
     public const string DefaultGameName = "defaultGameName"; //string, 默认游戏名称
+    public const string CustomBackgroundEnabled = "customBackgroundEnabled"; //bool, 是否启用自定义背景图片
+    public const string UseBannerAsBackground = "useBannerAsBackground"; //bool 是否使用横幅图作为背景（最后一次启动的游戏）
 
     //游戏列表界面
     public const string GameFilterClickCnt = "gameFilterClickCnt"; //Map<string, int>，某个filter被添加的次数，key为filter.SuggestName

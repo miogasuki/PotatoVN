@@ -3749,4 +3749,22 @@ If play time can record correctly, just cancel this popup.
   <data name="HomePage_ClearFilters.Content" xml:space="preserve">
     <value>Clear all filters</value>
   </data>
+  <data name="SettingsPage_Theme_CustomBackground.Text" xml:space="preserve">
+    <value>Custom Background</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground_Description.Text" xml:space="preserve">
+    <value>Select an image as the app background. Defaults to the banner of the last played game.</value>
+  </data>
+  <data name="SettingsPage_Theme_PickBackground.Content" xml:space="preserve">
+    <value>Pick Image</value>
+  </data>
+  <data name="SettingsPage_Theme_ClearBackground.Content" xml:space="preserve">
+    <value>Clear Background</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Title" xml:space="preserve">
+    <value>Use Game Banner as Background</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
+    <value>When enabled, the banner of the last played game will be used as background. Custom images take priority.</value>
+  </data>
 </root>

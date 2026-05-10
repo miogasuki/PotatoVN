@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="GalgameManager.Views.ShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -15,7 +15,10 @@
         <x:String x:Key="SidebarButtonDefaultGlyph">&#xE10F;</x:String>
     </Page.Resources>
 
-    <Grid>
+    <Grid x:Name="RootGrid">
+        <Grid.Background>
+            <ImageBrush x:Name="CustomBackgroundBrush" Stretch="UniformToFill" />
+        </Grid.Background>
         <Grid x:Name="AppTitleBar"
               Canvas.ZIndex="1"
               Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"

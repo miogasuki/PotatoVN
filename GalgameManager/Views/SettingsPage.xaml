@@ -84,6 +84,19 @@
                                     </ComboBox>
                                 </RelativePanel>
                             </control:Panel>
+                            <!--自定义背景-->
+                            <control:Panel>
+                                <StackPanel Orientation="Vertical" Spacing="10">
+                                    <TextBlock x:Uid="SettingsPage_Theme_CustomBackground"
+                                               Style="{ThemeResource BodyTextBlockStyle}" />
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <Button x:Uid="SettingsPage_Theme_PickBackground"
+                                                Command="{x:Bind ViewModel.PickCustomBackgroundCommand}" />
+                                        <Button x:Uid="SettingsPage_Theme_ClearBackground"
+                                                Command="{x:Bind ViewModel.ClearCustomBackgroundCommand}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </control:Panel>
                             <!-- 导航视图透明背景 -->
                             <control:Panel>
                                 <local:SettingToggleSwitch x:Uid="SettingsPage_Theme_TransparentNavigationView"

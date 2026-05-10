@@ -1,31 +1,32 @@
-﻿using Windows.ApplicationModel;
-using Windows.Services.Store;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Contracts.ViewModels;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
+using GalgameManager.Helpers.EnumHelpers;
+using GalgameManager.Helpers.Phrase;
 using GalgameManager.Models;
+using GalgameManager.Models.BgTasks;
+using GalgameManager.Models.Sources;
 using GalgameManager.Services;
+using GalgameManager.Views;
+using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.ApplicationModel.Resources;
-using Windows.Security.Credentials.UI;
-using Windows.Security.Credentials;
-using GalgameManager.Helpers.Phrase;
-using GalgameManager.Models.BgTasks;
-using GalgameManager.Models.Sources;
-using GalgameManager.Views.Dialog;
-using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
-using Windows.Globalization;
-using Windows.System;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Store.Preview;
-using GalgameManager.Helpers.EnumHelpers;
-using GalgameManager.Core.Helpers;
+using Windows.Globalization;
+using Windows.Security.Credentials;
+using Windows.Security.Credentials.UI;
+using Windows.Services.Store;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.System;
 using static System.String;
+using AppInstance = Microsoft.Windows.AppLifecycle.AppInstance;
 
 namespace GalgameManager.ViewModels;
 
@@ -1302,4 +1303,27 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     #endregion
+    //选择，清理自定义图片
+    [RelayCommand]
+    private async Task PickCustomBackground()
+    {
+        var picker = new FileOpenPicker();
+        var hwnd = App.MainWindow!.GetWindowHandle();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+        picker.FileTypeFilter.Add(".jpg");
+        picker.FileTypeFilter.Add(".jpeg");
+        picker.FileTypeFilter.Add(".png");
+        picker.FileTypeFilter.Add(".bmp");
+        var file = await picker.PickSingleFileAsync();
+        if (file != null)
+        {
+            await ShellPage.SetCustomBackgroundAsync(file.Path);
+        }
+    }
+
+    [RelayCommand]
+    private async Task ClearCustomBackground()
+    {
+        await ShellPage.ClearCustomBackgroundAsync();
+    }
 }

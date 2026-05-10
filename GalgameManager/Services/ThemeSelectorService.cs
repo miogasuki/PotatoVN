@@ -1,4 +1,4 @@
-﻿using GalgameManager.Contracts.Services;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Helpers;
 using Microsoft.UI.Xaml;
 using GalgameManager.Enums;
@@ -12,7 +12,7 @@ namespace GalgameManager.Services;
 public class ThemeSelectorService : IThemeSelectorService
 {
     private const string SettingsKey = "AppBackgroundRequestedTheme";
-    private const string BackdropSettingsKey = "AppBackgroundMaterial";
+    private BackgroundMaterialEnum _previousMaterial = BackgroundMaterialEnum.Mica;
 
     public ElementTheme Theme { get; set; } = ElementTheme.Default;
 
@@ -78,6 +78,12 @@ public class ThemeSelectorService : IThemeSelectorService
         // 获取主窗口
         var appWindow = App.MainWindow;
         if (appWindow == null) return;
+
+        if (_previousMaterial == BackgroundMaterialEnum.Glass && material != BackgroundMaterialEnum.Glass)
+        {
+            TransparentGlassHelper.Remove(appWindow);
+        }
+
         // 根据材质类型设置背景
         switch (material)
         {
@@ -90,8 +96,15 @@ public class ThemeSelectorService : IThemeSelectorService
             case BackgroundMaterialEnum.DesktopAcrylic:
                 appWindow.SystemBackdrop = new DesktopAcrylicBackdrop();
                 break;
+            case BackgroundMaterialEnum.Glass:
+                appWindow.SystemBackdrop = null;
+                var alpha = await _localSettingsService.ReadSettingAsync<int>(KeyValues.GlassAlpha);
+                var hex = await _localSettingsService.ReadSettingAsync<string>(KeyValues.GlassColor);
+                var color = TransparentGlassHelper.ParseHexColor(hex);
+                TransparentGlassHelper.Apply(appWindow, (byte)(alpha > 0 ? alpha : 5), color.R, color.G, color.B);
+                break;
         }
-
+        _previousMaterial = material;
         await Task.CompletedTask;
     }
     

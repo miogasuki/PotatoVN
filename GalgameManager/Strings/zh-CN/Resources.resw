@@ -4702,4 +4702,7 @@
   <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
     <value>背景填充模式</value>
   </data>
+  <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
+    <value>透明玻璃</value>
+  </data>
 </root>

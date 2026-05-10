@@ -3782,4 +3782,7 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
     <value>Background Fill Mode</value>
   </data>
+  <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
+    <value>Clear Glass</value>
+  </data>
 </root>

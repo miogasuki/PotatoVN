@@ -161,7 +161,9 @@ public static class KeyValues
     public const string DevelopmentMode = "developmentMode"; //bool, 是否开发模式
     public const string LastError = "lastError"; //string, 上次错误信息
     public const string Language = "language"; //string, 语言设置，en-US/zh-CN/zh-TW
-    public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic
+    public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic, Glass
+    public const string GlassAlpha = "glassAlpha"; //int, 透明玻璃透明度 0-255，默认5
+    public const string GlassColor = "glassColor"; //string, 透明玻璃颜色 hex RGB，如 "FFFFFF"
     public const string UpdateType = "UpdateType";
     public const string UpdateUrl = "UpdateUrl";
     public const string IsBetaChannel = "isBetaChannel";

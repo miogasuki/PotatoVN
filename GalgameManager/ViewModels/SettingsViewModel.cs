@@ -127,6 +127,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _transparentNavigationView = _localSettingsService.ReadSettingAsync<bool>(KeyValues.TransparentNavigationView).Result;
         _showGameNameInControl = _localSettingsService.ReadSettingAsync<bool>(KeyValues.ShowGameNameInControl).Result;
         _defaultGameName = _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.DefaultGameName).Result;
+        _glassColor = TransparentGlassHelper.ParseHexColor(_localSettingsService.ReadSettingAsync<string>(KeyValues.GlassColor).Result);
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
         _playingWindowMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode).Result;
@@ -141,7 +142,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _magpieHotkeys = _localSettingsService.ReadSettingAsync<List<int>>(KeyValues.MagpieHotkeys).Result ?? [];
         UpdateMagpieHotkeysString();
         MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
-        PlayingWindowModes = new[] {WindowMode.Minimize, WindowMode.SystemTray, WindowMode.None };
+        PlayingWindowModes = new[] { WindowMode.Minimize, WindowMode.SystemTray, WindowMode.None };
         //RSS
         RssType = _localSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType).Result;
         _vndbTranslateTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbTranslateTags).Result;
@@ -267,7 +268,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     #region THEME
     public readonly ElementTheme[] Themes = { ElementTheme.Default, ElementTheme.Light, ElementTheme.Dark };
-    [ObservableProperty ]private ElementTheme _elementTheme;
+    [ObservableProperty] private ElementTheme _elementTheme;
     [ObservableProperty] private bool _transparentNavigationView;
 
     public readonly LanguageEnum[] Languages =
@@ -284,16 +285,34 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         (Language == LanguageEnum.Auto &&
          System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase));
 
-    public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic };
-    [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;
-
-    [ObservableProperty] private bool _useBannerAsBackground;
     public readonly BackgroundStretchMode[] BackgroundStretchModes = { BackgroundStretchMode.UniformToFill, BackgroundStretchMode.Fill, BackgroundStretchMode.Uniform, BackgroundStretchMode.None };
     [ObservableProperty] private BackgroundStretchMode _backgroundStretchMode = BackgroundStretchMode.UniformToFill;
 
+    public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic, BackgroundMaterialEnum.Glass };
+    [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;
+
+    [ObservableProperty] private bool _useBannerAsBackground;
+    [ObservableProperty] private int _glassAlpha = 5;
+    [ObservableProperty] private Windows.UI.Color _glassColor = Windows.UI.Color.FromArgb(255, 255, 255, 255);
+
+    public bool IsGlassMaterial => BackgroundMaterial == BackgroundMaterialEnum.Glass;
     partial void OnBackgroundMaterialChanged(BackgroundMaterialEnum value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.BackgroundMaterial, value);
+        _themeSelectorService.SetBackgroundMaterialAsync();
+        OnPropertyChanged(nameof(IsGlassMaterial));
+    }
+
+    partial void OnGlassAlphaChanged(int value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.GlassAlpha, value);
+        _themeSelectorService.SetBackgroundMaterialAsync();
+    }
+
+    partial void OnGlassColorChanged(Windows.UI.Color value)
+    {
+        var hex = $"{value.R:X2}{value.G:X2}{value.B:X2}";
+        _localSettingsService.SaveSettingAsync(KeyValues.GlassColor, hex);
         _themeSelectorService.SetBackgroundMaterialAsync();
     }
 
@@ -492,11 +511,11 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
             await _localSettingsService.SaveSettingAsync(KeyValues.MagpieHotkeys, _magpieHotkeys);
             UpdateMagpieHotkeysString();
-            _infoService.Info(InfoBarSeverity.Success, msg:"SettingSuccess".GetLocalized(), displayTimeMs: 2000);
+            _infoService.Info(InfoBarSeverity.Success, msg: "SettingSuccess".GetLocalized(), displayTimeMs: 2000);
         }
         catch (Exception e)
         {
-            _infoService.DeveloperEvent(e:e);
+            _infoService.DeveloperEvent(e: e);
             // 恢复到上次有效的值
             if (_magpieHotkeys != null)
             {
@@ -558,11 +577,11 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 MagpieHotkeyKeys = new List<int>(_magpieHotkeys);
             }
             await _localSettingsService.SaveSettingAsync(KeyValues.MagpieHotkeys, _magpieHotkeys);
-            _infoService.Info(InfoBarSeverity.Success, msg:"SettingSuccess".GetLocalized(), displayTimeMs: 2000);
+            _infoService.Info(InfoBarSeverity.Success, msg: "SettingSuccess".GetLocalized(), displayTimeMs: 2000);
         }
         catch (Exception e)
         {
-            _infoService.DeveloperEvent(e:e);
+            _infoService.DeveloperEvent(e: e);
             UpdateMagpieHotkeysString(); // Revert to current valid string on error
         }
     }
@@ -589,7 +608,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         {
             globalKeyMappings = await _localSettingsService.ReadSettingAsync<List<KeyMapping>>(KeyValues.GlobalKeyMappings) ?? new();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _infoService.DeveloperEvent(e: e);
             globalKeyMappings = new List<KeyMapping>();
@@ -605,7 +624,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         if (result == ContentDialogResult.Primary || result == ContentDialogResult.Secondary)
         {
             await _localSettingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, keyMappingDialog.ResultMappings);
-            _infoService.Info(InfoBarSeverity.Success, msg:"KeyMapping_Info_GlobalKeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
+            _infoService.Info(InfoBarSeverity.Success, msg: "KeyMapping_Info_GlobalKeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
         }
     }
 
@@ -646,7 +665,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             if (file.Name != "Magpie.exe")
                 _infoService.Info(InfoBarSeverity.Warning,
                     msg: "SettingsPage_Game_MagpiePathWarning".GetLocalized(), displayTimeMs: 5000);
-            _infoService.Info(InfoBarSeverity.Success, msg:"SettingsPage_Game_MagpiePath_Success".GetLocalized());
+            _infoService.Info(InfoBarSeverity.Success, msg: "SettingsPage_Game_MagpiePath_Success".GetLocalized());
         }
     }
 
@@ -661,8 +680,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 .Select(ext => ext.Trim())
                 .Where(ext => !IsNullOrWhiteSpace(ext))
                 .ToList();
-            for(var i=0; i < extensionsList.Count; i++)
-                if(!extensionsList[i].StartsWith("."))
+            for (var i = 0; i < extensionsList.Count; i++)
+                if (!extensionsList[i].StartsWith("."))
                     extensionsList[i] = "." + extensionsList[i];
             await _localSettingsService.SaveSettingAsync(KeyValues.CustomTextFileExtensions, extensionsList);
         }
@@ -849,12 +868,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task RemoveMetaBackUp()
     {
-        foreach(Galgame game in _galgameCollectionService.Galgames)
-        foreach (GalgameSourceBase source in game.Sources)
-        {
-            RemoveMetaBackupProgress = "SettingsPage_Library_RemoveMetaBackupProgress".GetLocalized(game.Name.Value ?? Empty);
-            await SourceServiceFactory.GetSourceService(source.SourceType).RemoveMetaAsync(game);
-        }
+        foreach (Galgame game in _galgameCollectionService.Galgames)
+            foreach (GalgameSourceBase source in game.Sources)
+            {
+                RemoveMetaBackupProgress = "SettingsPage_Library_RemoveMetaBackupProgress".GetLocalized(game.Name.Value ?? Empty);
+                await SourceServiceFactory.GetSourceService(source.SourceType).RemoveMetaAsync(game);
+            }
         RemoveMetaBackupProgress = "Done!";
     }
 
@@ -887,7 +906,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     #region QUIT_START
 
     [ObservableProperty] private bool _quitStart;
-    public readonly PageEnum[] StartPages = { PageEnum.Home , PageEnum.Category, PageEnum.MultiStream};
+    public readonly PageEnum[] StartPages = { PageEnum.Home, PageEnum.Category, PageEnum.MultiStream };
     [ObservableProperty] private PageEnum _startPage;
     public readonly AuthenticationType[] AuthenticationTypes;
     [ObservableProperty] private AuthenticationType _authenticationType;
@@ -955,7 +974,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 {
                     if (startupTask.State == StartupTaskState.DisabledByUser)
                         _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Start_AutoStartDisabledByUser".GetLocalized());
-                    else if(startupTask.State == StartupTaskState.DisabledByPolicy)
+                    else if (startupTask.State == StartupTaskState.DisabledByPolicy)
                         _infoService.Info(InfoBarSeverity.Warning, "SettingsPage_Start_AutoStartDisabledByPolicy".GetLocalized());
                     await UiThreadInvokeHelper.InvokeAsync(() => { AutoStartWhenLogin = false; });
                     return;

@@ -7,7 +7,7 @@ using WinColor = Windows.UI.Color;
 
 namespace GalgameManager.Helpers;
 
-public static class TransparentGlassHelper
+public static partial class TransparentGlassHelper
 {
     /// <summary>
     /// 颜色转换：hex RGB → Color，非法输入返回白色
@@ -54,7 +54,7 @@ public static class TransparentGlassHelper
     private static void ExtendFrameIntoClientArea(IntPtr hwnd)
     {
         var margins = new MARGINS { cxLeftWidth = -1, cxRightWidth = -1, cyTopHeight = -1, cyBottomHeight = -1 };
-        DwmExtendFrameIntoClientArea(hwnd, ref margins);
+        _ = DwmExtendFrameIntoClientArea(hwnd, ref margins);
     }
 
     private static void EnableBlurBehind(IntPtr hwnd)
@@ -63,10 +63,10 @@ public static class TransparentGlassHelper
         var blurBehind = new DWM_BLURBEHIND
         {
             dwFlags = DWM_BB.Enable | DWM_BB.BlurRegion,
-            fEnable = true,
+            fEnable = 1,
             hRgnBlur = rgn
         };
-        DwmEnableBlurBehindWindow(hwnd, ref blurBehind);
+        _ = DwmEnableBlurBehindWindow(hwnd, ref blurBehind);
     }
 
     private static void SetTransparentBackdrop(Window window, byte alpha, byte r, byte g, byte b)
@@ -94,31 +94,31 @@ public static class TransparentGlassHelper
         public int cyBottomHeight;
     }
 
-    private enum DWM_BB : uint { Enable = 1, BlurRegion = 2 }
+    private enum DWM_BB : int { Enable = 1, BlurRegion = 2 }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct DWM_BLURBEHIND
     {
         public DWM_BB dwFlags;
-        public bool fEnable;
+        public int fEnable;
         public IntPtr hRgnBlur;
-        public bool fTransitionOnMaximized;
+        public int fTransitionOnMaximized;
     }
 
-    private enum DWMWINDOWATTRIBUTE : uint { WindowCornerPreference = 33 }
+    private enum DWMWINDOWATTRIBUTE : int { WindowCornerPreference = 33 }
 
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
+    [LibraryImport("dwmapi.dll")]
+    private static partial int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
 
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blurBehind);
+    [LibraryImport("dwmapi.dll")]
+    private static partial int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blurBehind);
 
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attr,
+    [LibraryImport("dwmapi.dll")]
+    private static partial int DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attr,
         ref int pvAttr, int cbAttr);
 
-    [DllImport("gdi32.dll")]
-    private static extern IntPtr CreateRectRgn(int x1, int y1, int x2, int y2);
+    [LibraryImport("gdi32.dll")]
+    private static partial IntPtr CreateRectRgn(int x1, int y1, int x2, int y2);
 
     #endregion
 }

@@ -285,8 +285,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         (Language == LanguageEnum.Auto &&
          System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase));
 
-    public readonly BackgroundStretchMode[] BackgroundStretchModes = { BackgroundStretchMode.UniformToFill, BackgroundStretchMode.Fill, BackgroundStretchMode.Uniform, BackgroundStretchMode.None };
-    [ObservableProperty] private BackgroundStretchMode _backgroundStretchMode = BackgroundStretchMode.UniformToFill;
+    public readonly BackgroundStretchMode[] BackgroundStretchModes = { BackgroundStretchMode.Uniform, BackgroundStretchMode.Fill, BackgroundStretchMode.UniformToFill, BackgroundStretchMode.None };
+    [ObservableProperty] private BackgroundStretchMode _backgroundStretchMode = BackgroundStretchMode.Uniform;
 
     public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic, BackgroundMaterialEnum.Glass };
     [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;

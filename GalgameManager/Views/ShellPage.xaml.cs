@@ -127,10 +127,10 @@ public sealed partial class ShellPage : Page
 
         var stretch = mode switch
         {
+            BackgroundStretchMode.UniformToFill => Stretch.UniformToFill,
             BackgroundStretchMode.Fill => Stretch.Fill,
-            BackgroundStretchMode.Uniform => Stretch.Uniform,
             BackgroundStretchMode.None => Stretch.None,
-            _ => Stretch.UniformToFill,
+            _ => Stretch.Uniform,
         };
 
         shell.CustomBackgroundBrush.Stretch = stretch;

@@ -3767,4 +3767,19 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
     <value>When enabled, the banner of the last played game will be used as background. Custom images take priority.</value>
   </data>
+  <data name="BackgroundStretchMode_UniformToFill" xml:space="preserve">
+    <value>Uniform to Fill</value>
+  </data>
+  <data name="BackgroundStretchMode_Fill" xml:space="preserve">
+    <value>Fill</value>
+  </data>
+  <data name="BackgroundStretchMode_Uniform" xml:space="preserve">
+    <value>Uniform</value>
+  </data>
+  <data name="BackgroundStretchMode_None" xml:space="preserve">
+    <value>Centre</value>
+  </data>
+  <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
+    <value>Background Fill Mode</value>
+  </data>
 </root>

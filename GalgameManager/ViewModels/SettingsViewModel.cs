@@ -287,10 +287,32 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic };
     [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;
 
+    [ObservableProperty] private bool _useBannerAsBackground;
+    public readonly BackgroundStretchMode[] BackgroundStretchModes = { BackgroundStretchMode.UniformToFill, BackgroundStretchMode.Fill, BackgroundStretchMode.Uniform, BackgroundStretchMode.None };
+    [ObservableProperty] private BackgroundStretchMode _backgroundStretchMode = BackgroundStretchMode.UniformToFill;
+
     partial void OnBackgroundMaterialChanged(BackgroundMaterialEnum value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.BackgroundMaterial, value);
         _themeSelectorService.SetBackgroundMaterialAsync();
+    }
+
+    partial void OnUseBannerAsBackgroundChanged(bool value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.UseBannerAsBackground, value);
+        Task.Run(async () =>
+        {
+            var shell = App.MainWindow?.Content as ShellPage;
+            if (shell != null && App.MainWindow?.Content is FrameworkElement)
+                await shell.RefreshBackgroundAsync();
+        }
+        );
+    }
+
+    partial void OnBackgroundStretchModeChanged(BackgroundStretchMode value)
+    {
+        _localSettingsService.SaveSettingAsync(KeyValues.BackgroundStretchMode, value);
+        ShellPage.ApplyStretchMode(value);
     }
 
     partial void OnTransparentNavigationViewChanged(bool value)

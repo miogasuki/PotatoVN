@@ -3687,4 +3687,19 @@
   <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
     <value>有効にすると、最後にプレイしたゲームのバナーが背景として使用されます。カスタム画像が優先されます。</value>
   </data>
+  <data name="BackgroundStretchMode_UniformToFill" xml:space="preserve">
+    <value>均一塗りつぶし</value>
+  </data>
+  <data name="BackgroundStretchMode_Fill" xml:space="preserve">
+    <value>塗りつぶし</value>
+  </data>
+  <data name="BackgroundStretchMode_Uniform" xml:space="preserve">
+    <value>均一</value>
+  </data>
+  <data name="BackgroundStretchMode_None" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
+    <value>背景の塗りつぶしモード</value>
+  </data>
 </root>

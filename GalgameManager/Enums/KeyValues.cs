@@ -131,6 +131,7 @@ public static class KeyValues
     public const string DefaultGameName = "defaultGameName"; //string, 默认游戏名称
     public const string CustomBackgroundEnabled = "customBackgroundEnabled"; //bool, 是否启用自定义背景图片
     public const string UseBannerAsBackground = "useBannerAsBackground"; //bool 是否使用横幅图作为背景（最后一次启动的游戏）
+    public const string BackgroundStretchMode = "backgroundStretchMode"; //BackgroundStretchMode, 自定义背景图片以及横幅图填充模式
 
     //游戏列表界面
     public const string GameFilterClickCnt = "gameFilterClickCnt"; //Map<string, int>，某个filter被添加的次数，key为filter.SuggestName

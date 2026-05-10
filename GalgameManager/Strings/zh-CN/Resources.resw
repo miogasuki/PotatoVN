@@ -4687,4 +4687,19 @@
   <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
     <value>勾选后将自动使用最后启动游戏的横幅图作为背景，自定义图片优先级更高</value>
   </data>
+  <data name="BackgroundStretchMode_UniformToFill" xml:space="preserve">
+    <value>跨区</value>
+  </data>
+  <data name="BackgroundStretchMode_Fill" xml:space="preserve">
+    <value>填充</value>
+  </data>
+  <data name="BackgroundStretchMode_Uniform" xml:space="preserve">
+    <value>适应</value>
+  </data>
+  <data name="BackgroundStretchMode_None" xml:space="preserve">
+    <value>居中</value>
+  </data>
+  <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
+    <value>背景填充模式</value>
+  </data>
 </root>

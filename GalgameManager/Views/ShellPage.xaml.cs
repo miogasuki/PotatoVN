@@ -118,6 +118,26 @@ public sealed partial class ShellPage : Page
             }
             );
     }
+
+    //图片模式选择
+    public static void ApplyStretchMode(BackgroundStretchMode mode)
+    {
+        var shell = App.MainWindow?.Content as ShellPage;
+        if (shell == null) return;
+
+        var stretch = mode switch
+        {
+            BackgroundStretchMode.Fill => Stretch.Fill,
+            BackgroundStretchMode.Uniform => Stretch.Uniform,
+            BackgroundStretchMode.None => Stretch.None,
+            _ => Stretch.UniformToFill,
+        };
+
+        shell.CustomBackgroundBrush.Stretch = stretch;
+        shell.CustomBackgroundBrush.AlignmentX = mode == BackgroundStretchMode.None ? AlignmentX.Center : AlignmentX.Left;
+        shell.CustomBackgroundBrush.AlignmentY = mode == BackgroundStretchMode.None ? AlignmentY.Center : AlignmentY.Top;
+    }
+
     /// <summary>
     /// 刷新图像,优先级：自定义 > 横幅 > 无
     /// </summary>

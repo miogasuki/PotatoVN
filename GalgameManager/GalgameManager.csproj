@@ -44,11 +44,8 @@
     - 便携/非 MSIX 模式下读取程序集版本
     为避免两边版本不一致，在构建时从 Package.appxmanifest 读取版本并写入程序集版本属性。
   -->
-  <Target Name="DeriveAssemblyVersionFromMsixManifest"
-      BeforeTargets="GetAssemblyAttributes"
-          Condition="Exists('$(MSBuildProjectDirectory)\\Package.appxmanifest')">
-    <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)\\Package.appxmanifest"
-             Query="/*[local-name()='Package']/*[local-name()='Identity']/@Version">
+  <Target Name="DeriveAssemblyVersionFromMsixManifest" BeforeTargets="GetAssemblyAttributes" Condition="Exists('$(MSBuildProjectDirectory)\\Package.appxmanifest')">
+    <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)\\Package.appxmanifest" Query="/*[local-name()='Package']/*[local-name()='Identity']/@Version">
       <Output TaskParameter="Result" PropertyName="_MsixIdentityVersion" />
     </XmlPeek>
 
@@ -174,7 +171,7 @@
     <PackageReference Include="Refit.Newtonsoft.Json" Version="8.0.0" />
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-    <PackageReference Include="SharpCompress" Version="0.38.0" />
+    <PackageReference Include="SharpCompress" Version="0.48.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageReference Include="Squid-Box.SevenZipSharp" Version="1.6.1.23" />

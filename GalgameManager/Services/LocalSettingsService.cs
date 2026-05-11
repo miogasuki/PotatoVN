@@ -326,6 +326,9 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)true;
             case KeyValues.DisplayVirtualGame:
             case KeyValues.SpecialDisplayVirtualGame:
+            case KeyValues.HomeFilterShowPlayStatusAndSourcePanel:
+            case KeyValues.HomeFilterShowDeveloperPanel:
+            case KeyValues.HomeFilterShowTagPanel:
             case KeyValues.LibraryNavBar:
             case KeyValues.LibraryStatistics:
             case KeyValues.SyncGameCharacters:

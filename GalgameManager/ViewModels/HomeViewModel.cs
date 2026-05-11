@@ -124,6 +124,10 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             DisplayVirtualGame = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.DisplayVirtualGame);
             SpecialDisplayVirtualGame = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.SpecialDisplayVirtualGame);
             KeepFilters = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.KeepFilters);
+            HomeFilterShowPlayStatusAndSourcePanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.HomeFilterShowPlayStatusAndSourcePanel);
+            HomeFilterShowEnginePanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.HomeFilterShowEnginePanel);
+            HomeFilterShowDeveloperPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.HomeFilterShowDeveloperPanel);
+            HomeFilterShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.HomeFilterShowTagPanel);
             GameToOpacityConverter.SpecialDisplayVirtualGame = SpecialDisplayVirtualGame;
 
             PrimaryKey = (SortKeys)_localSettingsService.ReadSettingAsync<int>(KeyValues.PrimarySortKey).Result;
@@ -293,6 +297,43 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     #region FILTER
     [ObservableProperty] private string _uiFilter = string.Empty; //过滤器在AppBar上的文本
     [ObservableProperty] private bool _keepFilters; //是否保留过滤器
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HomeFilterPlayStatusAndSourcePanelColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterPlayStatusAndSourcePanelGapColumnWidth))]
+    private bool _homeFilterShowPlayStatusAndSourcePanel;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HomeFilterEnginePanelColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterPlayStatusAndSourcePanelGapColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterEnginePanelGapColumnWidth))]
+    private bool _homeFilterShowEnginePanel;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HomeFilterDeveloperPanelColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterPlayStatusAndSourcePanelGapColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterEnginePanelGapColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterDeveloperPanelGapColumnWidth))]
+    private bool _homeFilterShowDeveloperPanel;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HomeFilterTagPanelColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterPlayStatusAndSourcePanelGapColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterEnginePanelGapColumnWidth))]
+    [NotifyPropertyChangedFor(nameof(HomeFilterDeveloperPanelGapColumnWidth))]
+    private bool _homeFilterShowTagPanel;
+    public GridLength HomeFilterPlayStatusAndSourcePanelColumnWidth => GetHomeFilterPanelColumnWidth(HomeFilterShowPlayStatusAndSourcePanel);
+    public GridLength HomeFilterEnginePanelColumnWidth => GetHomeFilterPanelColumnWidth(HomeFilterShowEnginePanel);
+    public GridLength HomeFilterDeveloperPanelColumnWidth => GetHomeFilterPanelColumnWidth(HomeFilterShowDeveloperPanel);
+    public GridLength HomeFilterTagPanelColumnWidth => GetHomeFilterPanelColumnWidth(HomeFilterShowTagPanel);
+    public GridLength HomeFilterPlayStatusAndSourcePanelGapColumnWidth =>
+        GetHomeFilterPanelGapColumnWidth(HomeFilterShowPlayStatusAndSourcePanel,
+            HomeFilterShowEnginePanel || HomeFilterShowDeveloperPanel || HomeFilterShowTagPanel);
+    public GridLength HomeFilterEnginePanelGapColumnWidth =>
+        GetHomeFilterPanelGapColumnWidth(HomeFilterShowEnginePanel,
+            HomeFilterShowDeveloperPanel || HomeFilterShowTagPanel);
+    public GridLength HomeFilterDeveloperPanelGapColumnWidth =>
+        GetHomeFilterPanelGapColumnWidth(HomeFilterShowDeveloperPanel, HomeFilterShowTagPanel);
+    private static GridLength GetHomeFilterPanelColumnWidth(bool isVisible) =>
+        isVisible ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+    private static GridLength GetHomeFilterPanelGapColumnWidth(bool hasLeftPanel, bool hasRightPanel) =>
+        hasLeftPanel && hasRightPanel ? new GridLength(10) : new GridLength(0);
     [ObservableProperty] private string _filterInputText = string.Empty; //过滤器输入框的文本
     public AdvancedCollectionView TagFilters = [], DeveloperFilters = [], EngineFilters = [], SourceFilters = [], PlayStatusFilters = [];
     private readonly ObservableCollection<HomeViewModelFilter> _tagFiltersC = [], _developerFiltersC = [],
@@ -501,6 +542,25 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     }
 
     partial void OnKeepFiltersChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.KeepFilters, value);
+
+    [RelayCommand]
+    private async Task ShowHomeFilterPanelVisibilityDialog()
+    {
+        HomeFilterPanelVisibilityDialog dialog = new(HomeFilterShowPlayStatusAndSourcePanel, HomeFilterShowEnginePanel,
+            HomeFilterShowDeveloperPanel, HomeFilterShowTagPanel);
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+
+        HomeFilterShowPlayStatusAndSourcePanel = dialog.ShowPlayStatusAndSourcePanel;
+        HomeFilterShowEnginePanel = dialog.ShowEnginePanel;
+        HomeFilterShowDeveloperPanel = dialog.ShowDeveloperPanel;
+        HomeFilterShowTagPanel = dialog.ShowTagPanel;
+
+        await _localSettingsService.SaveSettingAsync(KeyValues.HomeFilterShowPlayStatusAndSourcePanel,
+            HomeFilterShowPlayStatusAndSourcePanel);
+        await _localSettingsService.SaveSettingAsync(KeyValues.HomeFilterShowEnginePanel, HomeFilterShowEnginePanel);
+        await _localSettingsService.SaveSettingAsync(KeyValues.HomeFilterShowDeveloperPanel, HomeFilterShowDeveloperPanel);
+        await _localSettingsService.SaveSettingAsync(KeyValues.HomeFilterShowTagPanel, HomeFilterShowTagPanel);
+    }
 
     private void HandleFilterChanged()
     {

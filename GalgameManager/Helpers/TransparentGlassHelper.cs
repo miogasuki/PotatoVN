@@ -67,6 +67,7 @@ public static partial class TransparentGlassHelper
             hRgnBlur = rgn
         };
         _ = DwmEnableBlurBehindWindow(hwnd, ref blurBehind);
+        DeleteObject(rgn);
     }
 
     private static void SetTransparentBackdrop(Window window, byte alpha, byte r, byte g, byte b)
@@ -79,8 +80,7 @@ public static partial class TransparentGlassHelper
     private static void RemoveRoundedCorners(IntPtr hwnd)
     {
         var preference = 1;
-        DwmSetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.WindowCornerPreference,
-            ref preference, Marshal.SizeOf<int>());
+        DwmSetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.WindowCornerPreference, ref preference, Marshal.SizeOf<int>());
     }
 
     #region P/Invoke
@@ -119,6 +119,10 @@ public static partial class TransparentGlassHelper
 
     [LibraryImport("gdi32.dll")]
     private static partial IntPtr CreateRectRgn(int x1, int y1, int x2, int y2);
+
+    [LibraryImport("gdi32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool DeleteObject(IntPtr hObject);
 
     #endregion
 }

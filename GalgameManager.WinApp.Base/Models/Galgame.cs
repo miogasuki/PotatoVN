@@ -188,7 +188,6 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public Galgame()
     {
         _tags = new ObservableCollection<string>();
-        _developer.OnValueChanged += _ => GalPropertyChanged?.Invoke(this, nameof(Developer), Developer);
         Sources.CollectionChanged += (_, _) => OnPropertyChanged(nameof(LocalPath));
     }
 
@@ -388,6 +387,22 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         public bool HeaderImage { get; set; }
         public bool Staff { get; set; }
     }
+
+    #region HOOKS
+
+    partial void OnDeveloperChanging(LockableProperty<string>? oldValue, LockableProperty<string> newValue) =>
+        RebindLockableProperty(oldValue, newValue, _ => GalPropertyChanged?.Invoke(this, nameof(Developer), Developer));
+
+    partial void OnEngineChanging(LockableProperty<string>? oldValue, LockableProperty<string> newValue) =>
+        RebindLockableProperty(oldValue, newValue, _ => GalPropertyChanged?.Invoke(this, nameof(Engine), Engine));
+
+    private static void RebindLockableProperty<T>(LockableProperty<T>? oldValue, LockableProperty<T> newValue, Action<T?> handler)
+    {
+        if (oldValue is not null) oldValue.OnValueChanged -= handler;
+        newValue.OnValueChanged += handler;
+    }
+
+    #endregion
 }
 
 

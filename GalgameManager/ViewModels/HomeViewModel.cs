@@ -318,6 +318,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         PlayStatusFilters.Source = _playStatusFiltersC;
         _tagFilterCalc = false;
         _playStatusSelectedInit = false;
+        _engineFilterCalc = false;
         UpdateFilterMsg();
     }
 

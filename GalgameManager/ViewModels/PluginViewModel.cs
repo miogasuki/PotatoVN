@@ -15,6 +15,7 @@ using Windows.Storage.Pickers;
 using GalgameManager.Enums;
 using SharpCompress.Archives;
 using SharpCompress.Common;
+using SharpCompress.Readers;
 
 namespace GalgameManager.ViewModels;
 
@@ -141,7 +142,7 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
         {
             return Task.Run(() =>
             {
-                using IArchive archive = ArchiveFactory.Open(zipPath);
+                using IArchive archive = ArchiveFactory.OpenArchive(zipPath, ReaderOptions.ForFilePath);
                 archive.WriteToDirectory(targetDirectory, new ExtractionOptions
                 {
                     ExtractFullPath = true,

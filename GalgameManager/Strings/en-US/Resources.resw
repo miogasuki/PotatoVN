@@ -3785,4 +3785,10 @@ If play time can record correctly, just cancel this popup.
   <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
     <value>Clear Glass</value>
   </data>
+  <data name="SettingsPage_Theme_GlassAlpha.Text" xml:space="preserve">
+    <value>Glass Alpha</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
+    <value>Glass Color</value>
+  </data>
 </root>

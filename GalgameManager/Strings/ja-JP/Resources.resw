@@ -3705,4 +3705,10 @@
   <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
     <value>クリアガラス</value>
   </data>
+  <data name="SettingsPage_Theme_GlassAlpha.Text" xml:space="preserve">
+    <value>ガラスの透明度</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
+    <value>ガラスの色</value>
+  </data>
 </root>

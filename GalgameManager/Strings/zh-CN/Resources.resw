@@ -4705,4 +4705,10 @@
   <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
     <value>透明玻璃</value>
   </data>
+  <data name="SettingsPage_Theme_GlassAlpha.Text" xml:space="preserve">
+    <value>玻璃透明度</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
+    <value>玻璃颜色</value>
+  </data>
 </root>

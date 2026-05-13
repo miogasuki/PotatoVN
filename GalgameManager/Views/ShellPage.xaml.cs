@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
 using Microsoft.VisualBasic;
 using Windows.Storage;
 using Windows.System;
@@ -46,6 +47,7 @@ public sealed partial class ShellPage : Page
         InitializeSidebarButtonMap();
         _sidebarService.ButtonsChanged += RefreshSidebarButtons;
         _localSettingsService.OnSettingChanged += BackgroundSettingChangedHandle;
+        ViewModel.NavigationService.Navigated += OnNavigated;
         RefreshSidebarButtons();
 
         // A custom title bar is required for full window theme and Mica support.
@@ -138,6 +140,16 @@ public sealed partial class ShellPage : Page
         shell.CustomBackgroundBrush.AlignmentY = mode == BackgroundStretchMode.None ? AlignmentY.Center : AlignmentY.Top;
     }
 
+    private bool _wasHomeDetailPage;
+
+    private async void OnNavigated(object sender, NavigationEventArgs e)
+    {
+        var isHome = ViewModel.NavigationService.Frame?.Content is HomeDetailPage;
+        if (isHome == _wasHomeDetailPage) return;
+        _wasHomeDetailPage = isHome;
+        await RefreshBackgroundAsync();
+    }
+
     private async void BackgroundSettingChangedHandle(string key, object? value)
     {
         switch (key)
@@ -159,6 +171,12 @@ public sealed partial class ShellPage : Page
     /// <returns></returns>
     public async Task RefreshBackgroundAsync()
     {
+        if (ViewModel.NavigationService.Frame?.Content is HomeDetailPage)
+        {
+            CustomBackgroundBrush.ImageSource = null;
+            return;
+        }
+
         var _backgroundStretchMode = _localSettingsService.ReadSettingAsync<BackgroundStretchMode>(KeyValues.BackgroundStretchMode).Result;
         var useBanner = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.UseBannerAsBackground);
         var isCustom = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.CustomBackgroundEnabled);
@@ -171,7 +189,13 @@ public sealed partial class ShellPage : Page
 
         if (useBanner)
         {
-            await Task.Delay(300);
+            var galgameservice = App.GetService<IGalgameCollectionService>();
+            if (galgameservice.Galgames.Count == 0)
+            {
+                await Task.Delay(300);
+                await RefreshBackgroundAsync();
+                return;
+            }
             await LoadBannerAsync();
             ApplyStretchMode(_backgroundStretchMode);
         }

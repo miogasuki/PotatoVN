@@ -113,8 +113,7 @@ public sealed partial class ShellPage : Page
             this, async (sender, e) =>
             {
                 var isCustom = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.CustomBackgroundEnabled);
-                if (!isCustom)
-                { await RefreshBackgroundAsync(); }
+                if (!isCustom) { await LoadBannerAsync(); }
             }
             );
     }
@@ -144,17 +143,21 @@ public sealed partial class ShellPage : Page
     /// <returns></returns>
     public async Task RefreshBackgroundAsync()
     {
+        var _backgroundStretchMode = _localSettingsService.ReadSettingAsync<BackgroundStretchMode>(KeyValues.BackgroundStretchMode).Result;
+        var useBanner = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.UseBannerAsBackground);
         var isCustom = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.CustomBackgroundEnabled);
         if (isCustom)
         {
             await LoadCustomImageAsync();
+            ApplyStretchMode(_backgroundStretchMode);
             return;
         }
 
-        var useBanner = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.UseBannerAsBackground);
         if (useBanner)
         {
+            await Task.Delay(300);
             await LoadBannerAsync();
+            ApplyStretchMode(_backgroundStretchMode);
         }
         else { CustomBackgroundBrush.ImageSource = null; }
     }

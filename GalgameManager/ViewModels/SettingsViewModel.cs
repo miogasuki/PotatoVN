@@ -128,6 +128,11 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _showGameNameInControl = _localSettingsService.ReadSettingAsync<bool>(KeyValues.ShowGameNameInControl).Result;
         _defaultGameName = _localSettingsService.ReadSettingAsync<DisplayName>(KeyValues.DefaultGameName).Result;
         _glassColor = TransparentGlassHelper.ParseHexColor(_localSettingsService.ReadSettingAsync<string>(KeyValues.GlassColor).Result);
+        _glassAlpha = _localSettingsService.ReadSettingAsync<int>(KeyValues.GlassAlpha).Result;
+        _CustomBackgroundEnabled = _localSettingsService.ReadSettingAsync<bool>(KeyValues.CustomBackgroundEnabled).Result;
+        _useBannerAsBackground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.UseBannerAsBackground).Result;
+        _backgroundStretchMode = _localSettingsService.ReadSettingAsync<BackgroundStretchMode>(KeyValues.BackgroundStretchMode).Result;
+
         //GAME
         _recordOnlyForeground = _localSettingsService.ReadSettingAsync<bool>(KeyValues.RecordOnlyWhenForeground).Result;
         _playingWindowMode = _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode).Result;
@@ -291,6 +296,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public readonly BackgroundMaterialEnum[] BackgroundMaterials = { BackgroundMaterialEnum.Mica, BackgroundMaterialEnum.MicaAlt, BackgroundMaterialEnum.DesktopAcrylic, BackgroundMaterialEnum.Glass };
     [ObservableProperty] private BackgroundMaterialEnum _backgroundMaterial = BackgroundMaterialEnum.Mica;
 
+    [ObservableProperty] private bool _CustomBackgroundEnabled;
     [ObservableProperty] private bool _useBannerAsBackground;
     [ObservableProperty] private int _glassAlpha = 5;
     [ObservableProperty] private Windows.UI.Color _glassColor = Windows.UI.Color.FromArgb(255, 255, 255, 255);

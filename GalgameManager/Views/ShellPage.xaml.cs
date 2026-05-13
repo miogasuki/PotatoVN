@@ -116,7 +116,7 @@ public sealed partial class ShellPage : Page
             this, async (sender, e) =>
             {
                 var isCustom = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.CustomBackgroundEnabled);
-                if (!isCustom) { await LoadBannerAsync(); }
+                if (!isCustom) { await RefreshBackgroundAsync(); }
             }
             );
     }
@@ -202,6 +202,9 @@ public sealed partial class ShellPage : Page
         else { CustomBackgroundBrush.ImageSource = null; }
     }
 
+    private string? _lastBannerPath;
+    private Microsoft.UI.Xaml.Media.Imaging.BitmapImage? _cachedBannerBitmap;
+
     // 加载最后启动游戏的横幅图（仅横幅，不用封面，封面其实也可以实现，但是太糊了，还是算了吧）
     private async Task LoadBannerAsync()
     {
@@ -212,17 +215,26 @@ public sealed partial class ShellPage : Page
             var bannerPath = LastGame?.HeaderImagePath.Value;
             if (string.IsNullOrEmpty(bannerPath) || !System.IO.File.Exists(bannerPath))
             {
+                _lastBannerPath = null;
                 CustomBackgroundBrush.ImageSource = null;
                 return;
             }
 
-            var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+            if (bannerPath == _lastBannerPath && _cachedBannerBitmap != null)
+            {
+                CustomBackgroundBrush.ImageSource = _cachedBannerBitmap;
+                return;
+            }
+
+            _cachedBannerBitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
             using var stream = System.IO.File.OpenRead(bannerPath);
-            await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
-            CustomBackgroundBrush.ImageSource = bitmap;
+            await _cachedBannerBitmap.SetSourceAsync(stream.AsRandomAccessStream());
+            CustomBackgroundBrush.ImageSource = _cachedBannerBitmap;
+            _lastBannerPath = bannerPath;
         }
         catch
         {
+            _lastBannerPath = null;
             CustomBackgroundBrush.ImageSource = null;
         }
     }

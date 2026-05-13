@@ -9,6 +9,7 @@ namespace GalgameManager.Helpers;
 
 public static partial class TransparentGlassHelper
 {
+    private static Windows.UI.Composition.Compositor? _compositor;
     /// <summary>
     /// 颜色转换：hex RGB → Color，非法输入返回白色
     /// </summary>
@@ -72,8 +73,8 @@ public static partial class TransparentGlassHelper
 
     private static void SetTransparentBackdrop(Window window, byte alpha, byte r, byte g, byte b)
     {
-        var compositor = new Windows.UI.Composition.Compositor();
-        var brush = compositor.CreateColorBrush(WinColor.FromArgb(alpha, r, g, b));
+        _compositor ??= new Windows.UI.Composition.Compositor();
+        var brush = _compositor.CreateColorBrush(WinColor.FromArgb(alpha, r, g, b));
         window.As<ICompositionSupportsSystemBackdrop>().SystemBackdrop = brush;
     }
 

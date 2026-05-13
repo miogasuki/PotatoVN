@@ -45,6 +45,7 @@ public sealed partial class ShellPage : Page
         NavigationViewControl.ItemInvoked += NavigationViewControl_OnItemInvoked;
         InitializeSidebarButtonMap();
         _sidebarService.ButtonsChanged += RefreshSidebarButtons;
+        _localSettingsService.OnSettingChanged += BackgroundSettingChangedHandle;
         RefreshSidebarButtons();
 
         // A custom title bar is required for full window theme and Mica support.
@@ -135,6 +136,21 @@ public sealed partial class ShellPage : Page
         shell.CustomBackgroundBrush.Stretch = stretch;
         shell.CustomBackgroundBrush.AlignmentX = mode == BackgroundStretchMode.None ? AlignmentX.Center : AlignmentX.Left;
         shell.CustomBackgroundBrush.AlignmentY = mode == BackgroundStretchMode.None ? AlignmentY.Center : AlignmentY.Top;
+    }
+
+    private async void BackgroundSettingChangedHandle(string key, object? value)
+    {
+        switch (key)
+        {
+            case KeyValues.UseBannerAsBackground:
+            case KeyValues.CustomBackgroundEnabled:
+                await RefreshBackgroundAsync();
+                break;
+            case KeyValues.BackgroundStretchMode:
+                if (value is BackgroundStretchMode mode)
+                    ApplyStretchMode(mode);
+                break;
+        }
     }
 
     /// <summary>

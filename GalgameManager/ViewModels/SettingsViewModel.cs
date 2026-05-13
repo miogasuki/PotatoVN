@@ -322,22 +322,14 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _themeSelectorService.SetBackgroundMaterialAsync();
     }
 
-    partial void OnUseBannerAsBackgroundChanged(bool value)
+    async partial void OnUseBannerAsBackgroundChanged(bool value)
     {
-        _localSettingsService.SaveSettingAsync(KeyValues.UseBannerAsBackground, value);
-        Task.Run(async () =>
-        {
-            var shell = App.MainWindow?.Content as ShellPage;
-            if (shell != null && App.MainWindow?.Content is FrameworkElement)
-                await shell.RefreshBackgroundAsync();
-        }
-        );
+        await _localSettingsService.SaveSettingAsync(KeyValues.UseBannerAsBackground, value);
     }
 
-    partial void OnBackgroundStretchModeChanged(BackgroundStretchMode value)
+    async partial void OnBackgroundStretchModeChanged(BackgroundStretchMode value)
     {
-        _localSettingsService.SaveSettingAsync(KeyValues.BackgroundStretchMode, value);
-        ShellPage.ApplyStretchMode(value);
+        await _localSettingsService.SaveSettingAsync(KeyValues.BackgroundStretchMode, value);
     }
 
     partial void OnTransparentNavigationViewChanged(bool value)

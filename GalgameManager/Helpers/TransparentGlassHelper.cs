@@ -37,7 +37,7 @@ public static partial class TransparentGlassHelper
             ExtendFrameIntoClientArea(hwnd);//扩展Frame到窗口
             EnableBlurBehind(hwnd);//启用模糊效果
             SetTransparentBackdrop(window, alpha, r, g, b);//设置透明属性
-            RemoveRoundedCorners(hwnd);//移除圆角
+            //RemoveRoundedCorners(hwnd);//移除圆角
         }
         catch { }
     }
@@ -77,11 +77,11 @@ public static partial class TransparentGlassHelper
         window.As<ICompositionSupportsSystemBackdrop>().SystemBackdrop = brush;
     }
 
-    private static void RemoveRoundedCorners(IntPtr hwnd)
-    {
-        var preference = 1;
-        DwmSetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.WindowCornerPreference, ref preference, Marshal.SizeOf<int>());
-    }
+    //private static void RemoveRoundedCorners(IntPtr hwnd)
+    //{
+    //    var preference = 1;
+    //    DwmSetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.WindowCornerPreference, ref preference, Marshal.SizeOf<int>());
+    //}
 
     #region P/Invoke
 
@@ -113,9 +113,9 @@ public static partial class TransparentGlassHelper
     [LibraryImport("dwmapi.dll")]
     private static partial int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blurBehind);
 
-    [LibraryImport("dwmapi.dll")]
-    private static partial int DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attr,
-        ref int pvAttr, int cbAttr);
+    //[LibraryImport("dwmapi.dll")]
+    ////private static partial int DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attr,
+    ////    ref int pvAttr, int cbAttr);
 
     [LibraryImport("gdi32.dll")]
     private static partial IntPtr CreateRectRgn(int x1, int y1, int x2, int y2);

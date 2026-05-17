@@ -76,14 +76,59 @@
                                     <ComboBox ItemsSource="{x:Bind ViewModel.BackgroundMaterials}"
                                               SelectedItem="{x:Bind ViewModel.BackgroundMaterial, Mode=TwoWay}"
                                               RelativePanel.AlignRightWithPanel="True">
-                                            <ComboBox.ItemTemplate>
-                                                <DataTemplate x:DataType="enums:BackgroundMaterialEnum">
-                                                    <TextBlock Text="{x:Bind Converter={StaticResource EnumToStringConverter}}" />
-                                                </DataTemplate>
-                                            </ComboBox.ItemTemplate>
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="enums:BackgroundMaterialEnum">
+                                                <TextBlock Text="{x:Bind Converter={StaticResource EnumToStringConverter}}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
                                     </ComboBox>
                                 </RelativePanel>
                             </control:Panel>
+                            <!-- 透明玻璃 -->
+                            <control:Panel Visibility="{x:Bind ViewModel.IsGlassMaterial, Mode=OneWay}">
+                                <StackPanel Orientation="Vertical" Spacing="8">
+                                    <TextBlock x:Uid="SettingsPage_Theme_GlassAlpha"
+                                               Style="{ThemeResource BodyTextBlockStyle}" />
+                                    <Slider Minimum="0" Maximum="255" TickFrequency="1"
+                                            Value="{x:Bind ViewModel.GlassAlpha, Mode=TwoWay}" />
+                                    <TextBlock x:Uid="SettingsPage_Theme_GlassColor"
+                                               Style="{ThemeResource BodyTextBlockStyle}" />
+                                    <ColorPicker Color="{x:Bind ViewModel.GlassColor, Mode=TwoWay}"
+                                                 IsAlphaEnabled="False" />
+                                </StackPanel>
+                            </control:Panel>
+                            <!-- 自定义背景图片 -->
+                            <control:Panel>
+                                <StackPanel Orientation="Vertical" Spacing="8">
+                                    <TextBlock x:Uid="SettingsPage_Theme_CustomBackground"
+                                               Style="{ThemeResource BodyTextBlockStyle}" />
+                                    <local:SettingToggleSwitch x:Uid="SettingsPage_Theme_UseBannerBackground"
+                                                               IsOn="{x:Bind ViewModel.UseBannerAsBackground, Mode=TwoWay}" />
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <Button x:Uid="SettingsPage_Theme_PickBackground"
+                                                Command="{x:Bind ViewModel.PickCustomBackgroundCommand}" />
+                                        <Button x:Uid="SettingsPage_Theme_ClearBackground"
+                                                Command="{x:Bind ViewModel.ClearCustomBackgroundCommand}" />
+                                    </StackPanel>
+                                    <!-- 图片模式 -->
+                                    <RelativePanel>
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock x:Uid="SettingsPage_Theme_BackgroundStretchMode"
+                   Style="{ThemeResource BodyTextBlockStyle}" />
+                                        </StackPanel>
+                                        <ComboBox ItemsSource="{x:Bind ViewModel.BackgroundStretchModes}"
+              SelectedItem="{x:Bind ViewModel.BackgroundStretchMode, Mode=TwoWay}"
+              RelativePanel.AlignRightWithPanel="True">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate x:DataType="enums:BackgroundStretchMode">
+                                                    <TextBlock Text="{x:Bind Converter={StaticResource EnumToStringConverter}}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                    </RelativePanel>
+                                </StackPanel>
+                            </control:Panel>
+                            
                             <!-- 导航视图透明背景 -->
                             <control:Panel>
                                 <local:SettingToggleSwitch x:Uid="SettingsPage_Theme_TransparentNavigationView"

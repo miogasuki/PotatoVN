@@ -129,6 +129,9 @@ public static class KeyValues
     public const string PrimarySortDescending = "PrimarySortDescending"; //bool, 主排序是否降序排列，默认是false（升序）
     public const string SecondarySortDescending = "SecondarySortDescending"; //bool, 次排序是否降序排列，默认是false（升序）
     public const string DefaultGameName = "defaultGameName"; //string, 默认游戏名称
+    public const string CustomBackgroundEnabled = "customBackgroundEnabled"; //bool, 是否启用自定义背景图片
+    public const string UseBannerAsBackground = "useBannerAsBackground"; //bool 是否使用横幅图作为背景（最后一次启动的游戏）
+    public const string BackgroundStretchMode = "backgroundStretchMode"; //BackgroundStretchMode, 自定义背景图片以及横幅图填充模式
 
     //游戏列表界面
     public const string GameFilterClickCnt = "gameFilterClickCnt"; //Map<string, int>，某个filter被添加的次数，key为filter.SuggestName
@@ -162,7 +165,9 @@ public static class KeyValues
     public const string DevelopmentMode = "developmentMode"; //bool, 是否开发模式
     public const string LastError = "lastError"; //string, 上次错误信息
     public const string Language = "language"; //string, 语言设置，en-US/zh-CN/zh-TW
-    public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic
+    public const string BackgroundMaterial = "backgroundMaterial"; //string, 背景素材，Mica, Mica Alt,Desktop Acrylic, Glass
+    public const string GlassAlpha = "glassAlpha"; //int, 透明玻璃透明度 0-255，默认5
+    public const string GlassColor = "glassColor"; //string, 透明玻璃颜色 hex RGB，如 "FFFFFF"
     public const string UpdateType = "UpdateType";
     public const string UpdateUrl = "UpdateUrl";
     public const string IsBetaChannel = "isBetaChannel";

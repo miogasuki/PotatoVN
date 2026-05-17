@@ -3669,6 +3669,49 @@
   <data name="HomePage_ClearFilters.Content" xml:space="preserve">
     <value>すべてのフィルターをクリア</value>
   </data>
+  <data name="SettingsPage_Theme_CustomBackground.Text" xml:space="preserve">
+    <value>カスタム背景</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground_Description.Text" xml:space="preserve">
+    <value>アプリの背景として画像を選択します。デフォルトは最後にプレイしたゲームのバナーです。</value>
+  </data>
+  <data name="SettingsPage_Theme_PickBackground.Content" xml:space="preserve">
+    <value>画像を選択</value>
+  </data>
+  <data name="SettingsPage_Theme_ClearBackground.Content" xml:space="preserve">
+    <value>背景をクリア</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Title" xml:space="preserve">
+    <value>ゲームバナーを背景として使用</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
+    <value>有効にすると、最後にプレイしたゲームのバナーが背景として使用されます。カスタム画像が優先されます。</value>
+  </data>
+  <data name="BackgroundStretchMode_UniformToFill" xml:space="preserve">
+    <value>均一塗りつぶし</value>
+  </data>
+  <data name="BackgroundStretchMode_Fill" xml:space="preserve">
+    <value>塗りつぶし</value>
+  </data>
+  <data name="BackgroundStretchMode_Uniform" xml:space="preserve">
+    <value>均一</value>
+  </data>
+  <data name="BackgroundStretchMode_None" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
+    <value>背景の塗りつぶしモード</value>
+  </data>
+  <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
+    <value>クリアガラス</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassAlpha.Text" xml:space="preserve">
+    <value>ガラスの透明度</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
+    <value>ガラスの色</value>
+  </data>
+</root>
   <data name="HomeFilterPanelVisibilityDialog.Title" xml:space="preserve">
     <value>フィルターパネル</value>
   </data>

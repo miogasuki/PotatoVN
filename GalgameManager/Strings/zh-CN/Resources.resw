@@ -4669,6 +4669,47 @@
   <data name="HomePage_ClearFilters.Content" xml:space="preserve">
     <value>清除所有过滤器</value>
   </data>
+  <data name="SettingsPage_Theme_CustomBackground.Text" xml:space="preserve">
+    <value>自定义背景</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground_Description.Text" xml:space="preserve">
+    <value>选择一张图片作为应用背景，默认为最后启动游戏的横幅图</value>
+  </data>
+  <data name="SettingsPage_Theme_PickBackground.Content" xml:space="preserve">
+    <value>选择图片</value>
+  </data>
+  <data name="SettingsPage_Theme_ClearBackground.Content" xml:space="preserve">
+    <value>清除背景</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Title" xml:space="preserve">
+    <value>使用游戏横幅作为背景</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
+    <value>勾选后将自动使用最后启动游戏的横幅图作为背景，自定义图片优先级更高</value>
+  </data>
+  <data name="BackgroundStretchMode_UniformToFill" xml:space="preserve">
+    <value>跨区</value>
+  </data>
+  <data name="BackgroundStretchMode_Fill" xml:space="preserve">
+    <value>填充</value>
+  </data>
+  <data name="BackgroundStretchMode_Uniform" xml:space="preserve">
+    <value>适应</value>
+  </data>
+  <data name="BackgroundStretchMode_None" xml:space="preserve">
+    <value>居中</value>
+  </data>
+  <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
+    <value>背景填充模式</value>
+  </data>
+  <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
+    <value>透明玻璃</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassAlpha.Text" xml:space="preserve">
+    <value>玻璃透明度</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
+    <value>玻璃颜色</value>
   <data name="HomeFilterPanelVisibilityDialog.Title" xml:space="preserve">
     <value>过滤面板</value>
   </data>

@@ -1,4 +1,4 @@
-﻿using System.Web;
+using System.Web;
 using Windows.Storage;
 using GalgameManager.Core.Contracts.Services;
 using GalgameManager.Models;
@@ -140,5 +140,6 @@ public static class FileHelper
         Root,
         Images,
         Plugins,
+        Background,
     }
 }

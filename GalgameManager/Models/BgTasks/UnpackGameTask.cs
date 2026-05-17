@@ -145,7 +145,7 @@ public class UnpackGameTask : BgTaskBase
     {
         await Task.CompletedTask;
         var finishedCnt = 0;
-        using IArchive archive = ArchiveFactory.Open(_pack!.Path, new ReaderOptions { Password = Password });
+        using IArchive archive = ArchiveFactory.OpenArchive(_pack!.Path, new ReaderOptions { Password = Password });
         List<IArchiveEntry> entries = archive.Entries.Where(entry => !entry.IsDirectory).ToList();
         var totalFileCnt = entries.Count;
         ExtractionOptions options = new()

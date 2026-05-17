@@ -2,6 +2,7 @@ using GalgameManager.Contracts.Services;
 using GalgameManager.Helpers;
 using SharpCompress.Archives;
 using SharpCompress.Common;
+using SharpCompress.Readers;
 
 namespace GalgameManager.Models.BgTasks;
 
@@ -146,7 +147,7 @@ public class InstallStorePluginTask : BgTaskBase
     {
         return Task.Run(() =>
         {
-            using IArchive archive = ArchiveFactory.Open(zipPath);
+            using IArchive archive = ArchiveFactory.OpenArchive(zipPath, ReaderOptions.ForFilePath);
             archive.WriteToDirectory(targetDirectory, new ExtractionOptions
             {
                 ExtractFullPath = true,

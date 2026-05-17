@@ -4710,5 +4710,28 @@
   </data>
   <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
     <value>玻璃颜色</value>
+  <data name="HomeFilterPanelVisibilityDialog.Title" xml:space="preserve">
+    <value>过滤面板</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.SecondaryButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_PlayStatusAndSourcePanelCheckBox.Content" xml:space="preserve">
+    <value>游玩状态与库</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_EnginePanelCheckBox.Content" xml:space="preserve">
+    <value>引擎</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_DeveloperPanelCheckBox.Content" xml:space="preserve">
+    <value>开发者</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_TagPanelCheckBox.Content" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="HomePage_FilterPanelVisibilityButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>选择显示的过滤面板</value>
   </data>
 </root>

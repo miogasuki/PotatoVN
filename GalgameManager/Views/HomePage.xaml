@@ -138,89 +138,109 @@
                     </AppBarButton.Icon>
                     <AppBarButton.Flyout>
                         <Flyout Placement="Bottom">
-                            <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="*,Auto,Auto" Height="260" Width="400" ColumnSpacing="10">
-                                <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,*">
-                                    <TextBlock Grid.Row="0" x:Uid="HomePage_PlayStatusFilter"
-                                               FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
-                                    <ComboBox Grid.Row="1" ItemsSource="{x:Bind ViewModel.PlayStatusFilters}"
-                                              SelectedItem="{x:Bind ViewModel.SelectedPlayStatus, Mode=TwoWay}"
-                                              AllowFocusOnInteraction="True" Margin="0 0 10 8"
-                                              HorizontalAlignment="Stretch"/>
-                                    <Button Grid.Row="1" Style="{StaticResource TransparentButtonWithHover}"
-                                            HorizontalAlignment="Right" VerticalAlignment="Center"
-                                            Visibility="{x:Bind ViewModel.SelectedPlayStatus, Mode=OneWay,
-                                                Converter={StaticResource VisibilityConv}}"
-                                            Margin="0 0 40 3"
-                                            Command="{x:Bind ViewModel.ClearPlayStatusCommand}">
-                                        <control:ConditionalFontIcon FluentGlyph="&#xE711;" Symbol="ClosedCaption"
-                                                                     IconFontSize="15"/>
-                                    </Button>
+                            <Grid RowDefinitions="*,Auto,Auto" Height="285" Width="400">
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="{x:Bind ViewModel.HomeFilterPlayStatusAndSourcePanelColumnWidth, Mode=OneWay}" />
+                                        <ColumnDefinition Width="{x:Bind ViewModel.HomeFilterPlayStatusAndSourcePanelGapColumnWidth, Mode=OneWay}" />
+                                        <ColumnDefinition Width="{x:Bind ViewModel.HomeFilterEnginePanelColumnWidth, Mode=OneWay}" />
+                                        <ColumnDefinition Width="{x:Bind ViewModel.HomeFilterEnginePanelGapColumnWidth, Mode=OneWay}" />
+                                        <ColumnDefinition Width="{x:Bind ViewModel.HomeFilterDeveloperPanelColumnWidth, Mode=OneWay}" />
+                                        <ColumnDefinition Width="{x:Bind ViewModel.HomeFilterDeveloperPanelGapColumnWidth, Mode=OneWay}" />
+                                        <ColumnDefinition Width="{x:Bind ViewModel.HomeFilterTagPanelColumnWidth, Mode=OneWay}" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,*"
+                                          Visibility="{x:Bind ViewModel.HomeFilterShowPlayStatusAndSourcePanel, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Grid.Row="0" x:Uid="HomePage_PlayStatusFilter"
+                                                   FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
+                                        <ComboBox Grid.Row="1" ItemsSource="{x:Bind ViewModel.PlayStatusFilters}"
+                                                  SelectedItem="{x:Bind ViewModel.SelectedPlayStatus, Mode=TwoWay}"
+                                                  AllowFocusOnInteraction="True" Margin="0 0 0 8"
+                                                  HorizontalAlignment="Stretch"/>
+                                        <Button Grid.Row="1" Style="{StaticResource TransparentButtonWithHover}"
+                                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                Visibility="{x:Bind ViewModel.SelectedPlayStatus, Mode=OneWay,
+                                                    Converter={StaticResource VisibilityConv}}"
+                                                Margin="0 0 30 3"
+                                                Command="{x:Bind ViewModel.ClearPlayStatusCommand}">
+                                            <control:ConditionalFontIcon FluentGlyph="&#xE711;" Symbol="ClosedCaption"
+                                                                         IconFontSize="15"/>
+                                        </Button>
 
-                                    <TextBlock Grid.Row="2" x:Uid="HomePage_LibraryFilter"
-                                               FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
-                                    <ScrollViewer Grid.Row="3">
-                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.SourceFilters}">
-                                            <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
-                                                <CheckBox IsThreeState="True"
-                                                          IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
-                                                          Content="{x:Bind Title}"/>
-                                            </DataTemplate>
-                                        </ItemsRepeater>
-                                    </ScrollViewer>
+                                        <TextBlock Grid.Row="2" x:Uid="HomePage_LibraryFilter"
+                                                   FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
+                                        <ScrollViewer Grid.Row="3">
+                                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.SourceFilters}">
+                                                <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
+                                                    <CheckBox IsThreeState="True"
+                                                              IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                                              Content="{x:Bind Title}"/>
+                                                </DataTemplate>
+                                            </ItemsRepeater>
+                                        </ScrollViewer>
+                                    </Grid>
+                                    <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*"
+                                          Visibility="{x:Bind ViewModel.HomeFilterShowEnginePanel, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Grid.Row="0" x:Uid="HomePage_EngineFilter"
+                                                     FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
+                                        <control:SearchAutoSuggestBox Grid.Row="1" MinWidth="0"
+                                                                      SearchKey="{x:Bind ViewModel.EngineFilterSearchKey, Mode=TwoWay}"
+                                                                      SearchCommand="{x:Bind ViewModel.SearchEngineFilterCommand}"/>
+                                        <ScrollViewer Grid.Row="2">
+                                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.EngineFilters}">
+                                                <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
+                                                    <CheckBox IsThreeState="True"
+                                                                IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                                                Content="{x:Bind Title}"/>
+                                                </DataTemplate>
+                                            </ItemsRepeater>
+                                        </ScrollViewer>
+                                    </Grid>
+                                    <Grid Grid.Column="4" RowDefinitions="Auto,Auto,*"
+                                          Visibility="{x:Bind ViewModel.HomeFilterShowDeveloperPanel, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Grid.Row="0" x:Uid="HomePage_DeveloperFilter"
+                                                   FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
+                                        <control:SearchAutoSuggestBox Grid.Row="1" MinWidth="0"
+                                                                      SearchKey="{x:Bind ViewModel.DeveloperFilterSearchKey, Mode=TwoWay}"
+                                                                      SearchCommand="{x:Bind ViewModel.SearchDeveloperFilterCommand}"/>
+                                        <ScrollViewer Grid.Row="2">
+                                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.DeveloperFilters}">
+                                                <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
+                                                    <CheckBox IsThreeState="True"
+                                                              IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                                              Content="{x:Bind Title}"/>
+                                                </DataTemplate>
+                                            </ItemsRepeater>
+                                        </ScrollViewer>
+                                    </Grid>
+                                    <Grid Grid.Column="6" RowDefinitions="Auto,Auto,*"
+                                          Visibility="{x:Bind ViewModel.HomeFilterShowTagPanel, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Grid.Row="0" x:Uid="HomePage_TagFilter"
+                                                   FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
+                                        <control:SearchAutoSuggestBox SearchKey="{x:Bind ViewModel.TagFilterSearchKey, Mode=TwoWay}"
+                                                                      SearchCommand="{x:Bind ViewModel.SearchTagFilterCommand}"
+                                                                      MinWidth="0" Grid.Row="1"/>
+                                        <ScrollViewer Grid.Row="2">
+                                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.TagFilters}">
+                                                <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
+                                                    <CheckBox IsThreeState="True"
+                                                              IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                                              Content="{x:Bind Title}"/>
+                                                </DataTemplate>
+                                            </ItemsRepeater>
+                                        </ScrollViewer>
+                                    </Grid>
                                 </Grid>
-                                <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
-                                    <TextBlock Grid.Row="0" x:Uid="HomePage_EngineFilter"
-                                                 FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
-                                    <control:SearchAutoSuggestBox Grid.Row="1" MinWidth="0"
-                                                                    SearchKey="{x:Bind ViewModel.EngineFilterSearchKey, Mode=TwoWay}"
-                                                                    SearchCommand="{x:Bind ViewModel.SearchEngineFilterCommand}"
-                                                                    Margin="0 0 10 0"/>
-                                    <ScrollViewer Grid.Row="2">
-                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.EngineFilters}">
-                                            <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
-                                                <CheckBox IsThreeState="True"
-                                                            IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
-                                                            Content="{x:Bind Title}"/>
-                                            </DataTemplate>
-                                        </ItemsRepeater>
-                                    </ScrollViewer>
-                                </Grid>
-                                <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*">
-                                    <TextBlock Grid.Row="0" x:Uid="HomePage_DeveloperFilter"
-                                               FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
-                                    <control:SearchAutoSuggestBox Grid.Row="1" MinWidth="0"
-                                                                  SearchKey="{x:Bind ViewModel.DeveloperFilterSearchKey, Mode=TwoWay}"
-                                                                  SearchCommand="{x:Bind ViewModel.SearchDeveloperFilterCommand}"
-                                                                  Margin="0 0 10 0"/>
-                                    <ScrollViewer Grid.Row="2">
-                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.DeveloperFilters}">
-                                            <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
-                                                <CheckBox IsThreeState="True"
-                                                          IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
-                                                          Content="{x:Bind Title}"/>
-                                            </DataTemplate>
-                                        </ItemsRepeater>
-                                    </ScrollViewer>
-                                </Grid>
-                                <Grid Grid.Column="3" RowDefinitions="Auto,Auto,*">
-                                    <TextBlock Grid.Row="0" x:Uid="HomePage_TagFilter"
-                                               FontWeight="SemiBold" Margin="{StaticResource XXSmallBottomMargin}"/>
-                                    <control:SearchAutoSuggestBox SearchKey="{x:Bind ViewModel.TagFilterSearchKey, Mode=TwoWay}"
-                                                                  SearchCommand="{x:Bind ViewModel.SearchTagFilterCommand}"
-                                                                  Margin="0 0 10 0" MinWidth="0" Grid.Row="1"/>
-                                    <ScrollViewer Grid.Row="2">
-                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.TagFilters}">
-                                            <DataTemplate x:DataType="viewModels:HomeViewModelFilter">
-                                                <CheckBox IsThreeState="True"
-                                                          IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
-                                                          Content="{x:Bind Title}"/>
-                                            </DataTemplate>
-                                        </ItemsRepeater>
-                                    </ScrollViewer>
-                                </Grid>
-                                <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Height="1" Margin="20 7 20 2"
+                                <Button Grid.Row="0" x:Uid="HomePage_FilterPanelVisibilityButton"
+                                        Style="{StaticResource TransparentButtonWithHover}"
+                                        Command="{x:Bind ViewModel.ShowHomeFilterPanelVisibilityDialogCommand}"
+                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Margin="0 0 0 4">
+                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;" FontSize="14" />
+                                </Button>
+                                <Rectangle Grid.Row="1" Height="1" Margin="20 7 20 2"
                                            Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"/>
-                                <CheckBox Grid.Row="2" Grid.ColumnSpan="3"  Margin="0 0 0 -11"
+                                <CheckBox Grid.Row="2" Margin="0 0 0 -11"
                                           RenderTransformOrigin="0,0.5"
                                           IsChecked="{x:Bind ViewModel.KeepFilters, Mode=TwoWay}">
                                     <TextBlock x:Uid="HomePage_KeepFilters" Opacity="0.6"
@@ -229,7 +249,7 @@
                                         <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
                                     </CheckBox.RenderTransform>
                                 </CheckBox>
-                                <HyperlinkButton Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="2" x:Uid="HomePage_ClearFilters"
+                                <HyperlinkButton Grid.Row="2" x:Uid="HomePage_ClearFilters"
                                                  FontSize="{StaticResource SmallFontSize}"
                                                  Command="{x:Bind ViewModel.ClearAllFiltersCommand}"
                                                  VerticalAlignment="Center" HorizontalAlignment="Right"

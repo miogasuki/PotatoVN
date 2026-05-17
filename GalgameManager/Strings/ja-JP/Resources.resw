@@ -3712,3 +3712,28 @@
     <value>ガラスの色</value>
   </data>
 </root>
+  <data name="HomeFilterPanelVisibilityDialog.Title" xml:space="preserve">
+    <value>フィルターパネル</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.PrimaryButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.SecondaryButtonText" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_PlayStatusAndSourcePanelCheckBox.Content" xml:space="preserve">
+    <value>プレイ状態とライブラリ</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_EnginePanelCheckBox.Content" xml:space="preserve">
+    <value>エンジン</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_DeveloperPanelCheckBox.Content" xml:space="preserve">
+    <value>開発者</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_TagPanelCheckBox.Content" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="HomePage_FilterPanelVisibilityButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>表示するフィルターパネルを選択</value>
+  </data>
+</root>

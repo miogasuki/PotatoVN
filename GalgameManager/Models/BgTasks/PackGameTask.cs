@@ -30,7 +30,7 @@ public class PackGameTask : BgTaskBase
 
         return Task.Run(() =>
         {
-            using ZipArchive archive = ZipArchive.Create();
+            using var archive = ZipArchive.CreateArchive();
             archive.AddAllFromDirectory(GamePath);
             archive.SaveTo(ZipPath, CompressionType.Deflate);
         });

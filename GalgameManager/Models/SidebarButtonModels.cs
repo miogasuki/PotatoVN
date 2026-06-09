@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using GalgameManager.WinApp.Base.Models.Plugin;
 namespace GalgameManager.Models;
 
@@ -31,13 +32,13 @@ public class SidebarButton
     public int Order { get; init; }
 }
 
-public class SidebarBtnSettingItem
+public partial class SidebarBtnSettingItem : ObservableObject
 {
     public string UniqueId { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public SidebarButtonPlacement Placement { get; set; }
     public int Order { get; set; }
-    public bool CanToggle { get; set; }
-    public bool IsVisible { get; set; }
+    [ObservableProperty] private bool _canToggle;
+    [ObservableProperty]  private bool _isVisible;
 }

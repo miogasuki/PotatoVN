@@ -4710,6 +4710,7 @@
   </data>
   <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
     <value>玻璃颜色</value>
+  </data>
   <data name="HomeFilterPanelVisibilityDialog.Title" xml:space="preserve">
     <value>过滤面板</value>
   </data>

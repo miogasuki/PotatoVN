@@ -54,6 +54,9 @@ public partial class PluginService(
             Enable = true,
             IsDevMode = isDev,
         };
+        // 开发版插件：加载了同一个插件时先卸载旧插件
+        if (_plugins.FirstOrDefault(p => p.Info.Id == plugin.Info.Id && p.IsDevMode) is { } existPlugin)
+            await DeletePluginAsync(existPlugin, false);
         await LoadPluginAsync(plugin, true);
         // 使用 Insert 来做最后的判重，防止重复加载 Dev 插件。
         _pluginsDb.Insert(plugin);
@@ -118,6 +121,20 @@ public partial class PluginService(
                 if (deleteData)
                     PluginDeleteData(plugin);
                 plugin.ForceUnload();
+                // 对于使用安装包安装的测试版插件（会装在软件数据目录下），应该在插件卸载时删掉目录
+                if (new DirectoryInfo(plugin.Path).IsChildOf(PluginDir))
+                {
+                    try
+                    {
+                        Directory.Delete(plugin.Path, true);
+                    }
+                    catch (Exception e)
+                    {
+                        infoService.Event(EventType.PluginError, InfoBarSeverity.Warning,
+                            "PluginService_DeleteDevPluginFailed".GetLocalized(plugin.Info.Name),
+                            msg: $"Failed to delete dev plugin directory {plugin.Path}. Please check the directory and delete it manually.\n{e}");
+                    }
+                }
             }
             else
             {
@@ -219,6 +236,12 @@ public partial class PluginService(
                     "PluginService_PluginStatusChangedFailed".GetLocalized(), exception: e);
             }
         }
+    }
+
+    public Task LoadFailedPluginAsync(PluginX pluginX)
+    {
+        _plugins.Add(pluginX);
+        return Task.CompletedTask;
     }
 
     public DirectoryInfo PluginDir { get; private set; } = null!;

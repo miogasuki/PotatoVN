@@ -13,7 +13,7 @@ public class LoadPluginTask : BgTaskBase
     private readonly ILocalSettingsService _settingService = App.GetService<ILocalSettingsService>();
     private readonly IInfoService _infoService = App.GetService<IInfoService>();
     private DirectoryInfo _pluginDir = null!;
-    
+
     protected override Task RecoverFromJsonInternal() => Task.CompletedTask;
 
     protected override Task RunInternal() => Task.Run(async () =>
@@ -31,7 +31,7 @@ public class LoadPluginTask : BgTaskBase
                 await DeletePlugin(plugin);
                 continue;
             }
-            
+
             ChangeProgress(i, pluginPaths.Count, "LoadPluginTask_Loading".GetLocalized(plugin.Info.Name));
             try
             {
@@ -39,6 +39,7 @@ public class LoadPluginTask : BgTaskBase
             }
             catch (Exception e)
             {
+                await _pluginService.LoadFailedPluginAsync(plugin);
                 var msg = "LoadPluginTask_ErrorLoading_Msg".GetLocalized(e is PvnException ex ? ex.FullMsg : e.ToString());
                 _infoService.Event(EventType.PluginError, InfoBarSeverity.Warning,
                     "LoadPluginTask_ErrorLoading".GetLocalized(plugin.Info.Name), msg: msg);
@@ -61,7 +62,7 @@ public class LoadPluginTask : BgTaskBase
                 }
                 else
                 {
-                    if (Directory.Exists(plugin.Path)) 
+                    if (Directory.Exists(plugin.Path))
                         Directory.Delete(plugin.Path, true);
                 }
 

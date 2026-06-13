@@ -16,7 +16,8 @@ public interface IPluginService
 
     /// <summary>
     /// 标记一个插件要卸载，下次启动时会卸载插件。 <br/>
-    /// 对于开发者的插件不会删除文件，只会取消加载并从插件列表移除
+    /// 对于开发者的插件不会删除文件，只会取消加载并从插件列表移除 <br/>
+    /// （注意，对于以压缩包安装的测试包，也会删除掉其在程序数据目录下的解压目录）
     /// </summary>
     /// <param name="plugin"></param>
     /// <param name="deleteData">是否删除插件数据</param>
@@ -34,6 +35,13 @@ public interface IPluginService
     /// <param name="load">是否要加载插件，若设置为false则只把插件加到插件列表里而不加载（初始化插件表时用）</param>
     /// <returns></returns>
     public Task LoadPluginAsync(PluginX plugin, bool load);
+
+    /// <summary>
+    /// 把加载失败的插件加入插件列表，让用户可以通过插件列表来卸载插件
+    /// </summary>
+    /// <param name="pluginX"></param>
+    /// <returns></returns>
+    public Task LoadFailedPluginAsync(PluginX pluginX);
 
     /// <summary>
     /// 立即删除插件的关联数据

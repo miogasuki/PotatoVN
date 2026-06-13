@@ -101,7 +101,7 @@ public partial class PluginViewModel(IPluginService pluginService, IInfoService 
             try
             {
                 await ExtractPluginAsync(filePicker.SelectedPath, pluginFolderPath);
-                await pluginService.AddPluginAsync(pluginFolderPath, false);
+                await pluginService.AddPluginAsync(pluginFolderPath, await settingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode));
             }
             catch
             {

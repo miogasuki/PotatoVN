@@ -136,7 +136,8 @@ public partial class PluginX : ObservableObject, IComparable<PluginX>
         XamlRegistration?.Dispose();
         XamlRegistration = null;
         Plugin = null;
-        LoadContext.Unload();
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (LoadContext is not null) LoadContext.Unload();
         LoadContext = null!;
     }
 

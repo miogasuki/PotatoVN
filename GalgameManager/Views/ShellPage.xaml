@@ -327,13 +327,12 @@
                             Width="60"
                             Height="65"
                             Margin="-12,0,-20,0">
-                            <control:ConditionalFontIcon
+                            <FontIcon
                                 Margin="0,18,0,0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Top"
-                                FluentGlyph="&#xE74C;"
-                                FontSize="16"
-                                Symbol="Add" />
+                                Glyph="&#xE74C;"
+                                FontSize="16"/>
                             <TextBlock
                                 x:Uid="Shell_Plugin"
                                 Margin="0,0,0,16"

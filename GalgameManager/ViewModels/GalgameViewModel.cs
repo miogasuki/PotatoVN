@@ -76,6 +76,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private PluginInfo? _pluginInfo;
     public bool SettingAvailable => Plugin is null or IGalgamePageSetting;
     [ObservableProperty] private UIElement? _pluginUi;
+    public ObservableCollection<UIElement> LeftPanelPluginUis { get; } = [];
+    public ObservableCollection<UIElement> RightPanelPluginUis { get; } = [];
 
     public GalgameViewModel(IGalgameCollectionService dataCollectionService, IStaffService staffService,
         INavigationService navigationService, IJumpListService jumpListService,
@@ -125,13 +127,18 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             // 初始化面板
             Update(Item);
 
-            PluginX? p = (await _pluginService.GetAllPluginsAsync()).FirstOrDefault(p => p is
-                { IsLoaded: true, Plugin: IGalgamePage });
+            Plugin = null;
+            _pluginInfo = null;
+            PluginUi = null;
+            ObservableCollection<PluginX> plugins = await _pluginService.GetAllPluginsAsync();
+            PluginX? p = plugins.FirstOrDefault(p => p is { IsLoaded: true, Plugin: IGalgamePage });
             Plugin = p?.Plugin as IGalgamePage;
             _pluginInfo = p?.Info;
             if (Plugin is not null)
                 PluginUi = await PluginInvokeHelper.InvokeAsync(_pluginInfo!,
                     () => Plugin.CreateUiAsync(param.Galgame), _infoService);
+            else
+                await LoadPanelPluginUis(param.Galgame, plugins);
 
             if ((param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
                 || param.ForceStartGame)
@@ -165,6 +172,35 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         _galgameService.PhrasedEvent2 -= Update;
         _staffService.OnGameStaffChanged -= Update;
+    }
+
+    private async Task LoadPanelPluginUis(Galgame game, IEnumerable<PluginX> plugins)
+    {
+        LeftPanelPluginUis.Clear();
+        RightPanelPluginUis.Clear();
+        foreach (PluginX p in plugins)
+        {
+            if (p is not { IsLoaded: true, Plugin: not null }) continue;
+            try
+            {
+                if (p.Plugin is IGalgamePageLeftPanel leftPanel)
+                {
+                    UIElement? ui = await PluginInvokeHelper.InvokeAsync(p.Info,
+                        () => leftPanel.CreateLeftPanelUiAsync(game), _infoService);
+                    if (ui is not null) LeftPanelPluginUis.Add(ui);
+                }
+                if (p.Plugin is IGalgamePageRightPanel rightPanel)
+                {
+                    UIElement? ui = await PluginInvokeHelper.InvokeAsync(p.Info,
+                        () => rightPanel.CreateRightPanelUiAsync(game), _infoService);
+                    if (ui is not null) RightPanelPluginUis.Add(ui);
+                }
+            }
+            catch (Exception ex)
+            {
+                _infoService.PluginEvent(p.Info, ex);
+            }
+        }
     }
 
     /// <summary>

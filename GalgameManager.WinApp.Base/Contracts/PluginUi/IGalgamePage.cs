@@ -17,6 +17,32 @@ public interface IGalgamePage
     Task<FrameworkElement> CreateUiAsync(Galgame game);
 }
 
+/// <summary>
+/// 向Galgame详情页左侧面板追加UI，实现该接口表示本插件能够在原版详情页左侧面板注入内容
+/// </summary>
+public interface IGalgamePageLeftPanel
+{
+    /// <summary>
+    /// 创建Galgame详情页左侧面板追加UI
+    /// </summary>
+    /// <param name="game">要显示的游戏</param>
+    /// <returns></returns>
+    Task<FrameworkElement> CreateLeftPanelUiAsync(Galgame game);
+}
+
+/// <summary>
+/// 向Galgame详情页右侧面板追加UI，实现该接口表示本插件能够在原版详情页右侧面板注入内容
+/// </summary>
+public interface IGalgamePageRightPanel
+{
+    /// <summary>
+    /// 创建Galgame详情页右侧面板追加UI
+    /// </summary>
+    /// <param name="game">要显示的游戏</param>
+    /// <returns></returns>
+    Task<FrameworkElement> CreateRightPanelUiAsync(Galgame game);
+}
+
 public interface IGalgamePageSetting
 {
     /// <summary>

@@ -22,7 +22,10 @@ public class PluginTemplate :
     ISourceProvider,
     IPluginAccount,
     IPluginSetting,
-    IGalgamePage, IGalgamePageSetting,
+    IGalgamePage,
+    IGalgamePageLeftPanel,
+    IGalgamePageRightPanel,
+    IGalgamePageSetting,
     IGalInfoPhraser,
     IGalHeadersParser,
     IGalCoversParser,
@@ -92,4 +95,8 @@ public class PluginTemplate :
         => Task.FromResult<GalgameCharacter?>(null);
 
     public Task<FrameworkElement> CreateUiAsync(Galgame game) => null!;
+
+    public Task<FrameworkElement> CreateLeftPanelUiAsync(Galgame game) => null!;
+
+    public Task<FrameworkElement> CreateRightPanelUiAsync(Galgame game) => null!;
 }

@@ -286,15 +286,31 @@
                         <StackPanel Grid.Row="0" Grid.RowSpan="2">
                             <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
                             <Grid ColumnDefinitions="2*,1,1*">
-                                <galgamePagePanel:GameDescriptionPanel
-                                    Grid.Column="0" Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                                    Margin="0 0 30 0" />
+                                <StackPanel Grid.Column="0" Spacing="10" Margin="0 0 30 0">
+                                    <galgamePagePanel:GameDescriptionPanel
+                                        Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.LeftPanelPluginUis}">
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="UIElement">
+                                                <ContentPresenter Content="{x:Bind}" />
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </StackPanel>
                                 <Rectangle Grid.Column="1" Width="1" Margin="0 20"
                                            Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
                                            VerticalAlignment="Stretch" />
-                                <galgamePagePanel:GamePlayStatusPanel
-                                    Grid.Column="2" Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                                    Margin="30 0 30 0" />
+                                <StackPanel Grid.Column="2" Spacing="10" Margin="30 0 30 0">
+                                    <galgamePagePanel:GamePlayStatusPanel
+                                        Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.RightPanelPluginUis}">
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="UIElement">
+                                                <ContentPresenter Content="{x:Bind}" />
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </StackPanel>
                             </Grid>
                             <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
                                     Visibility="{x:Bind ViewModel.ShowTagPanel, Mode=OneWay}"/>

@@ -226,6 +226,8 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     
     public void UpdateLastPlayed() => LastPlayed = Galgames.Select(g => g.Galgame.LastPlayTime).Max();
 
+    public void RaisePropertyChanged(string propertyName) => OnPropertyChanged(propertyName);
+
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnDetectChanged(bool value) => DetectChanged?.Invoke(this);
 

@@ -285,6 +285,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             if (parameter is not string url) return;
             Item = _sourceService.GetGalgameSourceFromUrl(url);
             if (Item == null) return;
+            RefreshItemBindings();
         
             _unpackGameTask = _bgTaskService.GetBgTask<UnpackGameTask>(Item.Url);
             if (_unpackGameTask != null)
@@ -301,6 +302,29 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         {
             _infoService.DeveloperEvent(e: e);
         }
+    }
+
+    private void RefreshItemBindings()
+    {
+        if (Item is null) return;
+
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.Name));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.Path));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.SourceType));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.ImagePath));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CanChangeScanOnStart));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.ScanOnStart));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CanChangeCheckOnStart));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CheckOnStart));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CanChangeDetect));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.Detect));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.DetectFolderAdd));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.DetectFolderRemove));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CanChangeSaveMetaBackup));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.SaveMetaBackup));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.IsSourceScanable));
+        OnPropertyChanged(nameof(ImagePathDes));
+        OnPropertyChanged(nameof(SaveMetadata));
     }
 
     public void OnNavigatedFrom()

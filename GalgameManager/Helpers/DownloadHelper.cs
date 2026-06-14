@@ -49,6 +49,7 @@ public static class DownloadHelper
             if (fileName.Contains('?')) fileName = fileName[..fileName.IndexOf('?')];
             if (fileName.Contains('%')) fileName = Uri.UnescapeDataString(fileName);
             fileName = fileName.RemoveInvalidChars();
+            if (!fileName.Contains('.')) fileName = $"{fileName}{GetImageFormat(imageBytes)}";
             StorageFile? storageFile;
             try
             {

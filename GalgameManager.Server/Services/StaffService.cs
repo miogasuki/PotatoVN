@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using GalgameManager.Core.Helpers;
+﻿using GalgameManager.Core.Helpers;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Models;
 
@@ -8,8 +7,7 @@ namespace GalgameManager.Server.Services;
 public class StaffService(
     IStaffRepository staffRepository,
     IGalgameRepository gameRepository,
-    IUserRepository userRepository,
-    IMapper mapper) : IStaffService
+    IUserRepository userRepository) : IStaffService
 {
     public async Task<PagedResult<Staff>> GetStaffsAsync(int userId, long lastChanged, int pageIndex, int pageSize,
         bool includeDeleted = true)
@@ -40,15 +38,40 @@ public class StaffService(
             staff.ExternalImageLink = dto.ExternalImageLink ?? staff.ExternalImageLink;
             if (dto.StaffGames is not null)
             {
-                staff.StaffGames = new List<StaffGame>(dto.StaffGames.Select(mapper.Map<StaffGame>));
-                foreach(StaffGame sg in staff.StaffGames)
-                    sg.StaffId = staff.Id;
-                List<Galgame> games =
-                    await gameRepository.GetGalgamesAsync(staff.StaffGames.Select(sg => sg.GameId).ToList());
-                if (games.Count != staff.StaffGames.Count)
+                List<int> gameIds = dto.StaffGames.Select(sg => sg.GameId).ToList();
+                List<Galgame> games = await gameRepository.GetGalgamesAsync(gameIds);
+                if (games.Count != dto.StaffGames.Count)
                 {
                     throw new KeyNotFoundException(
-                        $"game {staff.StaffGames.FirstOrDefault(sg => games.All(g => g.Id != sg.GameId))!.GameId} is not founded.");
+                        $"game {dto.StaffGames.FirstOrDefault(sg => games.All(g => g.Id != sg.GameId))!.GameId} is not founded.");
+                }
+                // 获取不跟随 redirect 的游戏实体，用于设置 StaffGame.Game 导航属性
+                List<Galgame> gamesNoRedirect = await gameRepository.GetGalgamesAsync(gameIds, followRedirect: false);
+                Dictionary<int, Galgame> gameById = gamesNoRedirect.ToDictionary(g => g.Id);
+                // 增量同步
+                Dictionary<int, StaffGame> existingByGame = staff.StaffGames.ToDictionary(sg => sg.GameId);
+                Dictionary<int, StaffGameUpdateDto> dtoByGame = dto.StaffGames.ToDictionary(sg => sg.GameId);
+                List<StaffGame> toRemove = staff.StaffGames.Where(sg => !dtoByGame.ContainsKey(sg.GameId)).ToList();
+                foreach (StaffGame sg in toRemove) // 删除
+                    staff.StaffGames.Remove(sg);
+                foreach (StaffGameUpdateDto dtoSg in dtoByGame.Values)
+                {
+                    if (existingByGame.TryGetValue(dtoSg.GameId, out StaffGame? existingSg)) //两边都有
+                    {
+                        existingSg.Relation = dtoSg.Relation;
+                    }
+                }
+                List<int> toAdd = dtoByGame.Keys.Except(existingByGame.Keys).ToList(); // 新增
+                foreach (var gameId in toAdd)
+                {
+                    staff.StaffGames.Add(new StaffGame
+                    {
+                        StaffId = staff.Id,
+                        GameId = gameId,
+                        Relation = dtoByGame[gameId].Relation,
+                        Staff = staff,
+                        Game = gameById[gameId]
+                    });
                 }
             }
             staff.IsDeleted = dto.IsDeleted ?? staff.IsDeleted;

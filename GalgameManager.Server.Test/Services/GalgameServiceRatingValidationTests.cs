@@ -73,7 +73,7 @@ public class GalgameServiceRatingValidationTests : TestBase
     public async Task AddOrUpdateGalgameAsync_NaNRating_ShouldKeepOriginalRating()
     {
         // Arrange
-        var existingGame = new Galgame
+        Galgame existingGame = new()
         {
             UserId = TestUserId,
             BgmId = "12345",
@@ -83,14 +83,14 @@ public class GalgameServiceRatingValidationTests : TestBase
         Context.Galgame.Add(existingGame);
         await Context.SaveChangesAsync();
 
-        var updateDto = new GalgameUpdateDto
+        GalgameUpdateDto updateDto = new()
         {
             Id = existingGame.Id,
             Rating = float.NaN
         };
 
         // Act
-        var result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
+        Galgame result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
 
         // Assert - NaN 应被忽略，保留原值
         Assert.That(result.Rating, Is.EqualTo(8.5f));
@@ -100,7 +100,7 @@ public class GalgameServiceRatingValidationTests : TestBase
     public async Task AddOrUpdateGalgameAsync_PositiveInfinityRating_ShouldKeepOriginalRating()
     {
         // Arrange
-        var existingGame = new Galgame
+        Galgame existingGame = new()
         {
             UserId = TestUserId,
             BgmId = "12345",
@@ -110,14 +110,14 @@ public class GalgameServiceRatingValidationTests : TestBase
         Context.Galgame.Add(existingGame);
         await Context.SaveChangesAsync();
 
-        var updateDto = new GalgameUpdateDto
+        GalgameUpdateDto updateDto = new()
         {
             Id = existingGame.Id,
             Rating = float.PositiveInfinity
         };
 
         // Act
-        var result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
+        Galgame result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
 
         // Assert - Infinity 应被忽略，保留原值
         Assert.That(result.Rating, Is.EqualTo(7.0f));
@@ -127,7 +127,7 @@ public class GalgameServiceRatingValidationTests : TestBase
     public async Task AddOrUpdateGalgameAsync_NegativeInfinityRating_ShouldKeepOriginalRating()
     {
         // Arrange
-        var existingGame = new Galgame
+        Galgame existingGame = new()
         {
             UserId = TestUserId,
             BgmId = "12345",
@@ -137,14 +137,14 @@ public class GalgameServiceRatingValidationTests : TestBase
         Context.Galgame.Add(existingGame);
         await Context.SaveChangesAsync();
 
-        var updateDto = new GalgameUpdateDto
+        GalgameUpdateDto updateDto = new()
         {
             Id = existingGame.Id,
             Rating = float.NegativeInfinity
         };
 
         // Act
-        var result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
+        Galgame result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
 
         // Assert - -Infinity 应被忽略，保留原值
         Assert.That(result.Rating, Is.EqualTo(6.0f));
@@ -158,7 +158,7 @@ public class GalgameServiceRatingValidationTests : TestBase
     public async Task AddOrUpdateGalgameAsync_ValidRating_ShouldUpdateRating()
     {
         // Arrange
-        var existingGame = new Galgame
+        Galgame existingGame = new()
         {
             UserId = TestUserId,
             BgmId = "12345",
@@ -168,14 +168,14 @@ public class GalgameServiceRatingValidationTests : TestBase
         Context.Galgame.Add(existingGame);
         await Context.SaveChangesAsync();
 
-        var updateDto = new GalgameUpdateDto
+        GalgameUpdateDto updateDto = new()
         {
             Id = existingGame.Id,
             Rating = 9.5f
         };
 
         // Act
-        var result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
+        Galgame result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
 
         // Assert - 合法值应正常更新
         Assert.That(result.Rating, Is.EqualTo(9.5f));
@@ -185,7 +185,7 @@ public class GalgameServiceRatingValidationTests : TestBase
     public async Task AddOrUpdateGalgameAsync_NullRating_ShouldKeepOriginalRating()
     {
         // Arrange
-        var existingGame = new Galgame
+        Galgame existingGame = new()
         {
             UserId = TestUserId,
             BgmId = "12345",
@@ -195,14 +195,14 @@ public class GalgameServiceRatingValidationTests : TestBase
         Context.Galgame.Add(existingGame);
         await Context.SaveChangesAsync();
 
-        var updateDto = new GalgameUpdateDto
+        GalgameUpdateDto updateDto = new()
         {
             Id = existingGame.Id,
             Rating = null
         };
 
         // Act
-        var result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
+        Galgame result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
 
         // Assert - null 应被忽略，保留原值
         Assert.That(result.Rating, Is.EqualTo(4.0f));
@@ -216,7 +216,7 @@ public class GalgameServiceRatingValidationTests : TestBase
     public async Task AddOrUpdateGalgameAsync_NaNRatingOnNewGame_ShouldKeepDefaultRating()
     {
         // Arrange - 新建游戏时传入 NaN Rating
-        var updateDto = new GalgameUpdateDto
+        GalgameUpdateDto updateDto = new()
         {
             Id = null,
             BgmId = "12345",
@@ -225,7 +225,7 @@ public class GalgameServiceRatingValidationTests : TestBase
         };
 
         // Act
-        var result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
+        Galgame result = await _service.AddOrUpdateGalgameAsync(TestUserId, updateDto);
 
         // Assert - NaN 应被忽略，使用默认值 0
         Assert.That(result.Rating, Is.EqualTo(0f));

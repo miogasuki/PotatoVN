@@ -153,6 +153,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _vndbTranslateTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbTranslateTags).Result;
         _vndbCensorTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbCensorTags).Result;
         _vndbRemoveSpoilerTags = _localSettingsService.ReadSettingAsync<bool>(KeyValues.VndbRemoveSpoilerTags).Result;
+        _mixedPhraserTimeout = _localSettingsService.ReadSettingAsync<int>(KeyValues.MixedPhraserTimeout).Result;
         //DOWNLOAD_BEHAVIOR
         // _overrideLocalName = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalName).Result;
         // _overrideLocalNameWithChinese = _localSettingsService.ReadSettingAsync<bool>(KeyValues.OverrideLocalNameWithChinese).Result;
@@ -699,11 +700,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _vndbTranslateTags;
     [ObservableProperty] private bool _vndbCensorTags;
     [ObservableProperty] private bool _vndbRemoveSpoilerTags;
+    [ObservableProperty] private int _mixedPhraserTimeout;
 
     partial void OnRssTypeChanged(RssType value)
     {
         _localSettingsService.SaveSettingAsync(KeyValues.RssType, value);
     }
+
+    partial void OnMixedPhraserTimeoutChanged(int value) =>
+        _localSettingsService.SaveSettingAsync(KeyValues.MixedPhraserTimeout, value);
 
     [RelayCommand]
     public async Task SetMixedPhraserOrderAsync()

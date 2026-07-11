@@ -58,8 +58,8 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         };
     }
 
-    public MixedPhraser(BgmPhraser bgmPhraser, VndbPhraser vndbPhraser, YmgalPhraser ymgalPhraser, 
-        SteamParser steamParser, MixedPhraserData data, IMessenger? bus = null)
+    public MixedPhraser(IGalInfoPhraser bgmPhraser, IGalInfoPhraser vndbPhraser, IGalInfoPhraser ymgalPhraser,
+        IGalInfoPhraser steamParser, MixedPhraserData data, IMessenger? bus = null)
     {
         _phrasers[RssType.Bangumi] = bgmPhraser;
         _phrasers[RssType.Vndb] = vndbPhraser;
@@ -95,23 +95,35 @@ public class MixedPhraser : IGalInfoPhraser, IGalCharacterPhraser, IGalStaffPars
         }
 
         _bus?.Send(new GalgameParsingEventArgs(galgame, GetWaitingMsg()));
+        List<Task<Galgame?>> pending;
+        lock (lockObj)
+            pending = phraserTasks.Values.Where(t => t != null).Cast<Task<Galgame?>>().ToList();
+        if (pending.Count > 0)
         {
-            Dictionary<RssType, Task<Galgame?>?> tmp = new();
-            lock (lockObj)
-                foreach (var (rssType, task) in phraserTasks)
-                    tmp[rssType] = task;
-            foreach (var (rssType, task) in tmp)
+            try
             {
-                try
-                {
-                    if (task != null)
-                        await task;
-                }
-                catch (Exception)
-                {
-                    lock (lockObj)
-                        phraserTasks[rssType] = null;
-                }
+                if (_data.TimeoutSeconds > 0)
+                    await Task.WhenAll(pending).WaitAsync(TimeSpan.FromSeconds(_data.TimeoutSeconds));
+                else
+                    await Task.WhenAll(pending);
+            }
+            catch (TimeoutException)
+            {
+                // Soft timeout: drop incomplete sources below.
+            }
+            catch (Exception)
+            {
+                // WhenAll throws if any task faults; incomplete/faulted sources are dropped below.
+            }
+        }
+
+        foreach (var (rssType, task) in phraserTasks.ToList())
+        {
+            if (task is null) continue;
+            if (!task.IsCompletedSuccessfully)
+            {
+                lock (lockObj)
+                    phraserTasks[rssType] = null;
             }
         }
         
@@ -449,6 +461,8 @@ public class MixedPhraserData : IGalInfoPhraserData
 {
     public required MixedPhraserOrder Order { get; init; }
     public required MixedPhraserEnabled Enabled { get; init; }
+    /// <summary>统一最长等待秒数；0 表示不限制。</summary>
+    public int TimeoutSeconds { get; init; } = 30;
 }
 
 public class MixedPhraserEnabled

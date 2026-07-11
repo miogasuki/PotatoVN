@@ -3928,4 +3928,10 @@ If play time can record correctly, just cancel this popup.
   <data name="LibraryPage_FolderSortByCustom.Text" xml:space="preserve">
     <value>Custom Order</value>
   </data>
+  <data name="SettingsPage_Rss_Mixed_Timeout.Title" xml:space="preserve">
+    <value>Max scrape time</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Timeout.Description" xml:space="preserve">
+    <value>Maximum wait time in seconds for all sources combined. 0 means no limit.</value>
+  </data>
 </root>

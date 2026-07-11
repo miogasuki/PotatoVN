@@ -262,10 +262,16 @@
                                                 MinWidth="{StaticResource ButtonMinWidth}"
                                                 Command="{x:Bind ViewModel.SetMixedPhraserOrderCommand}"/>
                                     </control:Setting>
-                                     <control:Setting x:Uid="SettingsPage_Rss_Mixed_Enable">
+                                    <control:Setting x:Uid="SettingsPage_Rss_Mixed_Enable">
                                          <Button Content="Go"
                                                  MinWidth="{StaticResource ButtonMinWidth}"
                                                  Command="{x:Bind ViewModel.SetMixedPhraserEnabledCommand}"/>
+                                     </control:Setting>
+                                     <control:Setting x:Uid="SettingsPage_Rss_Mixed_Timeout">
+                                         <NumberBox Value="{x:Bind ViewModel.MixedPhraserTimeout, Mode=TwoWay}"
+                                                    SpinButtonPlacementMode="Compact"
+                                                    SmallChange="5" LargeChange="30" Minimum="0" Maximum="300"
+                                                    Width="100"/>
                                      </control:Setting>
                                      <local:SettingToggleSwitch x:Uid="SettingsPage_Rss_VNDB_TranslateTags"
                                                                 IsOn="{x:Bind ViewModel.VndbTranslateTags, Mode=TwoWay}"

@@ -54,12 +54,15 @@ public class LocalSettingStatus
     public bool ImportCategory = true;
     /// staffService是否已处理过导入
     public bool ImportStaff = true;
+    /// 游戏列表页/库页设置（排序等）是否已处理过导入
+    public bool ImportPageSettings = true;
     public void SetToExport()
     {
         ImportGalgame = false;
         ImportGalgameSource = false;
         ImportCategory = false;
         ImportStaff = false;
+        ImportPageSettings = false;
         GameLiteDbUpgrade = false;
         CategoryLiteDbUpgrade = false;
         SourceLiteDbUpgrade = false;

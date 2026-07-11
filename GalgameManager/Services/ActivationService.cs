@@ -111,6 +111,7 @@ public class ActivationService : IActivationService
                 await _categoryService.Init();
                 await _staffService.InitAsync();
                 await _filterService.InitAsync();
+                await _localSettingsService.ImportPageSettingsAsync(); // 导入时把导出包内的页面设置写回本机
             });
             importWindow?.Close();
         }

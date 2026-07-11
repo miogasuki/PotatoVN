@@ -19,6 +19,7 @@ public class RecordPlayTimeTask : BgTaskBase
     public string ProcessName { get; set; } = string.Empty;
     public DateTime StartTime { get; set; }= DateTime.Now;
     public int CurrentPlayTime { get; set; } //本次游玩时间
+    public Guid? InstallationId { get; set; } // 本次游玩使用的安装实例Id
     public override bool ProgressOnTrayIcon => true;
 
     public Galgame? Galgame;
@@ -30,13 +31,30 @@ public class RecordPlayTimeTask : BgTaskBase
     
     public RecordPlayTimeTask(){}
 
+    /// <summary>
+    /// 使用游戏的首选安装实例创建游玩时间记录任务。
+    /// </summary>
+    /// <param name="game">目标逻辑游戏</param>
+    /// <param name="process">要跟踪的游戏进程</param>
     public RecordPlayTimeTask(Galgame game, Process process)
+        : this(game, process, game.PreferredInstallationId)
     {
-        Debug.Assert(game.CheckExistLocal(GalgameSourceType.Steam) || game.CheckExistLocal());
+    }
+
+    /// <summary>
+    /// 使用明确安装实例创建游玩时间记录任务。
+    /// </summary>
+    /// <param name="game">目标逻辑游戏</param>
+    /// <param name="process">要跟踪的游戏进程</param>
+    /// <param name="installationId">本次游玩使用的安装实例Id</param>
+    public RecordPlayTimeTask(Galgame game, Process process, Guid? installationId)
+    {
+        Debug.Assert(game.IsLocalGame);
         if (process.HasExited) return;
         ProcessName = process.ProcessName;
         Galgame = game;
         _process = process;
+        InstallationId = installationId;
     }
     
     protected override Task RecoverFromJsonInternal()
@@ -60,7 +78,8 @@ public class RecordPlayTimeTask : BgTaskBase
                 {
                     Galgame = Galgame,
                     SelectProgress = DateTime.Now - StartTime < TimeSpan.FromSeconds(ManuallySelectProcessSec) 
-                                     && Galgame.ProcessName is null
+                                     && Galgame.SourceEntries.FirstOrDefault(e => e.EntryId == InstallationId)
+                                         ?.LocalConfig?.ProcessName is null
                 };
                 if (windowMode == WindowMode.SystemTray)
                     App.GetService<INavigationService>().NavigateTo(typeof(GalgameViewModel).FullName!, parma);

@@ -94,7 +94,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             {
                 foreach (Galgame galgame in _galgames)
 #pragma warning disable CS0618 // 类型或成员已过时
-                    galgame.DetectedSavePath = GamePortablePath.Create(galgame.DetectedSavePosition, galgame.LocalPath);
+                    if (galgame.PreferredLocalInstallation is { } installation)
+                    {
+                        installation.LocalConfig ??= new LocalInstallationConfig();
+                        installation.LocalConfig.DetectedSavePath =
+                            GamePortablePath.Create(galgame.DetectedSavePosition, installation.Path);
+                        if (installation.Source is not null) _galSrcService.Save(installation.Source);
+                    }
 #pragma warning restore CS0618 // 类型或成员已过时
             }
             catch (Exception)
@@ -168,6 +174,12 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     public async Task RemoveGalgame(Galgame galgame, bool removeFromDisk = false)
     {
         if (!_galgames.Contains(galgame)) return;
+        if (removeFromDisk)
+        {
+            foreach (GalgameAndPath installation in galgame.LocalInstallations
+                         .Where(e => e.Source is GalgameFolderSource).ToList())
+                await _galSrcService.MoveOutNoOperate(installation, true);
+        }
         await UiThreadInvokeHelper.InvokeAsync(() =>
         {
             try
@@ -180,10 +192,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 //暂时忽略
             }
         });
-        List<GalgameSourceBase> tmpList = new(galgame.Sources);
-        foreach (GalgameSourceBase s in tmpList)
-            _galSrcService.MoveOutNoOperate(s, galgame);
-        if (removeFromDisk) await Task.Run(galgame.Delete);
+        foreach (GalgameAndPath entry in galgame.SourceEntries.ToList())
+            await _galSrcService.MoveOutNoOperate(entry);
         _dbSet.Delete(galgame.Uuid);
         await UiThreadInvokeHelper.InvokeAsync(() => GalgameDeletedEvent?.Invoke(galgame));
     }
@@ -670,8 +680,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// 获取galgame的存档文件夹
     /// </summary>
     /// <param name="galgame">galgame</param>
+    /// <param name="installation">用于解析相对存档路径的安装实例</param>
     /// <returns>存档文件夹地址，若用户取消返回null</returns>
-    private async Task<string?> GetGalgameSaveAsync(Galgame galgame)
+    private async Task<string?> GetGalgameSaveAsync(Galgame galgame, GalgameAndPath installation)
     {
         // 几个可能的存档位置：
         // 1. SuggestedSavePath（由云端同步过来的路径）
@@ -679,15 +690,16 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         // 2. DetectedSavePath（运行检测到的路径）
         // 3. 游戏根目录
 
-        var localPath = galgame.LocalPath;
-        GamePortablePath? detectedSavePath = galgame.DetectedSavePath;
+        var localPath = installation.Path;
+        LocalInstallationConfig config = installation.LocalConfig ??= new LocalInstallationConfig();
+        GamePortablePath? detectedSavePath = config.DetectedSavePath;
 
         List<string> candidateSavePath = new();
         if (detectedSavePath?.ToPath() is { } path2) candidateSavePath.Add(path2);
 
         async Task<string?> ChooseFolder()
         {
-            List<string> subFolders = galgame.GetSubFolders();
+            List<string> subFolders = galgame.GetSubFolders(installation);
 
             var isSuggestedSavePathFound = candidateSavePath.Count > 0;
             foreach (var suggestedPath in Enumerable.Reverse(candidateSavePath))
@@ -712,7 +724,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
         async Task<string?> ChooseFile()
         {
-            List<string> rootFiles = galgame.GetRootFiles();
+            List<string> rootFiles = galgame.GetRootFiles(installation);
             FolderOrFilePickerDialog dialog = new(
                 App.MainWindow!.Content.XamlRoot,
                 "GalgameCollectionService_SelectSavePosition_File".GetLocalized(),
@@ -727,7 +739,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         {
             var result = await ChooseFolder();
             // 重置检测存档位置，允许重新显示选择单文件。
-            if (result.IsNullOrWhiteSpace()) galgame.DetectedSavePath = null;
+            if (result.IsNullOrWhiteSpace()) config.DetectedSavePath = null;
             return result;
         }
 
@@ -755,14 +767,16 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     }
 
     /// <summary>
-    /// 获取并设置galgame的可执行文件
+    /// 获取并设置指定安装实例的可执行文件。
     /// </summary>
-    /// <param name="galgame">galgame</param>
+    /// <param name="galgame">逻辑游戏</param>
+    /// <param name="installation">目标安装实例</param>
     /// <returns>可执行文件地址，如果用户取消或找不到可执行文件则返回null</returns>
-    public async Task<string?> GetGalgameExeAsync(Galgame galgame)
+    public async Task<string?> GetGalgameExeAsync(Galgame galgame, GalgameAndPath installation)
     {
-        if (!galgame.CheckExistLocal() || galgame.LocalPath is null) return null;
-        List<string> exes = galgame.GetExesAndBats();
+        if (!installation.IsLocalInstallation || !Directory.Exists(installation.Path)) return null;
+        installation.LocalConfig ??= new LocalInstallationConfig();
+        List<string> exes = galgame.GetExesAndBats(installation);
         switch (exes.Count)
         {
             case 0:
@@ -779,37 +793,40 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 return null;
             }
             case 1:
-                galgame.ExePath = exes[0];
+                installation.LocalConfig.ExePath = exes[0];
                 break;
             default:
             {
-                SelectFileDialog dialog = new(galgame.LocalPath, new[] {".exe", ".bat", ".lnk"},
+                SelectFileDialog dialog = new(installation.Path, new[] {".exe", ".bat", ".lnk"},
                     "GalgameCollectionService_SelectExe".GetLocalized(), false);
                 await dialog.ShowAsync();
                 if (dialog.SelectedFilePath == null) return null;
-                galgame.ExePath = dialog.SelectedFilePath;
+                installation.LocalConfig.ExePath = dialog.SelectedFilePath;
                 break;
             }
         }
-        return galgame.ExePath;
+        if (installation.Source is not null) _galSrcService.Save(installation.Source);
+        return installation.LocalConfig.ExePath;
     }
 
     /// <summary>
-    /// 转换存档位置
+    /// 转换指定安装实例的存档位置。
     /// </summary>
-    /// <param name="galgame">galgame</param>
-    public async Task ChangeGalgameSavePosition(Galgame galgame)
+    /// <param name="galgame">逻辑游戏</param>
+    /// <param name="installation">目标安装实例</param>
+    public async Task ChangeGalgameSavePosition(Galgame galgame, GalgameAndPath installation)
     {
-        if (galgame.SavePath is not null && new DirectoryInfo(galgame.SavePath).Exists == false)
-            await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = null);
+        LocalInstallationConfig config = installation.LocalConfig ??= new LocalInstallationConfig();
+        if (config.SavePath is not null && new DirectoryInfo(config.SavePath).Exists == false)
+            await UiThreadInvokeHelper.InvokeAsync(() => config.SavePath = null);
 
-        if (galgame.SavePath is not null && FolderOperations.IsSymbolicLink(galgame.SavePath)) //目前在云端
+        if (config.SavePath is not null && FolderOperations.IsSymbolicLink(config.SavePath)) //目前在云端
         {
             await Task.Run(() =>
             {
-                FolderOperations.ConvertSymbolicLinkToActual(galgame.SavePath);
+                FolderOperations.ConvertSymbolicLinkToActual(config.SavePath);
             });
-            await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = null);
+            await UiThreadInvokeHelper.InvokeAsync(() => config.SavePath = null);
         }
         else //目前在本地
         {
@@ -819,17 +836,18 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 _infoService.Info(InfoBarSeverity.Error, msg:"GalgameCollectionService_CloudRootNotSet".GetLocalized());
                 return;
             }
-            var localSavePath = await GetGalgameSaveAsync(galgame);
+            var localSavePath = await GetGalgameSaveAsync(galgame, installation);
             if (localSavePath == null) return;
             if (Utils.ArePathsEqual(remoteRoot, localSavePath))
                 throw new PvnException("GalgameCollectionService_SavePathIsCloudRoot".GetLocalized());
-            if (galgame.LocalPath != null && Utils.IsPathContained(localSavePath, galgame.LocalPath))
+            if (Utils.IsPathContained(localSavePath, installation.Path))
                 throw new PvnException("GalgameCollectionService_SavePathIsGameRoot".GetLocalized());
             if (FolderOperations.IsSymbolicLink(localSavePath))
             {
                 _infoService.Info(InfoBarSeverity.Warning, msg:"GalgameCollectionService_SavePathIsSymbolicLink".GetLocalized());
-                await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = localSavePath);
+                await UiThreadInvokeHelper.InvokeAsync(() => config.SavePath = localSavePath);
                 await SaveGalgameAsync(galgame);
+                if (installation.Source is not null) _galSrcService.Save(installation.Source);
                 return;
             }
 
@@ -868,7 +886,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 else
                     FolderOperations.ConvertFolderOrFileToSymbolicLink(localSavePath, remoteRoot);
 
-                await UiThreadInvokeHelper.InvokeAsync(() => galgame.SavePath = localSavePath);
+                await UiThreadInvokeHelper.InvokeAsync(() => config.SavePath = localSavePath);
             }
             catch (Exception e) //创建符号链接失败，把存档复制回去
             {
@@ -894,6 +912,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             }
         }
 
+        if (installation.Source is not null) _galSrcService.Save(installation.Source);
         await SaveGalgameAsync(galgame);
     }
 
@@ -940,6 +959,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         {
             Order = LocalSettingsService.ReadSettingAsync<MixedPhraserOrder>(KeyValues.MixedPhraserOrder).Result!,
             Enabled = LocalSettingsService.ReadSettingAsync<MixedPhraserEnabled>(KeyValues.MixedPhraserEnabled).Result ?? new MixedPhraserEnabled(),
+            TimeoutSeconds = LocalSettingsService.ReadSettingAsync<int>(KeyValues.MixedPhraserTimeout).Result,
         };
     }
 
@@ -960,6 +980,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 break;
             case KeyValues.MixedPhraserOrder:
             case KeyValues.MixedPhraserEnabled:
+            case KeyValues.MixedPhraserTimeout:
                 PhraserList[(int)RssType.Mixed].UpdateData(GetMixData());
                 break;
         }

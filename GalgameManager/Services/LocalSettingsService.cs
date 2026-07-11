@@ -364,6 +364,8 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)DisplayName.OriginalName;
             case KeyValues.MinPlayTimeRecordThreshold:
                 return (T?)(object)5; // 默认5分钟
+            case KeyValues.MixedPhraserTimeout:
+                return (T?)(object)20; // 默认20秒
             case KeyValues.CustomTextFileExtensions:
                 return (T?)(object)new List<string> { ".doc", ".docx", ".pdf", ".txt", ".md" };
             case KeyValues.AutoExportInterval:
@@ -578,6 +580,46 @@ public class LocalSettingsService : ILocalSettingsService
             App.GetService<IInfoService>().DeveloperEvent(e: e);
         }
 
+    }
+
+    public async Task ImportPageSettingsAsync()
+    {
+        try
+        {
+            LocalSettingStatus? status = await ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true);
+            if (status?.ImportPageSettings is not false) return; // 仅在来自导入且未处理过的数据上执行
+
+            PageSettings? pageSettings = await ReadSettingAsync<PageSettings>(KeyValues.PageSettings, true);
+            if (pageSettings is not null)
+            {
+                if (pageSettings.PrimarySortKey is { } primarySortKey)
+                    await SaveSettingAsync(KeyValues.PrimarySortKey, primarySortKey);
+                if (pageSettings.PrimarySortDescending is { } primaryDescending)
+                    await SaveSettingAsync(KeyValues.PrimarySortDescending, primaryDescending);
+                if (pageSettings.SecondarySortKey is { } secondarySortKey)
+                    await SaveSettingAsync(KeyValues.SecondarySortKey, secondarySortKey);
+                if (pageSettings.SecondarySortDescending is { } secondaryDescending)
+                    await SaveSettingAsync(KeyValues.SecondarySortDescending, secondaryDescending);
+                if (pageSettings.CustomSortOrder is { } customSortOrder)
+                    await SaveSettingAsync(KeyValues.CustomSortOrder, customSortOrder, true);
+                if (pageSettings.LibrarySortKey is { } librarySortKey)
+                    await SaveSettingAsync(KeyValues.LibrarySortKey, librarySortKey);
+                if (pageSettings.LibraryGameSortDescending is { } libraryGameSortDescending)
+                    await SaveSettingAsync(KeyValues.LibraryGameSortDescending, libraryGameSortDescending);
+                if (pageSettings.LibraryFolderSortKey is { } libraryFolderSortKey)
+                    await SaveSettingAsync(KeyValues.LibraryFolderSortKey, libraryFolderSortKey);
+                if (pageSettings.LibraryFolderSortDescending is { } libraryFolderSortDescending)
+                    await SaveSettingAsync(KeyValues.LibraryFolderSortDescending, libraryFolderSortDescending);
+            }
+
+            status.ImportPageSettings = true;
+            await SaveSettingAsync(KeyValues.DataStatus, status, true);
+            await RemoveSettingAsync(KeyValues.PageSettings, true); // 清理仅供导入使用的临时文件
+        }
+        catch (Exception e)
+        {
+            App.GetService<IInfoService>().DeveloperEvent(e: e);
+        }
     }
 
     public class SettingItem

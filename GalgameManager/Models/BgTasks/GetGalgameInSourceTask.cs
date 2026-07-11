@@ -77,6 +77,12 @@ public class GetGalgameInSourceTask : BgTaskBase
                     cnt++;
                     itemResult.ResultType = ScanResultType.Success;
                 }
+                catch (NameOnlyGameMatchException e)
+                {
+                    itemResult.ResultType = ScanResultType.RequiresConfirmation;
+                    itemResult.RelatedGameId = e.CandidateGameId;
+                    itemResult.Message = "ScanResult_NameMatchPending".GetLocalized() + $" {e.CandidateName}";
+                }
                 catch (Exception e)
                 {
                     itemResult.ResultType = ScanResultType.Failed;

@@ -63,6 +63,7 @@ The client application implements the core functionalities of PotatoVN:
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
           * When Editing localizations files, you should *never* directly read or edit the .resw files.
           * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
+          * `resw_tool.py` must surgically edit `.resw` text (insert/replace/delete `<data>` blocks). Never rewrite the whole file via `xml.etree.ElementTree.ElementTree.write()` — that drops the ResX schema comment, remaps `xsd`/`msdata` namespaces, and produces huge noisy diffs.
           * Usage (note: on Windows PowerShell, use semicolon `;` to separate commands):
               ```bash
             cd GalgameManager/Strings #重要，这个脚本应该在Strings目录下运行
@@ -76,6 +77,10 @@ The client application implements the core functionalities of PotatoVN:
             python resw_tool.py update "Settings_Theme.Text" en-US="Theme" ja-JP="テーマ" zh-CN="主题"
             # 添加新的key
             python resw_tool.py update "NewFeature.Title" en-US="New Feature" ja-JP="新機能"
+            # 删除key
+            python resw_tool.py delete "ObsoleteKey.Text"
+            # 校验所有语言 resw 是否合法（update/delete/normalize 写入后也会自动校验，失败则回滚）
+            python resw_tool.py validate
             # On Windows PowerShell (recommended approach):
             cd GalgameManager/Strings; python resw_tool.py update "NewKey.Text" en-US="English" zh-CN="中文"
             ```
@@ -165,10 +170,10 @@ This section highlights important files and directories specific to the client a
      *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
      *   `GalgameManager/Services/PluginService/PluginXamlHost.cs`: Bridges dynamically loaded plugin assemblies into the host app's WinUI XAML system by loading plugin PRI resources and registering plugin `IXamlMetadataProvider` implementations before plugin UI is initialized.
     *   **`Helpers/Phrase/`**: Contains the mixed phraser system for aggregating game information from multiple sources:
-        *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration.
+        *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration. `GetGalgameInfo` waits on all parallel source tasks with a unified soft timeout (`TimeoutSeconds`); incomplete/faulted sources are dropped before merge.
         *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, and `SteamEnabled`, all defaulting to true.
         *   `MixedPhraserOrder`: Configuration class that defines the priority order for different game properties when merging data from multiple sources. Uses reflection to determine property orders and supports both Chinese and non-Chinese cultural preferences.
-        *   `MixedPhraserData`: Container class that holds both the `MixedPhraserEnabled` settings and `MixedPhraserOrder` configuration for the mixed phraser.
+        *   `MixedPhraserData`: Container for `Order`, `Enabled`, and `TimeoutSeconds` (int seconds, default 30, `0` = no limit). Persisted via `KeyValues.MixedPhraserTimeout` and hot-reloaded in `GalgameCollectionService.OnSettingChanged`.
 *   **`Contracts/`**: Defines interfaces and data contracts. Interfaces are crucial for decoupling components and enabling testability. Data contracts might define the structure of data exchanged with services or stored locally.
     *   `Contracts/Services/IScanResultService.cs`: Interface for `ScanResultService`.
     *   `Contracts/Services/`: Interfaces for service classes.
@@ -220,3 +225,14 @@ This section highlights important files and directories specific to the client a
 *   **Configuration Management:** Understanding `appsettings.json` for client-side settings.
 
 This document provides a foundational knowledge base. For specific implementation details, direct code analysis of the mentioned files and directories will be necessary.
+
+## 7. Multiple Local Installations
+
+- `Galgame` is the logical game. Metadata, categories, review state, and play-time totals remain game-level.
+- `GalgameAndPath` is a stable source entry identified by `EntryId`. A source implements `ILocalGalgameSource` to make its entries launchable local installations, including plugin-provided sources.
+- `LocalInstallationConfig` stores exe path/arguments, process name, administrator/locale/DPI options, text path, detected/cloud save paths, and last successful launch time. Magpie, background mute, and key mappings remain game-level.
+- `Galgame.PreferredInstallationId` identifies the default/last successful installation. New code must pass an explicit `GalgameAndPath` for file, launch, save, move, or delete operations; `LocalPath`, `ExePath`, and similar `Galgame` properties are compatibility views of the preferred installation only.
+- A logical game can belong to multiple LocalFolder and Steam sources, but at most once per source. Removing the final installation keeps the logical game as a virtual game.
+- `GalgameSourceCollectionService` exclusively owns source-entry/installation add, unlink, remove-files, and move operations. `GalgameCollectionService` owns logical-game identity, metadata, and whole-game lifecycle, delegating relationship changes to the source collection service.
+- PVN server sync intentionally excludes sources, paths, and installation configuration. Full local export and versioned `.PotatoVN/meta.json` backups preserve them.
+- `IPotatoVnApi` directly exposes installation snapshots, explicit installation launch, and `AddGameInstallation`; the old `AddGame` API is obsolete.

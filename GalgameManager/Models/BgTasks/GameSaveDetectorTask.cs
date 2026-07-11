@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using GalgameManager.Contracts.Services;
 using GalgameManager.Core.Helpers;
 using GalgameManager.Helpers;
 using GalgameManager.Enums;
+using GalgameManager.Models.Sources;
 
 namespace GalgameManager.Models.BgTasks;
 
@@ -15,6 +17,7 @@ public class GameSaveDetectorTask : BgTaskBase
 {
     #region Properties & Fields
     public Galgame? Galgame { get; set; }
+    public Guid? InstallationId { get; set; } // 要检测存档的安装实例Id
     public List<string> DetectedSavePaths { get; set; } = new();
     public List<string> MonitoredPaths { get; set; } = new();
     public bool IsMonitoring { get; set; }
@@ -40,6 +43,8 @@ public class GameSaveDetectorTask : BgTaskBase
     /// </summary>
     private List<string>? _fuzzyMatchCoreVariants;
     private string _lastGameName = string.Empty;
+    private GalgameAndPath? _installation; // 要检测存档的安装实例
+    private string? InstallationPath => _installation?.Path; // 安装实例根目录
 
     #endregion
 
@@ -48,13 +53,32 @@ public class GameSaveDetectorTask : BgTaskBase
 
     public GameSaveDetectorTask() { } // For serialization
 
+    /// <summary>
+    /// 使用游戏的首选安装实例创建存档检测任务。
+    /// </summary>
+    /// <param name="game">目标逻辑游戏</param>
     public GameSaveDetectorTask(Galgame game)
     {
         Galgame = game;
+        _installation = game.PreferredLocalInstallation;
+        InstallationId = _installation?.EntryId;
+    }
+
+    /// <summary>
+    /// 使用明确安装实例创建存档检测任务。
+    /// </summary>
+    /// <param name="game">目标逻辑游戏</param>
+    /// <param name="installation">要检测存档的安装实例</param>
+    public GameSaveDetectorTask(Galgame game, GalgameAndPath installation)
+    {
+        Galgame = game;
+        _installation = installation;
+        InstallationId = installation.EntryId;
     }
 
     protected override Task RecoverFromJsonInternal()
     {
+        _installation = Galgame?.SourceEntries.FirstOrDefault(e => e.EntryId == InstallationId);
         // 重新初始化候选路径
         InitializeCandidatePaths();
         return Task.CompletedTask;
@@ -86,6 +110,9 @@ public class GameSaveDetectorTask : BgTaskBase
 
         // 5. 处理最终结果并更新UI
         ProcessDetectionResults(finalPaths);
+        if (_installation?.Source is not null)
+            App.GetService<IGalgameSourceCollectionService>().Save(_installation.Source);
+        await App.GetService<IGalgameCollectionService>().SaveGalgameAsync(Galgame);
     }
     #endregion
 
@@ -102,7 +129,8 @@ public class GameSaveDetectorTask : BgTaskBase
 
             if (!string.IsNullOrEmpty(saveDirectory))
             {
-                Galgame.DetectedSavePath = GamePortablePath.Create(saveDirectory, Galgame.LocalPath);
+                if (_installation?.LocalConfig is { } config)
+                    config.DetectedSavePath = GamePortablePath.Create(saveDirectory, InstallationPath);
                 // 4. 【关键】成功后，将进度设为 1/1，并将消息设置为最终路径
                 ChangeProgress(1, 1, "GameSaveDetector_Success".GetLocalized(saveDirectory)); // "成功检测到存档：{0}"
             }
@@ -112,7 +140,8 @@ public class GameSaveDetectorTask : BgTaskBase
                 var fallbackDirectory = Path.GetDirectoryName(finalPaths[0]);
                 if (!string.IsNullOrEmpty(fallbackDirectory))
                 {
-                    Galgame.DetectedSavePath = GamePortablePath.Create(fallbackDirectory, Galgame.LocalPath);
+                    if (_installation?.LocalConfig is { } config)
+                        config.DetectedSavePath = GamePortablePath.Create(fallbackDirectory, InstallationPath);
                     Debug.WriteLine($"[GameSaveDetector] 使用回退目录: {fallbackDirectory}");
                     ChangeProgress(1, 1, "GameSaveDetector_Success".GetLocalized(fallbackDirectory));
                 }
@@ -206,10 +235,10 @@ public class GameSaveDetectorTask : BgTaskBase
     private void AddGameInstallPath()
     {
         // 游戏安装目录（如果是本地的）
-        if (!string.IsNullOrEmpty(Galgame?.LocalPath))
+        if (!string.IsNullOrEmpty(InstallationPath))
         {
-            AddCandidatePath(Galgame.LocalPath);
-            Debug.WriteLine($"[GameSaveDetector] 添加游戏安装目录: {Galgame.LocalPath}");
+            AddCandidatePath(InstallationPath);
+            Debug.WriteLine($"[GameSaveDetector] 添加游戏安装目录: {InstallationPath}");
         }
     }
 
@@ -281,10 +310,10 @@ public class GameSaveDetectorTask : BgTaskBase
     /// <returns>是否应该强制监听</returns>
     private bool ShouldForceMonitorPath(string path)
     {
-        if (string.IsNullOrEmpty(path) || Galgame?.LocalPath == null)
+        if (string.IsNullOrEmpty(path) || InstallationPath == null)
             return false;
 
-        var gameLocalPath = Galgame.LocalPath.ToLowerInvariant();
+        var gameLocalPath = InstallationPath.ToLowerInvariant();
         var targetPath = path.ToLowerInvariant();
 
         // 如果是游戏根目录本身，强制监听
@@ -303,7 +332,7 @@ public class GameSaveDetectorTask : BgTaskBase
             return false;
 
         // 修复：如果路径在游戏目录下，不进行排除检查
-        if (Galgame?.LocalPath != null && targetPath.StartsWith(Galgame.LocalPath, StringComparison.OrdinalIgnoreCase))
+        if (InstallationPath != null && targetPath.StartsWith(InstallationPath, StringComparison.OrdinalIgnoreCase))
         {
             Debug.WriteLine($"[GameSaveDetector] 路径在游戏目录下，跳过排除: {targetPath}");
             return false;
@@ -811,7 +840,8 @@ public class GameSaveDetectorTask : BgTaskBase
 
             // 修复：首先检查是否在游戏目录下（游戏目录下的文件优先考虑）
             // StartsWith 对比 Span 和 String
-            if (Galgame?.LocalPath != null && filePathSpan.StartsWith(Galgame.LocalPath.AsSpan(), StringComparison.OrdinalIgnoreCase))
+            if (InstallationPath != null &&
+                filePathSpan.StartsWith(InstallationPath.AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
                 Debug.WriteLine($"[GameSaveDetector] 文件在游戏目录下: {filePath}");
                 return true;

@@ -24,6 +24,13 @@
         <converter:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
 
         <MenuFlyout Placement="Right" x:Key="GameItemFlyout">
+            <MenuFlyoutItem x:Uid="MultiInstall_PlayMenu"
+                            Command="{x:Bind ViewModel.PlayInstallationCommand}"
+                            CommandParameter="{Binding}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE768;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Edit"
                            Command="{x:Bind ViewModel.EditGameCommand}"
                            CommandParameter="{Binding}">

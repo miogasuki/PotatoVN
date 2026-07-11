@@ -55,7 +55,8 @@ public class GalgameService(IGalgameRepository galRep, IGalgameDeletedRepository
         galgame.Description = payload.Description ?? galgame.Description;
         galgame.Developer = payload.Developer ?? galgame.Developer;
         galgame.ExpectedPlayTime = payload.ExpectedPlayTime ?? galgame.ExpectedPlayTime;
-        galgame.Rating = payload.Rating ?? galgame.Rating;
+        if (payload.Rating is not null && !float.IsNaN(payload.Rating.Value) && !float.IsInfinity(payload.Rating.Value))
+            galgame.Rating = payload.Rating.Value;
         galgame.ReleaseDateTimeStamp = payload.ReleaseDateTimeStamp ?? galgame.ReleaseDateTimeStamp;
         if (!string.IsNullOrEmpty(payload.ImageLoc) && payload.ImageLoc != galgame.ImageLoc) 
             await ossService.DeleteObjectAsync(userId, galgame.ImageLoc);

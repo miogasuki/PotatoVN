@@ -59,6 +59,7 @@ The client application implements the core functionalities of PotatoVN:
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
           * When Editing localizations files, you should *never* directly read or edit the .resw files. 
           * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
+          * `resw_tool.py` must surgically edit `.resw` text (insert/replace/delete `<data>` blocks). Never rewrite the whole file via `xml.etree.ElementTree.ElementTree.write()` — that drops the ResX schema comment, remaps `xsd`/`msdata` namespaces, and produces huge noisy diffs.
           * Usage (note: on Windows PowerShell, use semicolon `;` to separate commands):
               ```bash
             cd GalgameManager/Strings #重要，这个脚本应该在Strings目录下运行
@@ -72,6 +73,10 @@ The client application implements the core functionalities of PotatoVN:
             python resw_tool.py update "Settings_Theme.Text" en-US="Theme" ja-JP="テーマ" zh-CN="主题"
             # 添加新的key
             python resw_tool.py update "NewFeature.Title" en-US="New Feature" ja-JP="新機能"
+            # 删除key
+            python resw_tool.py delete "ObsoleteKey.Text"
+            # 校验所有语言 resw 是否合法（update/delete/normalize 写入后也会自动校验，失败则回滚）
+            python resw_tool.py validate
             # On Windows PowerShell (recommended approach):
             cd GalgameManager/Strings; python resw_tool.py update "NewKey.Text" en-US="English" zh-CN="中文"
             ```
@@ -197,3 +202,12 @@ This section highlights important files and directories specific to the client a
 *   **Configuration Management:** Understanding `appsettings.json` for client-side settings.
 
 This document provides a foundational knowledge base. For specific implementation details, direct code analysis of the mentioned files and directories will be necessary.
+
+## 7. Multiple Local Installations
+
+- `Galgame` represents a logical game; `GalgameAndPath` represents a stable source entry. Sources implementing `ILocalGalgameSource` make their entries launchable installations.
+- Per-installation launch/path/save settings live in `LocalInstallationConfig`. Game-level metadata, play time, Magpie, mute, and key mappings remain on `Galgame`.
+- Always pass an explicit source entry for launch, file, save, move, and delete operations. Legacy `Galgame.LocalPath`/`ExePath` properties expose only the preferred installation.
+- Multiple LocalFolder and Steam sources may reference one game, with one path per source. Removing the last installation keeps a virtual logical game.
+- `GalgameSourceCollectionService` owns all installation/source-entry relationship and file-move operations; `GalgameCollectionService` owns logical-game identity, metadata, and whole-game lifecycle.
+- Installation data is local/export-only and is not part of PVN server sync. `IPotatoVnApi` directly exposes installation snapshots and explicit installation launch.

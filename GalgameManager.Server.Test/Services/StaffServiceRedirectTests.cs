@@ -1,10 +1,8 @@
-using AutoMapper;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Enums;
 using GalgameManager.Server.Models;
 using GalgameManager.Server.Repositories;
 using GalgameManager.Server.Services;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace GalgameManager.Server.Test.Services;
@@ -20,7 +18,6 @@ public class StaffServiceRedirectTests : TestBase
     private IStaffRepository _staffRepository = null!;
     private IGalgameRepository _galRepository = null!;
     private Mock<IUserRepository> _userRepMock = null!;
-    private IMapper _mapper = null!;
 
     private const int TestUserId = 1;
 
@@ -33,7 +30,7 @@ public class StaffServiceRedirectTests : TestBase
         _userRepMock = new Mock<IUserRepository>();
 
         // 设置用户 Mock
-        var testUser = new User { Id = TestUserId, UserName = "TestUser", TotalSpace = 100000000 };
+        User testUser = new() { Id = TestUserId, UserName = "TestUser", TotalSpace = 100000000 };
         _userRepMock
             .Setup(x => x.GetUserAsync(TestUserId))
             .ReturnsAsync(testUser);
@@ -41,18 +38,10 @@ public class StaffServiceRedirectTests : TestBase
             .Setup(x => x.UpdateUserAsync(It.IsAny<User>()))
             .ReturnsAsync((User u) => u);
 
-        // 配置 AutoMapper
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<StaffProfile>();
-        }, NullLoggerFactory.Instance);
-        _mapper = mapperConfig.CreateMapper();
-
         _service = new StaffService(
             _staffRepository,
             _galRepository,
-            _userRepMock.Object,
-            _mapper
+            _userRepMock.Object
         );
     }
 
@@ -62,18 +51,18 @@ public class StaffServiceRedirectTests : TestBase
     public async Task UpsertAsync_WithNonRedirectedGame_Success()
     {
         // Arrange - 创建一个没有重定向的游戏
-        var game = new Galgame { UserId = TestUserId, Name = "Normal Game", RedirectTo = 0 };
+        Galgame game = new() { UserId = TestUserId, Name = "Normal Game", RedirectTo = 0 };
         Context.Galgame.Add(game);
         await Context.SaveChangesAsync();
 
-        var staffDto = new StaffUpdateDto
+        StaffUpdateDto staffDto = new()
         {
             JapaneseName = "Test Staff",
             StaffGames = [new StaffGameUpdateDto { GameId = game.Id, Relation = [Career.Painter] }]
         };
 
         // Act
-        var result = await _service.UpsertAsync(TestUserId, staffDto);
+        Staff result = await _service.UpsertAsync(TestUserId, staffDto);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -86,15 +75,15 @@ public class StaffServiceRedirectTests : TestBase
     public async Task UpsertAsync_WithRedirectedGame_UsesTargetGame()
     {
         // Arrange - 创建游戏重定向链: sourceGame -> targetGame
-        var targetGame = new Galgame { UserId = TestUserId, Name = "Target Game", RedirectTo = 0 };
+        Galgame targetGame = new() { UserId = TestUserId, Name = "Target Game", RedirectTo = 0 };
         Context.Galgame.Add(targetGame);
         await Context.SaveChangesAsync();
 
-        var sourceGame = new Galgame { UserId = TestUserId, Name = "Source Game", RedirectTo = targetGame.Id };
+        Galgame sourceGame = new() { UserId = TestUserId, Name = "Source Game", RedirectTo = targetGame.Id };
         Context.Galgame.Add(sourceGame);
         await Context.SaveChangesAsync();
 
-        var staffDto = new StaffUpdateDto
+        StaffUpdateDto staffDto = new()
         {
             JapaneseName = "Test Staff",
             StaffGames =
@@ -104,7 +93,7 @@ public class StaffServiceRedirectTests : TestBase
         };
 
         // Act - 应该使用重定向后的 targetGame
-        var result = await _service.UpsertAsync(TestUserId, staffDto);
+        Staff result = await _service.UpsertAsync(TestUserId, staffDto);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -118,19 +107,19 @@ public class StaffServiceRedirectTests : TestBase
     public async Task UpsertAsync_WithChainRedirectedGame_UsesLastGame()
     {
         // Arrange - 创建游戏重定向链: A -> B -> C
-        var gameC = new Galgame { UserId = TestUserId, Name = "Game C", RedirectTo = 0 };
+        Galgame gameC = new() { UserId = TestUserId, Name = "Game C", RedirectTo = 0 };
         Context.Galgame.Add(gameC);
         await Context.SaveChangesAsync();
 
-        var gameB = new Galgame { UserId = TestUserId, Name = "Game B", RedirectTo = gameC.Id };
+        Galgame gameB = new() { UserId = TestUserId, Name = "Game B", RedirectTo = gameC.Id };
         Context.Galgame.Add(gameB);
         await Context.SaveChangesAsync();
 
-        var gameA = new Galgame { UserId = TestUserId, Name = "Game A", RedirectTo = gameB.Id };
+        Galgame gameA = new() { UserId = TestUserId, Name = "Game A", RedirectTo = gameB.Id };
         Context.Galgame.Add(gameA);
         await Context.SaveChangesAsync();
 
-        var staffDto = new StaffUpdateDto
+        StaffUpdateDto staffDto = new()
         {
             JapaneseName = "Test Staff",
             StaffGames =
@@ -140,7 +129,7 @@ public class StaffServiceRedirectTests : TestBase
         };
 
         // Act - 应该成功，因为重定向链的最终目标 gameC 存在
-        var result = await _service.UpsertAsync(TestUserId, staffDto);
+        Staff result = await _service.UpsertAsync(TestUserId, staffDto);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -152,16 +141,16 @@ public class StaffServiceRedirectTests : TestBase
     public async Task UpsertAsync_WithMultipleGames_SomeRedirected_Success()
     {
         // Arrange - 创建多个游戏，部分有重定向
-        var normalGame = new Galgame { UserId = TestUserId, Name = "Normal Game", RedirectTo = 0 };
-        var targetGame = new Galgame { UserId = TestUserId, Name = "Target Game", RedirectTo = 0 };
+        Galgame normalGame = new() { UserId = TestUserId, Name = "Normal Game", RedirectTo = 0 };
+        Galgame targetGame = new() { UserId = TestUserId, Name = "Target Game", RedirectTo = 0 };
         Context.Galgame.AddRange(normalGame, targetGame);
         await Context.SaveChangesAsync();
 
-        var redirectedGame = new Galgame { UserId = TestUserId, Name = "Redirected Game", RedirectTo = targetGame.Id };
+        Galgame redirectedGame = new() { UserId = TestUserId, Name = "Redirected Game", RedirectTo = targetGame.Id };
         Context.Galgame.Add(redirectedGame);
         await Context.SaveChangesAsync();
 
-        var staffDto = new StaffUpdateDto
+        StaffUpdateDto staffDto = new()
         {
             JapaneseName = "Test Staff",
             StaffGames =
@@ -172,7 +161,7 @@ public class StaffServiceRedirectTests : TestBase
         };
 
         // Act
-        var result = await _service.UpsertAsync(TestUserId, staffDto);
+        Staff result = await _service.UpsertAsync(TestUserId, staffDto);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -183,16 +172,16 @@ public class StaffServiceRedirectTests : TestBase
     public async Task UpsertAsync_WithMultipleGamesRedirectToSameTarget_DeduplicatesTargetGame()
     {
         // Arrange - 多个游戏都重定向到同一个目标: A -> C, B -> C
-        var gameC = new Galgame { UserId = TestUserId, Name = "Game C", RedirectTo = 0 };
+        Galgame gameC = new() { UserId = TestUserId, Name = "Game C", RedirectTo = 0 };
         Context.Galgame.Add(gameC);
         await Context.SaveChangesAsync();
 
-        var gameA = new Galgame { UserId = TestUserId, Name = "Game A", RedirectTo = gameC.Id };
-        var gameB = new Galgame { UserId = TestUserId, Name = "Game B", RedirectTo = gameC.Id };
+        Galgame gameA = new() { UserId = TestUserId, Name = "Game A", RedirectTo = gameC.Id };
+        Galgame gameB = new() { UserId = TestUserId, Name = "Game B", RedirectTo = gameC.Id };
         Context.Galgame.AddRange(gameA, gameB);
         await Context.SaveChangesAsync();
 
-        var staffDto = new StaffUpdateDto
+        StaffUpdateDto staffDto = new()
         {
             JapaneseName = "Test Staff",
             StaffGames =
@@ -215,11 +204,11 @@ public class StaffServiceRedirectTests : TestBase
     public void UpsertAsync_WithRedirectToNonExistent_ThrowsKeyNotFoundException()
     {
         // Arrange - 创建一个重定向到不存在游戏的游戏
-        var game = new Galgame { UserId = TestUserId, Name = "Game", RedirectTo = 99999 };
+        Galgame game = new() { UserId = TestUserId, Name = "Game", RedirectTo = 99999 };
         Context.Galgame.Add(game);
         Context.SaveChanges();
 
-        var staffDto = new StaffUpdateDto
+        StaffUpdateDto staffDto = new()
         {
             JapaneseName = "Test Staff",
             StaffGames =
@@ -237,7 +226,7 @@ public class StaffServiceRedirectTests : TestBase
     public void UpsertAsync_WithNonExistentGame_ThrowsKeyNotFoundException()
     {
         // Arrange
-        var staffDto = new StaffUpdateDto
+        StaffUpdateDto staffDto = new()
         {
             JapaneseName = "Test Staff",
             StaffGames =
@@ -255,20 +244,20 @@ public class StaffServiceRedirectTests : TestBase
     public async Task UpsertAsync_UpdateExistingStaffWithRedirectedGame_Success()
     {
         // Arrange - 创建现有 Staff 和重定向游戏
-        var targetGame = new Galgame { UserId = TestUserId, Name = "Target Game", RedirectTo = 0 };
+        Galgame targetGame = new() { UserId = TestUserId, Name = "Target Game", RedirectTo = 0 };
         Context.Galgame.Add(targetGame);
         await Context.SaveChangesAsync();
 
-        var sourceGame = new Galgame { UserId = TestUserId, Name = "Source Game", RedirectTo = targetGame.Id };
+        Galgame sourceGame = new() { UserId = TestUserId, Name = "Source Game", RedirectTo = targetGame.Id };
         Context.Galgame.Add(sourceGame);
         await Context.SaveChangesAsync();
 
         // 创建现有 Staff
-        var existingStaff = new Staff { UserId = TestUserId, JapaneseName = "Original Name" };
+        Staff existingStaff = new() { UserId = TestUserId, JapaneseName = "Original Name" };
         Context.Staff.Add(existingStaff);
         await Context.SaveChangesAsync();
 
-        var staffDto = new StaffUpdateDto
+        StaffUpdateDto staffDto = new()
         {
             Id = existingStaff.Id,
             JapaneseName = "Updated Name",
@@ -279,7 +268,7 @@ public class StaffServiceRedirectTests : TestBase
         };
 
         // Act
-        var result = await _service.UpsertAsync(TestUserId, staffDto);
+        Staff result = await _service.UpsertAsync(TestUserId, staffDto);
 
         // Assert
         Assert.That(result, Is.Not.Null);

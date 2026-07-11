@@ -695,7 +695,13 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
         GameParseType selectedParseTypes = selectInfoDialog.SelectedParseTypes;
         var groups = _selectedGalgames
-            .Select(game => new { Game = game, Source = game.Sources.FirstOrDefault() })
+            .Select(game => new
+            {
+                Game = game,
+                Source = game.PreferredLocalInstallation?.Source
+                         ?? game.SourceEntries.Select(e => e.Source)
+                             .FirstOrDefault(s => s?.SourceType == GalgameSourceType.Virtual)
+            })
             .Where(item => item.Source is not null)
             .GroupBy(item => item.Source!);
 
@@ -741,6 +747,12 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         if (Enum.TryParse(key, out SortKeys sortKey))
         {
             PrimaryKey = sortKey;
+            // 离开手动排序时，把遗留的次排序键（可能是Custom）重置为一个有效的键
+            if (sortKey != SortKeys.Custom && SecondaryKey == SortKeys.Custom)
+            {
+                SecondaryKey = SortKeys.Name;
+                IsSecondaryDescending = false;
+            }
             ApplySort();
         }
     }
@@ -755,16 +767,19 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         }
     }
 
+    /// <summary>
+    /// 拖动开始时切换到手动排序模式。先把当前排序（含被过滤掉的游戏）固化到集合的物理顺序，
+    /// 再清空排序描述，这样列表在开始拖动时不会突然跳变成集合的原始顺序。
+    /// </summary>
     public void EnterCustomSortMode()
     {
-        if (PrimaryKey == SortKeys.Custom && SecondaryKey == SortKeys.Custom) return;
+        if (PrimaryKey == SortKeys.Custom) return;
         _suppressSort = true;
         try
         {
+            MaterializeSortOrderToCollection();
             PrimaryKey = SortKeys.Custom;
-            SecondaryKey = SortKeys.Custom;
             IsPrimaryDescending = false;
-            IsSecondaryDescending = false;
             Source.SortDescriptions.Clear();
             Source.RefreshSorting();
             SaveSortSettings();
@@ -773,6 +788,20 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         {
             _suppressSort = false;
         }
+    }
+
+    /// <summary>
+    /// 按当前的排序描述（包含被过滤器隐藏的游戏）把 <see cref="_galgameService"/> 的
+    /// 底层集合物理重排一次，用于从其它排序方式切换到手动排序时避免视觉跳变。
+    /// </summary>
+    private void MaterializeSortOrderToCollection()
+    {
+        if (Source.SortDescriptions.Count == 0) return;
+        AdvancedCollectionView sorted = new(_galgameService.Galgames.ToList(), false);
+        foreach (SortDescription sd in Source.SortDescriptions)
+            sorted.SortDescriptions.Add(sd);
+        sorted.RefreshSorting();
+        ReorderCollectionTo(sorted.Cast<Galgame>().ToList());
     }
 
     private void ApplyCustomOrder(List<string> customOrder)
@@ -786,25 +815,30 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
         List<Galgame> inOrderItems = new();
         List<Galgame> missingItems = new();
-        foreach (var gal in collection)
+        foreach (Galgame gal in collection)
         {
             if (indexMap.ContainsKey(gal.Uuid.ToString()))
                 inOrderItems.Add(gal);
             else
-                missingItems.Add(gal);
+                missingItems.Add(gal); //未记录顺序的游戏（例如新添加的）排在末尾
         }
         inOrderItems
             .Sort((a, b) =>
                 indexMap[a.Uuid.ToString()].CompareTo(indexMap[b.Uuid.ToString()]));
-        List<Galgame> targetList = inOrderItems.Concat(missingItems).ToList();
-        for (var i = 0; i < targetList.Count; i++)
+        ReorderCollectionTo(inOrderItems.Concat(missingItems).ToList());
+    }
+
+    /// <summary>
+    /// 把底层集合原地重排为 <paramref name="target"/> 指定的顺序。
+    /// </summary>
+    private void ReorderCollectionTo(List<Galgame> target)
+    {
+        ObservableCollection<Galgame> collection = _galgameService.Galgames;
+        for (var i = 0; i < target.Count && i < collection.Count; i++)
         {
-            Galgame targetItem = targetList[i];
-            var oldIndex = collection.IndexOf(targetItem);
+            var oldIndex = collection.IndexOf(target[i]);
             if (oldIndex != i && oldIndex != -1)
-            {
                 collection.Move(oldIndex, i);
-            }
         }
     }
 
@@ -817,10 +851,14 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         // 清除现有排序
         Source.SortDescriptions.Clear();
 
-        if (PrimaryKey == SortKeys.Custom && SecondaryKey == SortKeys.Custom)
+        // 手动排序：只由主排序键决定，忽略次排序键
+        if (PrimaryKey == SortKeys.Custom)
         {
             Source.RefreshSorting();
-            if (customOrder is not null) ApplyCustomOrder(customOrder);
+            // 从菜单切换到手动排序时不会传入顺序，此处从设置中读取已保存的顺序
+            customOrder ??= _localSettingsService
+                .ReadSettingAsync<List<string>>(KeyValues.CustomSortOrder, true).Result;
+            if (customOrder is { Count: > 0 }) ApplyCustomOrder(customOrder);
             return;
         }
 
@@ -908,7 +946,8 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         try
         {
-            List<string> customSortOrder = Source.Cast<Galgame>()
+            // 保存整个游戏库的顺序而不是过滤后的视图，避免过滤/搜索状态下丢失被隐藏游戏的顺序
+            List<string> customSortOrder = _galgameService.Galgames
                 .Select(g => g.Uuid.ToString())
                 .ToList();
             await _localSettingsService.SaveSettingAsync(KeyValues.CustomSortOrder, customSortOrder, true);
@@ -1098,14 +1137,36 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         {
             Galgame? game = flyout.Target.DataContext as Galgame;
             SetCurrentContextGame(game);
+            MenuFlyoutSubItem? folders = flyout.Items.OfType<MenuFlyoutSubItem>()
+                .FirstOrDefault(item => item.Tag as string == "InstallationFolders");
+            if (folders is not null)
+            {
+                folders.Items.Clear();
+                foreach (GalgameAndPath installation in game?.LocalInstallations ?? [])
+                {
+                    folders.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = installation.DisplayName,
+                        Command = OpenInstallationInExplorerCommand,
+                        CommandParameter = installation,
+                    });
+                }
+                folders.IsEnabled = folders.Items.Count > 0;
+            }
         }
     }
 
     [RelayCommand]
     private async Task OpenGameInExplorer(Galgame? game)
     {
-        if (game == null) return;
-        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(game.LocalPath);
+        await OpenInstallationInExplorer(game?.PreferredLocalInstallation);
+    }
+
+    [RelayCommand]
+    private static async Task OpenInstallationInExplorer(GalgameAndPath? installation)
+    {
+        if (installation is null || !Directory.Exists(installation.Path)) return;
+        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(installation.Path);
         await Launcher.LaunchFolderAsync(folder);
     }
 

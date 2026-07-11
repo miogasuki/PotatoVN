@@ -639,7 +639,10 @@ public class CategoryService : ICategoryService
                         if (tmp[i].Categories[j].Galgames is null) continue;
                         foreach (var path in tmp[i].Categories[j].Galgames)
                         {
-                            Galgame? galgame = _galgameService.Galgames.FirstOrDefault(g => g.LocalPath == path);
+                            // ActivationService会先完成GalgameSourceCollectionService.InitAsync，
+                            // 再初始化CategoryService，因此旧版路径升级执行到这里时SourceEntries已经重建完成。
+                            Galgame? galgame = _galgameService.Galgames.FirstOrDefault(g =>
+                                g.SourceEntries.Any(e => Utils.ArePathsEqual(e.Path, path)));
                             if (galgame is not null) _categoryGroups[i].Categories[j].Add(galgame);
                         }
                     }

@@ -96,6 +96,7 @@ public partial class App : Application
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IGalgameCollectionService, GalgameCollectionService>();
             services.AddSingleton<IGalgameSourceCollectionService, GalgameSourceCollectionService>();
+            services.AddSingleton<IGameLaunchService, GameLaunchService>();
             // Source Services
             services.AddSingleton<LocalFolderSourceService>();
             services.AddSingleton<VirtualSourceService>();

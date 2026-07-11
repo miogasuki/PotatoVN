@@ -22,6 +22,8 @@ public class LocalSettingStatus
     public bool MetaBackupPerSourceUpgrade = false;
     /// GalgameSourceCollectionService, 检测现有的每个库是否为可移动库
     public bool GalgameSourceRemoveableUpgrade = false;
+    // GalgameSourceCollectionService，将旧版游戏级启动设置迁移到安装实例
+    public bool GalgameMultiInstallUpgrade = false;
 
     /// CategoryService, v1.8.0, 改变分类中游戏索引格式
     public bool CategoryGameIndexUpgrade = false;
@@ -52,16 +54,20 @@ public class LocalSettingStatus
     public bool ImportCategory = true;
     /// staffService是否已处理过导入
     public bool ImportStaff = true;
+    /// 游戏列表页/库页设置（排序等）是否已处理过导入
+    public bool ImportPageSettings = true;
     public void SetToExport()
     {
         ImportGalgame = false;
         ImportGalgameSource = false;
         ImportCategory = false;
         ImportStaff = false;
+        ImportPageSettings = false;
         GameLiteDbUpgrade = false;
         CategoryLiteDbUpgrade = false;
         SourceLiteDbUpgrade = false;
         MultiStreamPageLiteDbUpgrade = false;
+        GalgameMultiInstallUpgrade = false;
     }
 
     public LocalSettingStatus Clone() => (LocalSettingStatus)MemberwiseClone();

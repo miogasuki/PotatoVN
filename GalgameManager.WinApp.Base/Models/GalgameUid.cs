@@ -46,36 +46,44 @@ public class GalgameUid
     /// <param name="rhs"></param>
     /// <returns></returns>
     public bool IsSame(GalgameUid? rhs)
+        => GetMatchKind(rhs) is not GalgameUidMatchKind.None;
+
+    /// <summary>
+    /// 返回两个UID的匹配原因，用于区分可靠的外部Id匹配和需要用户确认的仅名称匹配。
+    /// </summary>
+    /// <param name="rhs">要比较的另一个游戏UID</param>
+    /// <returns>匹配原因</returns>
+    public GalgameUidMatchKind GetMatchKind(GalgameUid? rhs)
     {
-        if (rhs is null) return false;
+        if (rhs is null) return GalgameUidMatchKind.None;
         var containValue = false;
         if (!BangumiId.IsNullOrEmpty() && !rhs.BangumiId.IsNullOrEmpty())
         {
             containValue = true;
-            if (BangumiId != rhs.BangumiId) return false;
+            if (BangumiId != rhs.BangumiId) return GalgameUidMatchKind.None;
         }
         if (!VndbId.IsNullOrEmpty() && !rhs.VndbId.IsNullOrEmpty())
         {
             containValue = true;
-            if (VndbId != rhs.VndbId) return false;
+            if (VndbId != rhs.VndbId) return GalgameUidMatchKind.None;
         }
         if (!YmgalId.IsNullOrEmpty() && !rhs.YmgalId.IsNullOrEmpty())
         {
             containValue = true;
-            if (YmgalId != rhs.YmgalId) return false;
+            if (YmgalId != rhs.YmgalId) return GalgameUidMatchKind.None;
         }
         if (!PvnId.IsNullOrEmpty() && !rhs.PvnId.IsNullOrEmpty())
         {
             containValue = true;
-            if (PvnId != rhs.PvnId) return false;
+            if (PvnId != rhs.PvnId) return GalgameUidMatchKind.None;
         }
         if (!SteamAppId.IsNullOrEmpty() && !rhs.SteamAppId.IsNullOrEmpty())
         {
             containValue = true;
-            if (SteamAppId != rhs.SteamAppId) return false;
+            if (SteamAppId != rhs.SteamAppId) return GalgameUidMatchKind.None;
         }
-        if (containValue) return true;
-        return Name == rhs.Name;
+        if (containValue) return GalgameUidMatchKind.ExternalId;
+        return Name == rhs.Name ? GalgameUidMatchKind.NameOnly : GalgameUidMatchKind.None;
     }
     
     public override string ToString()
@@ -100,4 +108,14 @@ public enum GalgameUidFetchMode
     
     /// 获取与指定UID相同<see cref="GalgameUid.IsSame"/>>的游戏
     Same,
+}
+
+/// <summary>
+/// 两个游戏UID的匹配原因。
+/// </summary>
+public enum GalgameUidMatchKind
+{
+    None, // 不匹配
+    NameOnly, // 仅游戏名匹配
+    ExternalId, // 至少一个外部数据源Id匹配，且不存在冲突Id
 }

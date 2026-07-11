@@ -51,6 +51,8 @@ public class GalgameSourceCollectionService(
                     "GalgameSourceCollectionService_InitAsync_GalgameIsNull".GetLocalized(g.Path, source.Url));
             }
         }
+        foreach (Galgame game in App.GetService<IGalgameCollectionService>().Galgames)
+            game.EnsurePreferredInstallation();
         // 去除找不到的库（只对启用了启动检查的库进行检查）
         // healthcheck 模式用于 E2E 迁移验证：不应做与当前机器文件系统相关的清理（例如删掉不存在路径的库），否则会影响迁移结果校验
         if (!IsHealthCheckMode())
@@ -61,6 +63,8 @@ public class GalgameSourceCollectionService(
             {
                 foreach (GalgameSourceBase source in toRemove)
                 {
+                    foreach (GalgameAndPath entry in source.Galgames.ToList())
+                        entry.Galgame.DetachSourceEntry(entry);
                     _galgameSources.Remove(source);
                     _dbSet.Delete(source.Id);
                 }
@@ -74,10 +78,7 @@ public class GalgameSourceCollectionService(
         await ImportAsync(settingStatus);
         await MetaBackupSettingsUpgrade(settingStatus);
         await RemoveableUpgrade(settingStatus);
-        // 给Galgame注入Source列表
-        foreach (GalgameSourceBase s in _galgameSources)
-            foreach (Galgame g in s.GetGalgameList().Where(g => !g.Sources.Contains(s)))
-                g.Sources.Add(s);
+        await MultiInstallUpgrade(settingStatus);
         // 计算子库
         CalcSubSources();
         // 添加监听变动检测
@@ -98,7 +99,12 @@ public class GalgameSourceCollectionService(
                 foreach (GalgameAndPathDbDto dto in source.GetLoadedGalgames())
                 {
                     if (gameService.GetGalgameFromUuid(dto.GalgameId) is { } game)
-                        source.Galgames.Add(new GalgameAndPath(game, dto.Path));
+                    {
+                        GalgameAndPath entry = new(game, dto.Path, source,
+                            dto.EntryId == Guid.Empty ? null : dto.EntryId, dto.LocalConfig);
+                        source.Galgames.Add(entry);
+                        game.AttachSourceEntry(entry);
+                    }
                     else
                     {
                         infoService.Event(EventType.NotCriticalUnexpectedError, InfoBarSeverity.Warning,
@@ -263,10 +269,11 @@ public class GalgameSourceCollectionService(
             {
                 try
                 {
-                    List<Galgame> srcGames = sourceToDelete.GetGalgameList().ToList();
-                    foreach (Galgame galgame in srcGames)
+                    List<GalgameAndPath> sourceEntries = sourceToDelete.Galgames.ToList();
+                    foreach (GalgameAndPath entry in sourceEntries)
                     {
-                        MoveOutNoOperate(sourceToDelete, galgame);
+                        Galgame galgame = entry.Galgame;
+                        await MoveOutNoOperate(entry);
                         
                         // 如果用户选择同时从游戏库中删除游戏
                         if (removeFromLibrary && galgame.Sources.Count == 0)
@@ -312,28 +319,46 @@ public class GalgameSourceCollectionService(
         }
     }
 
-    public void MoveInNoOperate(GalgameSourceBase target, Galgame game, string path)
+    /// <inheritdoc />
+    public GalgameAndPath? MoveInNoOperate(GalgameSourceBase target, Galgame game, string path,
+        LocalInstallationConfig? localConfig = null)
     {
         if (game.Sources.Any(s => s == target))
         {
             infoService.DeveloperEvent(
                 e: new PvnException($"Can not move game {game.Name.Value} into source {target.Path}: already there"));
-            return;
+            return null;
         }
-        target.AddGalgame(game, path);
+        GalgameAndPath entry = target.AddGalgame(game, path, localConfig: localConfig);
         Save(target);
+        return entry;
     }
 
-    public void MoveOutNoOperate(GalgameSourceBase target, Galgame game)
+    /// <inheritdoc />
+    public async Task MoveOutNoOperate(GalgameAndPath installation, bool deleteFiles = false)
     {
-        if (game.Sources.All(s => s != target))
+        GalgameSourceBase? source = installation.Source;
+        if (source is null || !source.Galgames.Contains(installation))
         {
-            infoService.DeveloperEvent(e: new PvnException($"Can not move game {game.Name} " +
-                                                            $"out of source {target.Path}: not in source"));
+            infoService.DeveloperEvent(e: new PvnException(
+                $"Can not remove source entry {installation.EntryId}: source entry not attached"));
             return;
         }
-        target.DeleteGalgame(game);
-        Save(target);
+        if (deleteFiles) await DeleteInstallationFilesAsync(installation);
+        source.DeleteGalgame(installation.Galgame);
+        Save(source);
+        await App.GetService<IGalgameCollectionService>().SaveGalgameAsync(installation.Galgame);
+    }
+
+    private static Task DeleteInstallationFilesAsync(GalgameAndPath installation)
+    {
+        if (installation.Source is not GalgameFolderSource)
+            throw new PvnException("MultiInstall_DeleteFiles_LocalFolderOnly".GetLocalized());
+        return Task.Run(() =>
+        {
+            if (Directory.Exists(installation.Path))
+                new DirectoryInfo(installation.Path).Delete(true);
+        });
     }
 
     public BgTaskBase MoveAsync(GalgameSourceBase? moveInSrc, string? moveInPath, GalgameSourceBase? moveOutSrc, Galgame game)
@@ -429,23 +454,24 @@ public class GalgameSourceCollectionService(
     /// 检查某个源的游戏是否还在源中，如果不在则移出
     private Task<List<Galgame>> CheckGamesInSourceAsync(GalgameSourceBase source)
     {
+        if (source is ILocalGalgameSource)
+        {
+            return Task.Run(async () =>
+            {
+                List<GalgameAndPath> entriesToRemove =
+                    source.Galgames.Where(entry => !Directory.Exists(entry.Path)).ToList();
+                foreach (GalgameAndPath entry in entriesToRemove)
+                    await MoveOutNoOperate(entry);
+                return entriesToRemove.Select(entry => entry.Galgame).ToList();
+            });
+        }
+
         switch (source.SourceType)
         {
-            case GalgameSourceType.LocalFolder:
-            case GalgameSourceType.Steam:
-                return Task.Run(() =>
-                {
-                    IEnumerable<Galgame> gamesToRemove =
-                        from gal in source.Galgames
-                        where !Directory.Exists(gal.Path)
-                        select gal.Galgame;
-                    List<Galgame> toRemove = gamesToRemove.ToList();
-                    foreach (Galgame g in toRemove)
-                        MoveOutNoOperate(source, g);
-                    return toRemove;
-                });
             case GalgameSourceType.Virtual: 
                 return Task.FromResult(new List<Galgame>());
+            case GalgameSourceType.LocalFolder:
+            case GalgameSourceType.Steam:
             case GalgameSourceType.LocalZip:
             case GalgameSourceType.UnKnown:
             default:
@@ -647,6 +673,38 @@ public class GalgameSourceCollectionService(
         catch (Exception e)
         {
             infoService.DeveloperEvent(e: e);
+        }
+    }
+
+    /// <summary>
+    /// 将旧版游戏级启动设置迁移到原单一安装对应的库内游戏条目。
+    /// 此操作可重复执行，导入旧版数据时也能安全迁移。
+    /// </summary>
+    private async Task MultiInstallUpgrade(LocalSettingStatus status)
+    {
+        if (status.GalgameMultiInstallUpgrade) return;
+        try
+        {
+            IGalgameCollectionService gameService = App.GetService<IGalgameCollectionService>();
+            foreach (Galgame game in gameService.Galgames)
+            {
+                List<GalgameAndPath> installations = game.LocalInstallations.ToList();
+                if (installations.Count == 0) continue;
+
+                GalgameAndPath target = game.PreferredLocalInstallation ?? installations[0];
+                game.ApplyLegacyLocalConfiguration(target, overwrite: false);
+                game.SetPreferredInstallation(target);
+            }
+
+            await SaveAllAsync();
+            await gameService.SaveGalgamesAsync();
+            status.GalgameMultiInstallUpgrade = true;
+            await localSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
+        }
+        catch (Exception e)
+        {
+            infoService.Event(EventType.UpgradeError, InfoBarSeverity.Warning,
+                "Failed to upgrade local game installations", e);
         }
     }
     

@@ -3922,4 +3922,10 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgamePage_ResetExePath_Success" xml:space="preserve">
     <value>EXE path has been reset</value>
   </data>
+  <data name="HomePage_Sort_Custom.Text" xml:space="preserve">
+    <value>Custom Order</value>
+  </data>
+  <data name="LibraryPage_FolderSortByCustom.Text" xml:space="preserve">
+    <value>Custom Order</value>
+  </data>
 </root>

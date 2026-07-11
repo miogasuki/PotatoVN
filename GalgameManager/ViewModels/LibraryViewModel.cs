@@ -629,6 +629,7 @@ public partial class LibraryViewModel(
     public GalgameSourceSortKeys LibraryPathSortKey => GalgameSourceSortKeys.Path;
     public GalgameSourceSortKeys LibrarySourceTypeSortKey => GalgameSourceSortKeys.SourceType;
     public GalgameSourceSortKeys LibraryGalgameCountSortKey => GalgameSourceSortKeys.GalgameCount;
+    public GalgameSourceSortKeys LibraryCustomSortKey => GalgameSourceSortKeys.Custom;
 
     [RelayCommand]
     private void Sort(SortKeys sortKey)
@@ -649,6 +650,16 @@ public partial class LibraryViewModel(
     [RelayCommand]
     private void SortLibrary(GalgameSourceSortKeys sortKey)
     {
+        if (sortKey == GalgameSourceSortKeys.Custom)
+        {
+            // 首次从其它排序方式切换到手动排序时，以当前顺序作为手动顺序的基线
+            if (CurrentFolderSortKey != GalgameSourceSortKeys.Custom)
+                PersistCurrentFolderOrder();
+            CurrentFolderSortKey = GalgameSourceSortKeys.Custom;
+            ApplySorting();
+            return;
+        }
+
         // 如果点击当前排序键，则切换排序方向
         if (CurrentFolderSortKey == sortKey)
         {
@@ -660,6 +671,54 @@ public partial class LibraryViewModel(
         }
 
         ApplySorting();
+    }
+
+    /// <summary>
+    /// 拖动开始时切换到手动排序模式，并把当前顺序固化为手动顺序基线（拖动被取消时也能保持原顺序）。
+    /// </summary>
+    public void EnterCustomFolderSortMode()
+    {
+        if (CurrentFolderSortKey == GalgameSourceSortKeys.Custom) return;
+        PersistCurrentFolderOrder();
+        CurrentFolderSortKey = GalgameSourceSortKeys.Custom;
+        settingsService.SaveSettingAsync(KeyValues.LibraryFolderSortKey, (int)CurrentFolderSortKey);
+    }
+
+    /// <summary>
+    /// 将 <paramref name="dragged"/> 移动到 <paramref name="target"/> 之前/之后，并持久化手动顺序。
+    /// 直接对底层集合做单次 <see cref="ObservableCollection{T}.Move"/>，既不打断虚拟化也能触发 ItemsRepeater 的移动动画。
+    /// </summary>
+    public void ReorderSource(GalgameSourceBase dragged, GalgameSourceBase target, bool insertAfter)
+    {
+        if (ReferenceEquals(dragged, target)) return;
+        if (Source.Source is not ObservableCollection<IDisplayableGameObject> col) return;
+
+        var from = col.IndexOf(dragged);
+        var tgt = col.IndexOf(target);
+        if (from < 0 || tgt < 0) return;
+
+        // Move 的 newIndex 是移除 dragged 后的索引，这里先换算目标在缩减后集合里的位置
+        var tgtReduced = tgt > from ? tgt - 1 : tgt;
+        var newIndex = insertAfter ? tgtReduced + 1 : tgtReduced;
+        newIndex = Math.Clamp(newIndex, 0, col.Count - 1);
+        if (newIndex != from) col.Move(from, newIndex);
+
+        CurrentFolderSortKey = GalgameSourceSortKeys.Custom;
+        settingsService.SaveSettingAsync(KeyValues.LibraryFolderSortKey, (int)CurrentFolderSortKey);
+        PersistCurrentFolderOrder();
+    }
+
+    /// <summary>
+    /// 按 <see cref="Source"/> 的当前显示顺序为各库写入 <see cref="GalgameSourceBase.SortOrder"/> 并持久化。
+    /// </summary>
+    private void PersistCurrentFolderOrder()
+    {
+        var index = 0;
+        foreach (GalgameSourceBase src in Source.OfType<GalgameSourceBase>())
+        {
+            src.SortOrder = index++;
+            galSourceService.Save(src);
+        }
     }
 
     [RelayCommand]
@@ -698,30 +757,43 @@ public partial class LibraryViewModel(
         if (Source.Count > 0)
         {
             List<IDisplayableGameObject> sorted = Source.Cast<IDisplayableGameObject>().ToList();
-            sorted.Sort((x, y) =>
+            if (CurrentFolderSortKey == GalgameSourceSortKeys.Custom)
             {
-                if (x is GalgameSourceBase sx && y is GalgameSourceBase sy)
+                // 手动排序：完全按用户拖动后记录的顺序，不强制虚拟库置顶
+                sorted.Sort((x, y) =>
                 {
-                    // VirtualSource 类型的源始终排在第一位
-                    if (sx.SourceType == GalgameSourceType.Virtual && sy.SourceType != GalgameSourceType.Virtual)
-                        return -1;
-                    if (sx.SourceType != GalgameSourceType.Virtual && sy.SourceType == GalgameSourceType.Virtual)
-                        return 1;
-
-                    // 如果都是或都不是 VirtualSource，则按照原有排序逻辑
-                    var result = CurrentFolderSortKey switch
+                    if (x is GalgameSourceBase sx && y is GalgameSourceBase sy)
+                        return sx.SortOrder.CompareTo(sy.SortOrder);
+                    return 0;
+                });
+            }
+            else
+            {
+                sorted.Sort((x, y) =>
+                {
+                    if (x is GalgameSourceBase sx && y is GalgameSourceBase sy)
                     {
-                        GalgameSourceSortKeys.Name => string.Compare(sx.Name, sy.Name, StringComparison.CurrentCultureIgnoreCase),
-                        GalgameSourceSortKeys.LastPlay => DateTime.Compare(sx.LastPlayed, sy.LastPlayed),
-                        GalgameSourceSortKeys.Path => string.Compare(sx.Path, sy.Path, StringComparison.CurrentCultureIgnoreCase),
-                        GalgameSourceSortKeys.SourceType => sx.SourceType.CompareTo(sy.SourceType),
-                        GalgameSourceSortKeys.GalgameCount => sx.Galgames.Count.CompareTo(sy.Galgames.Count),
-                        _ => 0
-                    };
-                    return FolderSortDescending ? -result : result;
-                }
-                return 0;
-            });
+                        // VirtualSource 类型的源始终排在第一位
+                        if (sx.SourceType == GalgameSourceType.Virtual && sy.SourceType != GalgameSourceType.Virtual)
+                            return -1;
+                        if (sx.SourceType != GalgameSourceType.Virtual && sy.SourceType == GalgameSourceType.Virtual)
+                            return 1;
+
+                        // 如果都是或都不是 VirtualSource，则按照原有排序逻辑
+                        var result = CurrentFolderSortKey switch
+                        {
+                            GalgameSourceSortKeys.Name => string.Compare(sx.Name, sy.Name, StringComparison.CurrentCultureIgnoreCase),
+                            GalgameSourceSortKeys.LastPlay => DateTime.Compare(sx.LastPlayed, sy.LastPlayed),
+                            GalgameSourceSortKeys.Path => string.Compare(sx.Path, sy.Path, StringComparison.CurrentCultureIgnoreCase),
+                            GalgameSourceSortKeys.SourceType => sx.SourceType.CompareTo(sy.SourceType),
+                            GalgameSourceSortKeys.GalgameCount => sx.Galgames.Count.CompareTo(sy.Galgames.Count),
+                            _ => 0
+                        };
+                        return FolderSortDescending ? -result : result;
+                    }
+                    return 0;
+                });
+            }
             Source.Clear();
             foreach (IDisplayableGameObject item in sorted)
                 Source.Add(item);

@@ -3842,4 +3842,10 @@
   <data name="GalgamePage_ResetExePath_Success" xml:space="preserve">
     <value>EXEパスをリセットしました</value>
   </data>
+  <data name="HomePage_Sort_Custom.Text" xml:space="preserve">
+    <value>手動並べ替え</value>
+  </data>
+  <data name="LibraryPage_FolderSortByCustom.Text" xml:space="preserve">
+    <value>手動並べ替え</value>
+  </data>
 </root>

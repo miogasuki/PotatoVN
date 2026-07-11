@@ -45,6 +45,8 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     [ObservableProperty] private string? _imagePath;
     [ObservableProperty] private DateTime _lastPlayed = DateTime.MinValue;
     [ObservableProperty] private DateTime _lastClicked = DateTime.MinValue;
+    /// 手动排序模式下，本库在同级库中的顺序索引（越小越靠前）
+    public int SortOrder { get; set; }
     /// 是否对库进行监听总开关
     [ObservableProperty] private bool _detect;
     [ObservableProperty] private bool _detectFolderAdd;
@@ -313,6 +315,7 @@ public enum GalgameSourceSortKeys
     Path,
     SourceType,
     GalgameCount,
+    Custom, // 手动排序，必须放在末尾以保持既有持久化的int值不变
 }
 
 

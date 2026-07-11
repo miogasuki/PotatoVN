@@ -17,6 +17,8 @@
 
     <Page.Resources>
         <converter:EnumEqualsConverter x:Key="EnumEqualsConverter" />
+        <!-- 库卡片悬停背景（与 TransparentButtonWithHover 一致） -->
+        <SolidColorBrush x:Key="SourceHoverBrush" Color="{ThemeResource SystemAccentColor}" Opacity="0.12" />
         <!-- 游戏库的右键菜单 -->
         <MenuFlyout Placement="Right" x:Key="FolderFlyout" Opening="{x:Bind ViewModel.FolderFlyout_Opening}">
             <!-- 编辑游戏库 -->
@@ -198,6 +200,11 @@
                         <MenuFlyoutSeparator/>
                         <!-- 库排序 -->
                         <MenuFlyoutSubItem x:Uid="LibraryPage_SortFolderSubMenu" >
+                            <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByCustom"
+                                               Command="{x:Bind ViewModel.SortLibraryCommand}"
+                                               CommandParameter="{x:Bind ViewModel.LibraryCustomSortKey}"
+                                               GroupName="FolderSorting"
+                                               IsChecked="{x:Bind ViewModel.CurrentFolderSortKey, Mode=OneWay, Converter={StaticResource EnumEqualsConverter}, ConverterParameter=Custom}"/>
                             <RadioMenuFlyoutItem x:Uid="LibraryPage_FolderSortByName"
                                                Command="{x:Bind ViewModel.SortLibraryCommand}"
                                                CommandParameter="{x:Bind ViewModel.LibraryNameSortKey}"
@@ -284,7 +291,7 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
-                    <!-- Sources -->
+                    <!-- Sources（支持手动拖拽排序，保留 ItemsRepeater 虚拟化与淡入动画） -->
                     <ItemsRepeater ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}">
                         <ItemsRepeater.Layout>
                             <UniformGridLayout/>
@@ -298,15 +305,23 @@
                         </interactivity:Interaction.Behaviors>
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="sources:GalgameSourceBase">
-                                <Button Style="{StaticResource TransparentButtonWithHover}"
-                                        DataContext="{x:Bind}"
-                                        Command="{Binding ElementName=Page, Path=ViewModel.NavigateToCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Width="175"
-                                        HorizontalAlignment="Left"
-                                        ContextFlyout="{StaticResource FolderFlyout}">
+                                <!-- 用 Grid 作为根（Button 会吞掉指针事件导致 CanDrag 无法触发） -->
+                                <Grid Width="175"
+                                      HorizontalAlignment="Left"
+                                      Background="Transparent"
+                                      CornerRadius="10"
+                                      DataContext="{x:Bind}"
+                                      ContextFlyout="{StaticResource FolderFlyout}"
+                                      CanDrag="True"
+                                      DragStarting="SourceItem_DragStarting"
+                                      AllowDrop="True"
+                                      DragOver="SourceItem_DragOver"
+                                      Drop="SourceItem_Drop"
+                                      Tapped="SourceItem_Tapped"
+                                      PointerEntered="SourceItem_PointerEntered"
+                                      PointerExited="SourceItem_PointerExited">
                                     <prefab:SourcePrefab Source="{x:Bind}" />
-                                </Button>
+                                </Grid>
                             </DataTemplate>
                         </ItemsRepeater.ItemTemplate>
                     </ItemsRepeater>

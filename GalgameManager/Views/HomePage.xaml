@@ -369,15 +369,6 @@
                             <MenuFlyoutSeparator />
                             <!-- 第二排序键 -->
                             <MenuFlyoutSubItem x:Uid="HomePage_Sort_SecondKey">
-                                <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Custom"
-                                                     Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
-                                                     CommandParameter="Custom"
-                                                     GroupName="SecondarySorting"
-                                                     IsChecked="{
-                                                         x:Bind ViewModel.SecondaryKey, Mode=OneWay,
-                                                         Converter={StaticResource EnumToBoolConverter},
-                                                         ConverterParameter=Custom
-                                                     }" />
                                 <RadioMenuFlyoutItem x:Uid="HomePage_Sort_Name"
                                                      Command="{x:Bind ViewModel.SetSecondaryKeyCommand}"
                                                      CommandParameter="Name"

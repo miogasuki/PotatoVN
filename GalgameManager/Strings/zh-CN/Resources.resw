@@ -4842,4 +4842,7 @@
   <data name="GalgamePage_ResetExePath_Success" xml:space="preserve">
     <value>已重置exe路径</value>
   </data>
+  <data name="LibraryPage_FolderSortByCustom.Text" xml:space="preserve">
+    <value>按手动排序</value>
+  </data>
 </root>

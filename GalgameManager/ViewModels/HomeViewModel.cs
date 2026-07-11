@@ -695,7 +695,13 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
         GameParseType selectedParseTypes = selectInfoDialog.SelectedParseTypes;
         var groups = _selectedGalgames
-            .Select(game => new { Game = game, Source = game.Sources.FirstOrDefault() })
+            .Select(game => new
+            {
+                Game = game,
+                Source = game.PreferredLocalInstallation?.Source
+                         ?? game.SourceEntries.Select(e => e.Source)
+                             .FirstOrDefault(s => s?.SourceType == GalgameSourceType.Virtual)
+            })
             .Where(item => item.Source is not null)
             .GroupBy(item => item.Source!);
 
@@ -1098,14 +1104,36 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         {
             Galgame? game = flyout.Target.DataContext as Galgame;
             SetCurrentContextGame(game);
+            MenuFlyoutSubItem? folders = flyout.Items.OfType<MenuFlyoutSubItem>()
+                .FirstOrDefault(item => item.Tag as string == "InstallationFolders");
+            if (folders is not null)
+            {
+                folders.Items.Clear();
+                foreach (GalgameAndPath installation in game?.LocalInstallations ?? [])
+                {
+                    folders.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = installation.DisplayName,
+                        Command = OpenInstallationInExplorerCommand,
+                        CommandParameter = installation,
+                    });
+                }
+                folders.IsEnabled = folders.Items.Count > 0;
+            }
         }
     }
 
     [RelayCommand]
     private async Task OpenGameInExplorer(Galgame? game)
     {
-        if (game == null) return;
-        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(game.LocalPath);
+        await OpenInstallationInExplorer(game?.PreferredLocalInstallation);
+    }
+
+    [RelayCommand]
+    private static async Task OpenInstallationInExplorer(GalgameAndPath? installation)
+    {
+        if (installation is null || !Directory.Exists(installation.Path)) return;
+        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(installation.Path);
         await Launcher.LaunchFolderAsync(folder);
     }
 

@@ -99,4 +99,44 @@ public partial class ScanResultViewModel(
         }
         NavigationHelper.NavigateToGalgamePage(navigationService, new GalgamePageParameter{Galgame = game});
     }
+
+    [RelayCommand]
+    private async Task ConfirmLink(PathScanResultItem item)
+    {
+        if (_scanResult is null || !item.RequiresConfirmation) return;
+        Galgame? game = gameService.GetGalgameFromUuid(item.RelatedGameId);
+        GalgameSourceBase? source = galgameSourceCollectionService.GetGalgameSourceFromId(_scanResult.SourceId);
+        if (game is null || source is null)
+        {
+            infoService.Info(InfoBarSeverity.Error, "ScanResult_LinkFailed".GetLocalized());
+            return;
+        }
+
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            Title = "MultiInstall_NameMatch_Title".GetLocalized(),
+            Content = "MultiInstall_NameMatch_Content".GetLocalized() +
+                      $"\n{game.Name.Value}\n{item.Path}",
+            PrimaryButtonText = "MultiInstall_LinkInstallation".GetLocalized(),
+            CloseButtonText = "Cancel".GetLocalized(),
+            DefaultButton = ContentDialogButton.Close,
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+
+        GalgameAndPath? entry = galgameSourceCollectionService.MoveInNoOperate(source, game, item.Path,
+            source is ILocalGalgameSource
+                ? new LocalInstallationConfig()
+                : null);
+        if (entry is null)
+        {
+            infoService.Info(InfoBarSeverity.Error, "ScanResult_LinkFailed".GetLocalized());
+            return;
+        }
+
+        item.ResultType = ScanResultType.Success;
+        item.Message = "ScanResult_LinkSuccess".GetLocalized() + $" {game.Name.Value}";
+        sourceScanResultService.SaveScanResult(_scanResult);
+        ApplyFilter();
+    }
 }

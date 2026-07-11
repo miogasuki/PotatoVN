@@ -7,7 +7,7 @@ using SystemPath = System.IO.Path;
 namespace GalgameManager.Models.Sources;
 
 
-public partial class GalgameFolderSource : GalgameSourceBase
+public partial class GalgameFolderSource : GalgameSourceBase, ILocalGalgameSource
 {
     public override GalgameSourceType SourceType =>  GalgameSourceType.LocalFolder;
 

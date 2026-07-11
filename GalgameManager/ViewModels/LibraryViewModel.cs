@@ -462,8 +462,14 @@ public partial class LibraryViewModel(
     [RelayCommand]
     private async Task OpenGameInExplorer(Galgame? galgame)
     {
-        if(galgame == null) return;
-        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(galgame.LocalPath);
+        await OpenInstallationInExplorer(galgame?.PreferredLocalInstallation);
+    }
+
+    [RelayCommand]
+    private static async Task OpenInstallationInExplorer(GalgameAndPath? installation)
+    {
+        if (installation is null || !Directory.Exists(installation.Path)) return;
+        StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(installation.Path);
         await Launcher.LaunchFolderAsync(folder);
     }
 
@@ -518,6 +524,22 @@ public partial class LibraryViewModel(
         {
             Galgame? game = flyout.Target.DataContext as Galgame;
             SetCurrentContextGame(game);
+            MenuFlyoutSubItem? folders = flyout.Items.OfType<MenuFlyoutSubItem>()
+                .FirstOrDefault(item => item.Tag as string == "InstallationFolders");
+            if (folders is not null)
+            {
+                folders.Items.Clear();
+                foreach (GalgameAndPath installation in game?.LocalInstallations ?? [])
+                {
+                    folders.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = installation.DisplayName,
+                        Command = OpenInstallationInExplorerCommand,
+                        CommandParameter = installation,
+                    });
+                }
+                folders.IsEnabled = folders.Items.Count > 0;
+            }
         }
     }
 

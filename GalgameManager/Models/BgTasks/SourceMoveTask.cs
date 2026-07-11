@@ -66,10 +66,16 @@ public class SourceMoveTask : BgTaskBase
     {
         if (_moveInSource is null) return;
         IGalgameSourceService service = SourceServiceFactory.GetSourceService(_moveInSource.SourceType);
-        BgTaskBase bgTask = service.MoveInAsync(_moveInSource, _game!, MoveInPath);
+        GalgameAndPath? sourceEntry = _moveOutSource?.GetEntry(_game!) ?? _game!.PreferredLocalInstallation;
+        BgTaskBase bgTask = service.MoveInAsync(_moveInSource, _game!, MoveInPath, sourceEntry);
         await _bgTaskService.AddBgTask(bgTask);
         if (bgTask.Task.IsFaulted)
             throw new PvnException("SourceMoveTask_MovingIn_Fail".GetLocalized());
+        if (MoveInPath is not null)
+        {
+            LocalInstallationConfig? config = sourceEntry?.LocalConfig?.Relocated(sourceEntry.Path, MoveInPath);
+            _sourceService.MoveInNoOperate(_moveInSource, _game!, MoveInPath, config);
+        }
     }
 
     private async Task MoveOutAsync()
@@ -80,5 +86,7 @@ public class SourceMoveTask : BgTaskBase
         await _bgTaskService.AddBgTask(bgTask);
         if (bgTask.Task.IsFaulted)
             throw new PvnException("SourceMoveTask_MovingOut_Fail".GetLocalized());
+        if (_moveOutSource.GetEntry(_game!) is { } entry)
+            await _sourceService.MoveOutNoOperate(entry);
     }
 }

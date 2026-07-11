@@ -3815,4 +3815,111 @@ If play time can record correctly, just cancel this popup.
   <data name="HomePage_FilterPanelVisibilityButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Choose filter panels</value>
   </data>
+  <data name="MultiInstall_Add.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Add installation</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Content" xml:space="preserve">
+    <value>Permanently delete these installation files and unlink it?</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_LocalFolderOnly" xml:space="preserve">
+    <value>Only local-folder installations can be deleted from disk</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Title" xml:space="preserve">
+    <value>Delete installation files</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.Label" xml:space="preserve">
+    <value>Remove game from PotatoVN</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Remove the logical game without deleting files</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Action" xml:space="preserve">
+    <value>Remove game</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Content" xml:space="preserve">
+    <value>Remove this game and all source links from PotatoVN? Files on disk will be kept.</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Title" xml:space="preserve">
+    <value>Permanently remove game</value>
+  </data>
+  <data name="MultiInstall_EditPath.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Edit installation path</value>
+  </data>
+  <data name="MultiInstall_Installations.Text" xml:space="preserve">
+    <value>Installations</value>
+  </data>
+  <data name="MultiInstall_Launch" xml:space="preserve">
+    <value>Launch</value>
+  </data>
+  <data name="MultiInstall_LinkInstallation" xml:space="preserve">
+    <value>Link installation</value>
+  </data>
+
+  <data name="MultiInstall_NameMatch_Content" xml:space="preserve">
+    <value>A game with the same name exists. Link this path as another installation?</value>
+  </data>
+  <data name="MultiInstall_NameMatch_Title" xml:space="preserve">
+    <value>Possible duplicate game</value>
+  </data>
+  <data name="MultiInstall_OpenFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open folder</value>
+  </data>
+
+  <data name="MultiInstall_PathUnavailable" xml:space="preserve">
+    <value>Installation path is unavailable: {0}</value>
+  </data>
+  <data name="MultiInstall_PlayButton.Text" xml:space="preserve">
+    <value>Play</value>
+  </data>
+  <data name="MultiInstall_PlayMenu.Text" xml:space="preserve">
+    <value>Launch this installation</value>
+  </data>
+  <data name="MultiInstall_ProcessNotFound" xml:space="preserve">
+    <value>The game process could not be found</value>
+  </data>
+  <data name="MultiInstall_SelectDialog_Title" xml:space="preserve">
+    <value>Select an installation</value>
+  </data>
+  <data name="MultiInstall_Select_Title.Text" xml:space="preserve">
+    <value>Select an installation</value>
+  </data>
+  <data name="MultiInstall_SetPreferred.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Set as preferred</value>
+  </data>
+  <data name="MultiInstall_Unlink.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Unlink from library</value>
+  </data>
+  <data name="MultiInstall_Unlink_Content" xml:space="preserve">
+    <value>Remove this installation from the library? Files on disk will be kept.</value>
+  </data>
+  <data name="MultiInstall_Unlink_Title" xml:space="preserve">
+    <value>Unlink installation</value>
+  </data>
+  <data name="ScanResultPage_ConfirmLink.Content" xml:space="preserve">
+    <value>Confirm link</value>
+  </data>
+  <data name="ScanResultType_RequiresConfirmation" xml:space="preserve">
+    <value>Confirmation required</value>
+  </data>
+  <data name="ScanResult_LinkFailed" xml:space="preserve">
+    <value>Failed to link installation</value>
+  </data>
+  <data name="ScanResult_LinkSuccess" xml:space="preserve">
+    <value>Linked as another installation of</value>
+  </data>
+  <data name="ScanResult_NameMatchPending" xml:space="preserve">
+    <value>Same-name game found; confirmation required:</value>
+  </data>
+  <data name="MultiInstall_Manage.Text" xml:space="preserve">
+    <value>Manage installations</value>
+  </data>
+  <data name="MultiInstall_OpenSaveDirectoryButton.Text" xml:space="preserve">
+    <value>Open save directory</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Title" xml:space="preserve">
+    <value>Reset EXE's path?</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Success" xml:space="preserve">
+    <value>EXE path has been reset</value>
+  </data>
 </root>

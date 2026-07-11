@@ -24,21 +24,48 @@ public partial class PluginService
         private readonly IGalgameCollectionService _gameService = App.GetService<IGalgameCollectionService>();
         private readonly ILocalSettingsService _settingService = App.GetService<ILocalSettingsService>();
         private readonly ISidebarService _sidebarService = App.GetService<ISidebarService>();
+        private readonly IGameLaunchService _gameLaunchService =
+            App.GetService<IGameLaunchService>(); // 为插件按明确安装实例启动游戏
 
         #region GAMES
 
         public List<Galgame> GetAllGames() => _gameService.Galgames.ToList();
 
-        public async Task<Galgame> AddGame(string path, bool force = true, bool requireConfirm = true)
+        /// <inheritdoc />
+        public async Task<Galgame> AddGameInstallation(string path, bool force = true, bool requireConfirm = true)
         {
             Galgame? result = await _gameService.AddGameAsync(GalgameSourceType.LocalFolder, path, force, requireConfirm);
             return result ?? throw new InvalidOperationException("Failed to add game.");
         }
 
+        /// <inheritdoc />
         public async Task<Galgame> AddVirtualGame(string name, bool force = true, bool requireConfirm = true)
         {
             Galgame? result = await _gameService.AddGameAsync(GalgameSourceType.Virtual, name, force, requireConfirm);
             return result ?? throw new InvalidOperationException("Failed to add virtual game.");
+        }
+
+        /// <inheritdoc />
+        public IReadOnlyList<GameInstallationInfo> GetGameInstallations(Galgame game) =>
+            game.LocalInstallations.Select(installation => new GameInstallationInfo(
+                installation.EntryId,
+                installation.Source?.Id ?? Guid.Empty,
+                installation.Source?.SourceType ?? GalgameSourceType.UnKnown,
+                installation.Source?.Name ?? string.Empty,
+                installation.Path,
+                game.PreferredInstallationId == installation.EntryId,
+                Directory.Exists(installation.Path))).ToList();
+
+        /// <inheritdoc />
+        public async Task LaunchGameAsync(Galgame game, Guid? installationId = null)
+        {
+            GalgameAndPath? installation = installationId is { } id
+                ? game.LocalInstallations.FirstOrDefault(i => i.EntryId == id)
+                : game.LocalInstallations.FirstOrDefault(i => i.EntryId == game.PreferredInstallationId);
+            installation ??= game.LocalInstallations.Count == 1 ? game.LocalInstallations[0] : null;
+            if (installation is null)
+                throw new InvalidOperationException("No unambiguous local installation is available.");
+            await UiThreadInvokeHelper.InvokeAsync(() => _gameLaunchService.LaunchAsync(game, installation));
         }
 
         #endregion
@@ -153,6 +180,15 @@ public partial class PluginService
         }
 
         public void InvokeOnMainThread(Action action) => UiThreadInvokeHelper.Invoke(action);
+
+        #endregion
+
+        #region OBSOLETE_APIS
+
+        /// <inheritdoc />
+        [Obsolete($"请使用{nameof(AddGameInstallation)}")]
+        public Task<Galgame> AddGame(string path, bool force = true, bool requireConfirm = true) =>
+            AddGameInstallation(path, force, requireConfirm);
 
         #endregion
     }

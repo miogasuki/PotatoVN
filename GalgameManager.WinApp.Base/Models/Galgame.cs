@@ -73,27 +73,13 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [ObservableProperty] private ObservableCollection<GalgameCharacter> _characters = new();
     [JsonIgnore][BsonIgnore][ObservableProperty] private string _savePosition = string.Empty;
     [ObservableProperty] private int _playCount; //游玩次数
-    [ObservableProperty] private string? _exePath;
-    [ObservableProperty] private string? _exeArguments;
     [ObservableProperty] private LockableProperty<ObservableCollection<string>> _tags;
     [ObservableProperty] private int _totalPlayTime; //单位：分钟
-    [ObservableProperty] private bool _runAsAdmin; //是否以管理员权限运行
-    [ObservableProperty] private bool _runInLocaleEmulator; //是否转区运行
-    [ObservableProperty] private bool _highDpi; //是否高DPI替代缩放
     [ObservableProperty] private bool _enableMagpie; //是否启用Magpie
     [ObservableProperty] private bool _muteInBackground; //是否在后台时静音游戏
     [ObservableProperty] private bool _keyReMap; //是否快捷键映射
 
-    /// <summary>
-    /// 探测到的存档位置
-    /// </summary>
-    /// <remarks>
-    /// 取值为「伪绝对路径」，例如：
-    /// 1. 相对游戏根目录：<c>%GameRoot%\savedata</c>
-    /// 2. 相对特殊文件夹：<c>%Documents%\Company\Title</c>
-    /// 3. 绝对路径（如NAS）：<c>Z:\114514\savedata</c>
-    /// </remarks>
-    [ObservableProperty] private GamePortablePath? _detectedSavePath;
+    private GamePortablePath? _legacyDetectedSavePath; // 旧版游戏级探测存档路径，仅用于迁移与兼容
 
     public List<KeyMapping> KeyMappings { get; set; } = new(); //快捷键映射
     private RssType _rssType = RssType.None;
@@ -105,20 +91,31 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public Dictionary<int,  string?> IdForPlugins { get; set; } = [];
     [JsonIgnore][BsonIgnore] public readonly ObservableCollection<Category> Categories = new();
     [JsonIgnore][BsonIgnore] public ObservableCollection<GalgameSourceBase> Sources { get; } = new(); //所属的源
+    private readonly ObservableCollection<GalgameAndPath> _sourceEntries = []; // 游戏所属库条目的内部可变集合
+    /// <summary>
+    /// 游戏所属库条目的只读视图。条目的增删必须通过游戏库集合服务完成。
+    /// </summary>
+    [JsonIgnore][BsonIgnore] public ReadOnlyObservableCollection<GalgameAndPath> SourceEntries { get; }
+    [ObservableProperty] private Guid? _preferredInstallationId; // 当前首选（上次成功启动）的安装实例Id
     [ObservableProperty] private string _comment = string.Empty; //吐槽（评论）
     [ObservableProperty] private int _myRate; //我的评分
     [ObservableProperty] private bool _privateComment; //是否私密评论
-    private string? _savePath; //云端存档本地路径
+    private string? _legacyExePath; // 旧版游戏级启动文件路径
+    private string? _legacyExeArguments; // 旧版游戏级启动参数
+    private string? _legacyProcessName; // 旧版游戏级进程名
+    private string? _legacyTextPath; // 旧版游戏级文本路径
+    private string? _legacySavePath; // 旧版游戏级云存档本地路径
+    private bool _legacyRunAsAdmin; // 旧版游戏级管理员运行设置
+    private bool _legacyRunInLocaleEmulator; // 旧版游戏级转区运行设置
+    private bool _legacyHighDpi; // 旧版游戏级高DPI设置
 
-    public string? ProcessName { get; set; } //手动指定的进程名，用于正确获取游戏进程
-    public string? TextPath { get; set; } //记录的要打开的文本的路径
     public bool PvnUpdate { get; set; } //是否需要更新
     public PvnUploadProperties PvnUploadProperties { get; set; } // 要更新到Pvn的属性
     [JsonIgnore] public long PvnLastCharacterFetchTime { get; set; } // 上次从Pvn下载角色信息的时间
     /// 某个游戏的自动获取字段的状态（旧版本不存在的字段在新版本中点进游戏详情也后会试图自动获取）
     public GalgameAutoFetchStatus AutoFetchStatus { get; set; } = new();
 
-    #region OBSOLETE_PROPERTIES //已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据）
+    #region OBSOLETE_PROPERTIES //已被废弃的属性，为了兼容旧版本保留（用于反序列化迁移数据 / 兼容旧插件等）
 
     [Obsolete($"use {nameof(LastPlayTime)} instead")]
     [JsonProperty]
@@ -130,7 +127,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     [Obsolete($"Use {nameof(LocalPath)} instead")][BsonIgnore]
     public string Path { get; set; } = "";
 
-    [Obsolete($"Use {nameof(DetectedSavePath)} instead")][BsonIgnore]
+    [Obsolete("Use DetectedSavePath instead")][BsonIgnore]
     public string? DetectedSavePosition { get; set; }
 
     #endregion
@@ -173,24 +170,155 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
         }
     }
 
-    public string? SavePath
+    /// <summary>
+    /// 当前首选的可启动安装实例。文件操作应显式传入安装实例，不应依赖此兼容视图。
+    /// </summary>
+    [JsonIgnore][BsonIgnore]
+    public GalgameAndPath? PreferredLocalInstallation =>
+        SourceEntries.FirstOrDefault(e => e.EntryId == PreferredInstallationId && e.IsLocalInstallation)
+        ?? SourceEntries.Where(e => e.IsLocalInstallation)
+            .OrderByDescending(e => e.LocalConfig?.LastSuccessfulLaunchTime ?? DateTime.MinValue)
+            .FirstOrDefault();
+
+    /// <summary>
+    /// 当前游戏所有本地安装实例的只读快照。
+    /// </summary>
+    [JsonIgnore][BsonIgnore]
+    public IReadOnlyList<GalgameAndPath> LocalInstallations =>
+        SourceEntries.Where(e => e.IsLocalInstallation).ToList();
+
+    #region OBSOLETE_PROPERTIES // 已废弃的游戏级安装属性，仅用于旧数据反序列化与旧插件兼容
+
+    // 新代码应使用明确安装实例上的LocalInstallationConfig。
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.ExePath or an explicit installation instead.")]
+    public string? ExePath
     {
-        get => _savePath;
+        get => PreferredLocalInstallation?.LocalConfig?.ExePath ?? _legacyExePath;
         set
         {
-            _savePath = value;
-            SavePosition = (_savePath is null
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.ExePath = value;
+            if (SetProperty(ref _legacyExePath, value)) OnPropertyChanged();
+            if (value is not null) HighDpi = false;
+        }
+    }
+
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.ExeArguments or an explicit installation instead.")]
+    public string? ExeArguments
+    {
+        get => PreferredLocalInstallation?.LocalConfig?.ExeArguments ?? _legacyExeArguments;
+        set
+        {
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.ExeArguments = value;
+            SetProperty(ref _legacyExeArguments, value);
+        }
+    }
+
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.ProcessName or an explicit installation instead.")]
+    public string? ProcessName
+    {
+        get => PreferredLocalInstallation?.LocalConfig?.ProcessName ?? _legacyProcessName;
+        set
+        {
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.ProcessName = value;
+            SetProperty(ref _legacyProcessName, value);
+        }
+    }
+
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.TextPath or an explicit installation instead.")]
+    public string? TextPath
+    {
+        get => PreferredLocalInstallation?.LocalConfig?.TextPath ?? _legacyTextPath;
+        set
+        {
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.TextPath = value;
+            SetProperty(ref _legacyTextPath, value);
+        }
+    }
+
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.RunAsAdmin or an explicit installation instead.")]
+    public bool RunAsAdmin
+    {
+        get => PreferredLocalInstallation?.LocalConfig?.RunAsAdmin ?? _legacyRunAsAdmin;
+        set
+        {
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.RunAsAdmin = value;
+            SetProperty(ref _legacyRunAsAdmin, value);
+        }
+    }
+
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.RunInLocaleEmulator or an explicit installation instead.")]
+    public bool RunInLocaleEmulator
+    {
+        get => PreferredLocalInstallation?.LocalConfig?.RunInLocaleEmulator ?? _legacyRunInLocaleEmulator;
+        set
+        {
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.RunInLocaleEmulator = value;
+            SetProperty(ref _legacyRunInLocaleEmulator, value);
+        }
+    }
+
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.HighDpi or an explicit installation instead.")]
+    public bool HighDpi
+    {
+        get => PreferredLocalInstallation?.LocalConfig?.HighDpi ?? _legacyHighDpi;
+        set
+        {
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.HighDpi = value;
+            SetProperty(ref _legacyHighDpi, value);
+        }
+    }
+
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.DetectedSavePath or an explicit installation instead.")]
+    public GamePortablePath? DetectedSavePath
+    {
+        get => PreferredLocalInstallation?.LocalConfig?.DetectedSavePath ?? _legacyDetectedSavePath;
+        set
+        {
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.DetectedSavePath = value;
+            SetProperty(ref _legacyDetectedSavePath, value);
+        }
+    }
+
+    [Obsolete("Use PreferredLocalInstallation.LocalConfig.SavePath or an explicit installation instead.")]
+    public string? SavePath
+    {
+        get => PreferredLocalInstallation?.LocalConfig?.SavePath ?? _legacySavePath;
+        set
+        {
+            LocalInstallationConfig? config = PreferredLocalInstallation?.LocalConfig;
+            if (config is not null) config.SavePath = value;
+            SetProperty(ref _legacySavePath, value);
+            SavePosition = (value is null
                 ? "Galgame_SavePath_Local".GetLocalized()
                 : "Galgame_SavePath_Remote".GetLocalized()) ?? string.Empty;
         }
     }
 
+    #endregion
+
+    /// <summary>
+    /// 初始化一个空的逻辑游戏。
+    /// </summary>
     public Galgame()
     {
         _tags = new ObservableCollection<string>();
+        SourceEntries = new ReadOnlyObservableCollection<GalgameAndPath>(_sourceEntries);
         Sources.CollectionChanged += (_, _) => OnPropertyChanged(nameof(LocalPath));
+        _sourceEntries.CollectionChanged += (_, _) => RaiseInstallationPropertiesChanged();
     }
 
+    /// <summary>
+    /// 使用游戏名初始化逻辑游戏。
+    /// </summary>
+    /// <param name="name">游戏名</param>
     public Galgame(string name) : this()
     {
         Name = name;
@@ -199,47 +327,182 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     public override string ToString() => Name.Value ?? string.Empty;
 
     /// <summary>
+    /// 将库内游戏条目挂接到当前逻辑游戏。仅供游戏库集合服务在建立关系时调用。
+    /// </summary>
+    /// <param name="entry">要挂接的库内游戏条目</param>
+    public void AttachSourceEntry(GalgameAndPath entry)
+    {
+        if (_sourceEntries.All(e => e.EntryId != entry.EntryId))
+            _sourceEntries.Add(entry);
+        if (entry.Source is not null && !Sources.Contains(entry.Source))
+            Sources.Add(entry.Source);
+
+        if (!entry.IsLocalInstallation) return;
+        entry.LocalConfig ??= new LocalInstallationConfig();
+        if (PreferredInstallationId is null)
+        {
+            ApplyLegacyLocalConfiguration(entry, overwrite: false);
+            PreferredInstallationId = entry.EntryId;
+        }
+        RaiseInstallationPropertiesChanged();
+    }
+
+    /// <summary>
+    /// 从当前逻辑游戏解除库内游戏条目。仅供游戏库集合服务在移除关系时调用。
+    /// </summary>
+    /// <param name="entry">要解除的库内游戏条目</param>
+    public void DetachSourceEntry(GalgameAndPath entry)
+    {
+        _sourceEntries.Remove(entry);
+        if (entry.Source is not null && SourceEntries.All(e => e.Source != entry.Source))
+            Sources.Remove(entry.Source);
+        if (PreferredInstallationId == entry.EntryId)
+        {
+            PreferredInstallationId = SourceEntries.Where(e => e.IsLocalInstallation)
+                .OrderByDescending(e => e.LocalConfig?.LastSuccessfulLaunchTime ?? DateTime.MinValue)
+                .Select(e => (Guid?)e.EntryId)
+                .FirstOrDefault();
+        }
+        RaiseInstallationPropertiesChanged();
+    }
+
+    /// <summary>
+    /// 将指定本地安装实例设为首选实例。
+    /// </summary>
+    /// <param name="installation">属于当前游戏的本地安装实例</param>
+    public void SetPreferredInstallation(GalgameAndPath installation)
+    {
+        if (!installation.IsLocalInstallation || !SourceEntries.Contains(installation))
+            throw new ArgumentException("The installation does not belong to this game.", nameof(installation));
+        PreferredInstallationId = installation.EntryId;
+        RaiseInstallationPropertiesChanged();
+    }
+
+    /// <summary>
+    /// 校验首选安装实例；首选实例无效时按最近成功启动时间选择回退实例。
+    /// </summary>
+    public void EnsurePreferredInstallation()
+    {
+        if (SourceEntries.Any(e => e.IsLocalInstallation && e.EntryId == PreferredInstallationId))
+            return;
+        GalgameAndPath? fallback = SourceEntries.Where(e => e.IsLocalInstallation)
+            .OrderByDescending(e => e.LocalConfig?.LastSuccessfulLaunchTime ?? DateTime.MinValue)
+            .FirstOrDefault();
+        PreferredInstallationId = fallback?.EntryId;
+        if (fallback is not null) ApplyLegacyLocalConfiguration(fallback, overwrite: false);
+        RaiseInstallationPropertiesChanged();
+    }
+
+    /// <summary>
+    /// 从旧版游戏级字段创建安装实例配置。
+    /// </summary>
+    /// <param name="installationPath">安装实例根目录</param>
+    /// <returns>转换后的安装实例配置</returns>
+    public LocalInstallationConfig CreateLegacyLocalConfiguration(string installationPath)
+    {
+        LocalInstallationConfig result = new();
+        ApplyLegacyLocalConfiguration(result, installationPath, overwrite: true);
+        return result;
+    }
+
+    /// <summary>
+    /// 将安装实例配置载入旧版游戏级兼容字段。
+    /// </summary>
+    /// <param name="config">要载入的安装实例配置</param>
+    public void LoadLegacyLocalConfiguration(LocalInstallationConfig config)
+    {
+        _legacyExePath = config.ExePath;
+        _legacyExeArguments = config.ExeArguments;
+        _legacyProcessName = config.ProcessName;
+        _legacyTextPath = config.TextPath;
+        _legacyRunAsAdmin = config.RunAsAdmin;
+        _legacyRunInLocaleEmulator = config.RunInLocaleEmulator;
+        _legacyHighDpi = config.HighDpi;
+        _legacyDetectedSavePath = config.DetectedSavePath;
+        _legacySavePath = config.SavePath;
+        RaiseInstallationPropertiesChanged();
+    }
+
+    /// <summary>
+    /// 将旧版游戏级字段迁移到指定安装实例。
+    /// </summary>
+    /// <param name="installation">迁移目标安装实例</param>
+    /// <param name="overwrite">是否覆盖目标实例已有配置</param>
+    public void ApplyLegacyLocalConfiguration(GalgameAndPath installation, bool overwrite)
+    {
+        installation.LocalConfig ??= new LocalInstallationConfig();
+        ApplyLegacyLocalConfiguration(installation.LocalConfig, installation.Path, overwrite);
+    }
+
+    private void ApplyLegacyLocalConfiguration(LocalInstallationConfig config, string installationPath, bool overwrite)
+    {
+        if (overwrite || string.IsNullOrEmpty(config.ExePath)) config.ExePath = _legacyExePath;
+        if (overwrite || string.IsNullOrEmpty(config.ExeArguments)) config.ExeArguments = _legacyExeArguments;
+        if (overwrite || string.IsNullOrEmpty(config.ProcessName)) config.ProcessName = _legacyProcessName;
+        if (overwrite || string.IsNullOrEmpty(config.TextPath)) config.TextPath = _legacyTextPath;
+        if (overwrite || config.SavePath is null) config.SavePath = _legacySavePath;
+        if (overwrite || config.DetectedSavePath is null)
+            config.DetectedSavePath = _legacyDetectedSavePath?.Relocated(installationPath);
+        if (overwrite || !config.RunAsAdmin) config.RunAsAdmin = _legacyRunAsAdmin;
+        if (overwrite || !config.RunInLocaleEmulator) config.RunInLocaleEmulator = _legacyRunInLocaleEmulator;
+        if (overwrite || !config.HighDpi) config.HighDpi = _legacyHighDpi;
+    }
+
+    private void RaiseInstallationPropertiesChanged()
+    {
+        foreach (GalgameAndPath entry in SourceEntries)
+            entry.RaiseGameStateChanged();
+        OnPropertyChanged(nameof(SourceEntries));
+        OnPropertyChanged(nameof(LocalInstallations));
+        OnPropertyChanged(nameof(PreferredLocalInstallation));
+        OnPropertyChanged(nameof(LocalPath));
+        OnPropertyChanged(nameof(IsLocalGame));
+#pragma warning disable CS0618
+        OnPropertyChanged(nameof(ExePath));
+        OnPropertyChanged(nameof(ExeArguments));
+        OnPropertyChanged(nameof(ProcessName));
+        OnPropertyChanged(nameof(TextPath));
+        OnPropertyChanged(nameof(RunAsAdmin));
+        OnPropertyChanged(nameof(RunInLocaleEmulator));
+        OnPropertyChanged(nameof(HighDpi));
+        OnPropertyChanged(nameof(DetectedSavePath));
+        OnPropertyChanged(nameof(SavePath));
+#pragma warning restore CS0618
+    }
+
+    partial void OnPreferredInstallationIdChanged(Guid? value) => RaiseInstallationPropertiesChanged();
+
+    /// <summary>
     /// 检查游戏文件夹是否存在
     /// </summary>
     /// <param name="targetType">目标类型，可以为localfolder或steam</param>
     public bool CheckExistLocal(GalgameSourceType targetType = GalgameSourceType.LocalFolder)
     {
-        GalgameSourceBase? s = Sources.FirstOrDefault(s => s.SourceType == targetType);
-        return s != null && Directory.Exists(s.GetPath(this));
+        return SourceEntries.Any(e =>
+            e.Source?.SourceType == targetType && e.IsLocalInstallation && Directory.Exists(e.Path));
     }
 
     /// <summary>
-    /// 该游戏是否是本地游戏（存在于某个本地文件夹库中）
+    /// 该游戏是否至少存在于一个实现<see cref="ILocalGalgameSource"/>的本地库中。
     /// </summary>
     [JsonIgnore][BsonIgnore]
-    public bool IsLocalGame => Sources.Any(s =>
-        s.SourceType == GalgameSourceType.LocalFolder || s.SourceType == GalgameSourceType.Steam);
-
-    /// <summary>
-    /// 删除游戏文件夹
-    /// </summary>
-    public void Delete()
-    {
-        if (LocalPath is not { } path) return;
-        new DirectoryInfo(path).Delete(true);
-    }
+    public bool IsLocalGame => SourceEntries.Any(e => e.IsLocalInstallation);
 
     /// <summary>
     /// 获取该游戏的本地文件夹路径，若其不是本地游戏则返回null
     /// </summary>
     [JsonIgnore]
     [BsonIgnore]
-    public string? LocalPath =>
-        Sources.FirstOrDefault(s => s.SourceType is GalgameSourceType.LocalFolder or GalgameSourceType.Steam)
-            ?.GetPath(this);
+    public string? LocalPath => PreferredLocalInstallation?.Path;
 
     /// <summary>
     /// 获取游戏文件夹下的所有exe以及bat文件
     /// </summary>
+    /// <param name="installation">目标安装实例；为null时使用首选安装实例</param>
     /// <returns>所有exe以及bat文件地址</returns>
-    public List<string> GetExesAndBats()
+    public List<string> GetExesAndBats(GalgameAndPath? installation = null)
     {
-        var path = LocalPath;
+        var path = installation?.Path ?? LocalPath;
         if (path is null) return new List<string>();
         List<string> result = Directory.GetFiles(path).Where(file => file.ToLower().EndsWith(".exe")).ToList();
         result.AddRange(Directory.GetFiles(path).Where(file => file.ToLower().EndsWith(".bat")));
@@ -250,26 +513,30 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
     /// <summary>
     /// 获取游戏文件夹下的所有子文件夹
     /// </summary>
+    /// <param name="installation">目标安装实例；为null时使用首选安装实例</param>
     /// <returns>子文件夹地址</returns>
-    public List<string> GetSubFolders()
+    public List<string> GetSubFolders(GalgameAndPath? installation = null)
     {
-        if (LocalPath is null) return [];
-        List<string> result = Directory.GetDirectories(LocalPath).ToList();
+        string? path = installation?.Path ?? LocalPath;
+        if (path is null) return [];
+        List<string> result = Directory.GetDirectories(path).ToList();
         return result;
     }
 
     /// <summary>
     /// 获取游戏文件夹根目录下的所有文件
     /// </summary>
+    /// <param name="installation">目标安装实例；为null时使用首选安装实例</param>
     /// <returns>子文件夹地址</returns>
-    public List<string> GetRootFiles()
+    public List<string> GetRootFiles(GalgameAndPath? installation = null)
     {
-        if (LocalPath is null) return [];
+        string? path = installation?.Path ?? LocalPath;
+        if (path is null) return [];
         HashSet<string> commonExtensions = new (StringComparer.OrdinalIgnoreCase)
         {
             ".exe", ".xp3", ".lnk", ".txt", ".ico", ".sig", ".dll",
         };
-        List<string> result = Directory.GetFiles(LocalPath)
+        List<string> result = Directory.GetFiles(path)
             .Where(el => !commonExtensions.Contains(System.IO.Path.GetExtension(el)))
             .ToList();
         return result;
@@ -374,13 +641,6 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
     partial void OnLastPlayTimeChanged(DateTime value) => GalPropertyChanged?.Invoke(this, nameof(LastPlayTime), value);
     partial void OnPlayTypeChanged(PlayType value) => GalPropertyChanged?.Invoke(this, nameof(PlayType), value);
-
-    // 监控游戏exe路径变化，如果exe路径变化则设置HighDpi为false
-    partial void OnExePathChanged(string? value)
-    {
-        if (value != null)
-            HighDpi = false;
-    }
 
     public class GalgameAutoFetchStatus
     {

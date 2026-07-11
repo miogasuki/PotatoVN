@@ -65,7 +65,8 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     # region LITEDB_MAPPING
     [JsonIgnore] public List<GalgameAndPathDbDto> GalgamesDto
     {
-        get => Galgames.Select(t => new GalgameAndPathDbDto(t.Galgame.Uuid, t.Path)).ToList();
+        get => Galgames.Select(t =>
+            new GalgameAndPathDbDto(t.Galgame.Uuid, t.Path, t.EntryId, t.LocalConfig)).ToList();
         set => _galgamesDto = value;
     }
     public List<GalgameAndPathDbDto> GetLoadedGalgames() => _galgamesDto;
@@ -107,18 +108,33 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     public string? GetPath(Galgame game) => Galgames.Find(g => g.Galgame == game)?.Path;
 
     /// <summary>
+    /// 获取游戏在这个库中的条目，若游戏不在库中则返回null。
+    /// </summary>
+    /// <param name="game">目标逻辑游戏</param>
+    /// <returns>对应的库内游戏条目</returns>
+    public GalgameAndPath? GetEntry(Galgame game) => Galgames.Find(g => g.Galgame == game);
+
+    /// <summary>
     /// 向库中新增一个游戏
     /// </summary>
     /// <param name="galgame">游戏</param>
     /// <param name="path">路径</param>
-    public virtual void AddGalgame(Galgame galgame, string path)
+    /// <param name="entryId">已有条目Id；为null时自动生成</param>
+    /// <param name="localConfig">本地安装配置</param>
+    /// <returns>新增的库内游戏条目</returns>
+    public virtual GalgameAndPath AddGalgame(Galgame galgame, string path,
+        Guid? entryId = null, LocalInstallationConfig? localConfig = null)
     {
-        Galgames.Add(new GalgameAndPath(galgame, path));
-        galgame.Sources.Add(this);
+        if (Contain(galgame))
+            throw new InvalidOperationException($"Game {galgame.Uuid} is already in source {Id}.");
+        GalgameAndPath entry = new(galgame, path, this, entryId, localConfig);
+        Galgames.Add(entry);
+        galgame.AttachSourceEntry(entry);
         GalgamesChanged?.Invoke(galgame, false);
         
         // 通知父源游戏列表变化
         NotifyParentSourcesChanged(galgame, false);
+        return entry;
     }
 
     /// <summary>
@@ -127,8 +143,11 @@ public abstract partial class GalgameSourceBase : ObservableObject, IDisplayable
     /// <param name="galgame">游戏</param>
     public virtual void DeleteGalgame(Galgame galgame)
     {
-        Galgames.RemoveAll(g => g.Galgame == galgame);
-        galgame.Sources.Remove(this);
+        foreach (GalgameAndPath entry in Galgames.Where(g => g.Galgame == galgame).ToList())
+        {
+            Galgames.Remove(entry);
+            galgame.DetachSourceEntry(entry);
+        }
         GalgamesChanged?.Invoke(galgame, true);
         
         // 通知父源游戏列表变化

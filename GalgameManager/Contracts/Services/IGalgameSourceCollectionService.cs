@@ -95,14 +95,18 @@ public interface IGalgameSourceCollectionService
     /// <param name="target"></param>
     /// <param name="game"></param>
     /// <param name="path">游戏在库中的路径</param>
-    public void MoveInNoOperate(GalgameSourceBase target, Galgame game, string path);
+    /// <param name="localConfig">本地安装配置；非本地库应传入null</param>
+    /// <returns>新增的库内游戏条目；添加失败时返回null</returns>
+    public GalgameAndPath? MoveInNoOperate(GalgameSourceBase target, Galgame game, string path,
+        LocalInstallationConfig? localConfig = null);
 
     /// <summary>
-    /// 将一个游戏移出某个库，不进行物理移动操作（如删除文件节、在云端删除游戏等）
+    /// 将一个安装实例移出所属库，并可选择同时删除该实例的磁盘文件。
+    /// 该操作不会删除逻辑游戏。
     /// </summary>
-    /// <param name="target"></param>
-    /// <param name="game"></param>
-    public void MoveOutNoOperate(GalgameSourceBase target, Galgame game);
+    /// <param name="installation">要移除的安装实例</param>
+    /// <param name="deleteFiles">是否同时删除磁盘文件</param>
+    public Task MoveOutNoOperate(GalgameAndPath installation, bool deleteFiles = false);
 
     /// <summary>
     /// 移动游戏，<b>会进行物理操作</b>（如删除文件夹、复制文件夹、上传游戏到云端等）<br/>

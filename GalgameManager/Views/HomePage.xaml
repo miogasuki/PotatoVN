@@ -74,10 +74,8 @@
             <MenuFlyoutItem Icon="Download" x:Uid="LibraryPage_Download"
                             Command="{x:Bind ViewModel.GalFlyOutGetInfoFromRssCommand}" CommandParameter="{Binding}" />
             <!-- 在文件管理器中打开 -->
-            <MenuFlyoutItem Icon="OpenLocal" x:Uid="LibraryPage_OpenGameInExplorer"
-                            Command="{x:Bind ViewModel.OpenGameInExplorerCommand}"
-                            IsEnabled="{x:Bind ViewModel.CurrentContextGame.IsLocalGame, Mode=OneWay}"
-                            CommandParameter="{Binding}" />
+            <MenuFlyoutSubItem Icon="OpenLocal" x:Uid="LibraryPage_OpenGameInExplorer"
+                               Tag="InstallationFolders"/>
             <!-- 删除游戏 -->
             <MenuFlyoutItem Icon="Delete" x:Uid="LibraryPage_Remove"
                             Command="{x:Bind ViewModel.GalFlyOutDeleteCommand}" CommandParameter="{Binding}" />

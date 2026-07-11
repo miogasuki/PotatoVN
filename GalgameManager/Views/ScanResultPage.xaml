@@ -15,6 +15,7 @@
         <converter:ScanResultToBrush x:Key="ResultToBrush"/>
         <converter:ScanResultToString x:Key="ResultToString"/>
         <converter:AnyToVisibilityConverter x:Key="ToVisibility"/>
+        <converter:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
         <cmtkConverters:StringVisibilityConverter x:Key="StringToVisibility" />
     </Page.Resources>
 
@@ -54,10 +55,13 @@
                                     <TextBlock Text="{x:Bind Message}" TextWrapping="WrapWholeWords"
                                                Visibility="{x:Bind Message, Converter={StaticResource StringToVisibility}}"/>
                                     <HyperlinkButton x:Uid="ScanResultPage_SeeRelatedGame" 
-                                                     Command="{Binding ElementName=Page, Path=ViewModel.CheckGameCommand}"
-                                                     CommandParameter="{x:Bind}"
+                                                     Click="CheckGame_OnClick"
                                                      Padding="0"
                                                      Visibility="{x:Bind RelatedGameId, Converter={StaticResource ToVisibility}}"/>
+                                    <HyperlinkButton x:Uid="ScanResultPage_ConfirmLink"
+                                                     Click="ConfirmLink_OnClick"
+                                                     Padding="0"
+                                                     Visibility="{x:Bind RequiresConfirmation, Converter={StaticResource BoolToVisibility}}"/>
                                 </StackPanel>
                                 <Grid Grid.Column="1"/>
                                 <TextBlock Grid.Column="2" Text="{x:Bind ResultType, Converter={StaticResource ResultToString}}"

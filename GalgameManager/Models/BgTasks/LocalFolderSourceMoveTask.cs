@@ -9,12 +9,20 @@ namespace GalgameManager.Models.BgTasks;
 
 public class LocalFolderSourceMoveInTask : BgTaskBase
 {
-    private readonly Galgame _game;
-    private readonly string _targetPath;
+    private readonly Galgame _game; // 要复制的逻辑游戏
+    private readonly string _originPath; // 来源安装实例路径
+    private readonly string _targetPath; // 目标安装实例路径
     
-    public LocalFolderSourceMoveInTask(Galgame game, string targetPath)
+    /// <summary>
+    /// 创建本地安装实例复制任务。
+    /// </summary>
+    /// <param name="game">目标逻辑游戏</param>
+    /// <param name="originPath">来源安装实例路径</param>
+    /// <param name="targetPath">目标安装实例路径</param>
+    public LocalFolderSourceMoveInTask(Galgame game, string originPath, string targetPath)
     {
         _game = game;
+        _originPath = originPath;
         _targetPath = targetPath;
     }
     
@@ -23,13 +31,10 @@ public class LocalFolderSourceMoveInTask : BgTaskBase
     protected async override Task RunInternal()
     {
         await Task.CompletedTask;
-        var originPath = _game.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)
-            ?.GetPath(_game);
-        if (originPath is null) throw new PvnException("originPath is null");
-        if (Utils.IsPathContained(originPath, _targetPath))
+        if (Utils.IsPathContained(_originPath, _targetPath))
             throw new PvnException("TargetPath is contained in originPath");
         
-        FolderOperations.Copy(originPath, _targetPath, info =>
+        FolderOperations.Copy(_originPath, _targetPath, info =>
         {
             ChangeProgress(0, 1, "LocalFolderSourceMoveTask_MoveIn_Progress".GetLocalized(info.FullName));
         });

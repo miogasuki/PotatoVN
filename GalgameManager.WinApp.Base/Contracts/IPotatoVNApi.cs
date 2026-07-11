@@ -27,16 +27,28 @@ public interface IPotatoVnApi
     public List<Galgame> GetAllGames();
 
     /// <summary>
-    /// 以“本地文件夹游戏”的方式添加一个游戏。
+    /// 以本地文件夹安装的方式添加游戏。识别到已有逻辑游戏时，会为其新增安装实例。
     /// </summary>
     /// <param name="path">游戏根目录的绝对路径。通常应传入包含主 exe 的文件夹路径，而不是 exe / bat 文件本身。</param>
     /// <param name="force">当信息源未搜到该游戏时是否仍强制加入库中</param>
     /// <param name="requireConfirm">是否弹出搜刮结果确认对话框。批量导入或后台任务通常建议传 <c>false</c>，否则插件会等待用户确认。</param>
-    /// <returns>
-    /// 返回最终加入列表中的 <see cref="Galgame"/>。如果宿主识别为已存在且可合并的游戏，返回值可能是已有对象而不是新对象。
-    /// </returns>
+    /// <returns>新增或关联安装实例后的逻辑游戏</returns>
     /// <remarks><b>注意捕获异常；</b>该函数可在非UI线程上调用</remarks>
-    public Task<Galgame> AddGame(string path, bool force = true, bool requireConfirm = true);
+    public Task<Galgame> AddGameInstallation(string path, bool force = true, bool requireConfirm = true);
+
+    /// <summary>
+    /// 获取指定逻辑游戏的全部本地安装实例只读快照。
+    /// </summary>
+    /// <param name="game">目标逻辑游戏</param>
+    /// <returns>本地安装实例快照</returns>
+    public IReadOnlyList<GameInstallationInfo> GetGameInstallations(Galgame game);
+
+    /// <summary>
+    /// 启动逻辑游戏的指定安装实例。
+    /// </summary>
+    /// <param name="game">目标逻辑游戏</param>
+    /// <param name="installationId">安装实例Id；为null时使用首选实例</param>
+    public Task LaunchGameAsync(Galgame game, Guid? installationId = null);
 
     /// <summary>
     /// 添加一个虚拟游戏（非本地游戏）。
@@ -296,6 +308,20 @@ public interface IPotatoVnApi
     /// </summary>
     /// <param name="action"></param>
     public void InvokeOnMainThread(Action action);
+
+    #endregion
+
+    #region OBSOLETE_APIS
+
+    /// <summary>
+    /// 旧版本地游戏添加接口。
+    /// </summary>
+    /// <param name="path">游戏根目录绝对路径</param>
+    /// <param name="force">未搜刮到游戏信息时是否强制添加</param>
+    /// <param name="requireConfirm">是否显示搜刮确认界面</param>
+    /// <returns>新增或关联安装实例后的逻辑游戏</returns>
+    [Obsolete($"请使用{nameof(AddGameInstallation)}")]
+    public Task<Galgame> AddGame(string path, bool force = true, bool requireConfirm = true);
 
     #endregion
 }

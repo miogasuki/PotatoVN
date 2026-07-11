@@ -14,6 +14,7 @@ using GalgameManager.Models;
 using System.Collections.ObjectModel;
 using GalgameManager.Core.Helpers;
 using GalgameManager.Services;
+using GalgameManager.Models.Sources;
 using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -41,13 +42,22 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [ObservableProperty] private RssType _selectedRss = RssType.None;
     [ObservableProperty] private string _galgameInfoDescription = string.Empty;
     [ObservableProperty] private ObservableCollection<KeyMapping> _keyMappings = new();
+    /// <summary>
+    /// 当前逻辑游戏安装实例的界面集合，仅供界面读取。
+    /// </summary>
+    public ObservableCollection<GalgameAndPath> Installations { get; } = [];
+    [ObservableProperty] private GalgameAndPath? _selectedInstallation; // 设置页当前选中的安装实例
+    /// <summary>
+    /// 当前选中安装实例的配置。
+    /// </summary>
+    public LocalInstallationConfig? SelectedInstallationConfig => SelectedInstallation?.LocalConfig;
     [ObservableProperty] private DateTimeOffset _releasedDate; //包一层的原因：CalendarDatePicker的Date为DateTimeOffset（而非datetime）
     [ObservableProperty] private double _tagWidth = 20; //没法设置Expander为Stretch，故暂直接设置宽度
-    public string LocalPathMsg => Gal.LocalPath ?? "GalgameSettingPage_NotLocalGame".GetLocalized();
-    public string ExePathMsg => Gal.ExePath ?? "GalgameSettingPage_NoExe".GetLocalized();
+    public string ExePathMsg => SelectedInstallationConfig?.ExePath ?? "GalgameSettingPage_NoExe".GetLocalized();
     public bool IsLocalGame => Gal.IsLocalGame;
     public string SavePositionDescription =>
-        Gal.DetectedSavePath?.ToDisplay() ?? "GalgameSettingPage_DetectedSavePosition".GetLocalized();
+        SelectedInstallationConfig?.DetectedSavePath?.ToDisplay()
+        ?? "GalgameSettingPage_DetectedSavePosition".GetLocalized();
 
     public GalgameSettingViewModel(IGalgameCollectionService galCollectionService, INavigationService navigationService,
         IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService,
@@ -75,6 +85,8 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         Gal.KeyMappings = new List<KeyMapping>(KeyMappings);
         if (Gal.ImagePath.Value != Galgame.DefaultImagePath && !File.Exists(Gal.ImagePath.Value))
             Gal.ImagePath.Value = Galgame.DefaultImagePath;
+        foreach (GalgameSourceBase source in Installations.Select(i => i.Source).OfType<GalgameSourceBase>().Distinct())
+            _sourceService.Save(source);
         await _galService.SaveGalgameAsync(Gal);
         _pvnService.Upload(Gal, PvnUploadProperties.Infos | PvnUploadProperties.ImageLoc);
         _galService.PhrasedEvent -= Update;
@@ -90,6 +102,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         }
 
         Gal = galgame;
+        RefreshInstallations();
         KeyMappings = new ObservableCollection<KeyMapping>();
 
         // 用户设置优先：先导入用户的快捷键设置
@@ -132,6 +145,28 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         _bus.Register(this);
         Update();
     }
+
+    private void RefreshInstallations(Guid? selectedId = null)
+    {
+        selectedId ??= SelectedInstallation?.EntryId ?? Gal.PreferredInstallationId;
+        Installations.Clear();
+        foreach (GalgameAndPath installation in Gal.LocalInstallations)
+            Installations.Add(installation);
+        SelectedInstallation = Installations.FirstOrDefault(i => i.EntryId == selectedId)
+                               ?? Installations.FirstOrDefault();
+        OnPropertyChanged(nameof(Installations));
+        RefreshInstallationBindings();
+    }
+
+    private void RefreshInstallationBindings()
+    {
+        OnPropertyChanged(nameof(SelectedInstallationConfig));
+        OnPropertyChanged(nameof(ExePathMsg));
+        OnPropertyChanged(nameof(IsLocalGame));
+        OnPropertyChanged(nameof(SavePositionDescription));
+    }
+
+    partial void OnSelectedInstallationChanged(GalgameAndPath? value) => RefreshInstallationBindings();
 
     partial void OnSelectedRssChanged(RssType value)
     {
@@ -189,10 +224,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
     private void HandleGalPropertyChanged(object? sender, PropertyChangedEventArgs propertyChangedEventArgs)
     {
-        OnPropertyChanged(nameof(LocalPathMsg));
-        OnPropertyChanged(nameof(ExePathMsg));
-        OnPropertyChanged(nameof(IsLocalGame));
-        OnPropertyChanged(nameof(SavePositionDescription));
+        RefreshInstallationBindings();
     }
 
     [RelayCommand]
@@ -353,6 +385,13 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
     [RelayCommand]
     private async Task SetGalgamePathAsync()
+        => await PickInstallationPathAsync(replaceSelected: true);
+
+    [RelayCommand]
+    private async Task AddInstallationAsync()
+        => await PickInstallationPathAsync(replaceSelected: false);
+
+    private async Task PickInstallationPathAsync(bool replaceSelected)
     {
         try
         {
@@ -365,20 +404,45 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             StorageFile? file = await openPicker.PickSingleFileAsync();
             if (file is not null)
             {
-                // 从库中移除该游戏，再设置路径
-                var source = _sourceService.GetGalgameSources().FirstOrDefault(s => s.Galgames.Any(g => g.Galgame == Gal));
-                if (source != null)
+                string folder = Path.GetDirectoryName(file.Path)!;
+                GalgameAndPath? oldInstallation = replaceSelected ? SelectedInstallation : null;
+                string sourcePath = Directory.GetParent(folder)?.FullName
+                                    ?? throw new PvnException("Unable to determine source path.");
+                GalgameSourceBase? existingSource =
+                    _sourceService.GetGalgameSource(GalgameSourceType.LocalFolder, sourcePath);
+
+                if (oldInstallation is not null && oldInstallation.Source == existingSource)
                 {
-                    _sourceService.MoveOutNoOperate(source, Gal);
+                    LocalInstallationConfig config =
+                        oldInstallation.LocalConfig?.Relocated(oldInstallation.Path, folder)
+                        ?? new LocalInstallationConfig();
+                    config.ExePath = file.Path;
+                    oldInstallation.Path = folder;
+                    oldInstallation.LocalConfig = config;
+                    Gal.SetPreferredInstallation(oldInstallation);
+                    _sourceService.Save(existingSource!);
+                    await _galService.SaveGalgameAsync(Gal);
+                    RefreshInstallations(oldInstallation.EntryId);
+                    _infoService.Info(InfoBarSeverity.Success,
+                        "GalgameSettingPage_PathSetSuccess".GetLocalized());
+                    return;
                 }
 
-                var folder = file.Path[..file.Path.LastIndexOf('\\')];
-                Gal.ExePath = file.Path;
                 await _galService.SetLocalPathAsync(Gal, folder);
-
-
+                GalgameAndPath newInstallation = Gal.LocalInstallations.First(i =>
+                    Utils.ArePathsEqual(i.Path, folder));
+                LocalInstallationConfig newConfig = oldInstallation?.LocalConfig
+                    ?.Relocated(oldInstallation.Path, folder) ?? new LocalInstallationConfig();
+                newConfig.ExePath = file.Path;
+                newInstallation.LocalConfig = newConfig;
+                if (oldInstallation is not null)
+                    await _sourceService.MoveOutNoOperate(oldInstallation);
+                if (replaceSelected || Gal.PreferredInstallationId is null)
+                    Gal.SetPreferredInstallation(newInstallation);
+                if (newInstallation.Source is not null) _sourceService.Save(newInstallation.Source);
+                await _galService.SaveGalgameAsync(Gal);
+                RefreshInstallations(newInstallation.EntryId);
                 _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_PathSetSuccess".GetLocalized());
-
             }
         }
         catch (Exception e)
@@ -389,9 +453,44 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     }
 
     [RelayCommand]
+    private async Task SetPreferredInstallation(GalgameAndPath? installation)
+    {
+        if (installation is null) return;
+        Gal.SetPreferredInstallation(installation);
+        await _galService.SaveGalgameAsync(Gal);
+        RefreshInstallations(installation.EntryId);
+    }
+
+    [RelayCommand]
+    private async Task RemoveInstallation(GalgameAndPath? installation)
+    {
+        if (installation is null) return;
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            Title = "MultiInstall_Unlink_Title".GetLocalized(),
+            Content = "MultiInstall_Unlink_Content".GetLocalized() + $"\n{installation.Path}",
+            PrimaryButtonText = "Yes".GetLocalized(),
+            CloseButtonText = "Cancel".GetLocalized(),
+            DefaultButton = ContentDialogButton.Close,
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+        await _sourceService.MoveOutNoOperate(installation);
+        RefreshInstallations();
+    }
+
+    [RelayCommand]
+    private static async Task OpenInstallationFolder(GalgameAndPath? installation)
+    {
+        if (installation is null || !Directory.Exists(installation.Path)) return;
+        StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(installation.Path);
+        await Windows.System.Launcher.LaunchFolderAsync(folder);
+    }
+
+    [RelayCommand]
     private async Task SetGalgameExePathAsync()
     {
-        if(!Gal.IsLocalGame)
+        if(SelectedInstallation is null)
         {
             _infoService.Info(InfoBarSeverity.Error, "GalgameSettingPage_NotLocalGame".GetLocalized());
             return;
@@ -400,12 +499,14 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         {
             // 先清空ExePath，再调用函数来设置
             // Gal.ExePath = null;
-            var result = await _galService.GetGalgameExeAsync(Gal);
+            var result = await _galService.GetGalgameExeAsync(Gal, SelectedInstallation);
             if (result is null)
             {
                 _infoService.Info(InfoBarSeverity.Warning, "GalgameSettingPage_ExePathSetCanceled".GetLocalized());
                 return;
             }
+            if (SelectedInstallation.Source is not null) _sourceService.Save(SelectedInstallation.Source);
+            RefreshInstallationBindings();
             _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_ExePathSetSuccess".GetLocalized());
         }
         catch (Exception e)
@@ -418,11 +519,12 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [RelayCommand]
     private async Task SetSavePositionAsync()
     {
+        if (SelectedInstallation?.LocalConfig is not { } config) return;
         try
         {
             // 确定起始路径：如果已检测到存档位置则使用它，否则使用 AppData
             string initialPath;
-            var absolutePath = Gal.DetectedSavePath?.ToPath();
+            var absolutePath = config.DetectedSavePath?.ToPath();
             if (!string.IsNullOrEmpty(absolutePath) && Directory.Exists(absolutePath))
             {
                 initialPath = absolutePath;
@@ -433,7 +535,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             }
 
             // 检查是否已有检测到的存档位置
-            var hasDetectedSavePosition = !string.IsNullOrEmpty(Gal.DetectedSavePath);
+            var hasDetectedSavePosition = !string.IsNullOrEmpty(config.DetectedSavePath);
 
             // 尝试打开资源管理器到指定路径，然后让用户选择
             await ShowFolderPickerWithPath(initialPath, hasDetectedSavePosition);
@@ -513,18 +615,20 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     /// </summary>
     private async Task ShowStandardFolderPicker()
     {
+        if (SelectedInstallation?.LocalConfig is not { } config) return;
         PvnFolderPicker picker = new()
         {
             Title = "GalgameSettingViewModel_ShowStandardFolderPicker_Title".GetLocalized(),
             OkButtonLabel = "Choose".GetLocalized(),
-            InitialDirectory = Gal.LocalPath,
+            InitialDirectory = SelectedInstallation.Path,
         };
         picker.ShowDialog();
         var folder = picker.SelectedPath;
 
         if (folder is not null)
         {
-            Gal.DetectedSavePath = GamePortablePath.Create(folder, Gal.LocalPath);
+            config.DetectedSavePath = GamePortablePath.Create(folder, SelectedInstallation.Path);
+            if (SelectedInstallation.Source is not null) _sourceService.Save(SelectedInstallation.Source);
             await _galService.SaveGalgameAsync(Gal);
             _infoService.Info(InfoBarSeverity.Success, "GalgameSettingPage_SavePositionUpdated".GetLocalized(), displayTimeMs: 2000);
         }
@@ -552,10 +656,12 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [RelayCommand]
     private async Task ReDetectSavePosition()
     {
+        if (SelectedInstallation?.LocalConfig is not { } config) return;
         try
         {
             // 清空检测到的存档位置
-            Gal.DetectedSavePath = null;
+            config.DetectedSavePath = null;
+            if (SelectedInstallation.Source is not null) _sourceService.Save(SelectedInstallation.Source);
 
             // 保存游戏设置
             await _galService.SaveGalgameAsync(Gal);

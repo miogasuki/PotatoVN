@@ -43,7 +43,9 @@ public class FingerprintUploadTask : QueueTaskBase<Galgame>
         bool ShouldProcess(Galgame game)
         {
             if (string.IsNullOrWhiteSpace(game.Ids[(int)RssType.Vndb])) return false;
-            return !_uploadedStatus.TryGetValue(game.Uuid.ToString(), out var done) || !done;
+            return game.LocalInstallations
+                .Where(e => e.Source?.SourceType == GalgameSourceType.LocalFolder)
+                .Any(e => !IsUploaded(game, e));
         }
     }
     
@@ -53,41 +55,43 @@ public class FingerprintUploadTask : QueueTaskBase<Galgame>
     {
         try
         {
-            var path = item.LocalPath;
-            if (string.IsNullOrEmpty(path) || !Directory.Exists(path)) return;
-
-            List<string> executables;
-            try
+            foreach (GalgameAndPath installation in item.LocalInstallations
+                         .Where(e => e.Source?.SourceType == GalgameSourceType.LocalFolder && !IsUploaded(item, e)))
             {
-                executables = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories).ToList();
-            }
-            catch (Exception e)
-            {
-                _infoService.DeveloperEvent(InfoBarSeverity.Warning,
-                    "FingerprintUploadTask_EnumerateFailed".GetLocalized(path, item.Name.Value ?? string.Empty), e);
-                return;
-            }
-            
-            List<(string RelativePath, string Hash)> fingerprints = new();
-            foreach (var exePath in executables)
-            {
+                string path = installation.Path;
+                if (!Directory.Exists(path)) continue;
+                List<string> executables;
                 try
                 {
-                    var hash = await ComputeSha256Async(exePath);
-                    var relativePath = Path.GetRelativePath(path, exePath);
-                    fingerprints.Add((relativePath, hash));
+                    executables = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories).ToList();
                 }
                 catch (Exception e)
                 {
                     _infoService.DeveloperEvent(InfoBarSeverity.Warning,
-                        "FingerprintUploadTask_HashFailed".GetLocalized(exePath, item.Name.Value ?? string.Empty), e);
+                        "FingerprintUploadTask_EnumerateFailed".GetLocalized(path, item.Name.Value ?? string.Empty), e);
+                    continue;
                 }
+
+                List<(string RelativePath, string Hash)> fingerprints = new();
+                foreach (string exePath in executables)
+                {
+                    try
+                    {
+                        string hash = await ComputeSha256Async(exePath);
+                        string relativePath = Path.GetRelativePath(path, exePath);
+                        fingerprints.Add((relativePath, hash));
+                    }
+                    catch (Exception e)
+                    {
+                        _infoService.DeveloperEvent(InfoBarSeverity.Warning,
+                            "FingerprintUploadTask_HashFailed".GetLocalized(exePath, item.Name.Value ?? string.Empty), e);
+                    }
+                }
+
+                if (fingerprints.Count == 0) continue;
+                await UploadFingerprintsAsync(item, fingerprints);
+                await MarkUploadedAsync(item, installation);
             }
-
-            if (fingerprints.Count == 0) return;
-
-            await UploadFingerprintsAsync(item, fingerprints);
-            await MarkUploadedAsync(item.Uuid);
         }
         catch (Exception e)
         {
@@ -96,9 +100,9 @@ public class FingerprintUploadTask : QueueTaskBase<Galgame>
         }
         return;
 
-        async Task MarkUploadedAsync(Guid uuid)
+        async Task MarkUploadedAsync(Galgame game, GalgameAndPath installation)
         {
-            var key = uuid.ToString();
+            string key = GetUploadKey(game, installation);
             _uploadedStatus[key] = true;
             await _saveLock.WaitAsync();
             try
@@ -128,6 +132,15 @@ public class FingerprintUploadTask : QueueTaskBase<Galgame>
                 new VotePatchRequest(fingerprints.Select(f => f.Hash).ToList()));
         }
     }
+
+    private bool IsUploaded(Galgame game, GalgameAndPath installation)
+    {
+        if (_uploadedStatus.TryGetValue(GetUploadKey(game, installation), out bool done)) return done;
+        return _uploadedStatus.TryGetValue(game.Uuid.ToString(), out bool legacyDone) && legacyDone;
+    }
+
+    private static string GetUploadKey(Galgame game, GalgameAndPath installation) =>
+        $"{game.Uuid}:{installation.EntryId}";
     
     protected override string ProgressTitle() => "FingerprintUploadTask_Progress_Title";
 

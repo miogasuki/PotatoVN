@@ -9,7 +9,8 @@ namespace GalgameManager.Services;
 
 public class SteamSourceService(IInfoService infoService) : IGalgameSourceService
 {
-    public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null) => 
+    public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null,
+        GalgameAndPath? sourceEntry = null) =>
         throw new PvnException("This source does not support move in operation");
 
     public BgTaskBase MoveOutAsync(GalgameSourceBase target, Galgame game) => 
@@ -25,7 +26,7 @@ public class SteamSourceService(IInfoService infoService) : IGalgameSourceServic
             if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
             if (source.GetPath(game) is not { } gamePath) continue;
             var metaPath = Path.Combine(basePath, $"{new DirectoryInfo(gamePath).Name}");
-            LocalFolderSourceService.FolderBaseSaveMeta(game, metaPath);
+            LocalFolderSourceService.FolderBaseSaveMeta(game, metaPath, source.GetEntry(game)?.LocalConfig);
         }
 
         await Task.CompletedTask;
@@ -40,7 +41,7 @@ public class SteamSourceService(IInfoService infoService) : IGalgameSourceServic
             return null;
         }
         var metaFolderPath = Path.Combine(di.FullName, ".PotatoVN", new DirectoryInfo(path).Name);
-        return LocalFolderSourceService.FolderBaseLoadMeta(metaFolderPath);
+        return LocalFolderSourceService.FolderBaseLoadMeta(metaFolderPath, path);
     }
 
     public Task RemoveMetaAsync(Galgame game)

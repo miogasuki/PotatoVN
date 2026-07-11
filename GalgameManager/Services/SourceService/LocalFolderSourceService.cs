@@ -38,11 +38,14 @@ public class LocalFolderSourceService : IGalgameSourceService
         };
     }
 
-    public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null)
+    public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null,
+        GalgameAndPath? sourceEntry = null)
     {
         if (targetPath is null) throw new PvnException("targetPath is null");
         if (target is not GalgameFolderSource) throw new ArgumentException("target is not GalgameFolderSource");
-        return new LocalFolderSourceMoveInTask(game, targetPath);
+        sourceEntry ??= game.PreferredLocalInstallation;
+        if (sourceEntry is null) throw new PvnException("source installation is null");
+        return new LocalFolderSourceMoveInTask(game, sourceEntry.Path, targetPath);
     }
 
     public BgTaskBase MoveOutAsync(GalgameSourceBase target, Galgame game)
@@ -58,7 +61,7 @@ public class LocalFolderSourceService : IGalgameSourceService
             if (targetSource is not null && source != targetSource) continue; //如果指定了目标源，则只保存到该源
             var folderPath = source.GetPath(game)!;
             var metaPath = Path.Combine(folderPath, ".PotatoVN");
-            FolderBaseSaveMeta(game, metaPath);
+            FolderBaseSaveMeta(game, metaPath, source.GetEntry(game)?.LocalConfig);
         }
 
         await Task.CompletedTask;
@@ -69,7 +72,9 @@ public class LocalFolderSourceService : IGalgameSourceService
     /// </summary>
     /// <param name="targetGame">这个targetGame是const的，函数内部不会修改它</param>
     /// <param name="pvnPath">要保存的文件夹的位置</param>
-    public static void FolderBaseSaveMeta(Galgame targetGame, string pvnPath) 
+    /// <param name="installationConfig">当前目录对应的安装实例配置</param>
+    public static void FolderBaseSaveMeta(Galgame targetGame, string pvnPath,
+        LocalInstallationConfig? installationConfig = null)
     {
         if (!Directory.Exists(pvnPath)) Directory.CreateDirectory(pvnPath);
         IFileService fileService = App.GetService<IFileService>();
@@ -98,19 +103,28 @@ public class LocalFolderSourceService : IGalgameSourceService
             FileHelper.CopyImg(meta.HeaderImagePath.Value, pvnPath, $"{meta.Name.Value}_Header");
             meta.HeaderImagePath.ForceSet(Path.Combine(".", Path.GetFileName(meta.HeaderImagePath.Value!)));
         }
-        fileService.Save(pvnPath, "meta.json", meta);
+        fileService.Save(pvnPath, "meta.json", new GameMetaBackup
+        {
+            Version = GameMetaBackup.CurrentVersion,
+            Game = meta,
+            Installation = installationConfig?.Clone(),
+        });
     }
 
     /// <summary>
     /// 从指定的.potatovn文件夹中加载元数据，若加载失败则抛异常或返回null
     /// </summary>
-    /// <param name="pvnPath"></param>
-    /// <returns></returns>
-    public static Galgame? FolderBaseLoadMeta(string pvnPath)
+    /// <param name="pvnPath">.PotatoVN元数据目录</param>
+    /// <param name="installationPath">当前安装实例根目录</param>
+    /// <returns>加载出的逻辑游戏元数据</returns>
+    public static Galgame? FolderBaseLoadMeta(string pvnPath, string installationPath)
     {
         if (!Directory.Exists(pvnPath)) return null; // 不存在备份文件夹
         IFileService fileService = App.GetService<IFileService>();
-        Galgame meta = fileService.Read<Galgame>(pvnPath, "meta.json")!;
+        GameMetaBackup? backup = fileService.Read<GameMetaBackup>(pvnPath, "meta.json");
+        Galgame? meta = backup is { Version: >= GameMetaBackup.CurrentVersion, Game: not null }
+            ? backup.Game
+            : fileService.Read<Galgame>(pvnPath, "meta.json");
         if (meta is null) throw new PvnException("meta.json not exist");
         _ = meta.Uid; //可能读到旧版本的导出文件，确保Ids的长度被正确新增为新版本的长度
         meta.ImagePath.ForceSet(FileHelper.LoadImg(meta.ImagePath.Value, pvnPath));
@@ -120,9 +134,13 @@ public class LocalFolderSourceService : IGalgameSourceService
             character.ImagePath = FileHelper.LoadImg(character.ImagePath, pvnPath)!;
             character.PreviewImagePath = FileHelper.LoadImg(character.PreviewImagePath, pvnPath)!;
         }
-        meta.ExePath = FileHelper.LoadImg(meta.ExePath, pvnPath, defaultReturn: null);
-        meta.SavePath = Directory.Exists(meta.SavePath) ? meta.SavePath : null; //检查存档路径是否存在并设置SavePosition字段
-        meta.FindSaveInPath();
+        LocalInstallationConfig localConfig = backup?.Installation
+            ?? meta.CreateLegacyLocalConfiguration(installationPath);
+        localConfig.ExePath = FileHelper.LoadImg(localConfig.ExePath, pvnPath, defaultReturn: null);
+        localConfig.SavePath = Directory.Exists(localConfig.SavePath) ? localConfig.SavePath : null;
+        if (localConfig.DetectedSavePath is { } detected)
+            localConfig.DetectedSavePath = detected.Relocated(installationPath);
+        meta.LoadLegacyLocalConfiguration(localConfig);
         return meta;
     }
 
@@ -130,7 +148,7 @@ public class LocalFolderSourceService : IGalgameSourceService
     {
         await Task.CompletedTask;
         var metaFolderPath = Path.Combine(path, ".PotatoVN");
-        return FolderBaseLoadMeta(metaFolderPath);
+        return FolderBaseLoadMeta(metaFolderPath, path);
     }
 
     public Task RemoveMetaAsync(Galgame game)
@@ -212,10 +230,8 @@ public class LocalFolderSourceService : IGalgameSourceService
 
     public string? CheckMoveOperateValid(GalgameSourceBase? moveIn, GalgameSourceBase? moveOut, Galgame galgame)
     {
-        if (moveIn?.SourceType == GalgameSourceType.LocalFolder)
-            return moveOut?.SourceType == GalgameSourceType.LocalFolder
-                ? null
-                : "LocalFolderSourceService_MoveOutError".GetLocalized();
+        if (moveIn?.SourceType == GalgameSourceType.LocalFolder && galgame.LocalInstallations.Count == 0)
+            return "LocalFolderSourceService_MoveOutError".GetLocalized();
         return null;
     }
 
@@ -259,7 +275,7 @@ public class LocalFolderSourceService : IGalgameSourceService
         });
     }
 
-    private void OnFolderDelete(object sender, FileSystemEventArgs e)
+    private async void OnFolderDelete(object sender, FileSystemEventArgs e)
     {
         try
         {
@@ -285,7 +301,7 @@ public class LocalFolderSourceService : IGalgameSourceService
                 return;
             }
 
-            sourceService.MoveOutNoOperate(source, game.Galgame);
+            await sourceService.MoveOutNoOperate(game);
 
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Success,
                 "LocalFolderSourceService_OnFolderDelete".GetLocalized(), msg: e.FullPath);

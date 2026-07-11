@@ -4735,4 +4735,111 @@
   <data name="HomePage_FilterPanelVisibilityButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>选择显示的过滤面板</value>
   </data>
+  <data name="MultiInstall_Add.ToolTipService.ToolTip" xml:space="preserve">
+    <value>添加安装</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Content" xml:space="preserve">
+    <value>是否永久删除这个安装的文件并解除关联？</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_LocalFolderOnly" xml:space="preserve">
+    <value>只能删除本地文件夹安装的磁盘文件</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Title" xml:space="preserve">
+    <value>删除安装文件</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.Label" xml:space="preserve">
+    <value>从 PotatoVN 移除游戏</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.ToolTipService.ToolTip" xml:space="preserve">
+    <value>移除游戏记录但不删除磁盘文件</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Action" xml:space="preserve">
+    <value>移除游戏</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Content" xml:space="preserve">
+    <value>是否从 PotatoVN 移除这个游戏及其全部库关联？磁盘文件将保留。</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Title" xml:space="preserve">
+    <value>永久移除游戏</value>
+  </data>
+  <data name="MultiInstall_EditPath.ToolTipService.ToolTip" xml:space="preserve">
+    <value>编辑安装路径</value>
+  </data>
+  <data name="MultiInstall_Installations.Text" xml:space="preserve">
+    <value>安装实例</value>
+  </data>
+  <data name="MultiInstall_Launch" xml:space="preserve">
+    <value>启动</value>
+  </data>
+  <data name="MultiInstall_LinkInstallation" xml:space="preserve">
+    <value>关联安装</value>
+  </data>
+
+  <data name="MultiInstall_NameMatch_Content" xml:space="preserve">
+    <value>已存在同名游戏，是否将这个路径关联为另一个安装？</value>
+  </data>
+  <data name="MultiInstall_NameMatch_Title" xml:space="preserve">
+    <value>可能是同一游戏</value>
+  </data>
+  <data name="MultiInstall_OpenFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>打开文件夹</value>
+  </data>
+
+  <data name="MultiInstall_PathUnavailable" xml:space="preserve">
+    <value>安装路径不可用：{0}</value>
+  </data>
+  <data name="MultiInstall_PlayButton.Text" xml:space="preserve">
+    <value>启动游戏</value>
+  </data>
+  <data name="MultiInstall_PlayMenu.Text" xml:space="preserve">
+    <value>启动这个安装</value>
+  </data>
+  <data name="MultiInstall_ProcessNotFound" xml:space="preserve">
+    <value>未找到游戏进程</value>
+  </data>
+  <data name="MultiInstall_SelectDialog_Title" xml:space="preserve">
+    <value>选择安装实例</value>
+  </data>
+  <data name="MultiInstall_Select_Title.Text" xml:space="preserve">
+    <value>选择安装实例</value>
+  </data>
+  <data name="MultiInstall_SetPreferred.ToolTipService.ToolTip" xml:space="preserve">
+    <value>设为首选</value>
+  </data>
+  <data name="MultiInstall_Unlink.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从库中移出</value>
+  </data>
+  <data name="MultiInstall_Unlink_Content" xml:space="preserve">
+    <value>是否从库中移出这个安装？磁盘文件将保留。</value>
+  </data>
+  <data name="MultiInstall_Unlink_Title" xml:space="preserve">
+    <value>解除安装关联</value>
+  </data>
+  <data name="ScanResultPage_ConfirmLink.Content" xml:space="preserve">
+    <value>确认关联</value>
+  </data>
+  <data name="ScanResultType_RequiresConfirmation" xml:space="preserve">
+    <value>需要确认</value>
+  </data>
+  <data name="ScanResult_LinkFailed" xml:space="preserve">
+    <value>关联安装失败</value>
+  </data>
+  <data name="ScanResult_LinkSuccess" xml:space="preserve">
+    <value>已关联为另一个安装：</value>
+  </data>
+  <data name="ScanResult_NameMatchPending" xml:space="preserve">
+    <value>发现同名游戏，需要确认后关联：</value>
+  </data>
+  <data name="MultiInstall_Manage.Text" xml:space="preserve">
+    <value>管理安装实例</value>
+  </data>
+  <data name="MultiInstall_OpenSaveDirectoryButton.Text" xml:space="preserve">
+    <value>打开存档目录</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Title" xml:space="preserve">
+    <value>重置exe路径？</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Success" xml:space="preserve">
+    <value>已重置exe路径</value>
+  </data>
 </root>

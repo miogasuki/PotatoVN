@@ -12,7 +12,10 @@ public interface IGalgameSourceService
     /// <param name="target">目标库</param>
     /// <param name="game">游戏</param>
     /// <param name="targetPath">目标路径，若为null则表示服务可自行决定路径</param>
-    public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null);
+    /// <param name="sourceEntry">复制文件时使用的来源安装实例</param>
+    /// <returns>负责执行物理移入操作的后台任务</returns>
+    public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null,
+        GalgameAndPath? sourceEntry = null);
     
     /// <summary>
     /// 将游戏移出某个库，应该直接返回一个BgTaskBase（SourceMoveTaskBase）实例

@@ -17,6 +17,19 @@ public class VndbPhraserTest
     }
 
     [Test]
+    public async Task ParseGameWithOnlineNameSearch_ShouldPreferSearchRank()
+    {
+        // 使用不存在的 release ID 绕过本地名称映射，强制回退到 VNDB 在线名称搜索。
+        Galgame input = new("ISLAND");
+        input.Ids[(int)RssType.Vndb] = "r999999";
+
+        Galgame? game = await _vndbPhraser.GetGalgameInfo(input);
+
+        Assert.That(game, Is.Not.Null);
+        Assert.That(game!.Id, Is.EqualTo("18498"));
+    }
+
+    [Test]
     [TestCase("r2166", "v1129")]
     public async Task GetVndbIdFromReleaseId_ShouldResolve_ToVnId(string releaseId, string expectedVnId)
     {

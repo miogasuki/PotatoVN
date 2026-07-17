@@ -38,7 +38,7 @@ public class VndbPhraserTest
     }
 
     [Test]
-    [TestCase("r2166", "メタモルファンタジーSP", "https://t.vndb.org/cv/15/89715.jpg", "Escu:de")]
+    [TestCase("r2166", "メタモルファンタジーSP", "https://t.vndb.org/cv/15/89715.jpg", "エスクード")]
     public async Task ParseGameWithReleaseId_ShouldPreferReleaseTitleAndCover(
         string releaseId,
         string expectedReleaseTitleJa,

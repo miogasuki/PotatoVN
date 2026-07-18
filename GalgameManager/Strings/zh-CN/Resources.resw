@@ -4851,4 +4851,7 @@
   <data name="SettingsPage_Rss_Mixed_Timeout.Description" xml:space="preserve">
     <value>所有源共用的最长等待秒数。0 表示不限制。</value>
   </data>
+  <data name="RecordPlayTimeTask_WaitingForProcess" xml:space="preserve">
+    <value>进程已退出，正在等待 {0} 的游戏进程出现…（剩余 {1} 秒）</value>
+  </data>
 </root>

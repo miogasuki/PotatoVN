@@ -3934,4 +3934,7 @@ If play time can record correctly, just cancel this popup.
   <data name="SettingsPage_Rss_Mixed_Timeout.Description" xml:space="preserve">
     <value>Maximum wait time in seconds for all sources combined. 0 means no limit.</value>
   </data>
+  <data name="RecordPlayTimeTask_WaitingForProcess" xml:space="preserve">
+    <value>Process exited. Waiting for the game process of {0} to appear... ({1}s)</value>
+  </data>
 </root>

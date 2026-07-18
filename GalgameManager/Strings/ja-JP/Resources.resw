@@ -3854,4 +3854,7 @@
   <data name="SettingsPage_Rss_Mixed_Timeout.Description" xml:space="preserve">
     <value>全ソース共通の最大待機秒数です。0 は制限なしです。</value>
   </data>
+  <data name="RecordPlayTimeTask_WaitingForProcess" xml:space="preserve">
+    <value>{0}のゲームプロセスの起動を待っています…（残り{1}秒）</value>
+  </data>
 </root>

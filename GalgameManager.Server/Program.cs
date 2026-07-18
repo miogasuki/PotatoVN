@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.RateLimiting;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Data;
 using GalgameManager.Server.Helpers;
@@ -25,6 +26,9 @@ public class Program
 {
     public static string Version { get; } = Assembly.GetExecutingAssembly()
         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0";
+
+    /// <summary>搜刮器代理端点的限流策略名</summary>
+    public const string PhraserRateLimitPolicy = "phraser";
 
     public static void Main(string[] args)
     {
@@ -115,6 +119,23 @@ public class Program
                     .AllowAnyHeader();
             });
         });
+        // 搜刮器代理端点限流：未登录用户按IP限速360次/分钟，登录用户不限速
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddPolicy(PhraserRateLimitPolicy, context =>
+            {
+                if (context.User.Identity?.IsAuthenticated == true)
+                    return RateLimitPartition.GetNoLimiter("authenticated");
+                var key = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 360,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                });
+            });
+        });
 
         WebApplication app = builder.Build();
 
@@ -143,6 +164,8 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseCors("AllowAll");
+        app.UseAuthentication();
+        app.UseRateLimiter();
         app.UseAuthorization();
 
         app.MapControllers();

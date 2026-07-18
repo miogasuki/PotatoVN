@@ -76,6 +76,10 @@ dotnet user-secrets set "Key" "Value"
 如果填写为`true`则必须设置AppId和AppSecret
 * `AppSettings:Bangumi:AppId` Bangumi第三方应用的AppId
 * `AppSettings:Bangumi:AppSecret` Bangumi第三方应用的AppSecret
+* `AppSettings:Hikarinagi:Enable` 是否作为Hikarinagi开放API的透传代理（客户端可经由本服务器使用Hikarinagi数据源），默认为`false`，
+如果填写为`true`则必须设置ClientId和ClientSecret
+* `AppSettings:Hikarinagi:ClientId` Hikarinagi开发者平台创建的OAuth应用的ClientId
+* `AppSettings:Hikarinagi:ClientSecret` Hikarinagi开发者平台创建的OAuth应用的ClientSecret
 * `AppSettings:User:Default` 是否允许用户以用户名密码注册与登录，默认为`true`
 * `AppSettings:User:Bangumi` 是否允许用户使用Bangumi账号注册与登录，默认为`false`
 * `AppSettings:User:OssSize` OSS上每位用户的存储空间大小，单位为byte，默认为`104857600`（100MB），此数值最大为2^63-1 (8388608TB)

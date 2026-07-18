@@ -53,6 +53,7 @@ public class Program
         builder.Services.AddScoped<IBangumiService, BangumiService>();
         builder.Services.AddScoped<IGalgameService, GalgameService>();
         builder.Services.AddScoped<IStaffService, StaffService>();
+        builder.Services.AddSingleton<IHikarinagiService, HikarinagiService>();
         builder.Services.AddMinio(client =>
         {
             client.WithEndpoint(builder.Configuration["AppSettings:Minio:EndPoint"])
@@ -165,6 +166,12 @@ public class Program
             result = Check("AppSettings:Bangumi:AppId") && result;
             result = Check("AppSettings:Bangumi:AppSecret") && result;
             result = Check("AppSettings:Bangumi:RedirectUri") && result;
+        }
+        result = CheckBoolValue("AppSettings:Hikarinagi:Enable", out var isHikarinagiEnable) && result;
+        if (isHikarinagiEnable)
+        {
+            result = Check("AppSettings:Hikarinagi:ClientId") && result;
+            result = Check("AppSettings:Hikarinagi:ClientSecret") && result;
         }
         result = CheckBoolValue("AppSettings:User:Bangumi", out _) && result;
         result = CheckBoolValue("AppSettings:User:Default", out _) && result;

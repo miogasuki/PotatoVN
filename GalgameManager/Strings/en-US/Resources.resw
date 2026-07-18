@@ -3937,4 +3937,10 @@ If play time can record correctly, just cancel this popup.
   <data name="RecordPlayTimeTask_WaitingForProcess" xml:space="preserve">
     <value>Process exited. Waiting for the game process of {0} to appear... ({1}s)</value>
   </data>
+  <data name="HomePage_CategoryFilter.Text" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_CategoryPanelCheckBox.Content" xml:space="preserve">
+    <value>Category</value>
+  </data>
 </root>

@@ -4854,4 +4854,10 @@
   <data name="RecordPlayTimeTask_WaitingForProcess" xml:space="preserve">
     <value>进程已退出，正在等待 {0} 的游戏进程出现…（剩余 {1} 秒）</value>
   </data>
+  <data name="HomePage_CategoryFilter.Text" xml:space="preserve">
+    <value>分类</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_CategoryPanelCheckBox.Content" xml:space="preserve">
+    <value>分类</value>
+  </data>
 </root>

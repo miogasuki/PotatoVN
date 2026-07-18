@@ -387,6 +387,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         CategoryFilters.Source = _categoryFiltersC;
         _tagFilterCalc = false;
         _playStatusSelectedInit = false;
+        _developerFilterCalc = false;
         _engineFilterCalc = false;
         _categoryFilterCalc = false;
         UpdateCategoryPanelForceVisibility();

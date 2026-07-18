@@ -36,7 +36,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
 
     private GalgameSourceBase? _item;
     public AdvancedCollectionView Galgames { get; } = new(new ObservableCollection<GalgameAndPath>(), true);
-    public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None};
+    public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.Hikarinagi, RssType.None};
     private readonly List<Galgame> _selectedGalgames = new();
     private readonly List<GalgameAndPath> _selectedEntries = new(); // 当前选中的库内游戏条目
     private UnpackGameTask? _unpackGameTask;

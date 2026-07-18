@@ -76,6 +76,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         _searchUrlList[(int)RssType.Mixed] = "https://bgm.tv/subject_search/";
         _searchUrlList[(int)RssType.Ymgal] = "https://www.ymgal.games/search?type=ga&keyword=";
         _searchUrlList[(int)RssType.Cngal] = "https://www.cngal.org/search?Types=Game&Text=";
+        _searchUrlList[(int)RssType.Hikarinagi] = "https://www.hikarinagi.org/search?types=galgame&q=";
         SearchUri = _searchUrlList[(int)RssType.Vndb]; // default
         foreach (RssType type in RssHelperX.GetAvailableTypes(_galService)) RssTypes.Add(type);
     }

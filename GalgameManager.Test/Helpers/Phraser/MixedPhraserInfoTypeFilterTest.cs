@@ -18,6 +18,7 @@ public class MixedPhraserInfoTypeFilterTest
     private VndbPhraser _vndbPhraser = null!;
     private YmgalPhraser _ymgalPhraser = null!;
     private SteamParser _steamParser = null!;
+    private HikarinagiPhraser _hikarinagiPhraser = null!;
 
     [SetUp]
     public void Init()
@@ -31,6 +32,7 @@ public class MixedPhraserInfoTypeFilterTest
         _vndbPhraser = new VndbPhraser();
         _ymgalPhraser = new YmgalPhraser();
         _steamParser = new SteamParser("schinese");
+        _hikarinagiPhraser = new HikarinagiPhraser();
     }
 
     /// <summary>
@@ -613,7 +615,7 @@ public class MixedPhraserInfoTypeFilterTest
     /// </summary>
     private MixedPhraser CreateMixedPhraser(MixedPhraserEnabled enabled)
     {
-        return new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
+        return new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, _hikarinagiPhraser, new MixedPhraserData
         {
             Order = new MixedPhraserOrder().SetToDefault(),
             Enabled = enabled

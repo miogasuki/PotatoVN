@@ -4860,4 +4860,22 @@
   <data name="HomeFilterPanelVisibilityDialog_CategoryPanelCheckBox.Content" xml:space="preserve">
     <value>分类</value>
   </data>
+  <data name="RssType_Hikarinagi" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.Content" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.NavigateUri" xml:space="preserve">
+    <value>https://www.hikarinagi.org</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi_Description.Text" xml:space="preserve">
+    <value>Hikarinagi是一个中文ACGN社区与条目数据库，提供Galgame、轻小说、漫画等条目信息。该数据源经由PotatoVN同步服务器代理访问，无需登录即可使用（未登录限速360次/分钟）。</value>
+  </data>
+  <data name="HikarinagiPhraser_RateLimitWaiting" xml:space="preserve">
+    <value>请求过于频繁，{0} 秒后重试（第 {1}/{2} 次）</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
+    <value>启用 Hikarinagi 搜刮器</value>
+  </data>
 </root>

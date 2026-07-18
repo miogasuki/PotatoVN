@@ -3863,4 +3863,22 @@
   <data name="HomeFilterPanelVisibilityDialog_CategoryPanelCheckBox.Content" xml:space="preserve">
     <value>カテゴリ</value>
   </data>
+  <data name="RssType_Hikarinagi" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.Content" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.NavigateUri" xml:space="preserve">
+    <value>https://www.hikarinagi.org</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi_Description.Text" xml:space="preserve">
+    <value>Hikarinagiは中国語のACGNコミュニティ兼データベースで、ギャルゲー、ライトノベル、漫画などのエントリー情報を提供しています。このソースはPotatoVN同期サーバー経由でアクセスされ、ログイン不要で利用できます（未ログイン時は360リクエスト/分に制限）。</value>
+  </data>
+  <data name="HikarinagiPhraser_RateLimitWaiting" xml:space="preserve">
+    <value>リクエストが多すぎます。{0} 秒後に再試行します（{1}/{2} 回目）</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
+    <value>Hikarinagiスクレイパーを有効にする</value>
+  </data>
 </root>

@@ -22,7 +22,7 @@ public partial class Galgame : ObservableObject, IDisplayableGameObject
 
     public const string DefaultString = "——";
     public const string MetaPath = ".PotatoVN";
-    public static readonly int PhraserNumber = 8;
+    public static readonly int PhraserNumber = 9;
 
     public event Action<Galgame, string, object>? GalPropertyChanged;
     [JsonIgnore] public Action<Exception>? ErrorOccurred; //非致命异常产生时触发

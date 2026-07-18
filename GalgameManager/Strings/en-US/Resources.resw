@@ -3943,4 +3943,22 @@ If play time can record correctly, just cancel this popup.
   <data name="HomeFilterPanelVisibilityDialog_CategoryPanelCheckBox.Content" xml:space="preserve">
     <value>Category</value>
   </data>
+  <data name="RssType_Hikarinagi" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.Content" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.NavigateUri" xml:space="preserve">
+    <value>https://www.hikarinagi.org</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi_Description.Text" xml:space="preserve">
+    <value>Hikarinagi is a Chinese ACGN community and database providing galgame, light novel, manga and other entry information. This source is proxied through the PotatoVN sync server and requires no login (rate limited to 360 requests/minute when not logged in).</value>
+  </data>
+  <data name="HikarinagiPhraser_RateLimitWaiting" xml:space="preserve">
+    <value>Too many requests, retrying in {0}s (attempt {1}/{2})</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
+    <value>Enable Hikarinagi Scraper</value>
+  </data>
 </root>

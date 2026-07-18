@@ -65,15 +65,17 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         VndbPhraser vndbPhraser = new(GetVndbData().Result);
         YmgalPhraser ymgalPhraser = new();
         CngalPhraser cngalPhraser = new();
+        HikarinagiPhraser hikarinagiPhraser = new(bus);
         SteamParser steamParser = new(localSettingsService
             .ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result.ToSteamApiString());
-        MixedPhraser mixedPhraser = new(bgmPhraser, vndbPhraser, ymgalPhraser, steamParser, GetMixData(), bus);
+        MixedPhraser mixedPhraser = new(bgmPhraser, vndbPhraser, ymgalPhraser, steamParser, hikarinagiPhraser, GetMixData(), bus);
         PhraserList[(int)RssType.Bangumi] = bgmPhraser;
         PhraserList[(int)RssType.Vndb] = vndbPhraser;
         PhraserList[(int)RssType.Ymgal] = ymgalPhraser;
         PhraserList[(int)RssType.Cngal] = cngalPhraser;
         PhraserList[(int)RssType.Mixed] = mixedPhraser;
         PhraserList[(int)RssType.Steam] = steamParser;
+        PhraserList[(int)RssType.Hikarinagi] = hikarinagiPhraser;
     }
 
     public async Task InitAsync()
@@ -1025,7 +1027,14 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 ObservableCollection<RssType> order = (ObservableCollection<RssType>)prop.GetValue(orders)!;
                 ObservableCollection<RssType> target = (ObservableCollection<RssType>)prop.GetValue(defOrder)!;
                 foreach (RssType type in target.Where(type => !order.Contains(type)))
-                    order.Add(type);
+                {
+                    // 尽量插入到默认顺序中紧随其后的已有元素之前，使新增搜刮器的相对位置与默认配置一致（如Hikarinagi位于Bangumi前）
+                    int insertIndex = -1;
+                    for (int i = target.IndexOf(type) + 1; i < target.Count && insertIndex < 0; i++)
+                        insertIndex = order.IndexOf(target[i]);
+                    if (insertIndex >= 0) order.Insert(insertIndex, type);
+                    else order.Add(type);
+                }
             }
 
             await LocalSettingsService.SaveSettingAsync(KeyValues.MixedPhraserOrderVersion,

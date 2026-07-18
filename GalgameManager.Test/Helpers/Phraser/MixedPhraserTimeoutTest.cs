@@ -62,6 +62,7 @@ public class MixedPhraserTimeoutTest
             vndb,
             CreateDelayedPhraser(RssType.Ymgal, TimeSpan.Zero, null),
             CreateDelayedPhraser(RssType.Steam, TimeSpan.Zero, null),
+            CreateDelayedPhraser(RssType.Hikarinagi, TimeSpan.Zero, null),
             new MixedPhraserData
             {
                 Order = new MixedPhraserOrder().SetToDefault(),
@@ -71,6 +72,7 @@ public class MixedPhraserTimeoutTest
                     VndbEnabled = true,
                     YmgalEnabled = false,
                     SteamEnabled = false,
+                    HikarinagiEnabled = false,
                 },
                 TimeoutSeconds = timeoutSeconds,
             });

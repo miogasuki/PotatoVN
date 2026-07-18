@@ -139,6 +139,37 @@ public class HikarinagiPhraserTest
     }
 
     [Test]
+    public async Task GetGalgameInfo_ReturnsNull_WhenBestMatchSimilarityTooLow()
+    {
+        // Arrange：搜索有结果但全部与查询无关（真实案例：Hikarinagi未收录"承命抉择Oblige"，
+        // 最相似的候选是id=12423"命运线"，相似度仅约0.48，不应错误命中）
+        _handler.EnqueueJson("""
+        {
+            "success": true,
+            "data": {
+                "items": [
+                    { "type": "galgame", "id": 16226, "title": "你与选择", "subtitle": null, "developer": "灵虚之幽" },
+                    { "type": "galgame", "id": 13428, "title": "寒蝉鸣泣之时 命", "subtitle": null, "developer": "マイネットゲームス" },
+                    { "type": "galgame", "id": 12423, "title": "命运线", "subtitle": null, "developer": null }
+                ]
+            }
+        }
+        """);
+        // 相似度不足0.9时会拉取前3个候选的详情重新匹配，详情标题仍然不相似
+        _handler.EnqueueJson("""{ "success": true, "data": { "id": 16226, "origin_title": "你与选择", "trans_title": null } }""");
+        _handler.EnqueueJson("""{ "success": true, "data": { "id": 13428, "origin_title": "ひぐらしのなく頃に 命", "trans_title": "寒蝉鸣泣之时 命" } }""");
+        _handler.EnqueueJson("""{ "success": true, "data": { "id": 12423, "origin_title": "命运线", "trans_title": null } }""");
+        Galgame game = new() { Name = { Value = "承命抉择Oblige" } };
+
+        // Act
+        Galgame? result = await _phraser.GetGalgameInfo(game);
+
+        // Assert
+        Assert.That(result, Is.Null);
+        Assert.That(_handler.Requests, Has.Count.EqualTo(4)); // 搜索 + 3个候选详情，不应再请求游戏信息
+    }
+
+    [Test]
     public async Task GetGalgameInfo_ReturnsNull_WhenUpstreamFails()
     {
         // Arrange

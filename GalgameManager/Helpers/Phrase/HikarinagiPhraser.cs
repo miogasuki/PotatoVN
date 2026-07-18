@@ -25,6 +25,9 @@ public class HikarinagiPhraser : IGalInfoPhraser, IGalCharacterPhraser
     private const int MaxRateLimitRetries = 3;
     /// 响应未携带Retry-After时的默认等待秒数（服务器限流窗口为1分钟）
     private const int DefaultRateLimitWaitSeconds = 60;
+    /// 搜索结果可接受的最低相似度；低于该值认为Hikarinagi未收录该游戏，返回null交由其他信息源处理。
+    /// （实测无关条目因个别相同汉字也能达到约0.48的相似度，而正常模糊匹配一般在0.8以上）
+    private const double MinSimilarity = 0.7;
 
     public HikarinagiPhraser(IMessenger? bus = null)
     {
@@ -168,7 +171,7 @@ public class HikarinagiPhraser : IGalInfoPhraser, IGalCharacterPhraser
     }
 
     /// <summary>
-    /// 搜索游戏，返回相似度最高的条目id与开发厂商
+    /// 搜索游戏，返回相似度最高的条目id与开发厂商；最佳相似度低于 <see cref="MinSimilarity"/> 时视为未收录，返回null
     /// </summary>
     private async Task<(int id, string? developer)?> SearchAsync(HttpClient client, string baseUrl,
         string name, Galgame? galgame = null)
@@ -222,7 +225,9 @@ public class HikarinagiPhraser : IGalInfoPhraser, IGalCharacterPhraser
                     if (maxSimilarity >= 1.0) break; // 已完全匹配，无法更优
                 }
 
-            if (target is null) return null;
+            // 相似度过低说明Hikarinagi上大概率没有该游戏，不应错误命中无关条目
+            // （例：搜索"承命抉择Oblige"时最相似的是无关条目"命运线"，相似度仅约0.48）
+            if (target is null || maxSimilarity < MinSimilarity) return null;
             return (target["id"]!.ToObject<int>(), target["developer"]?.ToString());
         }
         catch (Exception)

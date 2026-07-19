@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using GalgameManager.Contracts.Services;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -17,21 +19,29 @@ public static class DownloadHelper
     /// <param name="retry">这是第几次重试</param>
     /// <param name="fileNameWithoutExtension">目标文件名（不带扩展名）</param>
     /// <param name="onException">失败时回调，若为Http异常则等到重试次数满后触发，否则在有异常时立刻触发</param>
+    /// <param name="client">下载图片时使用的client，若不提供则使用软件默认client</param>
+    /// <param name="targetFolder">保存图片的位置，若不指定则使用数据目录的images文件夹</param>
     /// <returns>本地文件路径, 如果下载失败则返回null</returns>
-    public static async Task<string?> DownloadAndSaveImageAsync(string? imageUrl, int retry = 0, 
-        string? fileNameWithoutExtension = null, Action<Exception>? onException = null)
+    public static async Task<string?> DownloadAndSaveImageAsync(string? imageUrl, int retry = 0,
+        string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null,
+        DirectoryInfo? targetFolder = null)
     {
         try
         {
             if (imageUrl == null) return null;
-            HttpClient httpClient = new();
-            httpClient.Timeout = TimeSpan.FromSeconds(10); // 10s内收不到响应则超时
-            HttpResponseMessage response = await httpClient.GetAsync(imageUrl);
+            HttpClient httpClient = client ?? Utils.GetDefaultHttpClient();
+            using CancellationTokenSource cts = new(TimeSpan.FromSeconds(10)); //10s超时
+            HttpResponseMessage response = await httpClient.GetAsync(imageUrl, cts.Token);
             response.EnsureSuccessStatusCode();
 
             var imageBytes = await response.Content.ReadAsByteArrayAsync();
 
             StorageFolder localFolder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Images);
+            if (targetFolder != null)
+            {
+                if (!targetFolder.Exists) targetFolder.Create();
+                localFolder = await StorageFolder.GetFolderFromPathAsync(targetFolder.FullName);
+            }
             var fileName = fileNameWithoutExtension is not null
                 ? $"{fileNameWithoutExtension}{GetImageFormat(imageBytes)}"
                 : imageUrl[(imageUrl.LastIndexOf('/') + 1)..];
@@ -39,6 +49,7 @@ public static class DownloadHelper
             if (fileName.Contains('?')) fileName = fileName[..fileName.IndexOf('?')];
             if (fileName.Contains('%')) fileName = Uri.UnescapeDataString(fileName);
             fileName = fileName.RemoveInvalidChars();
+            if (!fileName.Contains('.')) fileName = $"{fileName}{GetImageFormat(imageBytes)}";
             StorageFile? storageFile;
             try
             {
@@ -65,26 +76,29 @@ public static class DownloadHelper
         }
         catch (Exception e)
         {
-            if (e is (TaskCanceledException or TimeoutException or HttpRequestException) 
+            if (e is (TaskCanceledException or TimeoutException or HttpRequestException)
                 and not HttpRequestException { StatusCode: HttpStatusCode.NotFound })
             {
                 if (retry < 3)
                 {
                     await Task.Delay(1000);
-                    return await DownloadAndSaveImageAsync(imageUrl, retry + 1, fileNameWithoutExtension, onException);
+                    return await DownloadAndSaveImageAsync(imageUrl, retry + 1, fileNameWithoutExtension, onException,
+                        targetFolder: targetFolder, client: client);
                 }
             }
             onException?.Invoke(e);
             return null;
         }
     }
-    
-    public static Task<string?> DownloadAndSaveImageWithDiffThread(string? imageUrl, int retry = 0, 
-        string? fileNameWithoutExtension = null, Action<Exception>? onException = null)
+
+    public static Task<string?> DownloadAndSaveImageWithDiffThread(string? imageUrl, int retry = 0,
+        string? fileNameWithoutExtension = null, Action<Exception>? onException = null, HttpClient? client = null,
+        DirectoryInfo? targetFolder = null)
     {
-        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException));
+        return Task.Run(() => DownloadAndSaveImageAsync(imageUrl, retry, fileNameWithoutExtension, onException,
+            client, targetFolder));
     }
-    
+
     /// <summary>
     /// 试图识别图片格式
     /// </summary>
@@ -136,7 +150,7 @@ public static class DownloadHelper
 
     public static void DeleteImgIfExists(string? path)
     {
-        if (path == null) return;
+        if (path == null || !File.Exists(path)) return;
         try
         {
             File.Delete(path);
@@ -144,6 +158,73 @@ public static class DownloadHelper
         catch (Exception e)
         {
             App.GetService<IInfoService>().DeveloperEvent(e: e);
+        }
+    }
+
+    /// <summary>
+    /// 尝试从剪贴板读取图片并保存为 PNG。
+    /// </summary>
+    /// <param name="fileNameWithoutExtension">目标文件名（不含扩展名）</param>
+    /// <param name="targetFolder">保存图片的位置，若不指定则使用数据目录的images文件夹</param>
+    /// <returns>保存成功返回本地文件路径，否则返回null</returns>
+    public static async Task<string?> TrySaveClipboardImageAsPngAsync(string fileNameWithoutExtension,
+        DirectoryInfo? targetFolder = null)
+    {
+        DataPackageView? data = Clipboard.GetContent();
+        Stream? inputStream = null;
+        try
+        {
+            if (data.Contains(StandardDataFormats.Bitmap))
+            {
+                RandomAccessStreamReference? bitmapRef = await data.GetBitmapAsync();
+                if (bitmapRef is null) return null;
+                IRandomAccessStreamWithContentType? randomAccessStream = await bitmapRef.OpenReadAsync();
+                inputStream = randomAccessStream.AsStreamForRead();
+            }
+            else if (data.Contains(StandardDataFormats.StorageItems))
+            {
+                IReadOnlyList<IStorageItem>? items = await data.GetStorageItemsAsync();
+                StorageFile? file = items?.OfType<StorageFile>().FirstOrDefault();
+                if (file is null) return null;
+                inputStream = await file.OpenStreamForReadAsync();
+            }
+            else
+            {
+                return null;
+            }
+
+            if (inputStream is null) return null;
+            if (inputStream.CanSeek) inputStream.Position = 0;
+
+            Image<Rgba32> image;
+            try
+            {
+                image = Image.Load<Rgba32>(inputStream);
+            }
+            catch
+            {
+                return null;
+            }
+
+            using (image)
+            {
+                StorageFolder localFolder = await FileHelper.GetFolderAsync(FileHelper.FolderType.Images);
+                if (targetFolder != null)
+                {
+                    if (!targetFolder.Exists) targetFolder.Create();
+                    localFolder = await StorageFolder.GetFolderFromPathAsync(targetFolder.FullName);
+                }
+
+                var safeName = $"{fileNameWithoutExtension}.png".RemoveInvalidChars();
+                StorageFile storageFile = await localFolder.CreateFileAsync(safeName, CreationCollisionOption.ReplaceExisting);
+                await using Stream fileStream = await storageFile.OpenStreamForWriteAsync();
+                await image.SaveAsPngAsync(fileStream);
+                return storageFile.Path;
+            }
+        }
+        finally
+        {
+            inputStream?.Dispose();
         }
     }
 
@@ -194,13 +275,13 @@ public static class DownloadHelper
             });
         }
     }
-    
+
     private static float CalcAlpha(int col, int row, int width, int height)
     {
         if (width <= 1 || height <= 1) return 1f; // 避免除零
         float normX = (float)col / (width - 1), normY = (float)row / (height - 1);
         var globalAlpha = 0.35f;
-            
+
         // --- Rule 1: 左侧渐变 (非线性) ---
         var alphaLeft = 1.0f;
         if (normX <= 0.7f)

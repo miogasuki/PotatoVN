@@ -1,11 +1,19 @@
+using System;
+using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.RateLimiting;
 using GalgameManager.Server.Contracts;
 using GalgameManager.Server.Data;
 using GalgameManager.Server.Helpers;
 using GalgameManager.Server.Repositories;
 using GalgameManager.Server.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Minio;
@@ -18,6 +26,9 @@ public class Program
 {
     public static string Version { get; } = Assembly.GetExecutingAssembly()
         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0";
+
+    /// <summary>搜刮器代理端点的限流策略名</summary>
+    public const string PhraserRateLimitPolicy = "phraser";
 
     public static void Main(string[] args)
     {
@@ -46,11 +57,12 @@ public class Program
         builder.Services.AddScoped<IBangumiService, BangumiService>();
         builder.Services.AddScoped<IGalgameService, GalgameService>();
         builder.Services.AddScoped<IStaffService, StaffService>();
+        builder.Services.AddSingleton<IHikarinagiService, HikarinagiService>();
         builder.Services.AddMinio(client =>
         {
             client.WithEndpoint(builder.Configuration["AppSettings:Minio:EndPoint"])
                 .WithCredentials(
-                    builder.Configuration["AppSettings:Minio:AccessKey"], 
+                    builder.Configuration["AppSettings:Minio:AccessKey"],
                     builder.Configuration["AppSettings:Minio:SecretKey"])
                 .WithSSL(Convert.ToBoolean(builder.Configuration["AppSettings:Minio:UseSSL"] ?? "False"));
         });
@@ -62,11 +74,11 @@ public class Program
         // {
         //     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         // });
-        builder.Services.AddAutoMapper(typeof(Program).Assembly);
-        
+        builder.Services.AddAutoMapper(_ => { }, typeof(Program));
+
         // Enable logging
         builder.Logging.AddConsole();
-        
+
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
@@ -77,12 +89,12 @@ public class Program
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey,
             });
-                
+
             options.OperationFilter<SecurityRequirementsOperationFilter>();
 
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "PotatoVN.Server", Version = $"v{Version}", 
+                Title = "PotatoVN.Server", Version = $"v{Version}",
                 Description = "PotatoVN 同步服务器\n最新更新：galgame新增playcount字段",
             });
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PotatoVN.Server.xml"));
@@ -107,9 +119,26 @@ public class Program
                     .AllowAnyHeader();
             });
         });
+        // 搜刮器代理端点限流：未登录用户按IP限速360次/分钟，登录用户不限速
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddPolicy(PhraserRateLimitPolicy, context =>
+            {
+                if (context.User.Identity?.IsAuthenticated == true)
+                    return RateLimitPartition.GetNoLimiter("authenticated");
+                var key = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 360,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                });
+            });
+        });
 
         WebApplication app = builder.Build();
-        
+
         // DataBase Migration
         using (IServiceScope scope = app.Services.CreateScope())
         {
@@ -122,11 +151,11 @@ public class Program
                 Console.WriteLine($"Failed to migrate database:\n{e.Message}{e.StackTrace}");
                 return;
             }
-            
+
         }
 
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment()) 
+        if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
@@ -135,6 +164,8 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseCors("AllowAll");
+        app.UseAuthentication();
+        app.UseRateLimiter();
         app.UseAuthorization();
 
         app.MapControllers();
@@ -150,19 +181,25 @@ public class Program
         result = Check("AppSettings:Minio:EndPoint") && result;
         result = Check("AppSettings:Minio:AccessKey") && result;
         result = Check("AppSettings:Minio:SecretKey") && result;
-        
+
         result = CheckBoolValue("AppSettings:Minio:UseSSL", out _) && result;
         result = CheckBoolValue("AppSettings:Bangumi:OAuth2Enable", out var isBgmOAuth2Enable) && result;
         if (isBgmOAuth2Enable)
-        { 
+        {
             result = Check("AppSettings:Bangumi:AppId") && result;
             result = Check("AppSettings:Bangumi:AppSecret") && result;
             result = Check("AppSettings:Bangumi:RedirectUri") && result;
         }
+        result = CheckBoolValue("AppSettings:Hikarinagi:Enable", out var isHikarinagiEnable) && result;
+        if (isHikarinagiEnable)
+        {
+            result = Check("AppSettings:Hikarinagi:ClientId") && result;
+            result = Check("AppSettings:Hikarinagi:ClientSecret") && result;
+        }
         result = CheckBoolValue("AppSettings:User:Bangumi", out _) && result;
         result = CheckBoolValue("AppSettings:User:Default", out _) && result;
         result = CheckLongValue("AppSettings:User:OssSize", out _) && result;
-        
+
         return result;
 
         bool Check(string key)
@@ -177,7 +214,7 @@ public class Program
 
         bool CheckBoolValue(string key, out bool value)
         {
-            if (string.IsNullOrEmpty(builder.Configuration[key]) == false && 
+            if (string.IsNullOrEmpty(builder.Configuration[key]) == false &&
                 bool.TryParse(builder.Configuration[key], out _) == false)
             {
                 Console.WriteLine($"{key} is is not a valid boolean value.");

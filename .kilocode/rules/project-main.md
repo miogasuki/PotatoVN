@@ -47,6 +47,12 @@ This document provides a high-level overview of the GalgameManager project, also
 
 ## 3. Core Components
 
+## Dependency Notes
+
+* **AutoMapper 15+ / 16+**: The repository uses the newer AutoMapper API shape where DI registration must pass a configuration delegate first (for example `services.AddAutoMapper(cfg => { }, typeof(Program))`). Direct `AddAutoMapper(typeof(...).Assembly)` calls no longer compile.
+* **AutoMapper test setup**: When manually constructing `MapperConfiguration` in tests or utilities, pass an `ILoggerFactory` (for example `NullLoggerFactory.Instance`) as the second constructor argument.
+* **SharpCompress 0.48+**: Archive APIs use `ArchiveFactory.OpenArchive(...)` instead of `Open(...)`; zip creation uses `ZipArchive.CreateArchive()` and returns a writable archive interface.
+
 This section details the primary components of the GalgameManager ecosystem.
 
 ### 3.1. `GalgameManager` (Client Application - WinUI 3) - Part of `GalgameManager.sln`

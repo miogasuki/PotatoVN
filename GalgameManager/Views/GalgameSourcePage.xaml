@@ -24,6 +24,13 @@
         <converter:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
 
         <MenuFlyout Placement="Right" x:Key="GameItemFlyout">
+            <MenuFlyoutItem x:Uid="MultiInstall_PlayMenu"
+                            Command="{x:Bind ViewModel.PlayInstallationCommand}"
+                            CommandParameter="{Binding}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE768;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
             <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Edit"
                            Command="{x:Bind ViewModel.EditGameCommand}"
                            CommandParameter="{Binding}">
@@ -354,7 +361,7 @@
                                             <TextBlock x:Uid="GalgameSourcePage_GamesTable_RssType"
                                                        Style="{StaticResource DescriptionTextStyle}"
                                                        VerticalAlignment="Center" />
-                                            <control:ComboBoxWithoutNull
+                                            <control:ComboBoxWithI18N
                                                 SelectedItem="{x:Bind Galgame.RssType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 ItemsSource="{x:Bind RssTypes}"
                                                 VerticalAlignment="Center" />

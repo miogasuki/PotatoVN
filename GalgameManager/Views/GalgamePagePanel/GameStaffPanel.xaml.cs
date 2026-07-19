@@ -4,6 +4,7 @@ using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
 using GalgameManager.ViewModels;
+using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -47,7 +48,7 @@ public partial class GameStaffPanel
     {
         if (sender is not Button button || button.DataContext is not StaffRelation staff) return;
         _navigationService.NavigateTo(typeof(StaffViewModel).FullName!,
-            new StaffViewModel.StaffPageNavigationParameter { Staff = staff.Staff });
+            new StaffPageNavParameter { Staff = staff.Staff });
     }
 }
 

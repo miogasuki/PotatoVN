@@ -36,6 +36,10 @@ services:
       "AppSettings:Bangumi:OAuth2Enable": false #如果此项为true，必须填写AppId和AppSecret
       "AppSettings:Bangumi:AppId": "Change this to your Bangumi AppId if you want to use this server as OAuth2 server"
       "AppSettings:Bangumi:AppSecret": "Change this to your Bangumi AppSecret if you want to use this server as OAuth2 server"
+      # 作为Hikarinagi开放API的透传代理 （如果你希望客户端可以通过本服务器使用Hikarinagi数据源，填写以下内容：）
+      "AppSettings:Hikarinagi:Enable": false #如果此项为true，必须填写ClientId和ClientSecret
+      "AppSettings:Hikarinagi:ClientId": "Change this to your Hikarinagi OAuth ClientId"
+      "AppSettings:Hikarinagi:ClientSecret": "Change this to your Hikarinagi OAuth ClientSecret"
   
   
   postgresql:

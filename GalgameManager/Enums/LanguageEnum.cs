@@ -1,13 +1,5 @@
 namespace GalgameManager.Enums;
 
-public enum LanguageEnum
-{
-    Auto,
-    ChineseSimplified, 
-    English,
-    Japanese
-}
-
 public static class LanguageEnumExtensions
 {
     /// <summary>

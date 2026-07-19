@@ -243,7 +243,7 @@ public partial class CategoryViewModel : ObservableObject, INavigationAware, ISe
             if (SelectedCategoryGroup is null) return;
             name = (dialog.Content as TextBox)!.Text;
             Category category = new(name);
-            SelectedCategoryGroup.Categories.Add(category);
+            _categoryService.AddCategoryToGroup(SelectedCategoryGroup, category);
             Source.Add(category);
         };
         

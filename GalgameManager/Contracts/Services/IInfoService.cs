@@ -1,16 +1,17 @@
 ﻿using System.Collections.ObjectModel;
 using GalgameManager.Enums;
 using GalgameManager.Models;
+using GalgameManager.WinApp.Base.Models;
 using Microsoft.UI.Xaml.Controls;
 
 namespace GalgameManager.Contracts.Services;
 
 public interface IInfoService
 {
-    public event Action<InfoBarSeverity,string?,string?,int> OnInfo; 
-    
+    public event Action<InfoBarSeverity,string?,string?,int> OnInfo;
+
     public event Action<InfoBarSeverity,string?,string?, Action?, string?> OnEvent;
-    
+
     public ObservableCollection<Info> Infos { get; }
 
     /// <summary>
@@ -50,4 +51,12 @@ public interface IInfoService
     /// <param name="severity"></param>
     /// <param name="msg"></param>
     public void Log(InfoBarSeverity severity = InfoBarSeverity.Warning, string msg = "");
+
+    /// <summary>
+    /// 插件异常事件记录与通知
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="e"></param>
+    /// <param name="infoBarSeverity"></param>
+    public void PluginEvent(PluginInfo info, Exception e, InfoBarSeverity infoBarSeverity = InfoBarSeverity.Warning);
 }

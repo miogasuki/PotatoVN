@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using Windows.Storage;
@@ -18,25 +18,37 @@ using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.ComponentModel;
-using System.Globalization;
 using GalgameManager.Views.GalgamePagePanel;
-using ValveKeyValue;
+using GalgameManager.WinApp.Base.Contracts.PluginUi;
+using GalgameManager.WinApp.Base.Models;
 
 namespace GalgameManager.ViewModels;
 
 public partial class GalgameViewModel : ObservableObject, INavigationAware
 {
-    private const int ProcessMaxWaitSec = 60; //(手动指定游戏进程)等待游戏进程启动的最大时间
     private readonly GalgameCollectionService _galgameService;
     private readonly GalgameSourceCollectionService _sourceService;
     private readonly IStaffService _staffService;
     private readonly INavigationService _navigationService;
     private readonly ILocalSettingsService _localSettingsService;
-    private readonly JumpListService _jumpListService;
-    private readonly IBgTaskService _bgTaskService;
     private readonly IPvnService _pvnService;
     private readonly IInfoService _infoService;
+    private readonly IPluginService _pluginService;
+    private readonly IGameLaunchService _gameLaunchService; // 按明确安装实例启动游戏
     [ObservableProperty] private Galgame? _item;
+    /// <summary>
+    /// 当前逻辑游戏安装实例的界面集合，仅供界面读取。
+    /// </summary>
+    public ObservableCollection<GalgameAndPath> Installations { get; } = [];
+    /// <summary>
+    /// 当前首选安装实例的配置。
+    /// </summary>
+    public LocalInstallationConfig? CurrentInstallationConfig =>
+        Item?.PreferredLocalInstallation?.LocalConfig;
+    /// <summary>
+    /// 当前游戏是否存在多个安装实例。
+    /// </summary>
+    public bool HasMultipleInstallations => Installations.Count > 1;
     public ObservableCollection<GamePanelBase> Panels { get; } = [];
     [NotifyCanExecuteChangedFor(nameof(PlayCommand))]
     [NotifyCanExecuteChangedFor(nameof(ChangeSavePositionCommand))]
@@ -65,53 +77,31 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showTagPanel = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showCharacterPanel = Visibility.Collapsed;
+    [ObservableProperty] private Visibility _showDescriptionPanel = Visibility.Visible;
     private bool IsNotLocalGame => !IsLocalGame;
-
-    [ObservableProperty]
-    private bool _useNewLayout;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(SettingAvailable))] private IGalgamePage? _plugin; //第三方游戏详情页插件
+    private PluginInfo? _pluginInfo;
+    public bool SettingAvailable => Plugin is null or IGalgamePageSetting;
+    [ObservableProperty] private UIElement? _pluginUi;
+    public ObservableCollection<UIElement> LeftPanelPluginUis { get; } = [];
+    public ObservableCollection<UIElement> RightPanelPluginUis { get; } = [];
 
     public GalgameViewModel(IGalgameCollectionService dataCollectionService, IStaffService staffService,
-        INavigationService navigationService, IJumpListService jumpListService,
-        ILocalSettingsService localSettingsService, IBgTaskService bgTaskService,
-        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService)
+        INavigationService navigationService, ILocalSettingsService localSettingsService,
+        IPvnService pvnService, IInfoService infoService, IGalgameSourceCollectionService sourceService,
+        IPluginService pluginService, IGameLaunchService gameLaunchService)
     {
         _galgameService = (GalgameCollectionService)dataCollectionService;
         _sourceService = (GalgameSourceCollectionService)sourceService;
         _staffService = staffService;
         _navigationService = navigationService;
-        _jumpListService = (JumpListService)jumpListService;
         _localSettingsService = localSettingsService;
-        _bgTaskService = bgTaskService;
         _pvnService = pvnService;
         _infoService = infoService;
-        
-        // 订阅布局更改事件
-        ManageGalgamePageLayoutDialog.LayoutChanged += OnLayoutChanged;
+        _pluginService = pluginService;
+        _gameLaunchService = gameLaunchService;
     }
-    
-    // 布局更改时更新视图
-    private async void OnLayoutChanged(object? sender, bool newLayoutValue)
-    {
-        try
-        {
-            UseNewLayout = newLayoutValue;
-            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
-                ? Visibility.Visible 
-                : Visibility.Collapsed;
-            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
-                ? Visibility.Visible 
-                : Visibility.Collapsed;
-            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
-                ? Visibility.Visible 
-                : Visibility.Collapsed;
-            Update(Item);
-        }
-        catch (Exception e)
-        {
-            _infoService.DeveloperEvent(e: e);
-        }
-    }
-    
+
     public async void OnNavigatedTo(object parameter)
     {
         try
@@ -121,34 +111,48 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
                 return;
             }
-            
-            UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
-            ShowBackgroundImage = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage) 
-                ? Visibility.Visible 
+
+            ShowBackgroundImage =
+                await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowHeaderImage)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags)
+                ? Visibility.Visible
                 : Visibility.Collapsed;
-            ShowTagPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowTags) 
-                ? Visibility.Visible 
-                : Visibility.Collapsed;
-            ShowCharacterPanel = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters) 
-                ? Visibility.Visible 
-                : Visibility.Collapsed;
+            ShowCharacterPanel =
+                await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout_ShowCharacters)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
 
             Item = param.Galgame;
             IsLocalGame = Item.IsLocalGame;
-            Item.SavePath = Item.SavePath;
             _galgameService.PhrasedEvent2 += Update;
             _staffService.OnGameStaffChanged += Update;
             // 初始化面板
             Update(Item);
-        
-            if (param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
+
+            Plugin = null;
+            _pluginInfo = null;
+            PluginUi = null;
+            ObservableCollection<PluginX> plugins = await _pluginService.GetAllPluginsAsync();
+            PluginX? p = plugins.FirstOrDefault(p => p is { IsLoaded: true, Plugin: IGalgamePage });
+            Plugin = p?.Plugin as IGalgamePage;
+            _pluginInfo = p?.Info;
+            if (Plugin is not null)
+                PluginUi = await PluginInvokeHelper.InvokeAsync(_pluginInfo!,
+                    () => Plugin.CreateUiAsync(param.Galgame), _infoService);
+            else
+                await LoadPanelPluginUis(param.Galgame, plugins);
+
+            if ((param.StartGame && await _localSettingsService.ReadSettingAsync<bool>(KeyValues.QuitStart))
+                || param.ForceStartGame)
                 await Play();
             if (param.SelectProgress)
             {
                 await Task.Delay(1000);
                 await SelectProcess();
             }
-        
+
             TryUpdateGameInfo();
             return;
 
@@ -172,27 +176,37 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         _galgameService.PhrasedEvent2 -= Update;
         _staffService.OnGameStaffChanged -= Update;
-        ManageGalgamePageLayoutDialog.LayoutChanged -= OnLayoutChanged;
     }
-    
-    /// <summary>
-    /// 等待游戏进程启动，若超时则返回null
-    /// </summary>
-    /// <param name="processName">进程名</param>
-    private static async Task<Process?> WaitForProcessStartAsync(string processName)
+
+    private async Task LoadPanelPluginUis(Galgame game, IEnumerable<PluginX> plugins)
     {
-        Process[] processes = Process.GetProcessesByName(processName);
-        var waitSec = 0;
-        while (processes.Length == 0)
+        LeftPanelPluginUis.Clear();
+        RightPanelPluginUis.Clear();
+        foreach (PluginX p in plugins)
         {
-            await Task.Delay(100);
-            processes = Process.GetProcessesByName(processName);
-            if (++waitSec > ProcessMaxWaitSec)
-                return null;
+            if (p is not { IsLoaded: true, Plugin: not null }) continue;
+            try
+            {
+                if (p.Plugin is IGalgamePageLeftPanel leftPanel)
+                {
+                    UIElement? ui = await PluginInvokeHelper.InvokeAsync(p.Info,
+                        () => leftPanel.CreateLeftPanelUiAsync(game), _infoService);
+                    if (ui is not null) LeftPanelPluginUis.Add(ui);
+                }
+                if (p.Plugin is IGalgamePageRightPanel rightPanel)
+                {
+                    UIElement? ui = await PluginInvokeHelper.InvokeAsync(p.Info,
+                        () => rightPanel.CreateRightPanelUiAsync(game), _infoService);
+                    if (ui is not null) RightPanelPluginUis.Add(ui);
+                }
+            }
+            catch (Exception ex)
+            {
+                _infoService.PluginEvent(p.Info, ex);
+            }
         }
-        return processes[0];
     }
-    
+
     private void Update(Galgame? game)
     {
         if (game is null || game != Item) return;
@@ -210,13 +224,19 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             // 原理上来说是不会越界的，但莫名奇妙有用户反馈过越界问题
             _infoService.Info(InfoBarSeverity.Warning, $"Error setting open flags: {ex.Message}");
         }
-        IsRemoveSelectedThreadVisible = Item?.ProcessName is not null ? Visibility.Visible : Visibility.Collapsed;
-        IsSelectProcessVisible = Item?.ProcessName is null ? Visibility.Visible : Visibility.Collapsed;
-        IsResetPathVisible = Item?.ExePath is not null || Item?.TextPath is not null ? Visibility.Visible : Visibility.Collapsed;
-        HasSaveDirectory = !string.IsNullOrEmpty(Item?.DetectedSavePosition);
+        Installations.Clear();
+        foreach (GalgameAndPath installation in Item?.LocalInstallations ?? [])
+            Installations.Add(installation);
+        LocalInstallationConfig? config = CurrentInstallationConfig;
+        IsRemoveSelectedThreadVisible = config?.ProcessName is not null ? Visibility.Visible : Visibility.Collapsed;
+        IsSelectProcessVisible = config?.ProcessName is null ? Visibility.Visible : Visibility.Collapsed;
+        IsResetPathVisible = config?.ExePath is not null || config?.TextPath is not null
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+        HasSaveDirectory = !string.IsNullOrEmpty(config?.DetectedSavePath);
 
         // 根据是否有存档目录来设置打开按钮的显示
-        if (HasSaveDirectory)
+        if (HasSaveDirectory || Installations.Count > 1)
         {
             ShowSingleExplorerButton = Visibility.Collapsed;
             ShowExplorerMenu = Visibility.Visible;
@@ -228,6 +248,9 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         }
 
         OnPropertyChanged(nameof(Item));
+        OnPropertyChanged(nameof(Installations));
+        OnPropertyChanged(nameof(CurrentInstallationConfig));
+        OnPropertyChanged(nameof(HasMultipleInstallations));
     }
 
     #region INFOBAR_CTRL
@@ -246,14 +269,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Bangumi])) return;
         await Launcher.LaunchUriAsync(new Uri("https://bgm.tv/subject/"+Item!.Ids[(int)RssType.Bangumi]));
     }
-    
+
     [RelayCommand]
     private async Task OpenInVndb()
     {
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Vndb])) return;
         await Launcher.LaunchUriAsync(new Uri("https://vndb.org/v"+Item!.Ids[(int)RssType.Vndb]));
     }
-    
+
     [RelayCommand]
     private async Task OpenInYmgal()
     {
@@ -274,176 +297,65 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Steam])) return;
         await Launcher.LaunchUriAsync(new Uri("https://store.steampowered.com/app/"+Item!.Ids[(int)RssType.Steam]));
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task Play()
     {
-        if (!Item!.IsLocalGame) return;
-        if (Item.ExePath is not null && !File.Exists(Item.ExePath)) Item.ExePath = null;
+        if (Item is null) return;
+        List<GalgameAndPath> installations = Item.LocalInstallations.ToList();
+        GalgameAndPath? installation = installations.FirstOrDefault(e => e.EntryId == Item.PreferredInstallationId);
+        if (installation is null && installations.Count == 1)
+            installation = installations[0];
+        if (installation is null && installations.Count > 1)
+            installation = await SelectInstallationAsync(installations);
+        if (installation is null) return;
+        await _gameLaunchService.LaunchAsync(Item, installation);
+        Update(Item);
+    }
 
-        if (Item.Sources.Any(s => s.SourceType is GalgameSourceType.Steam) && Item.GetId(RssType.Steam) == -1)
-        {
-            Item.Ids[(int)RssType.Steam] = await TryGetSteamIdAsync();
-            if (string.IsNullOrEmpty(Item.Ids[(int)RssType.Steam]))
-                _infoService.Info(InfoBarSeverity.Warning, msg:"GalgamePage_Play_NoSteamId".GetLocalized());
-        }
-        
-        var isSteamGame = Item.Sources.Any(s => s.SourceType is GalgameSourceType.Steam) &&
-                          !string.IsNullOrEmpty(Item.Ids[(int)RssType.Steam]);
-        if (string.IsNullOrEmpty(Item.ExePath) && !isSteamGame)
-        {
-            await _galgameService.GetGalgameExeAsync(Item);
-            if (string.IsNullOrEmpty(Item.ExePath)) return;
-        }
+    [RelayCommand]
+    private async Task PlayInstallation(GalgameAndPath? installation)
+    {
+        if (Item is null || installation is null) return;
+        await _gameLaunchService.LaunchAsync(Item, installation);
+        Update(Item);
+    }
 
-        Process process = null!;
-        // 非steam游戏启动参数
-        if (!isSteamGame)
-        {
-            var exePath = Item.ExePath;
-            var args = Item.ExeArguments;
-            if (Item.RunInLocaleEmulator && await CheckLocaleEmulator())
-            {
-                exePath = await _localSettingsService.ReadSettingAsync<string>(KeyValues.LocaleEmulatorPath);
-                args = Item.ExePath;
-            }
+    /// <summary>
+    /// 将指定安装实例设为首选实例（不启动游戏），并持久化。
+    /// </summary>
+    [RelayCommand]
+    private async Task SetPreferredInstallation(GalgameAndPath? installation)
+    {
+        if (Item is null || installation is null || !installation.IsLocalInstallation) return;
+        if (Item.PreferredInstallationId == installation.EntryId) return;
+        Item.SetPreferredInstallation(installation);
+        if (installation.Source is not null) _sourceService.Save(installation.Source);
+        await _galgameService.SaveGalgameAsync(Item);
+        Update(Item);
+    }
 
-            ProcessStartInfo info = new()
-            {
-                FileName = exePath,
-                CreateNoWindow = !string.IsNullOrEmpty(args),
-                WorkingDirectory = Item.LocalPath,
-                UseShellExecute = Item.RunAsAdmin | Item.ExePath!.ToLower().EndsWith("lnk"),
-                Verb = Item.RunAsAdmin ? "runas" : null,
-            };
-            if (args is not null) info.ArgumentList.Add(args);
-            process = new() { StartInfo = info };
-        }
-        // Steam游戏第一次启动会弹窗警告，提示用户选择游戏进程以记录游戏时长
-        else if (isSteamGame && string.IsNullOrEmpty(Item.ProcessName) && !await DisplaySteamMsgAsync()) return; //false:取消对话框
-
-        try
+    private static async Task<GalgameAndPath?> SelectInstallationAsync(IReadOnlyList<GalgameAndPath> installations)
+    {
+        ComboBox selector = new()
         {
-            if (!isSteamGame)
-                process.Start();
-            else
-            {
-                Uri steamUri = new($"steam://run/{Item.Ids[(int)RssType.Steam]}");
-                _infoService.Info(InfoBarSeverity.Informational, msg: "GalgamePage_Play_StartingSteam".GetLocalized());
-                if (await Launcher.LaunchUriAsync(steamUri) == false)
-                {
-                    _infoService.Info(InfoBarSeverity.Error, "GalgamePage_Play_SteamLaunchError".GetLocalized());
-                    return;
-                }
-                if (string.IsNullOrEmpty(Item.ProcessName))
-                {
-                    await SelectProcess();
-                    return;
-                }
-            }
-
-            Item.LastPlayTime = DateTime.Now;
-            await _galgameService.SaveGalgameAsync(Item);
-            // _galgameService.Sort();
-            if (Item.ProcessName is not null)
-            {
-                await Task.Delay(1000 * 2); //有可能引导进程和游戏进程是一个名字，等2s让引导进程先退出
-                process = await WaitForProcessStartAsync(Item.ProcessName) ?? process;
-            }
-            if (!string.IsNullOrEmpty(Item.ExeArguments) && Item.ProcessName is null) 
-            { 
-                //启动的进程和游戏进程不是同一个进程，需要知道到底启动什么进程
-                await Task.Delay(1000 * 2);
-                if (TryGetProcessFromName() is { } p) // 尝试根据游戏可执行文件名获取进程
-                {
-                    process = p;
-                    Item.ProcessName = p.ProcessName;
-                }
-                else
-                    await SelectProcess();
-            }
-            await _galgameService.SaveGalgameAsync(Item);
-            _ = _bgTaskService.AddBgTask(new RecordPlayTimeTask(Item, process));
-            await _jumpListService.AddToJumpListAsync(Item);
-            
-            await Task.Delay(1000); //等待1000ms，让游戏进程启动后再最小化
-            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysEnableMagpie) || Item.EnableMagpie) 
-                _ = _bgTaskService.AddBgTask(new CallMagpieTask(Item, process));
-            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground) || Item.MuteInBackground)
-                _ = _bgTaskService.AddBgTask(new GameMuteTask(Item, process));
-            if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled) || Item.KeyReMap) && Item.KeyMappings.Any(m => m.IsEnabled))
-                _ = _bgTaskService.AddBgTask(new KeyMappingTask(Item, process));            
-            if ((await _localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath)) && string.IsNullOrEmpty(Item.DetectedSavePosition))
-                _ = _bgTaskService.AddBgTask(new GameSaveDetectorTask(Item));            
-            if (process.HasExited == false)
-                App.SetWindowMode(await _localSettingsService.ReadSettingAsync<WindowMode>(KeyValues.PlayingWindowMode));
-            
-            await process.WaitForExitAsync();
-        }
-
-        catch (Win32Exception e)
+            ItemsSource = installations,
+            DisplayMemberPath = nameof(GalgameAndPath.DisplayName),
+            SelectedIndex = 0,
+            MinWidth = 420,
+        };
+        ContentDialog dialog = new()
         {
-            // 可能是用户取消了UAC提示
-            if (e.NativeErrorCode == 1223) 
-            {
-                _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_Play_CancelledByUser".GetLocalized());
-                return;
-            }
-            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Error, "GalgamePage_Play_Error".GetLocalized() + e.Message);
-        }
-        catch (Exception e)
-        {
-            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Error, "GalgamePage_Play_Error".GetLocalized() + e.Message);
-        }
-        return;
-
-        // 尝试获取Steam ID
-        async Task<string?> TryGetSteamIdAsync()
-        {
-            _infoService.Info(InfoBarSeverity.Informational, msg:"GalgamePage_Play_GettingSteamId".GetLocalized());
-            try
-            {
-                if (Item is null) return null;
-                var path = Item.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.Steam)?.GetPath(Item);
-                if (path is null || !Directory.Exists(path)) return null;
-                DirectoryInfo? di = new(path);
-                di = di.Parent?.Parent;
-                if (di is null) throw new PvnException("Cannot find steamapps folder");
-                foreach (FileInfo file in di.GetFiles("appmanifest_*.acf"))
-                {
-                    await using FileStream fs = file.OpenRead();
-                    KVValue? kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text).Deserialize(fs).Value;
-                    if (kv is null) continue;
-                    var name = kv["name"].ToString(CultureInfo.InvariantCulture);
-                    if (path.Contains(name)) return kv["appid"].ToString(CultureInfo.InvariantCulture);
-                }
-            }
-            catch (Exception e)
-            {
-                _infoService.DeveloperEvent(e: e);
-            }
-            finally
-            {
-                _infoService.Info(InfoBarSeverity.Informational);
-            }
-            return null;
-        }
-
-        // 使用steam启动游戏，第一次弹窗警告需要手动选择游戏进程以记录游戏时长，若返回bool则是取消了对话框
-        async Task<bool> DisplaySteamMsgAsync()
-        {
-            if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.NotifiedSteamNeedManual)) return true;
-            BasicDialog dialog = new("GalgamePage_Play_SteamDialog_Title".GetLocalized(),
-                "GalgamePage_Play_SteamDialog_Message".GetLocalized(),
-                checkBoxText:"GalgamePage_Play_SteamDialog_CheckBox".GetLocalized());
-            await dialog.ShowAsync();
-            if (dialog.PrimaryButtonClicked)
-            {
-                await _localSettingsService.SaveSettingAsync(KeyValues.NotifiedSteamNeedManual, dialog.CheckBoxChecked);
-                return true;
-            }
-            return false;
-        }
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            Title = "MultiInstall_SelectDialog_Title".GetLocalized(),
+            Content = selector,
+            PrimaryButtonText = "MultiInstall_Launch".GetLocalized(),
+            CloseButtonText = "Cancel".GetLocalized(),
+            DefaultButton = ContentDialogButton.Primary,
+        };
+        return await dialog.ShowAsync() == ContentDialogResult.Primary
+            ? selector.SelectedItem as GalgameAndPath
+            : null;
     }
 
     [RelayCommand]
@@ -464,10 +376,11 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task ChangeSavePosition()
     {
-        if (Item?.IsLocalGame != true) return;
+        if (Item?.PreferredLocalInstallation is not { } installation) return;
         try
         {
-            await _galgameService.ChangeGalgameSavePosition(Item);
+            await _galgameService.ChangeGalgameSavePosition(Item, installation);
+            Update(Item);
         }
         catch (PvnException e)
         {
@@ -478,95 +391,118 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             _infoService.Info(InfoBarSeverity.Error, "GalgamePage_ChangeSavePosFailed".GetLocalized(), e.ToString());
         }
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
-    private void ResetExePath(object obj)
+    private async Task ResetExePath()
     {
-        if (Item is null || !Item.IsLocalGame) return;
-        Item!.ExePath = null;
+        if (Item?.PreferredLocalInstallation is not { } installation ||
+            installation.LocalConfig is not { } config) return;
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element
+                ? element.RequestedTheme
+                : ElementTheme.Default,
+            Title = "GalgamePage_ResetExePath_Title".GetLocalized(),
+            PrimaryButtonText = "Yes".GetLocalized(),
+            CloseButtonText = "Cancel".GetLocalized(),
+            DefaultButton = ContentDialogButton.Primary,
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+        config.ExePath = null;
+        if (installation.Source is not null)
+            _sourceService.Save(installation.Source);
+        Update(Item);
+        _infoService.Info(InfoBarSeverity.Success, "GalgamePage_ResetExePath_Success".GetLocalized());
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task DeleteFromDisk()
     {
         if (Item is null || !Item.IsLocalGame) return;
+        List<GalgameAndPath> deletable = Item.LocalInstallations
+            .Where(e => e.Source?.SourceType == GalgameSourceType.LocalFolder).ToList();
+        GalgameAndPath? installation = deletable.Count switch
+        {
+            0 => null,
+            1 => deletable[0],
+            _ => await SelectInstallationAsync(deletable),
+        };
+        if (installation is null)
+        {
+            _infoService.Info(InfoBarSeverity.Warning, "MultiInstall_DeleteFiles_LocalFolderOnly".GetLocalized());
+            return;
+        }
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
             RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default,
-            Title = "HomePage_Delete_Title".GetLocalized(),
-            Content = new StackPanel
-            {
-                Children =
-                {
-                    new TextBlock { Text = "HomePage_Delete_Message".GetLocalized(), Margin = new Thickness(0, 0, 0, 30) },
-                    new CheckBox { Content = "HomePage_Delete_FromLibrary".GetLocalized(), IsChecked = true }
-                }
-            },
+            Title = "MultiInstall_DeleteFiles_Title".GetLocalized(),
+            Content = "MultiInstall_DeleteFiles_Content".GetLocalized() + $"\n{installation.Path}",
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized(),
             DefaultButton = ContentDialogButton.Secondary
         };
-        dialog.PrimaryButtonClick += async (_, _) =>
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+        try
         {
-            CheckBox? checkBox = (CheckBox)((StackPanel)dialog.Content).Children[1];
-            var deleteFromLibrary = checkBox.IsChecked ?? false;
-            var path = Item.Sources.FirstOrDefault(s => s.SourceType == GalgameSourceType.LocalFolder)?.GetPath(Item);
-            if (path is not null)
-            {
-                try
-                {
-                    StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(path);
-                    await folder.DeleteAsync(StorageDeleteOption.Default);
-                }
-                catch (Exception e)
-                {
-                    App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Error, "GalgamePage_Delete_Game_Error".GetLocalized() + e.Message);
-                }
-            }
-            if (deleteFromLibrary)
-            {
-                await _galgameService.RemoveGalgame(Item, true);
-            }
-            else
-            {
-                GalgameSourceBase? source = _sourceService.GetGalgameSources().FirstOrDefault(s => s.Galgames.Any(g => g.Galgame == Item));
-                if (source != null)
-                {
-                    _sourceService.MoveOutNoOperate(source, Item);
-                }
-                else
-                {
-                    App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgamePage_Delete_Game_Error".GetLocalized());
-                }
-            }
+            await _sourceService.MoveOutNoOperate(installation, true);
+            IsLocalGame = Item.IsLocalGame;
+            Update(Item);
+            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Success,
+                "GalgamePage_Delete_Game_Success".GetLocalized());
+        }
+        catch (Exception e)
+        {
+            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Error,
+                "GalgamePage_Delete_Game_Error".GetLocalized() + e.Message, e);
+        }
+    }
 
-            App.GetService<IInfoService>().Event(EventType.GalgameEvent, InfoBarSeverity.Success, "GalgamePage_Delete_Game_Success".GetLocalized());
-            _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
+    [RelayCommand]
+    private async Task DeletePermanently()
+    {
+        if (Item is null) return;
+        ContentDialog dialog = new()
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            Title = "MultiInstall_DeleteGame_Title".GetLocalized(),
+            Content = "MultiInstall_DeleteGame_Content".GetLocalized() + $"\n{Item.Name.Value}",
+            PrimaryButtonText = "MultiInstall_DeleteGame_Action".GetLocalized(),
+            CloseButtonText = "Cancel".GetLocalized(),
+            DefaultButton = ContentDialogButton.Close,
         };
-        await dialog.ShowAsync();
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+        await _galgameService.RemoveGalgame(Item);
+        _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
     }
 
     [RelayCommand]
     private async Task OpenInExplorer()
     {
-        if(Item == null) return;
-        var path = Item.Sources
-            .FirstOrDefault(s => s.SourceType is GalgameSourceType.LocalFolder or GalgameSourceType.Steam)
-            ?.GetPath(Item);
-        if (path is null) //不应该发生
+        await OpenInstallationInExplorer(Item?.PreferredLocalInstallation);
+    }
+
+    [RelayCommand]
+    private async Task OpenInstallationInExplorer(GalgameAndPath? installation)
+    {
+        if (installation is null) return;
+        if (!Directory.Exists(installation.Path))
         {
-            _infoService.DeveloperEvent(InfoBarSeverity.Error, "Can't find the path of the game");
+            _infoService.Info(InfoBarSeverity.Warning,
+                "MultiInstall_PathUnavailable".GetLocalized(installation.Path));
             return;
         }
-        await Launcher.LaunchUriAsync(new Uri(path));
+        StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(installation.Path);
+        await Launcher.LaunchFolderAsync(folder);
     }
 
     [RelayCommand]
     private async Task OpenSaveDirectory()
     {
-        if (Item == null) return;
-        if (string.IsNullOrEmpty(Item.DetectedSavePosition))
+        LocalInstallationConfig? config = Item?.PreferredLocalInstallation?.LocalConfig;
+        if (config is null) return;
+        if (string.IsNullOrWhiteSpace(config.DetectedSavePath?.ToPath()))
         {
             _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_NoSaveDirectoryDetected".GetLocalized(), displayTimeMs: 3000);
             return;
@@ -574,7 +510,13 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
         try
         {
-            await Launcher.LaunchUriAsync(new Uri(Item.DetectedSavePosition));
+            var absolutePath = config.DetectedSavePath?.ToPath();
+            if (string.IsNullOrWhiteSpace(absolutePath))
+            {
+                _infoService.Info(InfoBarSeverity.Error, "GalgamePage_OpenSaveDirectoryFailed".GetLocalized(), "GalgamePage_InvalidSavePath".GetLocalized());
+                return;
+            }
+            await Launcher.LaunchUriAsync(new Uri(absolutePath));
         }
         catch (Exception e)
         {
@@ -592,20 +534,24 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             Item.EnableMagpie = false;
             _infoService.Info(InfoBarSeverity.Warning, "CallMagpieTask_NoMagpiePath".GetLocalized());
         }
+        if (Item.PreferredLocalInstallation?.Source is { } source)
+            _sourceService.Save(source);
         await _galgameService.SaveGalgameAsync(Item);
+        Update(Item);
     }
 
     [RelayCommand]
     private async Task ChangeRunInLocaleEmulator()
     {
-        if (Item is null) return;
-        if (Item.RunInLocaleEmulator && !await CheckLocaleEmulator())
-            Item.RunInLocaleEmulator = false;
+        LocalInstallationConfig? config = CurrentInstallationConfig;
+        if (config is null) return;
+        if (config.RunInLocaleEmulator && !await CheckLocaleEmulator())
+            config.RunInLocaleEmulator = false;
 
-        if (!Item.RunInLocaleEmulator)
+        if (!config.RunInLocaleEmulator)
         {
-            Item.ExeArguments = null;
-            Item.ExePath = null;
+            config.ExeArguments = null;
+            config.ExePath = null;
             await RemoveSelectedThread();
         }
 
@@ -616,21 +562,22 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private async Task ChangeHighDpi()
     {
-        if (Item is null || string.IsNullOrEmpty(Item.ExePath)) 
+        LocalInstallationConfig? config = CurrentInstallationConfig;
+        if (config is null || string.IsNullOrEmpty(config.ExePath))
         {
             _infoService.Info(InfoBarSeverity.Error, "GalgamePage_HighDpi_ExePathIsEmpty".GetLocalized());
-            if (Item != null)
-                Item.HighDpi = false;
+            if (config != null)
+                config.HighDpi = false;
             return;
         }
-        
-        try 
+
+        try
         {
             // 构建 PowerShell 命令
             var regPath = @"HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
-            var command = !Item.HighDpi
-                ? $"Remove-ItemProperty -Path '{regPath}' -Name '{Item.ExePath.Replace("'", "''")}'"
-                : $"Set-ItemProperty -Path '{regPath}' -Name '{Item.ExePath.Replace("'", "''")}' -Value '~ PERPROCESSSYSTEMDPIFORCEOFF HIGHDPIAWARE'";
+            var command = !config.HighDpi
+                ? $"Remove-ItemProperty -Path '{regPath}' -Name '{config.ExePath.Replace("'", "''")}'"
+                : $"Set-ItemProperty -Path '{regPath}' -Name '{config.ExePath.Replace("'", "''")}' -Value '~ PERPROCESSSYSTEMDPIFORCEOFF HIGHDPIAWARE'";
 
             // 创建启动管理员权限的 PowerShell 进程
             ProcessStartInfo startInfo = new ProcessStartInfo
@@ -664,7 +611,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             {
                 // 用户取消了UAC提示
                 _infoService.Info(InfoBarSeverity.Warning, "GalgamePage_HighDpi_NeedAdmin".GetLocalized());
-                Item.HighDpi = !Item.HighDpi;
+                config.HighDpi = !config.HighDpi;
             }
         }
         catch (Exception ex)
@@ -709,7 +656,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         (GalStatusSyncResult, string) result = await _galgameService.DownLoadPlayStatusAsync(Item, RssType.Bangumi);
         await DisplayMsg(result.Item1.ToInfoBarSeverity(), result.Item2);
     }
-    
+
     [RelayCommand]
     private async Task SyncFromVndb()
     {
@@ -735,8 +682,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             {
                 var folder = file.Path[..file.Path.LastIndexOf('\\')];
                 await _galgameService.SetLocalPathAsync(Item!, folder);
-                Item!.ExePath = file.Path;
+                if (Item!.PreferredLocalInstallation?.LocalConfig is { } config)
+                {
+                    config.ExePath = file.Path;
+                    if (Item.PreferredLocalInstallation.Source is not null)
+                        _sourceService.Save(Item.PreferredLocalInstallation.Source);
+                }
                 IsLocalGame = Item!.IsLocalGame;
+                Update(Item);
                 _ = DisplayMsg(InfoBarSeverity.Success, "GalgamePage_PathSet".GetLocalized());
                 _galgameService.RefreshDisplay(); //重新构造显示列表以刷新特殊显示非本地游戏（因为GameToOpacityConverter只会在构造列表的时候被调用）
             }
@@ -750,7 +703,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task RemoveSelectedThread()
     {
-        Item!.ProcessName = null;
+        if (CurrentInstallationConfig is not { } config) return;
+        config.ProcessName = null;
         Update(Item);
         _ = DisplayMsg(InfoBarSeverity.Success, "GalgamePage_RemoveSelectedThread_Success".GetLocalized());
         await SaveAsync();
@@ -759,12 +713,12 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task SelectProcess()
     {
-        if (!Item!.IsLocalGame) return;
+        if (CurrentInstallationConfig is not { } config) return;
         SelectProcessDialog dialog = new();
         await dialog.ShowAsync();
         if (dialog.SelectedProcessName is not null)
         {
-            Item.ProcessName = dialog.SelectedProcessName;
+            config.ProcessName = dialog.SelectedProcessName;
             Update(Item);
             await SaveAsync();
             _ = DisplayMsg(InfoBarSeverity.Success, "HomePage_ProcessNameSet".GetLocalized());
@@ -774,8 +728,10 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task SelectText()
     {
-        if (Item is null || !Item.IsLocalGame) return;
-        var path = Item.TextPath;
+        GalgameAndPath? installation = Item?.PreferredLocalInstallation;
+        LocalInstallationConfig? config = installation?.LocalConfig;
+        if (Item is null || installation is null || config is null) return;
+        var path = config.TextPath;
         if (path is null || File.Exists(path) == false)
         {
             List<string>? customExtensions =
@@ -786,26 +742,26 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
                 // though LocalSettingsService.TryGetDefaultValue should prevent nulls.
                 customExtensions = [".txt", ".pdf", ".md", ".doc", ".docx"];
             }
-            SelectFileDialog dialog = new(Item!.LocalPath!, customExtensions,
+            SelectFileDialog dialog = new(installation.Path, customExtensions,
                 "GalgamePage_SelectText_Title".GetLocalized());
             await dialog.ShowAsync();
             path = dialog.SelectedFilePath;
             if (dialog.RememberMe)
             {
-                Item.TextPath = path;
+                config.TextPath = path;
                 await SaveAsync();
             }
         }
-        
+
         if (path is not null)
             _ = Launcher.LaunchUriAsync(new Uri(path));
     }
-    
+
     [RelayCommand(CanExecute = nameof(IsLocalGame))]
     private async Task ClearText()
     {
-        if (Item is null) return;
-        Item.TextPath = null;
+        if (CurrentInstallationConfig is not { } config) return;
+        config.TextPath = null;
         await SaveAsync();
     }
 
@@ -826,30 +782,29 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         return false;
     }
 
-    private Process? TryGetProcessFromName()
-    {
-        if (Item?.ExePath is null) return null;
-        var name = Path.GetFileNameWithoutExtension(Item.ExePath);
-        return Process.GetProcesses().FirstOrDefault(p => p.ProcessName == name);
-    }
-
     [RelayCommand]
     private async Task ResetPath()
     {
-        if (Item is null || !Item.IsLocalGame) return;
-        if (Item.HighDpi)
+        LocalInstallationConfig? config = CurrentInstallationConfig;
+        if (Item is null || config is null) return;
+        if (config.HighDpi)
             await ChangeHighDpi();
-        if (Item.HighDpi)
-            Item.HighDpi = false;
-        Item!.ExePath = null;
+        if (config.HighDpi)
+            config.HighDpi = false;
+        config.ExePath = null;
         await ClearText();
-        
+
     }
 
     // 管理游戏详情页布局
     [RelayCommand]
-    private void ManageLayout()
+    private async Task ManageLayout()
     {
+        if (Plugin is IGalgamePageSetting setting)
+        {
+            await PluginInvokeHelper.InvokeAsync(_pluginInfo!, setting.SettingAsync, _infoService);
+            return;
+        }
         ManageGalgamePageLayoutDialog dialog = new();
         _ = dialog.ShowAsync();
     }
@@ -894,6 +849,8 @@ public class GalgamePageParameter
     [Required] public Galgame Galgame = null!;
     /// 如果设置有打开直接启动游戏，则直接启动游戏
     public bool StartGame;
+    /// 强制启动游戏
+    public bool ForceStartGame;
     /// 显示手动选择线程弹窗
     public bool SelectProgress;
 }

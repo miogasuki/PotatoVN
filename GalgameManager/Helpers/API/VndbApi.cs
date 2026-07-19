@@ -11,6 +11,9 @@ public interface IVndbApi
     [Post("/vn")]
     public Task<VndbResponse<VndbVn>> GetVisualNovelAsync([Body] VndbQuery vndbQuery);
 
+    [Post("/release")]
+    public Task<VndbResponse<VndbRelease>> GetReleaseAsync([Body] VndbQuery vndbQuery);
+
     [Post("/character")]
     public Task<VndbResponse<VndbCharacter>> GetVnCharacterAsync([Body] VndbQuery vndbQuery);
 
@@ -48,31 +51,34 @@ public class VndbApi : IVndbApi
 {
     private readonly IVndbApi _vndbApiImplementation;
     private readonly VndbAuthorizationHandler _vndbAuthorizationHandler;
-    public async Task<VndbResponse<VndbVn>> GetVisualNovelAsync(VndbQuery vndbQuery) => 
+    public async Task<VndbResponse<VndbVn>> GetVisualNovelAsync(VndbQuery vndbQuery) =>
         await _vndbApiImplementation.GetVisualNovelAsync(vndbQuery);
 
-    public async Task<VndbResponse<VndbCharacter>> GetVnCharacterAsync(VndbQuery vndbQuery) => 
+    public Task<VndbResponse<VndbRelease>> GetReleaseAsync(VndbQuery vndbQuery) =>
+        _vndbApiImplementation.GetReleaseAsync(vndbQuery);
+
+    public async Task<VndbResponse<VndbCharacter>> GetVnCharacterAsync(VndbQuery vndbQuery) =>
         await _vndbApiImplementation.GetVnCharacterAsync(vndbQuery);
 
-    public async Task<VndbResponse<VndbStaff>> GetStaffAsync(VndbQuery vndbQuery) => 
+    public async Task<VndbResponse<VndbStaff>> GetStaffAsync(VndbQuery vndbQuery) =>
         await _vndbApiImplementation.GetStaffAsync(vndbQuery);
-    
-    public async Task<UserLabelsResponse> GetUserLabelsAsync(string id) => 
+
+    public async Task<UserLabelsResponse> GetUserLabelsAsync(string id) =>
         await _vndbApiImplementation.GetUserLabelsAsync(id);
 
-    public async Task<UserLabelsResponse> GetCurrentUserLabelsAsync(string id) => 
+    public async Task<UserLabelsResponse> GetCurrentUserLabelsAsync(string id) =>
         await _vndbApiImplementation.GetCurrentUserLabelsAsync(id);
 
-    public async Task<AuthInfoResponse> GetAuthInfo() => 
+    public async Task<AuthInfoResponse> GetAuthInfo() =>
         await _vndbApiImplementation.GetAuthInfo();
 
-    public async Task<VndbResponse<VndbUserListItem>> GetUserVisualNovelListAsync(VndbQuery vndbQuery) => 
+    public async Task<VndbResponse<VndbUserListItem>> GetUserVisualNovelListAsync(VndbQuery vndbQuery) =>
         await _vndbApiImplementation.GetUserVisualNovelListAsync(vndbQuery);
 
-    public async Task<ApiResponse<object>> ModifyUserVnAsync(string id, PatchUserListRequest patchUserListRequest) => 
+    public async Task<ApiResponse<object>> ModifyUserVnAsync(string id, PatchUserListRequest patchUserListRequest) =>
         await _vndbApiImplementation.ModifyUserVnAsync(id, patchUserListRequest);
 
-    public async Task<ApiResponse<object>> DeleteUserVnAsync(string id) => 
+    public async Task<ApiResponse<object>> DeleteUserVnAsync(string id) =>
         await _vndbApiImplementation.DeleteUserVnAsync(id);
 
 
@@ -99,22 +105,22 @@ public class VndbApi : IVndbApi
                 HttpMessageHandlerFactory = () => _vndbAuthorizationHandler
             });
     }
-    
-    
+
+
 
     private static async Task<Exception?> ExceptionFactory(HttpResponseMessage arg)
     {
         await Task.CompletedTask;
         return arg.StatusCode switch
         {
-            HttpStatusCode.BadRequest => new HttpRequestException(arg.Content.ToString()), 
+            HttpStatusCode.BadRequest => new HttpRequestException(arg.Content.ToString()),
             HttpStatusCode.TooManyRequests => new ThrottledException(),
             HttpStatusCode.Unauthorized => new InvalidTokenException(),
             _ => null
         };
     }
 
-    
+
 }
 
 /// <summary>
@@ -124,7 +130,7 @@ public class ThrottledException : Exception
 {
     public ThrottledException() : base("Throttled")
     {
-        
+
     }
 }
 
@@ -135,7 +141,7 @@ public class InvalidTokenException : Exception
 {
     public InvalidTokenException() : base("Invalid authentication token.")
     {
-        
+
     }
 }
 

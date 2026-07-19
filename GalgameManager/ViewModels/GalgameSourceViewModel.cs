@@ -18,6 +18,7 @@ using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.DataTransfer;
+using GalgameManager.Helpers.EnumHelpers;
 
 namespace GalgameManager.ViewModels;
 
@@ -30,12 +31,14 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private readonly INavigationService _navigationService;
     private readonly ILocalSettingsService _settingsService;
     private readonly ISourceScanResultService _sourceScanService;
+    private readonly IGameLaunchService _gameLaunchService; // 按库内明确安装实例启动游戏
     private static readonly List<GetGalgameInfoFromRssTask> RssTasks = [];
 
     private GalgameSourceBase? _item;
     public AdvancedCollectionView Galgames { get; } = new(new ObservableCollection<GalgameAndPath>(), true);
-    public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.None};
+    public List<RssType> RssTypes { get; } = new(){RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Cngal, RssType.Mixed, RssType.Hikarinagi, RssType.None};
     private readonly List<Galgame> _selectedGalgames = new();
+    private readonly List<GalgameAndPath> _selectedEntries = new(); // 当前选中的库内游戏条目
     private UnpackGameTask? _unpackGameTask;
     
     [ObservableProperty] private bool _isUnpacking;
@@ -161,7 +164,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     public GalgameSourceViewModel(IGalgameSourceCollectionService dataCollectionService, 
         IGalgameCollectionService galgameService, IBgTaskService bgTaskService, IInfoService infoService, 
         INavigationService navigationService, ILocalSettingsService settingsService, 
-        ISourceScanResultService sourceScanService)
+        ISourceScanResultService sourceScanService, IGameLaunchService gameLaunchService)
     {
         _sourceService = dataCollectionService;
         _galgameService = (GalgameCollectionService)galgameService;
@@ -170,6 +173,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         _navigationService = navigationService;
         _settingsService = settingsService;
         _sourceScanService = sourceScanService;
+        _gameLaunchService = gameLaunchService;
     }
 
     private void LoadGames()
@@ -183,25 +187,16 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         List<GalgameAndPath> target = new();
         // 当前库
         foreach (GalgameAndPath g in _item.Galgames)
-            target.Add(new GalgameAndPath(g.Galgame, g.Path));
+            target.Add(g);
 
         // 子库（可选）
         if (IncludeSubSources)
             LoadFromSubSources(_item, target);
 
-        // 去重（按 Galgame 实例）
-        List<GalgameAndPath> distinct = new();
-        HashSet<Galgame> seen = new();
-        foreach (var g in target)
-        {
-            if (seen.Add(g.Galgame))
-                distinct.Add(g);
-        }
-
         // 刷新底层源并应用排序
         var source = (ObservableCollection<GalgameAndPath>)Galgames.Source;
         source.Clear();
-        foreach (var t in distinct)
+        foreach (var t in target)
             source.Add(t);
         Galgames.RefreshSorting();
 
@@ -209,6 +204,11 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         DontScanPaths.Clear();
         foreach (var path in _item.DontScanPath)
             DontScanPaths.Add(path);
+        
+        List<RssType> availableTypes = RssHelperX.GetAvailableTypes(_galgameService);
+        foreach (var t in Galgames.Source)
+            if (t is GalgameAndPath g)
+                g.RssTypes = availableTypes;
     }
     
     private void LoadFromSubSources(GalgameSourceBase source, List<GalgameAndPath> target)
@@ -216,7 +216,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         foreach (GalgameSourceBase sub in source.SubSources)
         {
             foreach (GalgameAndPath g in sub.Galgames)
-                target.Add(new GalgameAndPath(g.Galgame, g.Path));
+                target.Add(g);
             LoadFromSubSources(sub, target);
         }
     }
@@ -233,7 +233,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             var path = _item.GetPath(game);
             if (path != null)
             {
-                source.Add(new GalgameAndPath(game, path));
+                if (_item.GetEntry(game) is { } entry) source.Add(entry);
             }
             else if (IncludeSubSources)
             {
@@ -253,7 +253,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             if (path != null)
             {
                 var src = (ObservableCollection<GalgameAndPath>)Galgames.Source;
-                src.Add(new GalgameAndPath(game, path));
+                if (subSource.GetEntry(game) is { } entry) src.Add(entry);
                 return true;
             }
             
@@ -279,6 +279,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             if (parameter is not string url) return;
             Item = _sourceService.GetGalgameSourceFromUrl(url);
             if (Item == null) return;
+            RefreshItemBindings();
         
             _unpackGameTask = _bgTaskService.GetBgTask<UnpackGameTask>(Item.Url);
             if (_unpackGameTask != null)
@@ -295,6 +296,29 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         {
             _infoService.DeveloperEvent(e: e);
         }
+    }
+
+    private void RefreshItemBindings()
+    {
+        if (Item is null) return;
+
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.Name));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.Path));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.SourceType));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.ImagePath));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CanChangeScanOnStart));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.ScanOnStart));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CanChangeCheckOnStart));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CheckOnStart));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CanChangeDetect));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.Detect));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.DetectFolderAdd));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.DetectFolderRemove));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.CanChangeSaveMetaBackup));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.SaveMetaBackup));
+        Item.RaisePropertyChanged(nameof(GalgameSourceBase.IsSourceScanable));
+        OnPropertyChanged(nameof(ImagePathDes));
+        OnPropertyChanged(nameof(SaveMetadata));
     }
 
     public void OnNavigatedFrom()
@@ -516,9 +540,16 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     {
         SelectionChangedEventArgs e = (SelectionChangedEventArgs) et;
         foreach(GalgameAndPath g in e.AddedItems)
-            _selectedGalgames.Add(g.Galgame);
+        {
+            _selectedEntries.Add(g);
+            if (!_selectedGalgames.Contains(g.Galgame)) _selectedGalgames.Add(g.Galgame);
+        }
         foreach (GalgameAndPath g in e.RemovedItems)
-            _selectedGalgames.Remove(g.Galgame);
+        {
+            _selectedEntries.Remove(g);
+            if (_selectedEntries.All(entry => entry.Galgame != g.Galgame))
+                _selectedGalgames.Remove(g.Galgame);
+        }
         UiDownloadInfo = _selectedGalgames.Count == 0
             ? "GalgameFolderPage_DownloadInfo".GetLocalized()
             : "GalgameFolderPage_DownloadSelectedInfo".GetLocalized();
@@ -566,7 +597,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
             XamlRoot = App.MainWindow!.Content.XamlRoot,
             RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "GalgameSourcePage_Remove_Title".GetLocalized(),
-            Content = string.Format("GalgameSourcePage_Remove_SingleGame".GetLocalized(), gameAndPath.Galgame.Name.Value),
+            Content = "MultiInstall_Unlink_Content".GetLocalized() + $"\n{gameAndPath.Path}",
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized()
         };
@@ -574,7 +605,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         ContentDialogResult result = await dialog.ShowAsync();
         if (result == ContentDialogResult.Primary)
         {
-            await _galgameService.RemoveGalgame(gameAndPath.Galgame);
+            await _sourceService.MoveOutNoOperate(gameAndPath);
             // 如果当前游戏在选中列表中，也要将其移除
             if (_selectedGalgames.Contains(gameAndPath.Galgame))
             {
@@ -586,32 +617,34 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                     IsDownloadFromNameVisible = false;
                 }
             }
+            _selectedEntries.Remove(gameAndPath);
         }
     }
 
     [RelayCommand]
     private async Task DeleteGame()
     {
-        if (_selectedGalgames.Count == 0) return;
+        if (_selectedEntries.Count == 0) return;
         ContentDialog dialog = new()
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
             RequestedTheme = App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement element ? element.RequestedTheme : Microsoft.UI.Xaml.ElementTheme.Default,
             Title = "GalgameSourcePage_Remove_Title".GetLocalized(),
-            Content = string.Format("GalgameSourcePage_Remove_Message".GetLocalized(), _selectedGalgames.Count),
+            Content = string.Format("GalgameSourcePage_Remove_Message".GetLocalized(), _selectedEntries.Count),
             PrimaryButtonText = "Yes".GetLocalized(),
             SecondaryButtonText = "Cancel".GetLocalized()
         };
         dialog.PrimaryButtonClick += async (_, _) =>
         {
-            // 创建选中游戏的副本，避免在遍历过程中集合被修改
-            List<Galgame> gamesToRemove = new(_selectedGalgames);
-            foreach (var galgame in gamesToRemove)
+            // 创建选中条目的副本，避免在遍历过程中集合被修改
+            List<GalgameAndPath> entriesToRemove = new(_selectedEntries);
+            foreach (GalgameAndPath entry in entriesToRemove)
             {
-                await _galgameService.RemoveGalgame(galgame);
+                await _sourceService.MoveOutNoOperate(entry);
             }
             // 操作完成后清空选中集合
             _selectedGalgames.Clear();
+            _selectedEntries.Clear();
             UiDownloadInfo = "GalgameFolderPage_DownloadInfo".GetLocalized();
             IsDownloadFromNameVisible = false;
         };
@@ -627,6 +660,13 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
         App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
             _navigationService.NavigateTo(typeof(GalgameSettingViewModel).FullName!, gameAndPath.Galgame)
         );
+    }
+
+    [RelayCommand]
+    private async Task PlayInstallation(GalgameAndPath? gameAndPath)
+    {
+        if (gameAndPath is null || !gameAndPath.IsLocalInstallation) return;
+        await _gameLaunchService.LaunchAsync(gameAndPath.Galgame, gameAndPath);
     }
 
     [RelayCommand]
@@ -651,7 +691,7 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
     private async Task OpenGameInExplorer(GalgameAndPath gameAndPath)
     {
         if (gameAndPath?.Galgame == null) return;
-        var folder = await StorageFolder.GetFolderFromPathAsync(gameAndPath.Galgame.LocalPath);
+        var folder = await StorageFolder.GetFolderFromPathAsync(gameAndPath.Path);
         await Launcher.LaunchFolderAsync(folder);
     }
 

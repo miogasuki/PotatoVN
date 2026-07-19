@@ -1,4 +1,5 @@
 ﻿using GalgameManager.Helpers;
+using GalgameManager.WinApp.Base.Models.Filters;
 
 namespace GalgameManager.Models.Filters;
 

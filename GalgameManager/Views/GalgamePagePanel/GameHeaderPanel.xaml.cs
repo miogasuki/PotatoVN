@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using GalgameManager.Contracts.Services;
@@ -9,6 +9,7 @@ using GalgameManager.Models.Filters;
 using GalgameManager.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using GalgameManager.WinApp.Base.Contracts.NavigationApi.NavigateParameters;
 
 namespace GalgameManager.Views.GalgamePagePanel;
 
@@ -22,6 +23,7 @@ public partial class GameHeaderPanel
     private readonly IStaffService _staffService = App.GetService<IStaffService>();
     private Galgame? _lastGame;
     private readonly ObservableCollection<GameHeaderPanelStaffList> _staffListSource = new();
+    private readonly ObservableCollection<GameHeaderPanelDeveloperList> _developerListSource = new();
     
     // 标题属性
     public string PrimaryTitleText => GetTitleText(PrimaryTitleType);
@@ -34,6 +36,7 @@ public partial class GameHeaderPanel
     {
         InitializeComponent();
         StaffList.ItemsSource = _staffListSource;
+        DeveloperList.ItemsSource = _developerListSource;
         Unloaded += (_, _) =>
         {
             _staffService.OnGameStaffChanged -= StaffServiceOnOnGameStaffChanged;
@@ -105,6 +108,7 @@ public partial class GameHeaderPanel
             // 继续执行现有更新逻辑
             await UpdateHeaderImgAndCoverImg();
             await UpdateStaffs();
+            UpdateDevelopers();
         }
         catch (Exception e)
         {
@@ -216,11 +220,25 @@ public partial class GameHeaderPanel
         _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
     }
 
+    private void ClickEngine(object sender, RoutedEventArgs e)
+    {
+        if (Game is null) return;
+        Category? category = _categoryService.GetEngineCategory(Game);
+        if (category is null)
+        {
+            _infoService.Info(InfoBarSeverity.Error, msg: "HomePage_NoEngineCategory".GetLocalized());
+            return;
+        }
+        _filterService.ClearFilters();
+        _filterService.AddFilter(new CategoryFilter(category));
+        _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
+    }
+
     private void ClickStaff(object sender, RoutedEventArgs e)
     {
         if (sender is not HyperlinkButton button || button.DataContext is not Staff staff) return;
         NavigationHelper.NavigateToStaffPage(_navigationService,
-            new StaffViewModel.StaffPageNavigationParameter { Staff = staff });
+            new StaffPageNavParameter { Staff = staff });
     }
 
     private void TitleSizeChanged(object sender, SizeChangedEventArgs e)
@@ -252,9 +270,25 @@ public partial class GameHeaderPanel
             if (tmp.Count == 0) continue;
             _staffListSource.Add(new GameHeaderPanelStaffList(career, tmp));
         }
-        // 强制重新计算布局以解决重叠和顺序问题
-        StaffList.InvalidateMeasure();
-        StaffList.UpdateLayout();
+    }
+
+    private void UpdateDevelopers()
+    {
+        if (Game is null || string.IsNullOrEmpty(Game.Developer.Value))
+        {
+            _developerListSource.Clear();
+            return;
+        }
+
+        _developerListSource.Clear();
+        var developers = Game.Developer.Value.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(s => !string.IsNullOrEmpty(s));
+
+        foreach (var dev in developers)
+        {
+            _developerListSource.Add(new GameHeaderPanelDeveloperList { Name = dev });
+        }
     }
 
     private async Task UpdateHeaderImgAndCoverImg()
@@ -280,4 +314,15 @@ public class GameHeaderPanelStaffList (Career career, List<Staff> staffsList)
 {
     public string Career { get; set; } = $"Career_Relation_{career}".GetLocalized();
     public List<Staff> StaffsList { get; set; } = staffsList;
+}
+
+public class GameHeaderPanelDeveloperList : INotifyPropertyChanged
+{
+    public string Name { get; set; } = string.Empty;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

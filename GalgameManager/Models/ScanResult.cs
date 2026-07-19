@@ -11,6 +11,7 @@ public enum ScanResultType
     Information, // For general messages, like scan start time or non-error specific logs
     Success,
     AlreadyExists,
+    RequiresConfirmation, // 仅名称匹配到已有游戏，等待用户确认关联
     Failed
 }
 
@@ -20,6 +21,8 @@ public class PathScanResultItem
     public ScanResultType ResultType { get; set; }
     public string Message { get; set; } = string.Empty;
     public Guid? RelatedGameId { get; set; }
+    [BsonIgnore] public bool RequiresConfirmation =>
+        ResultType == ScanResultType.RequiresConfirmation; // 是否等待用户确认关联
 }
 
 public class GalgameScanResult

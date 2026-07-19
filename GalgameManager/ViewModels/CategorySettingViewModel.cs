@@ -100,9 +100,9 @@ public partial class CategorySettingViewModel : ObservableObject, INavigationAwa
         foreach (CategoryGroupChecker groupChecker in CategoryGroups)
         {
             if (groupChecker.IsSelect && groupChecker.Group.Categories.Contains(Category) == false)
-                groupChecker.Group.Categories.Add(Category);
+                _categoryService.AddCategoryToGroup(groupChecker.Group, Category);
             else if (groupChecker.IsSelect == false && groupChecker.Group.Categories.Contains(Category))
-                groupChecker.Group.Categories.Remove(Category);
+                _categoryService.RemoveCategoryFromGroup(groupChecker.Group, Category);
         }
 
         foreach (GameChecker gameChecker in Games)
@@ -114,8 +114,6 @@ public partial class CategorySettingViewModel : ObservableObject, INavigationAwa
         }
         
         _categoryService.Save(category: Category);
-        foreach (CategoryGroup group in CategoryGroups.Select(g => g.Group))
-            _categoryService.Save(categoryGroup: group);
     }
 
     /// <summary>

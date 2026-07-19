@@ -5,7 +5,6 @@ using GalgameManager.Activation;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
-using GalgameManager.Models;
 using GalgameManager.Views;
 using H.NotifyIcon;
 using Microsoft.UI.Xaml;
@@ -17,6 +16,7 @@ namespace GalgameManager.Services;
 
 public class ActivationService : IActivationService
 {
+    public static object? ActivationArgs { get; private set; }
     private readonly IEnumerable<IActivationHandler> _activationHandlers;//
     private readonly IThemeSelectorService _themeSelectorService; //
     private readonly IUpdateService _updateService;
@@ -25,6 +25,7 @@ public class ActivationService : IActivationService
     private readonly IAppCenterService _appCenterService;
     private readonly ICategoryService _categoryService;
     private readonly IStaffService _staffService;
+    private readonly ISidebarService _sidebarService;
     private readonly IAuthenticationService _authenticationService;
     private readonly IBgmOAuthService _bgmOAuthService;
     private readonly ILocalSettingsService _localSettingsService;
@@ -32,8 +33,9 @@ public class ActivationService : IActivationService
     private readonly IPageService _pageService;
     private readonly IBgTaskService _bgTaskService;
     private readonly IPvnService _pvnService;
+    private readonly IPluginService _pluginService;
     private readonly IInfoService _infoService;
-    
+
     public ActivationService(
         IEnumerable<IActivationHandler> activationHandlers, IThemeSelectorService themeSelectorService,
         IGalgameSourceCollectionService galgameFolderCollectionService,
@@ -42,7 +44,7 @@ public class ActivationService : IActivationService
         ICategoryService categoryService,IBgmOAuthService bgmOAuthService,
         IAuthenticationService authenticationService, ILocalSettingsService localSettingsService,
         IFilterService filterService, IPageService pageService, IBgTaskService bgTaskService, IPvnService pvnService,
-        IInfoService infoService, IStaffService staffService)
+        IInfoService infoService, IStaffService staffService, IPluginService pluginService, ISidebarService sidebarService)
     {
         _activationHandlers = activationHandlers;
         _themeSelectorService = themeSelectorService;
@@ -60,6 +62,8 @@ public class ActivationService : IActivationService
         _pvnService = pvnService;
         _infoService = infoService;
         _staffService = staffService;
+        _pluginService = pluginService;
+        _sidebarService = sidebarService;
     }
 
     public async Task LaunchedAsync(object activationArgs)
@@ -75,18 +79,18 @@ public class ActivationService : IActivationService
             Application.Current.Exit();
             return;
         }
-        
+
         // Execute tasks before activation.
         await InitializeAsync();
 
-        if (IsRestart() == false)
+        if (IsRestart() == false && !IsHealthCheckMode())
         {
             var result = await _authenticationService.StartAuthentication();
             if (!result)
             {
                 Application.Current.Exit();
                 return;
-            } 
+            }
         }
 
         ImportWindow? importWindow = null;
@@ -107,6 +111,7 @@ public class ActivationService : IActivationService
                 await _categoryService.Init();
                 await _staffService.InitAsync();
                 await _filterService.InitAsync();
+                await _localSettingsService.ImportPageSettingsAsync(); // 导入时把导出包内的页面设置写回本机
             });
             importWindow?.Close();
         }
@@ -147,15 +152,19 @@ public class ActivationService : IActivationService
         {
             await _bgTaskService.ResolvedBgTasksAsync();
         }
-        
+
         App.Status = WindowMode.SystemTray;
 
         // Execute tasks after activation.
         await StartupAsync(activationArgs);
+
+        //健康检查模式：完成所有初始化后直接退出，用于端到端测试
+        if (IsHealthCheckMode()) Application.Current.Exit();
     }
 
     public async Task HandleActivationAsync(object activationArgs)
     {
+        ActivationArgs = activationArgs;
         IActivationHandler? activationHandler = _activationHandlers.FirstOrDefault(h => h.CanHandle(activationArgs));
 
         if (activationHandler != null)
@@ -171,6 +180,7 @@ public class ActivationService : IActivationService
     {
         await _themeSelectorService.InitializeAsync().ConfigureAwait(false);
         UiDefaultValues.Init();
+        if (IsHealthCheckMode()) return;
 
         // 初始化窗口
         if (IsRestart() == false)
@@ -179,7 +189,7 @@ public class ActivationService : IActivationService
             //防止有人手快按到页面内容
             App.MainWindow!.Content.Visibility = Visibility.Collapsed;
         }
-        
+
         //系统托盘
         App.GetResource<XamlUICommand>("SetWindowNormalCommand").ExecuteRequested += (_, _) =>
         {
@@ -195,21 +205,27 @@ public class ActivationService : IActivationService
 
     private async Task StartupAsync(object activationArgs)
     {
+        var isHealthCheck = IsHealthCheckMode();
+        await _sidebarService.InitAsync();
         await _galgameCollectionService.StartAsync();
         await _galgameFolderCollectionService.StartAsync();
-        var activateWindow = !IsRestart();
-        if (activationArgs is AppActivationArguments { Kind: ExtendedActivationKind.StartupTask })
+        var activateWindow = !IsRestart() && !isHealthCheck;
+        if (activationArgs is AppActivationArguments { Kind: ExtendedActivationKind.StartupTask } && !isHealthCheck)
             activateWindow = !await _localSettingsService.ReadSettingAsync<bool>(KeyValues.MinToTrayWhenAutoStart);
         if (activateWindow) App.SetWindowMode(WindowMode.Normal);
-        if (IsRestart() == false)
+        await _pluginService.InitAsync();
+        if (IsRestart() == false && !isHealthCheck)
         {
             _pvnService.Startup();
             await _localSettingsService.StartupAsync();
             await _updateService.UpdateSettingsBadgeAsync();
         }
-        await _appCenterService.StartAsync();
-        if(IsRestart() == false) await _bgmOAuthService.Init();
-        await CheckFont();
+        if (!isHealthCheck)
+        {
+            await _appCenterService.StartAsync();
+            if (IsRestart() == false) await _bgmOAuthService.Init();
+            await CheckFont();
+        }
     }
 
     /// <summary>
@@ -260,10 +276,10 @@ public class ActivationService : IActivationService
                 {
                     await _localSettingsService.SaveSettingAsync(KeyValues.FontInstalled, checkBox.IsChecked);
                 };
-                
+
                 await dialog.ShowAsync();
             }
-            
+
             if (Utils.IsFontInstalled("Segoe Fluent Icons"))
                 await _localSettingsService.SaveSettingAsync(KeyValues.FontInstalled, true);
         }
@@ -291,7 +307,7 @@ public class ActivationService : IActivationService
         }
         return false;
     }
-    
+
     private static bool IsSafeMode()
     {
         AppActivationArguments activatedArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
@@ -311,6 +327,15 @@ public class ActivationService : IActivationService
         return false;
     }
 
+    /// <summary>
+    /// 健康检查模式：完成所有初始化后直接退出，用于端到端测试
+    /// </summary>
+    /// <returns></returns>
+    private static bool IsHealthCheckMode()
+    {
+        var args = Environment.GetCommandLineArgs();
+        return args.Any(a => string.Equals(a, "--healthcheck", StringComparison.OrdinalIgnoreCase));
+    }
 
     /// <summary>
     /// 检查数据根目录下是否有导入压缩包

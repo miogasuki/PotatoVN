@@ -30,7 +30,7 @@ public interface IGalgameCollectionService
     /// </summary>
     public event Action<Galgame>? PhrasedEvent2;
 
-    public IGalInfoPhraser[] PhraserList { get; }
+    public Dictionary<int, IGalInfoPhraser> PhraserList { get; }
 
     /// <summary>
     /// 添加一个游戏，注意捕获异常
@@ -153,6 +153,8 @@ public interface IGalgameCollectionService
     /// <returns></returns>
     public Task<GalgameCharacter> PhraseGalCharacterAsync(GalgameCharacter galgameCharacter,
         RssType rssType = RssType.None);
+
+    public Task<List<string>> ParserGalImagesAsync(Galgame galgame, GameParseType parseType);
 
     public Task ExportAsync(Action<string, int, int>? progress);
 

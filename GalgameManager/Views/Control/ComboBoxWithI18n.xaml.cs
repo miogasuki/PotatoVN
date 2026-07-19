@@ -16,14 +16,26 @@ public partial class ComboBoxWithI18N
         InitializeComponent();
         ComboBox.SelectionChanged += (_, _) =>
         {
-            SelectedItem = ComboBox.SelectedItem;
-            SelectedItemChangedEvent?.Invoke(SelectedItem);
+            // 本质是强制刷新 SelectedItem的值
+            if (ComboBox.SelectedItem == null)
+            {
+                var tmp = SelectedItem;
+                ComboBox.SelectedIndex = 0;
+                SelectedItem = ComboBox.SelectedItem;
+                SelectedItem = tmp;
+            }
+
+            if (ComboBox.SelectedItem is not null && ComboBox.SelectedItem != SelectedItem)
+            {
+                SelectedItem = ComboBox.SelectedItem;
+                SelectedItemChangedEvent?.Invoke(SelectedItem);
+            }
         };
     }
 
     partial void OnSelectedItemChanged(object? newValue)
     {
-        if (newValue != ComboBox.SelectedItem)
+        if (newValue != ComboBox.SelectedItem && newValue != null)
             ComboBox.SelectedItem = newValue;
     }
 }

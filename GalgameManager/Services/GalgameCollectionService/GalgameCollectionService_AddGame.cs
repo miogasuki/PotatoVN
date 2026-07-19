@@ -29,11 +29,37 @@ public partial class GalgameCollectionService
         }
 
         // 尝试从数据源获取游戏信息
-        meta ??= await ParseGalInfoOnlyAsync(new Galgame(await GetNameFromPath(sourceType, path)),
-            requireConfirm: requireConfirm);
+        try
+        {
+            meta ??= await ParseGalInfoOnlyAsync(new Galgame(await GetNameFromPath(sourceType, path)),
+                requireConfirm: requireConfirm);
+        }
+        catch (Exception e)
+        {
+            meta ??= new Galgame(await GetNameFromPath(sourceType, path));
+            _infoService.Log(msg:$"Failed on parsing galgame info for {e}");
+        }
+        
         // 检查该游戏是否已经存在
         if (GetGalgameFromUid(meta.Uid) is { } existGame)
         {
+            if (existGame.Uid.GetMatchKind(meta.Uid) == GalgameUidMatchKind.NameOnly)
+            {
+                if (!requireConfirm)
+                    throw new NameOnlyGameMatchException(existGame.Uuid, existGame.Name.Value ?? string.Empty);
+                ContentDialog confirmDialog = new()
+                {
+                    XamlRoot = App.MainWindow!.Content.XamlRoot,
+                    Title = "MultiInstall_NameMatch_Title".GetLocalized(),
+                    Content = "MultiInstall_NameMatch_Content".GetLocalized() +
+                              $"\n{existGame.Name.Value}\n{path}",
+                    PrimaryButtonText = "MultiInstall_LinkInstallation".GetLocalized(),
+                    CloseButtonText = "Cancel".GetLocalized(),
+                    DefaultButton = ContentDialogButton.Close,
+                };
+                if (await confirmDialog.ShowAsync() != ContentDialogResult.Primary)
+                    throw new PvnException("Canceled".GetLocalized());
+            }
             Galgame tmp = await DealWithExistGameAsync(sourceType, path, existGame, meta);
             try
             {
@@ -82,7 +108,11 @@ public partial class GalgameCollectionService
         meta.ErrorOccurred += e =>
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgameEvent", e);
         GalgameSourceBase source = await GetOrAddSourceAsync(sourceType, path);
-        _galSrcService.MoveInNoOperate(source, meta, path);
+        LocalInstallationConfig? localConfig =
+            source is ILocalGalgameSource
+                ? meta.CreateLegacyLocalConfiguration(path)
+                : null;
+        _galSrcService.MoveInNoOperate(source, meta, path, localConfig);
         
         await SaveGalgameAsync(meta);
         return meta;
@@ -168,15 +198,11 @@ public partial class GalgameCollectionService
                 throw new PvnException("AddGalgameResult_AlreadyInLibrary".GetLocalized());
             case GalgameSourceType.LocalFolder:
             case GalgameSourceType.Steam:
-                // 一个游戏只能属于一个本地文件夹
-                if (existGame.Sources.Any(s => s is GalgameFolderSource or SteamSource))
+                GalgameSourceBase localSource = await GetOrAddSourceAsync(type, path);
+                if (localSource.Contain(existGame))
                     throw new PvnException("AddGalgameResult_AlreadyInLibrary".GetLocalized());
-                // 把游戏移入对应的本地库
-                _galSrcService.MoveInNoOperate(
-                    await GetOrAddSourceAsync(
-                        type is GalgameSourceType.LocalFolder ? GalgameSourceType.LocalFolder : 
-                            GalgameSourceType.Steam, path),
-                    existGame, path);
+                LocalInstallationConfig? config = meta?.CreateLegacyLocalConfiguration(path);
+                _galSrcService.MoveInNoOperate(localSource, existGame, path, config);
                 break;
             case GalgameSourceType.LocalZip:
                 GalgameSourceBase targetSource = await GetOrAddSourceAsync(GalgameSourceType.LocalZip, path);

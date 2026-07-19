@@ -1,4 +1,8 @@
-# GalgameManager Client (PotatoVN) - Detailed Knowledge Base
+﻿# GalgameManager Client (PotatoVN) - Detailed Knowledge Base
+
+> After finishing editing, please remember to run GalgameManager.Test to ensure no tests are broken.
+>
+> If you did not change code about parser, you can skip running parser tests since they are making request to external services and can be very slow.
 
 This document provides a detailed overview of the `GalgameManager` client application, which is the primary user-facing component of the PotatoVN project. It is intended for AI agents and developers needing a deeper understanding of the client's architecture, features, and key code areas.
 
@@ -18,7 +22,8 @@ The client application implements the core functionalities of PotatoVN:
 *   **Information Fetching:** Retrieves game metadata (details, cover art, etc.) from multiple online databases (currently supports Bangumi and Visual Novel Database).
 *   **Status Synchronization:** Synchronizes game play status (e.g., playing, completed, planned) with user accounts on supported platforms (e.g., Bangumi).
 *   **Cloud Save Sync (Conceptual):** Facilitates tracking of game save locations. Actual synchronization to cloud storage relies on third-party sync software (e.g., OneDrive, NextCloud) monitoring the designated save folders.
-    *   **Playtime Tracking:** Monitors and records the time spent playing games. This includes individual play sessions (`PlayedTime`) and total play count (`PlayCount`). Both `PlayCount` and `PlayedTime` are synchronized with the `GalgameManager.Server`.
+     *   **Playtime Tracking:** Monitors and records the time spent playing games. This includes individual play sessions (`PlayedTime`) and total play count (`PlayCount`). Both `PlayCount` and `PlayedTime` are synchronized with the `GalgameManager.Server`.
+     *   **Process Detection:** `Helpers/GameProcessDetector.cs` finds processes whose executable path (via `ProcessExtensions.TryGetExecutablePath`, i.e. `QueryFullProcessImageName` — works across 32/64-bit, unlike `Process.MainModule`) lies under the installation directory. `GameLaunchService` uses it at launch only for Steam (no process object available); otherwise it tracks the started process directly. `RecordPlayTimeTask` handles launcher-style games (bootstrapper exits after spawning the main process): when the tracked process exits, it re-checks the install directory every 1s for up to 10s and attaches to a newly-appeared process (only processes not present when tracking started are candidates; `RecordPlayTimeTask.ProcessName` is updated in-memory for crash/tray recovery). Auto-detection never writes `LocalInstallationConfig.ProcessName` — that remains reserved for explicit manual selection (`SelectProcessDialog`), which is the fallback when directory detection fails (e.g. the real process lives outside the install directory).
     *   **Automated Game Processing:** Can extract games from compressed archives, attempt to identify them, and add them to the user's library.
     *   **Magpie Integration:** Allows users to toggle the use of Magpie (a screen scaling tool) for individual games. A global override setting is also available to always enable Magpie, regardless of individual game settings.
 
@@ -37,7 +42,7 @@ The client application implements the core functionalities of PotatoVN:
           *   Use the `x:Uid` attribute on XAML elements to mark them for localization. For example: `<TextBlock x:Uid="MyUniqueControlUid" />`.
           *   In the `.resw` resource file (e.g., `Strings/zh-CN/Resources.resw`), create a `<data>` entry where the `name` attribute is the `x:Uid` value followed by a dot and the target property name. The property name varies by control type:
               *   `TextBlock`, `TextBox`, etc.: Use `.Text` (e.g., `MyUid.Text`)
-              *   `AppBarButton`, `Button`: Use `.Label` (e.g., `MyUid.Label`) 
+              *   `AppBarButton`, `Button`: Use `.Label` (e.g., `MyUid.Label`)
               *   `ContentDialog`: Use `.Title` for titles
               *   `ToolTip`: Use `.ToolTipService.ToolTip`
           *   Example for TextBlock:
@@ -57,8 +62,9 @@ The client application implements the core functionalities of PotatoVN:
                   </data>
                   ```
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
-          * When Editing localizations files, you should *never* directly read or edit the .resw files. 
+          * When Editing localizations files, you should *never* directly read or edit the .resw files.
           * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
+          * `resw_tool.py` must surgically edit `.resw` text (insert/replace/delete `<data>` blocks). Never rewrite the whole file via `xml.etree.ElementTree.ElementTree.write()` — that drops the ResX schema comment, remaps `xsd`/`msdata` namespaces, and produces huge noisy diffs.
           * Usage (note: on Windows PowerShell, use semicolon `;` to separate commands):
               ```bash
             cd GalgameManager/Strings #重要，这个脚本应该在Strings目录下运行
@@ -72,6 +78,10 @@ The client application implements the core functionalities of PotatoVN:
             python resw_tool.py update "Settings_Theme.Text" en-US="Theme" ja-JP="テーマ" zh-CN="主题"
             # 添加新的key
             python resw_tool.py update "NewFeature.Title" en-US="New Feature" ja-JP="新機能"
+            # 删除key
+            python resw_tool.py delete "ObsoleteKey.Text"
+            # 校验所有语言 resw 是否合法（update/delete/normalize 写入后也会自动校验，失败则回滚）
+            python resw_tool.py validate
             # On Windows PowerShell (recommended approach):
             cd GalgameManager/Strings; python resw_tool.py update "NewKey.Text" en-US="English" zh-CN="中文"
             ```
@@ -95,11 +105,15 @@ This section highlights important files and directories specific to the client a
     *   `ShellEventViewModel.cs` (within `ShellViewModel.cs`): Represents an event notification displayed in the shell. It now includes `CallbackAction` and `CallbackButtonText` properties, along with an `ExecuteCallbackCommand` to invoke the action.
 *   **`Views/`**: Contains XAML files defining the user interface pages and controls. Each View typically corresponds to a ViewModel.
     *   `SettingsPage.xaml`: Contains the UI for application settings, including the "Magpie executable path" setting in the "Game" section.
+    *   `HomePage.xaml`: Contains the game list filter Flyout. Its filter panel visibility is controlled by settings keys in `KeyValues.cs` and properties/command in `HomeViewModel.cs`; `HomeFilterPanelVisibilityDialog` is the customization dialog for showing/hiding filter panels. The category (custom `CategoryGroup`) panel defaults to hidden (`HomeFilterShowCategoryPanel`), but `HomeViewModel.UpdateCategoryPanelForceVisibility()` force-shows it (`ForceShowCategoryPanel`) whenever an active `CategoryFilter` is not in the Status/Developer/Engine groups, so such filters are always removable from the panel.
     *   `GalgameSourcePage.xaml`: Contains the UI for individual game library configuration, including settings for auto-scan, auto-add/remove games, and per-library SaveMetaBackup toggle.
+    *   `PluginPage.xaml` and `PluginViewModel.cs`: Contain the installed-plugin list and user-facing plugin add/remove flows; package install flows should extract archives before calling `IPluginService.AddPluginAsync` with `isDev: false`.
+    *   `PluginStorePage.xaml`: Displays the list of available plugins. It uses `StorePlugin` as the data model and inlines the plugin item template (previously `PluginPrefab`) to display plugin details like name, short description, and logo.
     *   `ShellPage.xaml`: The main shell of the application. Its `ItemsRepeater` for displaying event notifications now includes a `HyperlinkButton` that is visible when `CallbackButtonText` is provided in the `ShellEventViewModel`. This button is bound to the `ExecuteCallbackCommand` and uses `VisibilityHelper.Convert` for its visibility.
+    *   `ShellPage.xaml` / `ShellPage.xaml.cs`: Built-in sidebar entries remain declared in XAML, while plugin-provided sidebar buttons are inserted dynamically at runtime from `ISidebarService` snapshots.
 *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
         *   `AddSourceDialog.xaml`: Dialog for adding new game library sources. Uses a ComboBox to select library type (currently supports "本地库" for local folders). The SelectedIndex is bound to the SelectItem property which determines the library type in LibraryViewModel.AddLibrary method.
-        *   `MixedPhraserEnabledDialog.xaml`: Dialog for configuring which search engines/databases are enabled in the mixed phraser. Contains checkboxes for Bangumi, VNDB, Ymgal, and Steam. The dialog receives a `MixedPhraserEnabled` configuration object and allows users to enable/disable individual phrasers.
+        *   `MixedPhraserEnabledDialog.xaml`: Dialog for configuring which search engines/databases are enabled in the mixed phraser. Contains checkboxes for Bangumi, VNDB, Ymgal, Steam, and Hikarinagi. The dialog receives a `MixedPhraserEnabled` configuration object and allows users to enable/disable individual phrasers.
         *   **ContentDialog Localization Pattern**: ContentDialog elements follow specific localization conventions:
             *   Use `x:Uid` attribute on the ContentDialog root element for title and button text
             *   Localization keys use `.Title`, `.PrimaryButtonText`, `.SecondaryButtonText` suffixes
@@ -124,7 +138,22 @@ This section highlights important files and directories specific to the client a
         *   `PvnUpdate` (bool): A flag indicating if the game's data needs to be synced with the server.
         *   `PvnUploadProperties` (enum `PvnUploadProperties`): A flags enum specifying which particular properties of the game need to be uploaded to the server. The `PlayTime` flag is used to indicate that `PlayedTime`, `TotalPlayTime`, and `PlayCount` should be synced.
         *   `Ids` (string?[]): An array storing IDs from different data sources (Bangumi, VNDB, etc.). The array size is defined by `PhraserNumber` constant. All methods accessing this array include bounds checking to prevent `IndexOutOfRangeException` for legacy data with smaller arrays.
-*   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
+    *   **Plugin Models**:
+        *   **`PluginX.cs`**: Represents a loaded plugin at runtime. It wraps the `IPlugin` instance and contains metadata like `Info`, `LoadContext`, and enabled status. It handles UI retrieval with timeout protection.
+        *   **`StorePlugin.cs`**: Represents a plugin as displayed in the plugin store. It is a lightweight model used specifically for the store UI to avoid confusion with active plugins (`PluginX`). It includes properties like `DescriptionShort` for concise display in the store list.
+    *   **Plugin Host API**:
+        *   **`GalgameManager.WinApp.Base/Contracts/IPotatoVNApi.cs`** defines the host API surface exposed to plugins.
+        *   It now exposes **game list page filters** (GameListPage) operations: add/delete/clear filters, and reading the current filter list via `GetFiltersAsync()` (snapshot).
+        *   It exposes game creation helpers for plugins: `AddGame(...)` for local folder games and `AddVirtualGame(...)` for non-local placeholder entries. These host calls are marshalled to the UI thread and may show parse confirmation UI unless `requireConfirm` is disabled.
+        *   It exposes navigation helpers for both built-in pages (`PageEnum`) and plugin-owned WinUI `Page` types; plugin page navigation validates the page comes from the current plugin assembly, then routes through a built-in host page that instantiates the plugin page under the correct plugin XAML scope, avoiding direct `Frame.Navigate` failures for dynamically loaded page types.
+        *   It exposes sidebar button registration APIs so plugins can add or remove shell sidebar entries with placement metadata and host-managed click dispatch.
+        *   Plugin UI interfaces include full game detail page replacement and additive left/right panel injection points for the built-in game detail layout.
+        *   The filter base types are in the shared library: `GalgameManager.WinApp.Base/Models/Filters/FilterBase.cs` and `GalgameManager.WinApp.Base/Contracts/IFilter.cs`.
+ *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
+     *   `PluginService.cs`: The plugin loader now registers each loaded plugin assembly with the host WinUI XAML metadata pipeline before plugin initialization, so plugin XAML can resolve nested custom controls/UserControls when the plugin output includes its generated `.pri` and compiled XAML resources.
+     *   `PluginService.cs`: The plugin loader recognizes a plugin by scanning DLLs in the selected plugin output folder and finding a non-abstract type that implements `IPlugin`; it does not rely on the DLL name matching the folder or template project name.
+     *   `SidebarService.cs`: Centralizes shell sidebar button metadata, plugin sidebar registrations, and persisted visibility settings for both built-in and plugin buttons.
+     *   `CategoryService.cs`: Manages category groups/categories and publishes `CategoryGroupChangedArg` through `IMessenger` only for category-group structural changes (group add/remove, category add/remove from a group), so reactive UI/filter features can refresh without reacting to category content edits. Developer category image downloads are queued through `IBgTaskService` rather than a dedicated worker thread.
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.
     *   File operations.
@@ -138,13 +167,16 @@ This section highlights important files and directories specific to the client a
         *   `SteamSourceService.cs`: Handles Steam-based game libraries. Supports meta backup/restore functionality by creating `.PotatoVN` folders within Steam game directories to store `meta.json` and associated images. Does not support move operations or file system monitoring due to Steam's managed nature.
         *   `VirtualSourceService.cs`: Handles virtual game libraries for organizational purposes.
         *   All source services implement `IGalgameSourceService` interface which defines standard operations like `SaveMetaAsync`, `LoadMetaAsync`, `RemoveMetaAsync` for meta information management.
-*   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
-    *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
+ *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
+     *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
+     *   `GalgameManager/Services/PluginService/PluginXamlHost.cs`: Bridges dynamically loaded plugin assemblies into the host app's WinUI XAML system by loading plugin PRI resources and registering plugin `IXamlMetadataProvider` implementations before plugin UI is initialized.
     *   **`Helpers/Phrase/`**: Contains the mixed phraser system for aggregating game information from multiple sources:
-        *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration.
-        *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, and `SteamEnabled`, all defaulting to true.
+        *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam, Hikarinagi). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration. `GetGalgameInfo` waits on all parallel source tasks with a unified soft timeout (`TimeoutSeconds`); incomplete/faulted sources are dropped before merge.
+        *   `VndbPhraser.cs`: VNDB queries that use the `search` filter must sort by `searchrank`; ID-based queries should keep their native ordering. API calls that may be throttled should use the shared retry wrapper so a retry preserves the original query.
+        *   `HikarinagiPhraser.cs`: Routes requests through the PotatoVN server proxy. On HTTP 429 it waits (honoring `Retry-After`, default 60s to match the server's 1-minute window) and retries up to 3 times, reporting a localized countdown (key `HikarinagiPhraser_RateLimitWaiting`) to the parsing-status UI via `GalgameParsingEventArgs`. Takes an optional `IMessenger` constructor arg (wired from `GalgameCollectionService`, mirroring `MixedPhraser`). Search items expose only one display title (often a translation), so when the best title/subtitle similarity is below 0.9, `SearchAsync` fetches details for the top 3 candidates and re-matches against `origin_title`/`trans_title` (fixes e.g. Japanese query "ライムライト・レモネードジャム" picking id 8008 instead of 1041).
+        *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, `SteamEnabled`, and `HikarinagiEnabled`, all defaulting to true. In default `MixedPhraserOrder`, Hikarinagi sits immediately before Bangumi wherever Bangumi appears, except `RatingOrder` (Hikarinagi provides no rating and the rating merge does no emptiness check) and `StaffOrder` (HikarinagiPhraser is not an `IGalStaffParser`).
         *   `MixedPhraserOrder`: Configuration class that defines the priority order for different game properties when merging data from multiple sources. Uses reflection to determine property orders and supports both Chinese and non-Chinese cultural preferences.
-        *   `MixedPhraserData`: Container class that holds both the `MixedPhraserEnabled` settings and `MixedPhraserOrder` configuration for the mixed phraser.
+        *   `MixedPhraserData`: Container for `Order`, `Enabled`, and `TimeoutSeconds` (int seconds, default 30, `0` = no limit). Persisted via `KeyValues.MixedPhraserTimeout` and hot-reloaded in `GalgameCollectionService.OnSettingChanged`.
 *   **`Contracts/`**: Defines interfaces and data contracts. Interfaces are crucial for decoupling components and enabling testability. Data contracts might define the structure of data exchanged with services or stored locally.
     *   `Contracts/Services/IScanResultService.cs`: Interface for `ScanResultService`.
     *   `Contracts/Services/`: Interfaces for service classes.
@@ -161,6 +193,7 @@ This section highlights important files and directories specific to the client a
 *   **`Models/BgTasks/PvnSyncTasks/`**: Contains specialized background tasks for PotatoVN synchronization:
     *   **`PvnSyncTask_PullGame.cs`**: A parallelized background task that inherits from `QueueTaskBase<GalgameDto>` to handle game data pulling from the server. It processes multiple games concurrently (up to 5 simultaneously) and handles game creation, updates, character synchronization, and playtime merging.
     *   **`PvnSyncTask_PullStaff.cs`**: A parallelized background task that inherits from `QueueTaskBase<StaffDto>` to handle staff data pulling from the server. It processes multiple staff records concurrently (up to 5 simultaneously) and handles staff creation, updates, deletion, image downloading, and game relationship management. This task was extracted from the main `PvnSyncTask` to enable parallel processing of staff synchronization.
+    *   Background tasks that need to survive tray-mode restarts must register a short CLI token in `BgTaskService` and provide any required Json.NET converters there so `ResolvedBgTasksAsync()` can restore their queued payloads.
 *   **`Views/Dialog/PvnBatchUploadDialog.xaml`**: A dialog for selecting which game properties to upload in batch operations. Allows users to choose from available `PvnUploadProperties` flags before initiating bulk uploads to the server.
 *   **`Behaviors/`**: Contains custom UI behaviors that can be attached to XAML elements to add specific functionalities or modify their behavior without extensive code-behind.
     *   `ScanResultRowStyleSelector.cs`: A `StyleSelector` used in `ScanResultPage.xaml` to apply different row background colors in the `ListView` based on the `ScanResultType` of each `PathScanResultItem`.
@@ -195,3 +228,14 @@ This section highlights important files and directories specific to the client a
 *   **Configuration Management:** Understanding `appsettings.json` for client-side settings.
 
 This document provides a foundational knowledge base. For specific implementation details, direct code analysis of the mentioned files and directories will be necessary.
+
+## 7. Multiple Local Installations
+
+- `Galgame` is the logical game. Metadata, categories, review state, and play-time totals remain game-level.
+- `GalgameAndPath` is a stable source entry identified by `EntryId`. A source implements `ILocalGalgameSource` to make its entries launchable local installations, including plugin-provided sources.
+- `LocalInstallationConfig` stores exe path/arguments, process name, administrator/locale/DPI options, text path, detected/cloud save paths, and last successful launch time. Magpie, background mute, and key mappings remain game-level.
+- `Galgame.PreferredInstallationId` identifies the default/last successful installation. New code must pass an explicit `GalgameAndPath` for file, launch, save, move, or delete operations; `LocalPath`, `ExePath`, and similar `Galgame` properties are compatibility views of the preferred installation only.
+- A logical game can belong to multiple LocalFolder and Steam sources, but at most once per source. Removing the final installation keeps the logical game as a virtual game.
+- `GalgameSourceCollectionService` exclusively owns source-entry/installation add, unlink, remove-files, and move operations. `GalgameCollectionService` owns logical-game identity, metadata, and whole-game lifecycle, delegating relationship changes to the source collection service.
+- PVN server sync intentionally excludes sources, paths, and installation configuration. Full local export and versioned `.PotatoVN/meta.json` backups preserve them.
+- `IPotatoVnApi` directly exposes installation snapshots, explicit installation launch, and `AddGameInstallation`; the old `AddGame` API is obsolete.

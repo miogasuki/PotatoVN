@@ -186,6 +186,18 @@
   <data name="HomePage_Download" xml:space="preserve">
     <value>Download Game Info</value>
   </data>
+  <data name="HomePage_BatchManage.Label" xml:space="preserve">
+    <value>Batch manage</value>
+  </data>
+  <data name="HomePage_BatchManage_Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="HomePage_SelectAll" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="HomePage_SelectNone" xml:space="preserve">
+    <value>Deselect All</value>
+  </data>
   <data name="HomePage_Remove" xml:space="preserve">
     <value>Remove Game from Library</value>
   </data>
@@ -215,6 +227,9 @@
   </data>
   <data name="HomePage_Remove_Message" xml:space="preserve">
     <value>Are you sure you want to unhost this game?</value>
+  </data>
+  <data name="HomePage_BatchRemove_Message" xml:space="preserve">
+    <value>Remove these {0} games from the library?</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>OK</value>
@@ -341,7 +356,7 @@ If you would like to use cloud saves, dropping local saves, pls chose Cloud.</va
   <data name="GalgamePage_Description.Text" xml:space="preserve">
     <value>Description</value>
   </data>
-  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
+  <data name="GalgameCollectionService_SelectSavePosition" xml:space="preserve">
     <value>Select game save folder</value>
   </data>
   <data name="GalgameCollectionService_NotExeFounded" xml:space="preserve">
@@ -662,7 +677,7 @@ Since multiple data sources are involved, you need to configure relevant setting
     <value>Automatic categorization</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>After enabling, games will be automatically categorized by developer and play status</value>
+    <value>After enabling, games will be automatically categorized by developer, game engine, and play status</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
     <value>Categorize all games</value>
@@ -714,6 +729,9 @@ Since multiple data sources are involved, you need to configure relevant setting
   </data>
   <data name="CategoryPage_CategoryNow.Label" xml:space="preserve">
     <value>Categorize all games</value>
+  </data>
+  <data name="CategoryPage_CategoryNow.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Categorize all games by play status, developer, and game engine</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
     <value>Authentication</value>
@@ -912,6 +930,18 @@ Since multiple data sources are involved, you need to configure relevant setting
   </data>
   <data name="GalgameSettingPage_GalgameImagePath.Title" xml:space="preserve">
     <value>Cover</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageFromRss.Text" xml:space="preserve">
+    <value>From RSS</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageLocal.Text" xml:space="preserve">
+    <value>From Local File</value>
+  </data>
+  <data name="GalgameSettingPage_NoImagesFound" xml:space="preserve">
+    <value>No images found</value>
+  </data>
+  <data name="GalgameSettingPage_ImageSaved" xml:space="preserve">
+    <value>Image saved</value>
   </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>Select image</value>
@@ -1212,9 +1242,6 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="HomePage_Filter_Not_Found" xml:space="preserve">
     <value>No matching filters found</value>
-  </data>
-  <data name="HomePage_KeepFilters.Label" xml:space="preserve">
-    <value>Keep filters</value>
   </data>
   <data name="HomePage_Sort_Title" xml:space="preserve">
     <value>Sort</value>
@@ -1939,6 +1966,12 @@ If play time can record correctly, just cancel this popup.
   <data name="ConfirmGalInfoDialog_Title_NotFound" xml:space="preserve">
     <value>Game information not found</value>
   </data>
+  <data name="BgTask_Cancelling" xml:space="preserve">
+    <value>Cancelling…</value>
+  </data>
+  <data name="BgTask_CancelFailed" xml:space="preserve">
+    <value>Failed to cancel background task</value>
+  </data>
   <data name="Canceled" xml:space="preserve">
     <value>Canceled</value>
   </data>
@@ -2551,6 +2584,15 @@ If play time can record correctly, just cancel this popup.
   <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
     <value>Show background image</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_OldLayoutSettings.Text" xml:space="preserve">
+    <value>Old Layout Settings</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowDescription.Text" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowStaff.Text" xml:space="preserve">
+    <value>Staff</value>
+  </data>
   <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
     <value>Game Info</value>
   </data>
@@ -2897,7 +2939,7 @@ If play time can record correctly, just cancel this popup.
     <value>Categorize all games</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmMsg" xml:space="preserve">
-    <value>Categorize by game developer and actual play status within PotatoVN.\nThis will partially overwrite currently categorized developers and play statuses.</value>
+    <value>Categorize games by developer, game engine, and actual play status in PotatoVN.\nThis will partially overwrite currently categorized developers and play statuses.</value>
   </data>
   <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
     <value>Rename category group</value>
@@ -3121,6 +3163,10 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgameSourceType_Steam" xml:space="preserve">
     <value>Steam游戏库</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="SteamSource_ScanAllGalgames_InvalidPath" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="GalgamePage_OpenInSteam.Label" xml:space="preserve">
     <value>Open in Steam</value>
   </data>
@@ -3144,6 +3190,42 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="MixedPhraserEnabledDialog_SteamCheckBox.Content" xml:space="preserve">
     <value>Enable Steam Scraper</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ScraperSourcesHeader.Text" xml:space="preserve">
+    <value>Scraper Sources</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_InfoTypesHeader.Text" xml:space="preserve">
+    <value>Information Types</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_NameCheckBox.Content" xml:space="preserve">
+    <value>Fetch Name</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_DescriptionCheckBox.Content" xml:space="preserve">
+    <value>Fetch Description</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_DeveloperCheckBox.Content" xml:space="preserve">
+    <value>Fetch Developer</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_TagsCheckBox.Content" xml:space="preserve">
+    <value>Fetch Tags</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_RatingCheckBox.Content" xml:space="preserve">
+    <value>Fetch Rating</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ExpectedPlayTimeCheckBox.Content" xml:space="preserve">
+    <value>Fetch Expected Play Time</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ReleaseDateCheckBox.Content" xml:space="preserve">
+    <value>Fetch Release Date</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_CnNameCheckBox.Content" xml:space="preserve">
+    <value>Fetch Chinese Name</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ImageUrlCheckBox.Content" xml:space="preserve">
+    <value>Fetch Cover Image</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_CharactersCheckBox.Content" xml:space="preserve">
+    <value>Fetch Characters</value>
   </data>
   <data name="SettingsPage_Rss_Mixed_Enable.Title" xml:space="preserve">
     <value>Mixed Scraper Enable Settings</value>
@@ -3541,6 +3623,9 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
     <value>Open game or save directory</value>
   </data>
+  <data name="Shell_Plugin.Text" xml:space="preserve">
+    <value>Plugin</value>
+  </data>
   <data name="GameCharacterPanel_AddCharacter.Text" xml:space="preserve">
     <value>Add Character</value>
   </data>
@@ -3556,7 +3641,324 @@ If play time can record correctly, just cancel this popup.
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>Character deleted successfully</value>
   </data>
+  <data name="Shell_PluginStore.Content" xml:space="preserve">
+    <value>PluginStore</value>
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Title" xml:space="preserve">
+    <value>Choose cloud save root folder</value>
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Choose" xml:space="preserve">
+    <value>Choose</value>
+  </data>
   <data name="GalgameCollectionService_SelectSavePosition_File" xml:space="preserve">
     <value>Select game save file</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
+    <value>Choose save folder</value>
+  </data>
+  <data name="StorePlugin_Installed" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="StorePlugin_UpdateAvailable" xml:space="preserve">
+    <value>Update Available</value>
+  </data>
+  <data name="StorePluginDialog_Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="StorePluginDialog_Installed" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageFromClipboard.Text" xml:space="preserve">
+    <value>From clipboard</value>
+  </data>
+  <data name="GalgameSettingPage_ClipboardNotImage" xml:space="preserve">
+    <value>Clipboard does not contain an image.</value>
+  </data>
+  <data name="GalgameSettingPage_ClipboardReadFailed" xml:space="preserve">
+    <value>Failed to read image from clipboard.</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_CensorTags.Title" xml:space="preserve">
+    <value>Enable tag censorship</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_CensorTags.Description" xml:space="preserve">
+    <value>Hide explicit VNDB tags while keeping general content tags.</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_RemoveSpoilerTags.Title" xml:space="preserve">
+    <value>Remove spoiler tags</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_RemoveSpoilerTags.Description" xml:space="preserve">
+    <value>Filter out VNDB tags marked as spoilers.</value>
+  </data>
+  <data name="SettingsPage_Theme_SidebarButtons.Title" xml:space="preserve">
+    <value>Sidebar buttons</value>
+  </data>
+  <data name="SettingsPage_Theme_SidebarButtons.Description" xml:space="preserve">
+    <value>Choose which built-in pages and plugin buttons appear in the sidebar.</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.Title" xml:space="preserve">
+    <value>Sidebar buttons</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_Description.Text" xml:space="preserve">
+    <value>Disable items you do not want to show. Plugin buttons can also be hidden here.</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_MenuHeader.Text" xml:space="preserve">
+    <value>Top section</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_FooterHeader.Text" xml:space="preserve">
+    <value>Bottom section</value>
+  </data>
+  <data name="CategoryService_Engine" xml:space="preserve">
+    <value>Engine</value>
+  </data>
+  <data name="GalgamePage_Engine.Text" xml:space="preserve">
+    <value>Engine</value>
+  </data>
+  <data name="GalgameSettingPage_GalgameEngine.Title" xml:space="preserve">
+    <value>Engine</value>
+  </data>
+  <data name="HomePage_EngineFilter.Text" xml:space="preserve">
+    <value>Engine</value>
+  </data>
+  <data name="HomePage_NoEngineCategory" xml:space="preserve">
+    <value>No engine category contains this game</value>
+  </data>
+  <data name="MixedPhraserOrderDialog_It_Engine" xml:space="preserve">
+    <value>Game Engine</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_EngineCheckBox.Content" xml:space="preserve">
+    <value>Fetch Game Engine</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Title" xml:space="preserve">
+    <value>Download category image task</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Progress" xml:space="preserve">
+    <value>Downloading the following developer category images:</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Progress_Waiting" xml:space="preserve">
+    <value>There are {0} category image download tasks queued</value>
+  </data>
+  <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
+    <value>Add plugin (local archive)</value>
+  </data>
+  <data name="HomePage_ClearFilters.Content" xml:space="preserve">
+    <value>Clear all filters</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground.Text" xml:space="preserve">
+    <value>Custom Background</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground_Description.Text" xml:space="preserve">
+    <value>Select an image as the app background. Defaults to the banner of the last played game.</value>
+  </data>
+  <data name="SettingsPage_Theme_PickBackground.Content" xml:space="preserve">
+    <value>Pick Image</value>
+  </data>
+  <data name="SettingsPage_Theme_ClearBackground.Content" xml:space="preserve">
+    <value>Clear Background</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Title" xml:space="preserve">
+    <value>Use Game Banner as Background</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
+    <value>When enabled, the banner of the last played game will be used as background. Custom images take priority.</value>
+  </data>
+  <data name="BackgroundStretchMode_UniformToFill" xml:space="preserve">
+    <value>Uniform to Fill</value>
+  </data>
+  <data name="BackgroundStretchMode_Fill" xml:space="preserve">
+    <value>Fill</value>
+  </data>
+  <data name="BackgroundStretchMode_Uniform" xml:space="preserve">
+    <value>Uniform</value>
+  </data>
+  <data name="BackgroundStretchMode_None" xml:space="preserve">
+    <value>Centre</value>
+  </data>
+  <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
+    <value>Background Fill Mode</value>
+  </data>
+  <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
+    <value>Clear Glass</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassAlpha.Text" xml:space="preserve">
+    <value>Glass Alpha</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
+    <value>Glass Color</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.Title" xml:space="preserve">
+    <value>Filter panels</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.PrimaryButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_PlayStatusAndSourcePanelCheckBox.Content" xml:space="preserve">
+    <value>Play status and library</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_EnginePanelCheckBox.Content" xml:space="preserve">
+    <value>Engine</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_DeveloperPanelCheckBox.Content" xml:space="preserve">
+    <value>Developer</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_TagPanelCheckBox.Content" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="HomePage_FilterPanelVisibilityButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Choose filter panels</value>
+  </data>
+  <data name="MultiInstall_Add.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Add installation</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Content" xml:space="preserve">
+    <value>Permanently delete these installation files and unlink it?</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_LocalFolderOnly" xml:space="preserve">
+    <value>Only local-folder installations can be deleted from disk</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Title" xml:space="preserve">
+    <value>Delete installation files</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.Label" xml:space="preserve">
+    <value>Remove game from PotatoVN</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Remove the logical game without deleting files</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Action" xml:space="preserve">
+    <value>Remove game</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Content" xml:space="preserve">
+    <value>Remove this game and all source links from PotatoVN? Files on disk will be kept.</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Title" xml:space="preserve">
+    <value>Permanently remove game</value>
+  </data>
+  <data name="MultiInstall_EditPath.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Edit installation path</value>
+  </data>
+  <data name="MultiInstall_Installations.Text" xml:space="preserve">
+    <value>Installations</value>
+  </data>
+  <data name="MultiInstall_Launch" xml:space="preserve">
+    <value>Launch</value>
+  </data>
+  <data name="MultiInstall_LinkInstallation" xml:space="preserve">
+    <value>Link installation</value>
+  </data>
+
+  <data name="MultiInstall_NameMatch_Content" xml:space="preserve">
+    <value>A game with the same name exists. Link this path as another installation?</value>
+  </data>
+  <data name="MultiInstall_NameMatch_Title" xml:space="preserve">
+    <value>Possible duplicate game</value>
+  </data>
+  <data name="MultiInstall_OpenFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open folder</value>
+  </data>
+
+  <data name="MultiInstall_PathUnavailable" xml:space="preserve">
+    <value>Installation path is unavailable: {0}</value>
+  </data>
+  <data name="MultiInstall_PlayButton.Text" xml:space="preserve">
+    <value>Play</value>
+  </data>
+  <data name="MultiInstall_PlayMenu.Text" xml:space="preserve">
+    <value>Launch this installation</value>
+  </data>
+  <data name="MultiInstall_ProcessNotFound" xml:space="preserve">
+    <value>The game process could not be found</value>
+  </data>
+  <data name="MultiInstall_SelectDialog_Title" xml:space="preserve">
+    <value>Select an installation</value>
+  </data>
+  <data name="MultiInstall_Select_Title.Text" xml:space="preserve">
+    <value>Select an installation</value>
+  </data>
+  <data name="MultiInstall_SetPreferred.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Set as preferred</value>
+  </data>
+  <data name="MultiInstall_Unlink.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Unlink from library</value>
+  </data>
+  <data name="MultiInstall_Unlink_Content" xml:space="preserve">
+    <value>Remove this installation from the library? Files on disk will be kept.</value>
+  </data>
+  <data name="MultiInstall_Unlink_Title" xml:space="preserve">
+    <value>Unlink installation</value>
+  </data>
+  <data name="ScanResultPage_ConfirmLink.Content" xml:space="preserve">
+    <value>Confirm link</value>
+  </data>
+  <data name="ScanResultType_RequiresConfirmation" xml:space="preserve">
+    <value>Confirmation required</value>
+  </data>
+  <data name="ScanResult_LinkFailed" xml:space="preserve">
+    <value>Failed to link installation</value>
+  </data>
+  <data name="ScanResult_LinkSuccess" xml:space="preserve">
+    <value>Linked as another installation of</value>
+  </data>
+  <data name="ScanResult_NameMatchPending" xml:space="preserve">
+    <value>Same-name game found; confirmation required:</value>
+  </data>
+  <data name="MultiInstall_Manage.Text" xml:space="preserve">
+    <value>Manage installations</value>
+  </data>
+  <data name="MultiInstall_OpenSaveDirectoryButton.Text" xml:space="preserve">
+    <value>Open save directory</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Title" xml:space="preserve">
+    <value>Reset EXE's path?</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Success" xml:space="preserve">
+    <value>EXE path has been reset</value>
+  </data>
+  <data name="HomePage_Sort_Custom.Text" xml:space="preserve">
+    <value>Custom Order</value>
+  </data>
+  <data name="LibraryPage_FolderSortByCustom.Text" xml:space="preserve">
+    <value>Custom Order</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Timeout.Title" xml:space="preserve">
+    <value>Max scrape time</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Timeout.Description" xml:space="preserve">
+    <value>Maximum wait time in seconds for all sources combined. 0 means no limit.</value>
+  </data>
+  <data name="RecordPlayTimeTask_WaitingForProcess" xml:space="preserve">
+    <value>Process exited. Waiting for the game process of {0} to appear... ({1}s)</value>
+  </data>
+  <data name="HomePage_CategoryFilter.Text" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_CategoryPanelCheckBox.Content" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="RssType_Hikarinagi" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.Content" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.NavigateUri" xml:space="preserve">
+    <value>https://www.hikarinagi.org</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi_Description.Text" xml:space="preserve">
+    <value>Hikarinagi is a Chinese ACGN community and database providing galgame, light novel, manga and other entry information. This source is proxied through the PotatoVN sync server and requires no login (rate limited to 360 requests/minute when not logged in).</value>
+  </data>
+  <data name="HikarinagiPhraser_RateLimitWaiting" xml:space="preserve">
+    <value>Too many requests, retrying in {0}s (attempt {1}/{2})</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
+    <value>Enable Hikarinagi Scraper</value>
   </data>
 </root>

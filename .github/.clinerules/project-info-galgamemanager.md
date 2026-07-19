@@ -59,6 +59,7 @@ The client application implements the core functionalities of PotatoVN:
           *   The application's `GetLocalized()` extension method (found in `GalgameManager.Helpers.StringExtensions.GetLocalized()`) is used in C# code to retrieve localized strings, e.g., `Title = "EditPlayTimeDialog_Title".GetLocalized();`. This implies that for C# string localization, the resource key is used directly without a property suffix.
           * When Editing localizations files, you should *never* directly read or edit the .resw files. 
           * Instead, you should call the python script `Strings/resw_tool.py` to search string or edit the string in the .resw files.
+          * `resw_tool.py` must surgically edit `.resw` text (insert/replace/delete `<data>` blocks). Never rewrite the whole file via `xml.etree.ElementTree.ElementTree.write()` — that drops the ResX schema comment, remaps `xsd`/`msdata` namespaces, and produces huge noisy diffs.
           * Usage (note: on Windows PowerShell, use semicolon `;` to separate commands):
               ```bash
             cd GalgameManager/Strings #重要，这个脚本应该在Strings目录下运行
@@ -72,6 +73,10 @@ The client application implements the core functionalities of PotatoVN:
             python resw_tool.py update "Settings_Theme.Text" en-US="Theme" ja-JP="テーマ" zh-CN="主题"
             # 添加新的key
             python resw_tool.py update "NewFeature.Title" en-US="New Feature" ja-JP="新機能"
+            # 删除key
+            python resw_tool.py delete "ObsoleteKey.Text"
+            # 校验所有语言 resw 是否合法（update/delete/normalize 写入后也会自动校验，失败则回滚）
+            python resw_tool.py validate
             # On Windows PowerShell (recommended approach):
             cd GalgameManager/Strings; python resw_tool.py update "NewKey.Text" en-US="English" zh-CN="中文"
             ```
@@ -99,7 +104,7 @@ This section highlights important files and directories specific to the client a
     *   `ShellPage.xaml`: The main shell of the application. Its `ItemsRepeater` for displaying event notifications now includes a `HyperlinkButton` that is visible when `CallbackButtonText` is provided in the `ShellEventViewModel`. This button is bound to the `ExecuteCallbackCommand` and uses `VisibilityHelper.Convert` for its visibility.
 *   **`Views/Dialog/`**: This subdirectory commonly houses `ContentDialog` XAML files used for focused editing tasks or user prompts (e.g., `EditPlayTimeDialog.xaml` for modifying game play history). These dialogs usually have a corresponding `.xaml.cs` for their logic and are instantiated and shown from ViewModels.
         *   `AddSourceDialog.xaml`: Dialog for adding new game library sources. Uses a ComboBox to select library type (currently supports "本地库" for local folders). The SelectedIndex is bound to the SelectItem property which determines the library type in LibraryViewModel.AddLibrary method.
-        *   `MixedPhraserEnabledDialog.xaml`: Dialog for configuring which search engines/databases are enabled in the mixed phraser. Contains checkboxes for Bangumi, VNDB, Ymgal, and Steam. The dialog receives a `MixedPhraserEnabled` configuration object and allows users to enable/disable individual phrasers.
+        *   `MixedPhraserEnabledDialog.xaml`: Dialog for configuring which search engines/databases are enabled in the mixed phraser. Contains checkboxes for Bangumi, VNDB, Ymgal, Steam, and Hikarinagi. The dialog receives a `MixedPhraserEnabled` configuration object and allows users to enable/disable individual phrasers.
         *   **ContentDialog Localization Pattern**: ContentDialog elements follow specific localization conventions:
             *   Use `x:Uid` attribute on the ContentDialog root element for title and button text
             *   Localization keys use `.Title`, `.PrimaryButtonText`, `.SecondaryButtonText` suffixes
@@ -125,6 +130,7 @@ This section highlights important files and directories specific to the client a
         *   `PvnUploadProperties` (enum `PvnUploadProperties`): A flags enum specifying which particular properties of the game need to be uploaded to the server. The `PlayTime` flag is used to indicate that `PlayedTime`, `TotalPlayTime`, and `PlayCount` should be synced.
         *   `Ids` (string?[]): An array storing IDs from different data sources (Bangumi, VNDB, etc.). The array size is defined by `PhraserNumber` constant. All methods accessing this array include bounds checking to prevent `IndexOutOfRangeException` for legacy data with smaller arrays.
 *   **`Services/`**: Houses service classes that encapsulate specific functionalities, such as:
+    *   `PluginService.cs`: The plugin loader now registers each loaded plugin assembly with the host WinUI XAML metadata pipeline before plugin initialization, so plugin XAML can resolve nested custom controls/UserControls when the plugin output includes its generated `.pri` and compiled XAML resources.
     *   `AccountServices/PvnService.cs`: Handles communication with the `GalgameManager.Server`, including uploading game data. It uses `PvnSyncTask.cs` for background synchronization.
     *   Fetching data from local or remote sources.
     *   File operations.
@@ -140,9 +146,10 @@ This section highlights important files and directories specific to the client a
         *   All source services implement `IGalgameSourceService` interface which defines standard operations like `SaveMetaAsync`, `LoadMetaAsync`, `RemoveMetaAsync` for meta information management.
 *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
     *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
+    *   `GalgameManager/Services/PluginService/PluginXamlHost.cs`: Bridges dynamically loaded plugin assemblies into the host app's WinUI XAML system by loading plugin PRI resources and registering plugin `IXamlMetadataProvider` implementations before plugin UI is initialized.
     *   **`Helpers/Phrase/`**: Contains the mixed phraser system for aggregating game information from multiple sources:
-        *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration.
-        *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, and `SteamEnabled`, all defaulting to true.
+        *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam, Hikarinagi). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration.
+        *   `MixedPhraserEnabled`: Configuration class that controls which individual phrasers are active. Has boolean properties for `BangumiEnabled`, `VndbEnabled`, `YmgalEnabled`, `SteamEnabled`, and `HikarinagiEnabled`, all defaulting to true. In default `MixedPhraserOrder`, Hikarinagi sits immediately before Bangumi wherever Bangumi appears, except `RatingOrder` (Hikarinagi provides no rating and the rating merge does no emptiness check) and `StaffOrder` (HikarinagiPhraser is not an `IGalStaffParser`).
         *   `MixedPhraserOrder`: Configuration class that defines the priority order for different game properties when merging data from multiple sources. Uses reflection to determine property orders and supports both Chinese and non-Chinese cultural preferences.
         *   `MixedPhraserData`: Container class that holds both the `MixedPhraserEnabled` settings and `MixedPhraserOrder` configuration for the mixed phraser.
 *   **`Contracts/`**: Defines interfaces and data contracts. Interfaces are crucial for decoupling components and enabling testability. Data contracts might define the structure of data exchanged with services or stored locally.
@@ -195,3 +202,12 @@ This section highlights important files and directories specific to the client a
 *   **Configuration Management:** Understanding `appsettings.json` for client-side settings.
 
 This document provides a foundational knowledge base. For specific implementation details, direct code analysis of the mentioned files and directories will be necessary.
+
+## 7. Multiple Local Installations
+
+- `Galgame` represents a logical game; `GalgameAndPath` represents a stable source entry. Sources implementing `ILocalGalgameSource` make their entries launchable installations.
+- Per-installation launch/path/save settings live in `LocalInstallationConfig`. Game-level metadata, play time, Magpie, mute, and key mappings remain on `Galgame`.
+- Always pass an explicit source entry for launch, file, save, move, and delete operations. Legacy `Galgame.LocalPath`/`ExePath` properties expose only the preferred installation.
+- Multiple LocalFolder and Steam sources may reference one game, with one path per source. Removing the last installation keeps a virtual logical game.
+- `GalgameSourceCollectionService` owns all installation/source-entry relationship and file-move operations; `GalgameCollectionService` owns logical-game identity, metadata, and whole-game lifecycle.
+- Installation data is local/export-only and is not part of PVN server sync. `IPotatoVnApi` directly exposes installation snapshots and explicit installation launch.

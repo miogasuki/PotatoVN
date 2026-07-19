@@ -15,7 +15,7 @@
     </UserControl.Resources>
 
     <Grid MinWidth="{x:Bind CalcValue(175)}"
-          ContextFlyout="{x:Bind Flyout}" Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
+          ContextFlyout="{x:Bind Flyout, Mode=OneWay}" Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
         <StackPanel HorizontalAlignment="Center">
             <Grid
                 Opacity="{x:Bind Galgame, Mode=OneWay,

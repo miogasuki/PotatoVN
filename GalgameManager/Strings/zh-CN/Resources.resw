@@ -186,6 +186,18 @@
   <data name="HomePage_Download" xml:space="preserve">
     <value>下载游戏信息</value>
   </data>
+  <data name="HomePage_BatchManage.Label" xml:space="preserve">
+    <value>批量管理</value>
+  </data>
+  <data name="HomePage_BatchManage_Done" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="HomePage_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="HomePage_SelectNone" xml:space="preserve">
+    <value>取消全选</value>
+  </data>
   <data name="HomePage_Remove" xml:space="preserve">
     <value>从库中移除游戏</value>
   </data>
@@ -218,6 +230,9 @@
   </data>
   <data name="HomePage_Remove_Message" xml:space="preserve">
     <value>确定要取消托管这个游戏吗</value>
+  </data>
+  <data name="HomePage_BatchRemove_Message" xml:space="preserve">
+    <value>确定要从库中移除这{0}个游戏吗</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>确定</value>
@@ -304,8 +319,8 @@
     <value>选择操作</value>
   </data>
   <data name="GalgameCollectionService_SelectOperateMsg" xml:space="preserve">
-    <value>检测到云端已有该游戏存档，请选择： 
-若希望将本地存档覆盖云端存档，请选择本地 
+    <value>检测到云端已有该游戏存档，请选择：
+若希望将本地存档覆盖云端存档，请选择本地
 若希望使用云端存档，丢弃本地存档，请选择云端</value>
   </data>
   <data name="GalgameCollectionService_Local" xml:space="preserve">
@@ -353,7 +368,7 @@
   <data name="GalgamePage_Description.Text" xml:space="preserve">
     <value>简介</value>
   </data>
-  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
+  <data name="GalgameCollectionService_SelectSavePosition" xml:space="preserve">
     <value>选择存档文件夹</value>
   </data>
   <data name="GalgameCollectionService_NotExeFounded" xml:space="preserve">
@@ -714,7 +729,7 @@
     <value>自动分类</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>启用后自动按制作公司和游玩状态对游戏进行分类</value>
+    <value>启用后自动按制作公司、游戏引擎和游玩状态对游戏进行分类</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
     <value>分类所有游戏</value>
@@ -771,7 +786,7 @@
     <value>分类所有游戏</value>
   </data>
   <data name="CategoryPage_CategoryNow.ToolTipService.ToolTip" xml:space="preserve">
-    <value>根据游玩状态和制作公司对所有游戏进行分类</value>
+    <value>根据游玩状态、制作公司和游戏引擎对所有游戏进行分类</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
     <value>身份验证</value>
@@ -976,6 +991,18 @@
   </data>
   <data name="GalgameSettingPage_GalgameImagePath.Title" xml:space="preserve">
     <value>封面图</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageFromRss.Text" xml:space="preserve">
+    <value>数据源</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageLocal.Text" xml:space="preserve">
+    <value>本地文件</value>
+  </data>
+  <data name="GalgameSettingPage_NoImagesFound" xml:space="preserve">
+    <value>未找到图片</value>
+  </data>
+  <data name="GalgameSettingPage_ImageSaved" xml:space="preserve">
+    <value>图片已保存</value>
   </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>选择图片</value>
@@ -1312,12 +1339,6 @@
   </data>
   <data name="HomePage_Filter_Not_Found" xml:space="preserve">
     <value>找不到匹配的过滤器</value>
-  </data>
-  <data name="HomePage_KeepFilters.Label" xml:space="preserve">
-    <value>保留过滤器</value>
-  </data>
-  <data name="HomePage_KeepFilters.ToolTipService.ToolTip" xml:space="preserve">
-    <value>切换页面时保留当前过滤器</value>
   </data>
   <data name="HomePage_Sort_Title" xml:space="preserve">
     <value>排序</value>
@@ -2075,6 +2096,12 @@
   <data name="ConfirmGalInfoDialog_Title_NotFound" xml:space="preserve">
     <value>没有找到该游戏信息</value>
   </data>
+  <data name="BgTask_Cancelling" xml:space="preserve">
+    <value>取消中…</value>
+  </data>
+  <data name="BgTask_CancelFailed" xml:space="preserve">
+    <value>取消后台任务失败</value>
+  </data>
   <data name="Canceled" xml:space="preserve">
     <value>用户取消了操作</value>
   </data>
@@ -2712,6 +2739,15 @@
   <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
     <value>显示背景图</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_OldLayoutSettings.Text" xml:space="preserve">
+    <value>旧版界面设置</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowDescription.Text" xml:space="preserve">
+    <value>简介</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowStaff.Text" xml:space="preserve">
+    <value>制作人员</value>
+  </data>
   <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
     <value>游戏信息</value>
   </data>
@@ -2967,6 +3003,9 @@
   <data name="HomePage_Sort_SecondKey.Text" xml:space="preserve">
     <value>次要排序方式</value>
   </data>
+  <data name="HomePage_Sort_Custom.Text" xml:space="preserve">
+    <value>按手动排序</value>
+  </data>
   <data name="HomePage_Sort_Name.Text" xml:space="preserve">
     <value>按游戏名</value>
   </data>
@@ -3092,7 +3131,7 @@
     <value>分类所有游戏</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmMsg" xml:space="preserve">
-    <value>按照游戏的制作公司和PotatoVN内的实际游玩情况进行分类
+    <value>按照游戏的制作公司、游戏引擎和PotatoVN内实际游玩情况进行分类
 这将部分覆盖目前已分类的制作公司和游玩状态</value>
   </data>
   <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
@@ -3722,6 +3761,42 @@
   <data name="MixedPhraserEnabledDialog_SteamCheckBox.Content" xml:space="preserve">
     <value>启用 Steam 搜刮器</value>
   </data>
+  <data name="MixedPhraserEnabledDialog_ScraperSourcesHeader.Text" xml:space="preserve">
+    <value>搜刮器来源</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_InfoTypesHeader.Text" xml:space="preserve">
+    <value>信息类型</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_NameCheckBox.Content" xml:space="preserve">
+    <value>获取游戏名</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_DescriptionCheckBox.Content" xml:space="preserve">
+    <value>获取简介</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_DeveloperCheckBox.Content" xml:space="preserve">
+    <value>获取制作人</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_TagsCheckBox.Content" xml:space="preserve">
+    <value>获取标签</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_RatingCheckBox.Content" xml:space="preserve">
+    <value>获取评分</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ExpectedPlayTimeCheckBox.Content" xml:space="preserve">
+    <value>获取预计游玩时长</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ReleaseDateCheckBox.Content" xml:space="preserve">
+    <value>获取发布日期</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_CnNameCheckBox.Content" xml:space="preserve">
+    <value>获取中文名</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ImageUrlCheckBox.Content" xml:space="preserve">
+    <value>获取封面图</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_CharactersCheckBox.Content" xml:space="preserve">
+    <value>获取角色信息</value>
+  </data>
   <data name="SettingsPage_Rss_Mixed_Enable.Title" xml:space="preserve">
     <value>混合搜刮器启用设置</value>
   </data>
@@ -4204,6 +4279,90 @@
   <data name="GalgamePage_Open.ToolTipService.ToolTip" xml:space="preserve">
     <value>打开游戏或存档目录</value>
   </data>
+  <data name="Shell_Plugin.Text" xml:space="preserve">
+    <value>插件</value>
+  </data>
+  <data name="LoadPluginTask_Title" xml:space="preserve">
+    <value>加载插件任务</value>
+  </data>
+  <data name="LoadPluginTask_Loading" xml:space="preserve">
+    <value>正在加载插件：{0}</value>
+  </data>
+  <data name="PathNotExist_Brief" xml:space="preserve">
+    <value>路径不存在</value>
+  </data>
+  <data name="PathNotExist" xml:space="preserve">
+    <value>路径 {0} 不存在</value>
+  </data>
+  <data name="PluginPage_Add_Dev.Label" xml:space="preserve">
+    <value>添加插件（开发者）</value>
+  </data>
+  <data name="PluginPage_Add_Failed" xml:space="preserve">
+    <value>添加插件失败</value>
+  </data>
+  <data name="RssType_Vndb" xml:space="preserve">
+    <value>VNDB</value>
+  </data>
+  <data name="RssType_Bangumi" xml:space="preserve">
+    <value>Bangumi</value>
+  </data>
+  <data name="RssType_Mixed" xml:space="preserve">
+    <value>混合源</value>
+  </data>
+  <data name="RssType_None" xml:space="preserve">
+    <value>尚未设置</value>
+  </data>
+  <data name="RssType_PotatoVn" xml:space="preserve">
+    <value>PotatoVN</value>
+  </data>
+  <data name="RssType_Ymgal" xml:space="preserve">
+    <value>月暮Galgame</value>
+  </data>
+  <data name="RssType_Cngal" xml:space="preserve">
+    <value>Cngal</value>
+  </data>
+  <data name="RssType_Steam" xml:space="preserve">
+    <value>Steam</value>
+  </data>
+  <data name="PluginPage_PluginStatus.OnContent" xml:space="preserve">
+    <value>已启用</value>
+  </data>
+  <data name="PluginPage_PluginStatus.OffContent" xml:space="preserve">
+    <value>未启用</value>
+  </data>
+  <data name="PluginService_PluginStatusChangedFailed" xml:space="preserve">
+    <value>启用/关闭插件失败</value>
+  </data>
+  <data name="PluginService_PluginUnloaded" xml:space="preserve">
+    <value>设置成功，该插件将不在下次启动时加载</value>
+  </data>
+  <data name="LoadPluginTask_ErrorLoading_Msg" xml:space="preserve">
+    <value>插件加载失败，建议联系开发者~
+
+以下为失败原因：
+{0}</value>
+  </data>
+  <data name="LoadPluginTask_ErrorLoading" xml:space="preserve">
+    <value>插件{0}加载失败</value>
+  </data>
+  <data name="PluginService_PluginError" xml:space="preserve">
+    <value>插件{0}发生了错误！</value>
+  </data>
+  <data name="PluginService_PluginError_Msg" xml:space="preserve">
+    <value>建议联系插件开发者以了解解决方案~
+
+下为错误详情：
+{0}</value>
+  </data>
+  <data name="PluginSettingViewModel_CreateUiFailed" xml:space="preserve">
+    <value>创建插件设置界面失败，</value>
+  </data>
+  <data name="PluginX_UiSlow_Title" xml:space="preserve">
+    <value>插件加载缓慢</value>
+  </data>
+  <data name="PluginX_UiSlow_Msg" xml:space="preserve">
+    <value>插件 {0} 生成界面较为缓慢，可能会导致软件速度下降，建议和插件作者反馈这个问题~</value>
+  </data>
   <data name="GameCharacterPanel_AddCharacter.Text" xml:space="preserve">
     <value>添加角色</value>
   </data>
@@ -4219,22 +4378,504 @@
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>成功删除角色</value>
   </data>
-  <data name="GalgameCollectionService_SelectSaveType" xml:space="preserve">
-    <value>请选择存档类型</value>
+  <data name="Shell_PluginStore.Content" xml:space="preserve">
+    <value>插件商店</value>
   </data>
-  <data name="GalgameCollectionService_SelectSaveType_Folder" xml:space="preserve">
-    <value>文件夹</value>
+  <data name="PluginPage_Add.Label" xml:space="preserve">
+    <value>添加插件</value>
   </data>
-  <data name="GalgameCollectionService_SelectSaveType_File" xml:space="preserve">
-    <value>文件</value>
+  <data name="GetStorePluginTask_Title" xml:space="preserve">
+    <value>获取插件列表任务</value>
+  </data>
+  <data name="GetStorePluginTask_ProgressTitle" xml:space="preserve">
+    <value>正在获取{0}个插件信息</value>
+  </data>
+  <data name="GetStorePluginTask_ProgressWaitingMsg" xml:space="preserve">
+    <value>还有{0}个插件等待获取信息中</value>
+  </data>
+  <data name="StorePluginDialog_DownloadLatest" xml:space="preserve">
+    <value>安装最新版本</value>
+  </data>
+  <data name="StorePluginDialog_DownloadSelected" xml:space="preserve">
+    <value>安装v{0}版本</value>
+  </data>
+  <data name="StorePluginDialog_PluginVersion.Text" xml:space="preserve">
+    <value>插件版本</value>
+  </data>
+  <data name="StorePluginDialog_LatestVersionDate" xml:space="preserve">
+    <value>最新版日期：</value>
+  </data>
+  <data name="StorePluginDialog_WaitingOffload" xml:space="preserve">
+    <value>请重启软件后再添加插件</value>
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Title" xml:space="preserve">
+    <value>请选择云存档根目录</value>
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Choose" xml:space="preserve">
+    <value>选择</value>
   </data>
   <data name="GalgameCollectionService_SelectSavePosition_File" xml:space="preserve">
     <value>选择存档文件</value>
   </data>
+  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
+    <value>选择存档文件夹</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_Content" xml:space="preserve">
+    <value>请选择存档类型（单文件/文件夹）</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_Title" xml:space="preserve">
+    <value>确认</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_File" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="GalgameCollectionService_SelectSaveType_Folder" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="GalgameSettingViewModel_ShowStandardFolderPicker_Title" xml:space="preserve">
+    <value>选择一个文件夹</value>
+  </data>
+  <data name="Choose" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="StorePluginDialog_ProjectLink.Content" xml:space="preserve">
+    <value>项目主页</value>
+  </data>
+  <data name="PluginPage_UninstallPlugin.Title" xml:space="preserve">
+    <value>卸载插件</value>
+  </data>
+  <data name="PluginPage_UninstallPlugin.Description" xml:space="preserve">
+    <value>点击卸载按钮后你可以选择是否保留插件数据</value>
+  </data>
+  <data name="PluginPage_UninstallPlugin_Button.Content" xml:space="preserve">
+    <value>卸载</value>
+  </data>
+  <data name="LoadPluginTask_ErrorDeleting" xml:space="preserve">
+    <value>插件{0}卸载失败</value>
+  </data>
+  <data name="LoadPluginTask_ErrorDeleting_Msg" xml:space="preserve">
+    <value>插件卸载失败，请手动删除路径：{0}的所有文件（包括该路径的文件夹本身），并重启软件</value>
+  </data>
+  <data name="PluginPage_DeleteDialog_Title" xml:space="preserve">
+    <value>删除插件</value>
+  </data>
+  <data name="PluginPage_DeleteDialog_DeleteData" xml:space="preserve">
+    <value>同时删除插件数据</value>
+  </data>
+  <data name="PluginPage_DeleteDialog_Yes" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="PluginService_PluginOffloadInProgress" xml:space="preserve">
+    <value>有插件正在被关闭/卸载，请重启软件后再添加插件</value>
+  </data>
+  <data name="InstallStorePluginTask_Title" xml:space="preserve">
+    <value>安装插件{0}任务</value>
+  </data>
+  <data name="InstallStorePluginTask_Downloading" xml:space="preserve">
+    <value>正在下载插件 {0}...</value>
+  </data>
+  <data name="InstallStorePluginTask_Downloading_NoLength" xml:space="preserve">
+    <value>正在下载插件，{0} kB/s</value>
+  </data>
+  <data name="InstallStorePluginTask_Installed" xml:space="preserve">
+    <value>插件{0}已完成安装并启用</value>
+  </data>
+  <data name="PluginPage_HotReloadDialog_DeleteData" xml:space="preserve">
+    <value>同时删除插件数据</value>
+  </data>
+  <data name="PluginPage_HotReloadDialog_Yes" xml:space="preserve">
+    <value>热重载</value>
+  </data>
+  <data name="PluginPage_UninstallPlugin_HotReloadButton.Content" xml:space="preserve">
+    <value>热重载</value>
+  </data>
+  <data name="PluginPage_HotReloadDialog_Title" xml:space="preserve">
+    <value>热重载插件</value>
+  </data>
   <data name="GalgameCollectionService_FolderOrFilePickerDialog_Other" xml:space="preserve">
     <value>其他</value>
   </data>
-  <data name="GalgameCollectionService_SavePathIsGameRoot" xml:space="preserve">
-    <value>你选错目录啦，这里应该选择这个游戏的存档文件夹，而不是游戏文件的根目录~</value>
+  <data name="StorePlugin_Installed" xml:space="preserve">
+    <value>已安装</value>
+  </data>
+  <data name="StorePlugin_UpdateAvailable" xml:space="preserve">
+    <value>有更新</value>
+  </data>
+  <data name="StorePluginDialog_Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="StorePluginDialog_Installed" xml:space="preserve">
+    <value>已安装</value>
+  </data>
+  <data name="PluginType_All" xml:space="preserve">
+    <value>全部插件</value>
+  </data>
+  <data name="PluginType_Official" xml:space="preserve">
+    <value>官方插件</value>
+  </data>
+  <data name="PluginType_Parser" xml:space="preserve">
+    <value>搜刮器</value>
+  </data>
+  <data name="PluginType_Huge" xml:space="preserve">
+    <value>大型插件</value>
+  </data>
+  <data name="PluginType_Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="PluginType_View" xml:space="preserve">
+    <value>界面优化</value>
+  </data>
+  <data name="PluginType_Utility" xml:space="preserve">
+    <value>功能优化</value>
+  </data>
+  <data name="PluginType_Library" xml:space="preserve">
+    <value>库</value>
+  </data>
+  <data name="PluginService_UpgradePluginFailed" xml:space="preserve">
+    <value>插件升级失败</value>
+  </data>
+  <data name="PluginStorePage_UpgradeQueued" xml:space="preserve">
+    <value>新版本的插件将在下次启动时安装并启用~</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageFromClipboard.Text" xml:space="preserve">
+    <value>从剪贴板复制</value>
+  </data>
+  <data name="GalgameSettingPage_ClipboardNotImage" xml:space="preserve">
+    <value>剪贴板内不是图片，无法复制。</value>
+  </data>
+  <data name="GalgameSettingPage_ClipboardReadFailed" xml:space="preserve">
+    <value>从剪贴板读取图片失败。</value>
+  </data>
+  <data name="DownloadImageFailed" xml:space="preserve">
+    <value>图片下载失败</value>
+  </data>
+  <data name="HomePage_TagFilter.Text" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="HomePage_DeveloperFilter.Text" xml:space="preserve">
+    <value>开发商</value>
+  </data>
+  <data name="HomePage_LibraryFilter.Text" xml:space="preserve">
+    <value>游戏库</value>
+  </data>
+  <data name="HomePage_PlayStatusFilter.Text" xml:space="preserve">
+    <value>游玩状态</value>
+  </data>
+  <data name="HomePage_KeepFilters.Text" xml:space="preserve">
+    <value>切换界面与关闭应用时保留过滤器</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_CensorTags.Title" xml:space="preserve">
+    <value>开启标签和谐</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_CensorTags.Description" xml:space="preserve">
+    <value>隐藏较露骨的 VNDB 标签，仅保留普通内容标签。</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_RemoveSpoilerTags.Title" xml:space="preserve">
+    <value>去除剧透标签</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_RemoveSpoilerTags.Description" xml:space="preserve">
+    <value>过滤掉被 VNDB 标记为剧透的标签。</value>
+  </data>
+  <data name="SettingsPage_Theme_SidebarButtons.Title" xml:space="preserve">
+    <value>侧边栏按钮</value>
+  </data>
+  <data name="SettingsPage_Theme_SidebarButtons.Description" xml:space="preserve">
+    <value>选择侧边栏中显示哪些内置页面和插件按钮。</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.Title" xml:space="preserve">
+    <value>侧边栏按钮</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.PrimaryButtonText" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_Description.Text" xml:space="preserve">
+    <value>取消勾选即可隐藏不想显示的项，这里也支持控制插件注册的按钮。</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_MenuHeader.Text" xml:space="preserve">
+    <value>顶部区域</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_FooterHeader.Text" xml:space="preserve">
+    <value>底部区域</value>
+  </data>
+  <data name="MultiStreamText" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="Home_Text" xml:space="preserve">
+    <value>游戏</value>
+  </data>
+  <data name="LibraryText" xml:space="preserve">
+    <value>游戏库</value>
+  </data>
+  <data name="CategoryText" xml:space="preserve">
+    <value>分类</value>
+  </data>
+  <data name="AnnualReportText" xml:space="preserve">
+    <value>年度报告</value>
+  </data>
+  <data name="InfoText" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  <data name="HelpText" xml:space="preserve">
+    <value>帮助</value>
+  </data>
+  <data name="AccountText" xml:space="preserve">
+    <value>账户</value>
+  </data>
+  <data name="Plugin" xml:space="preserve">
+    <value>插件</value>
+  </data>
+  <data name="SettingsText" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="CategoryService_Engine" xml:space="preserve">
+    <value>游戏引擎</value>
+  </data>
+  <data name="GalgamePage_Engine.Text" xml:space="preserve">
+    <value>游戏引擎</value>
+  </data>
+  <data name="GalgameSettingPage_GalgameEngine.Title" xml:space="preserve">
+    <value>游戏引擎</value>
+  </data>
+  <data name="HomePage_EngineFilter.Text" xml:space="preserve">
+    <value>游戏引擎</value>
+  </data>
+  <data name="HomePage_NoEngineCategory" xml:space="preserve">
+    <value>无任何引擎分类包含本游戏</value>
+  </data>
+  <data name="MixedPhraserOrderDialog_It_Engine" xml:space="preserve">
+    <value>游戏引擎</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_EngineCheckBox.Content" xml:space="preserve">
+    <value>获取游戏引擎</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Title" xml:space="preserve">
+    <value>下载分类图片任务</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Progress" xml:space="preserve">
+    <value>正在下载以下厂商分类图片：</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Progress_Waiting" xml:space="preserve">
+    <value>还有 {0} 个分类图片下载任务在队列中</value>
+  </data>
+  <data name="PluginService_ApiHost_PageTypeFault" xml:space="preserve">
+    <value>要导航的页面必须继承自Page这个类</value>
+  </data>
+  <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
+    <value>添加插件（本地压缩包）</value>
+  </data>
+  <data name="HomePage_ClearFilters.Content" xml:space="preserve">
+    <value>清除所有过滤器</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground.Text" xml:space="preserve">
+    <value>自定义背景</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground_Description.Text" xml:space="preserve">
+    <value>选择一张图片作为应用背景，默认为最后启动游戏的横幅图</value>
+  </data>
+  <data name="SettingsPage_Theme_PickBackground.Content" xml:space="preserve">
+    <value>选择图片</value>
+  </data>
+  <data name="SettingsPage_Theme_ClearBackground.Content" xml:space="preserve">
+    <value>清除背景</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Title" xml:space="preserve">
+    <value>使用游戏横幅作为背景</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
+    <value>勾选后将自动使用最后启动游戏的横幅图作为背景，自定义图片优先级更高</value>
+  </data>
+  <data name="BackgroundStretchMode_UniformToFill" xml:space="preserve">
+    <value>跨区</value>
+  </data>
+  <data name="BackgroundStretchMode_Fill" xml:space="preserve">
+    <value>填充</value>
+  </data>
+  <data name="BackgroundStretchMode_Uniform" xml:space="preserve">
+    <value>适应</value>
+  </data>
+  <data name="BackgroundStretchMode_None" xml:space="preserve">
+    <value>居中</value>
+  </data>
+  <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
+    <value>背景填充模式</value>
+  </data>
+  <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
+    <value>透明玻璃</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassAlpha.Text" xml:space="preserve">
+    <value>玻璃透明度</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
+    <value>玻璃颜色</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.Title" xml:space="preserve">
+    <value>过滤面板</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.SecondaryButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_PlayStatusAndSourcePanelCheckBox.Content" xml:space="preserve">
+    <value>游玩状态与库</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_EnginePanelCheckBox.Content" xml:space="preserve">
+    <value>引擎</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_DeveloperPanelCheckBox.Content" xml:space="preserve">
+    <value>开发者</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_TagPanelCheckBox.Content" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="HomePage_FilterPanelVisibilityButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>选择显示的过滤面板</value>
+  </data>
+  <data name="MultiInstall_Add.ToolTipService.ToolTip" xml:space="preserve">
+    <value>添加安装</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Content" xml:space="preserve">
+    <value>是否永久删除这个安装的文件并解除关联？</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_LocalFolderOnly" xml:space="preserve">
+    <value>只能删除本地文件夹安装的磁盘文件</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Title" xml:space="preserve">
+    <value>删除安装文件</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.Label" xml:space="preserve">
+    <value>从 PotatoVN 移除游戏</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.ToolTipService.ToolTip" xml:space="preserve">
+    <value>移除游戏记录但不删除磁盘文件</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Action" xml:space="preserve">
+    <value>移除游戏</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Content" xml:space="preserve">
+    <value>是否从 PotatoVN 移除这个游戏及其全部库关联？磁盘文件将保留。</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Title" xml:space="preserve">
+    <value>永久移除游戏</value>
+  </data>
+  <data name="MultiInstall_EditPath.ToolTipService.ToolTip" xml:space="preserve">
+    <value>编辑安装路径</value>
+  </data>
+  <data name="MultiInstall_Installations.Text" xml:space="preserve">
+    <value>安装实例</value>
+  </data>
+  <data name="MultiInstall_Launch" xml:space="preserve">
+    <value>启动</value>
+  </data>
+  <data name="MultiInstall_LinkInstallation" xml:space="preserve">
+    <value>关联安装</value>
+  </data>
+
+  <data name="MultiInstall_NameMatch_Content" xml:space="preserve">
+    <value>已存在同名游戏，是否将这个路径关联为另一个安装？</value>
+  </data>
+  <data name="MultiInstall_NameMatch_Title" xml:space="preserve">
+    <value>可能是同一游戏</value>
+  </data>
+  <data name="MultiInstall_OpenFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>打开文件夹</value>
+  </data>
+
+  <data name="MultiInstall_PathUnavailable" xml:space="preserve">
+    <value>安装路径不可用：{0}</value>
+  </data>
+  <data name="MultiInstall_PlayButton.Text" xml:space="preserve">
+    <value>启动游戏</value>
+  </data>
+  <data name="MultiInstall_PlayMenu.Text" xml:space="preserve">
+    <value>启动这个安装</value>
+  </data>
+  <data name="MultiInstall_ProcessNotFound" xml:space="preserve">
+    <value>未找到游戏进程</value>
+  </data>
+  <data name="MultiInstall_SelectDialog_Title" xml:space="preserve">
+    <value>选择安装实例</value>
+  </data>
+  <data name="MultiInstall_Select_Title.Text" xml:space="preserve">
+    <value>选择安装实例</value>
+  </data>
+  <data name="MultiInstall_SetPreferred.ToolTipService.ToolTip" xml:space="preserve">
+    <value>设为首选</value>
+  </data>
+  <data name="MultiInstall_Unlink.ToolTipService.ToolTip" xml:space="preserve">
+    <value>从库中移出</value>
+  </data>
+  <data name="MultiInstall_Unlink_Content" xml:space="preserve">
+    <value>是否从库中移出这个安装？磁盘文件将保留。</value>
+  </data>
+  <data name="MultiInstall_Unlink_Title" xml:space="preserve">
+    <value>解除安装关联</value>
+  </data>
+  <data name="ScanResultPage_ConfirmLink.Content" xml:space="preserve">
+    <value>确认关联</value>
+  </data>
+  <data name="ScanResultType_RequiresConfirmation" xml:space="preserve">
+    <value>需要确认</value>
+  </data>
+  <data name="ScanResult_LinkFailed" xml:space="preserve">
+    <value>关联安装失败</value>
+  </data>
+  <data name="ScanResult_LinkSuccess" xml:space="preserve">
+    <value>已关联为另一个安装：</value>
+  </data>
+  <data name="ScanResult_NameMatchPending" xml:space="preserve">
+    <value>发现同名游戏，需要确认后关联：</value>
+  </data>
+  <data name="MultiInstall_Manage.Text" xml:space="preserve">
+    <value>管理安装实例</value>
+  </data>
+  <data name="MultiInstall_OpenSaveDirectoryButton.Text" xml:space="preserve">
+    <value>打开存档目录</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Title" xml:space="preserve">
+    <value>重置exe路径？</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Success" xml:space="preserve">
+    <value>已重置exe路径</value>
+  </data>
+  <data name="LibraryPage_FolderSortByCustom.Text" xml:space="preserve">
+    <value>按手动排序</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Timeout.Title" xml:space="preserve">
+    <value>最长搜刮时间</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Timeout.Description" xml:space="preserve">
+    <value>所有源共用的最长等待秒数。0 表示不限制。</value>
+  </data>
+  <data name="RecordPlayTimeTask_WaitingForProcess" xml:space="preserve">
+    <value>进程已退出，正在等待 {0} 的游戏进程出现…（剩余 {1} 秒）</value>
+  </data>
+  <data name="HomePage_CategoryFilter.Text" xml:space="preserve">
+    <value>分类</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_CategoryPanelCheckBox.Content" xml:space="preserve">
+    <value>分类</value>
+  </data>
+  <data name="RssType_Hikarinagi" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.Content" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.NavigateUri" xml:space="preserve">
+    <value>https://www.hikarinagi.org</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi_Description.Text" xml:space="preserve">
+    <value>Hikarinagi是一个中文ACGN社区与条目数据库，提供Galgame、轻小说、漫画等条目信息。该数据源经由PotatoVN同步服务器代理访问，无需登录即可使用（未登录限速360次/分钟）。</value>
+  </data>
+  <data name="HikarinagiPhraser_RateLimitWaiting" xml:space="preserve">
+    <value>请求过于频繁，{0} 秒后重试（第 {1}/{2} 次）</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
+    <value>启用 Hikarinagi 搜刮器</value>
   </data>
 </root>

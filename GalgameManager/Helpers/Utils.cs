@@ -47,7 +47,7 @@ public static partial class Utils
     {
         HttpClient client = new();
         var version = RuntimeHelper.GetVersion();
-        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", 
+        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent",
             $"GoldenPotato/PotatoVN/{version} (Windows) (https://github.com/GoldenPotato137/PotatoVN)");
         return client;
     }
@@ -61,7 +61,7 @@ public static partial class Utils
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return client;
     }
-    
+
     public static HttpClient AddToken(this HttpClient client, string token)
     {
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -97,9 +97,9 @@ public static partial class Utils
             return false;
         }
     }
-    
+
     public static string ToBase64(this string str) => Convert.ToBase64String(Encoding.UTF8.GetBytes(str));
-    
+
     public static string FromBase64(string str) => Encoding.UTF8.GetString(Convert.FromBase64String(str));
 
     /// <summary>
@@ -109,20 +109,34 @@ public static partial class Utils
     /// <param name="self"></param>
     /// <param name="target"></param>
     /// <returns></returns>
-    public static bool ContainX(this string self, string target)
+    public static bool ContainX(this string? self, string? target)
     {
-        if (self == null || target == null)
-            return false;
+        if (self == null || target == null) return false;
         self = self.ToLower().Replace(" ",string.Empty);
         target = target.ToLower().Replace(" ",string.Empty);
         if (self.Contains(target)) return true;
         if (IsFullyAscii(target) == false) return false;
-        if (PinyinHelper.GetPinyinInitials(self).ToLower().Contains(target)) return true;
-        if (PinyinHelper.GetPinyin(self, string.Empty).ToLower().Contains(target)) return true;
-        if (WanaKanaShaapu.WanaKana.ToRomaji(self).ToLower().Contains(target)) return true;
+        try
+        {
+            if (PinyinHelper.GetPinyinInitials(self).ToLower().Contains(target)) return true;
+            if (PinyinHelper.GetPinyin(self, string.Empty).ToLower().Contains(target)) return true;
+        }
+        catch (Exception)
+        {
+            //ignore
+        }
+        try
+        {
+            if (WanaKanaShaapu.WanaKana.ToRomaji(self).ToLower().Contains(target)) return true;
+        }
+        catch (Exception)
+        {
+            //ignore
+        }
+
         return false;
     }
-    
+
     private static bool IsFullyAscii(string str)
     {
         return str.All(c => c <= 127);
@@ -137,7 +151,7 @@ public static partial class Utils
         target = target.ToLower().Replace("_", string.Empty).Replace(" ", string.Empty).Replace("-", string.Empty);
         return string.Compare(self, target, StringComparison.Ordinal);
     }
-    
+
     /// <summary>
     /// 检查两个系统路径或符合Uri格式的路径（如ftp://123/a/b/c）是否相同
     /// </summary>
@@ -149,7 +163,7 @@ public static partial class Utils
         if (Uri.TryCreate(path1, UriKind.Absolute, out Uri? tmp1) &&
             Uri.TryCreate(path2, UriKind.Absolute, out Uri? tmp2))
             return tmp1.Equals(tmp2);
-        
+
         Uri uri1 = new(Path.GetFullPath(path1), UriKind.Absolute);
         Uri uri2 = new(Path.GetFullPath(path2), UriKind.Absolute);
         return uri1.Equals(uri2);
@@ -161,14 +175,15 @@ public static partial class Utils
     /// <param name="parentPath"></param>
     /// <param name="childPath"></param>
     /// <returns></returns>
-    public static bool IsPathContained(string parentPath, string childPath)
+    public static bool IsPathContained(string? parentPath, string? childPath)
     {
+        if (string.IsNullOrEmpty(parentPath) || string.IsNullOrEmpty(childPath)) return false;
         try
         {
             var parent = Path.GetFullPath(parentPath).TrimEnd(Path.DirectorySeparatorChar);
             var child = Path.GetFullPath(childPath).TrimEnd(Path.DirectorySeparatorChar);
-            
-            return child.Equals(parent, StringComparison.OrdinalIgnoreCase) || 
+
+            return child.Equals(parent, StringComparison.OrdinalIgnoreCase) ||
                    (child + Path.DirectorySeparatorChar).StartsWith(parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
         }
         catch
@@ -186,7 +201,7 @@ public static partial class Utils
         if (tmp is null) return false;
         return Path.GetFullPath(parentPath) == Path.GetFullPath(tmp);
     }
-    
+
     /// <summary>
     /// 尝试解析日期，若失败则返回DateTime.MinValue
     /// </summary>
@@ -206,7 +221,7 @@ public static partial class Utils
                 return parsedDate;
         return DateTime.MinValue;
     }
-    
+
     /// <summary>
     /// 检查path是否可写
     /// </summary>
@@ -224,7 +239,7 @@ public static partial class Utils
             return false;
         }
     }
-    
+
     /// <summary>
     /// 检查图片是否有效
     /// </summary>
@@ -328,7 +343,7 @@ public static partial class Utils
                     break;
             }
         }
-        
+
         void ConvertChildren(HtmlNode parent, TextWriter outText)
         {
             foreach (HtmlNode node in parent.ChildNodes)
@@ -341,8 +356,8 @@ public static partial class Utils
 
     [System.Text.RegularExpressions.GeneratedRegex(@"\s{2,}")]
     private static partial System.Text.RegularExpressions.Regex MultiSpaceRegex();
-    
-    
+
+
     public static bool IsAnyContentDialogOpen()
     {
         WindowEx? window = App.MainWindow;
@@ -350,7 +365,7 @@ public static partial class Utils
         IReadOnlyList<Popup>? popups = VisualTreeHelper.GetOpenPopups(window);
         return popups.Any(p => p.Child is ContentDialog);
     }
-    
+
     public static async Task WaitForDialogClosedAsync()
     {
         while (IsAnyContentDialogOpen())

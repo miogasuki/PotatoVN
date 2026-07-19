@@ -1,3 +1,5 @@
+using GalgameManager.Helpers;
+
 namespace GalgameManager.Enums;
 
 /// <summary>
@@ -325,17 +327,16 @@ public static class SaveDetectionConstants
     /// <summary>
     /// 检查路径是否符合存档目录模式
     /// </summary>
-    /// <param name="directory">目录路径</param>
+    /// <param name="directory">目录路径 Span</param>
     /// <returns>路径评分</returns>
-    public static int GetPathStructureScore(string directory)
+    public static int GetPathStructureScore(ReadOnlySpan<char> directory)
     {
         var score = 0;
-        var dirLower = directory.ToLowerInvariant();
-
+        
         // 检查常见存档模式
         foreach (var pattern in SaveDirectoryPatterns)
         {
-            if (dirLower.Contains(pattern))
+            if (directory.IndexOf(pattern.AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 score += 8;
             }
@@ -344,9 +345,9 @@ public static class SaveDetectionConstants
         // 检查汉化文件夹后缀（加分较高，因为这些通常表示游戏特定的存档目录）
         foreach (var suffix in ChineseLocalizationSuffixes)
         {
-            if (dirLower.EndsWith(suffix.ToLowerInvariant()) ||
-                dirLower.Contains($"_{suffix.ToLowerInvariant()}") ||
-                dirLower.Contains($"-{suffix.ToLowerInvariant()}"))
+            if (directory.EndsWith(suffix.AsSpan(), StringComparison.OrdinalIgnoreCase) ||
+                directory.IndexOf($"_{suffix}".AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0 ||
+                directory.IndexOf($"-{suffix}".AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 score += 12; // 汉化目录加分更高
             }
@@ -355,13 +356,13 @@ public static class SaveDetectionConstants
         // 检查目录末尾字符模式（更灵活的匹配）
         foreach (var suffix in SaveDirectorySuffixPatterns)
         {
-            if (dirLower.EndsWith(suffix.ToLowerInvariant()))
+            if (directory.EndsWith(suffix.AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
                 score += 6; // 末尾匹配加分中等
             }
-            else if (dirLower.Contains($"_{suffix.ToLowerInvariant()}") ||
-                     dirLower.Contains($"-{suffix.ToLowerInvariant()}") ||
-                     dirLower.Contains($".{suffix.ToLowerInvariant()}"))
+            else if (directory.IndexOf($"_{suffix}".AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     directory.IndexOf($"-{suffix}".AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     directory.IndexOf($".{suffix}".AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 score += 4; // 包含加分较低
             }
@@ -370,7 +371,7 @@ public static class SaveDetectionConstants
         // 检查特殊路径加分
         foreach (var pattern in SpecialPathScores)
         {
-            if (dirLower.Contains(pattern.Key))
+            if (directory.IndexOf(pattern.Key.AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 score += pattern.Value;
             }
@@ -380,32 +381,30 @@ public static class SaveDetectionConstants
     }
 
     /// <summary>
-    /// 检查路径是否应该被排除（避免扫描程序路径）
+    /// 检查路径是否应该被排除（Span，无分配）
     /// </summary>
-    /// <param name="targetPath">要检查的路径</param>
+    /// <param name="targetPath">要检查的路径 Span</param>
     /// <param name="currentAppPath">当前应用程序路径</param>
     /// <returns>是否应该排除此路径</returns>
-    public static bool ShouldExcludePath(string targetPath, string currentAppPath)
+    public static bool ShouldExcludePath(ReadOnlySpan<char> targetPath, string currentAppPath)
     {
-        if (string.IsNullOrEmpty(targetPath) || string.IsNullOrEmpty(currentAppPath))
+        if (targetPath.IsEmpty || string.IsNullOrEmpty(currentAppPath))
             return false;
 
-        var targetLower = targetPath.ToLowerInvariant();
+        // 排除在当前程序路径下的路径
+        if (targetPath.StartsWith(currentAppPath.AsSpan(), StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
 
         // 检查是否包含排除关键词
         foreach (var keyword in ExcludePathKeywords)
         {
-            // 修复：必须将 keyword 也转为小写，否则类似 "TrafficMonitor" 无法匹配 "trafficmonitor"
-            if (targetLower.Contains(keyword.ToLowerInvariant()))
+            // 使用 OrdinalIgnoreCase 避免 ToLower 分配
+            if (targetPath.IndexOf(keyword.AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return true;
             }
-        }
-
-        // 排除在当前程序路径下的路径
-        if (targetPath.StartsWith(currentAppPath, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
         }
 
         return false;

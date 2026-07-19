@@ -5,6 +5,7 @@ using GalgameManager.Models;
 namespace GalgameManager.Test.Helpers.Phraser;
 
 [TestFixture]
+[Category("Phraser")]
 public class VndbPhraserTest
 {
     private VndbPhraser _vndbPhraser = null!;
@@ -13,6 +14,48 @@ public class VndbPhraserTest
     public void Init()
     {
         _vndbPhraser = new VndbPhraser();
+    }
+
+    [Test]
+    public async Task ParseGameWithOnlineNameSearch_ShouldPreferSearchRank()
+    {
+        // 使用不存在的 release ID 绕过本地名称映射，强制回退到 VNDB 在线名称搜索。
+        Galgame input = new("ISLAND");
+        input.Ids[(int)RssType.Vndb] = "r999999";
+
+        Galgame? game = await _vndbPhraser.GetGalgameInfo(input);
+
+        Assert.That(game, Is.Not.Null);
+        Assert.That(game!.Id, Is.EqualTo("18498"));
+    }
+
+    [Test]
+    [TestCase("r2166", "v1129")]
+    public async Task GetVndbIdFromReleaseId_ShouldResolve_ToVnId(string releaseId, string expectedVnId)
+    {
+        var vnId = await _vndbPhraser.GetVndbIdFromReleaseId(releaseId);
+        Assert.That(vnId, Is.EqualTo(expectedVnId));
+    }
+
+    [Test]
+    [TestCase("r2166", "メタモルファンタジーSP", "https://t.vndb.org/cv/15/89715.jpg", "エスクード")]
+    public async Task ParseGameWithReleaseId_ShouldPreferReleaseTitleAndCover(
+        string releaseId,
+        string expectedReleaseTitleJa,
+        string expectedReleaseCoverUrl,
+        string expectedDeveloper)
+    {
+        // 这里用一个“无关名称”来确保解析是由 releaseId 驱动，而不是依赖 search/name。
+        Galgame input = new("dummy");
+        input.Ids[(int)RssType.Vndb] = releaseId;
+
+        Galgame? game = await _vndbPhraser.GetGalgameInfo(input);
+
+        Assert.That(game, Is.Not.Null);
+        Assert.That(game!.Id, Is.EqualTo(releaseId));
+        Assert.That(game.Name.Value, Is.EqualTo(expectedReleaseTitleJa));
+        Assert.That(game.ImageUrl, Is.EqualTo(expectedReleaseCoverUrl));
+        Assert.That(game.Developer.Value, Is.EqualTo(expectedDeveloper));
     }
 
     [Test]

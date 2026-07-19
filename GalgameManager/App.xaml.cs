@@ -46,7 +46,7 @@ public partial class App : Application
             throw new ArgumentException($"{typeof(T)} needs to be registered in ConfigureServices within App.xaml.cs.");
         return service;
     }
-    
+
     public static T GetResource<T>(string key)
     {
         if (Current.Resources[key] is not T resource)
@@ -57,7 +57,7 @@ public partial class App : Application
     private static Application _instance = null!;
     public static WindowEx? MainWindow { get; set; }
     public static TaskbarIcon? SystemTray { get; set; }
-    
+
     public static UIElement? AppTitlebar { get; set; }
     public static WindowMode Status = WindowMode.Booting;
     public static event Action? OnAppClosing;
@@ -66,6 +66,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        PluginXamlHost.Initialize(this);
 
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
@@ -73,8 +74,8 @@ public partial class App : Application
         ConfigureServices((context, services) =>
         {
             // Utils
-            services.AddAutoMapper(typeof(App).Assembly);
-            
+            services.AddAutoMapper(_ => { }, typeof(App));
+
             // 启动跳转处理
             // 从前往后依次处理，直到找到能处理的处理器
             // Launch Activation Handlers
@@ -95,6 +96,7 @@ public partial class App : Application
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IGalgameCollectionService, GalgameCollectionService>();
             services.AddSingleton<IGalgameSourceCollectionService, GalgameSourceCollectionService>();
+            services.AddSingleton<IGameLaunchService, GameLaunchService>();
             // Source Services
             services.AddSingleton<LocalFolderSourceService>();
             services.AddSingleton<VirtualSourceService>();
@@ -109,11 +111,13 @@ public partial class App : Application
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddSingleton<IBgmOAuthService, BgmOAuthService>();
             services.AddSingleton<IInfoService, InfoService>();
+            services.AddSingleton<ISidebarService, SidebarService>();
             services.AddSingleton<IBgTaskService, BgTaskService>();
             services.AddSingleton<IPvnService, PvnService>();
             services.AddSingleton<IVndbAuthService, VndbAuthService>();
             services.AddSingleton<ISteamService, SteamService>();
             services.AddSingleton<ISourceScanResultService, SourceScanResultService>();
+            services.AddSingleton<IPluginService, PluginService>();
             // Main Bus
             services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
 
@@ -139,6 +143,8 @@ public partial class App : Application
             services.AddTransient<GalgameSettingPage>();
             services.AddTransient<PlayedTimePage>();
             services.AddTransient<PlayedTimeViewModel>();
+            services.AddTransient<PluginStoreViewModel>();
+            services.AddTransient<PluginStorePage>();
             services.AddTransient<LibraryViewModel>();
             services.AddTransient<LibraryPage>();
             services.AddTransient<GalgameSourceViewModel>();
@@ -157,8 +163,12 @@ public partial class App : Application
             services.AddTransient<GalgameCharacterViewModel>();
             services.AddTransient<StaffViewModel>();
             services.AddTransient<StaffPage>();
-            services.AddTransient<ScanResultViewModel>(); // Added ScanResultViewModel
-            services.AddTransient<ScanResultPage>(); // Added ScanResultPage
+            services.AddTransient<ScanResultViewModel>();
+            services.AddTransient<ScanResultPage>();
+            services.AddTransient<PluginViewModel>();
+            services.AddTransient<PluginPage>();
+            services.AddTransient<PluginHostPage>();
+            services.AddTransient<PluginHostPageViewModel>();
 
             // Configuration
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
@@ -180,7 +190,7 @@ public partial class App : Application
         if (Status != WindowMode.Booting)
             AppInstance.Restart("/safemode");
     }
-    
+
     /// <summary>
     /// 应用启动入口
     /// </summary>
@@ -190,6 +200,9 @@ public partial class App : Application
         // 设置LiveCharts字体
         LiveCharts.Configure(config => config.HasGlobalSKTypeface(SKFontManager.Default.MatchCharacter('汉')));
         _instance = this;
+#pragma warning disable CS0618 // 计划的一部分
+        WinApp.Base.Helpers.UiThreadInvokeHelper.Init(DispatcherQueue);
+#pragma warning restore CS0618 //
         Status = WindowMode.Booting;
         await GetService<IActivationService>().LaunchedAsync(AppInstance.GetCurrent().GetActivatedEventArgs());
     }
@@ -203,7 +216,7 @@ public partial class App : Application
             SetWindowMode(WindowMode.Normal);
         });
     }
-    
+
     /// <summary>
     /// 设置窗口模式<br/>
     /// <para>
@@ -221,7 +234,7 @@ public partial class App : Application
                 GetService<IPageService>().InitAsync();
                 MainWindow!.Activate();
                 MainWindow!.BringToFront();
-                MainWindow.Content.Visibility = Visibility.Visible; 
+                MainWindow.Content.Visibility = Visibility.Visible;
                 if (GetService<ILocalSettingsService>().ReadSettingAsync<string>(KeyValues.LastError)
                         .Result is { } error)
                 {
@@ -264,4 +277,5 @@ public partial class App : Application
         // 商店版的包名是固定的，其他都是侧载版
         return packageName == storeVersionPackageName;
     }
+
 }

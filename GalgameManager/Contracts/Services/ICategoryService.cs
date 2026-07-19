@@ -19,6 +19,11 @@ public interface ICategoryService
     /// 开发商分类组
     /// </summary>
     public CategoryGroup DeveloperGroup { get; }
+
+    /// <summary>
+    /// 游戏引擎分类组
+    /// </summary>
+    public CategoryGroup EngineGroup { get; }
     
     public Task Init();
 
@@ -40,6 +45,20 @@ public interface ICategoryService
     /// </summary>
     /// <param name="category">分类</param>
     public void DeleteCategory(Category category);
+
+    /// <summary>
+    /// 向分类组添加分类
+    /// </summary>
+    /// <param name="categoryGroup">分类组</param>
+    /// <param name="category">分类</param>
+    public void AddCategoryToGroup(CategoryGroup categoryGroup, Category category);
+
+    /// <summary>
+    /// 从分类组移除分类
+    /// </summary>
+    /// <param name="categoryGroup">分类组</param>
+    /// <param name="category">分类</param>
+    public void RemoveCategoryFromGroup(CategoryGroup categoryGroup, Category category);
 
     /// <summary>
     /// 将源分类合并到目标分类，然后删除源分类 <br/>
@@ -69,6 +88,13 @@ public interface ICategoryService
     /// <param name="galgame"></param>
     /// <returns></returns>
     Category? GetDeveloperCategory(Galgame galgame);
+
+    /// <summary>
+    /// 获取某个游戏的游戏引擎分类，若没有则返回null
+    /// </summary>
+    /// <param name="galgame"></param>
+    /// <returns></returns>
+    Category? GetEngineCategory(Galgame galgame);
 
     /// <summary>
     /// 保存分类信息

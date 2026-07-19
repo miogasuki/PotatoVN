@@ -1,5 +1,6 @@
 ﻿<Page
     x:Class="GalgameManager.Views.HomeDetailPage"
+    x:Name="Page"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,11 +13,14 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:behaviors="using:GalgameManager.Behaviors"
+    xmlns:sources="using:GalgameManager.Models.Sources"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:ImagePathConverter x:Key="ImagePathConverter" />
+        <converters:AnyToVisibilityConverter x:Key="AnyToVisConv"/>
+        <converters:SourceToGlyphConverter x:Key="SourceToGlyphConverter"/>
     </Page.Resources>
 
     <Grid>
@@ -24,31 +28,98 @@
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="{StaticResource CommandBarMargin}">
                 <!-- 开始游戏 -->
-                <AppBarButton x:Uid="GalgamePage_Play" Command="{x:Bind ViewModel.PlayCommand}"
-                              Visibility="{x:Bind ViewModel.IsLocalGame, 
-                              Converter={StaticResource BoolToVisibilityConverter}, 
-                              ConverterParameter = False, Mode=OneWay}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE768;" />
-                    </AppBarButton.Icon>
-                    <AppBarButton.ContextFlyout>
-                        <Flyout Placement="Bottom" x:Name="ClearExeFlyout">
-                            <StackPanel>
-                                <TextBlock Style="{ThemeResource BaseTextBlockStyle}"
-                                           x:Uid="GalgamePage_UiPlayFlyOutTitle" />
-                                <Button Command="{x:Bind ViewModel.ResetExePathCommand}"
-                                        local:FlyoutHelper.CloseFlyoutOnClick="True"
-                                        x:Uid="YesButton"
-                                        Margin="{StaticResource SmallTopMargin}" HorizontalAlignment="Center" 
-                                        Flyout="{x:Bind ClearExeFlyout}"/>
-                            </StackPanel>
-                        </Flyout>
-                    </AppBarButton.ContextFlyout>
-                </AppBarButton>
+                <AppBarElementContainer
+                    Visibility="{x:Bind ViewModel.IsLocalGame,
+                    Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                    <SplitButton x:Name="PlaySplitButton" Command="{x:Bind ViewModel.PlayCommand}">
+                        <interactivity:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="RightTapped">
+                                <core:InvokeCommandAction Command="{x:Bind ViewModel.ResetExePathCommand}" />
+                            </core:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE768;" />
+                            <TextBlock x:Uid="MultiInstall_PlayButton"/>
+                        </StackPanel>
+                        <SplitButton.Flyout>
+                            <Flyout Placement="Bottom">
+                                <Flyout.FlyoutPresenterStyle>
+                                    <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="Padding" Value="6" />
+                                        <Setter Property="CornerRadius" Value="12" />
+                                        <Setter Property="MinWidth" Value="360" />
+                                        <Setter Property="MaxWidth" Value="480" />
+                                    </Style>
+                                </Flyout.FlyoutPresenterStyle>
+                                <StackPanel Spacing="2">
+                                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="10,6,10,8">
+                                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE7FC;" FontSize="16"
+                                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                                        <TextBlock x:Uid="MultiInstall_Select_Title"
+                                                   Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <ScrollViewer MaxHeight="320" HorizontalScrollBarVisibility="Disabled"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Installations, Mode=OneWay}">
+                                            <ItemsRepeater.Layout>
+                                                <StackLayout Spacing="6" />
+                                            </ItemsRepeater.Layout>
+                                            <ItemsRepeater.ItemTemplate>
+                                                <DataTemplate x:DataType="sources:GalgameAndPath">
+                                                    <Button Style="{ThemeResource TransparentButtonWithHover}"
+                                                            DataContext="{x:Bind}"
+                                                            HorizontalAlignment="Stretch"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            Padding="10,8"
+                                                            Click="SelectInstallation_OnClick">
+                                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                                            <Border Grid.Column="0" Width="38" Height="38" CornerRadius="8"
+                                                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                                    VerticalAlignment="Center">
+                                                                <FontIcon FontFamily="Segoe Fluent Icons" FontSize="16"
+                                                                          Glyph="{x:Bind Source, Mode=OneWay,
+                                                                          Converter={StaticResource SourceToGlyphConverter}}" />
+                                                            </Border>
+                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                                                                <TextBlock Text="{x:Bind Source.Name, FallbackValue={x:Null}}"
+                                                                           FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{x:Bind Path}" TextTrimming="CharacterEllipsis"
+                                                                           Style="{ThemeResource CaptionTextBlockStyle}"
+                                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                            </StackPanel>
+                                                            <FontIcon Grid.Column="2" FontFamily="Segoe Fluent Icons"
+                                                                      Glyph="&#xE73E;" FontSize="16" VerticalAlignment="Center"
+                                                                      Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                                      Visibility="{x:Bind IsPreferred, Mode=OneWay,
+                                                                      Converter={StaticResource BoolToVisibilityConverter}}" />
+                                                        </Grid>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsRepeater.ItemTemplate>
+                                        </ItemsRepeater>
+                                    </ScrollViewer>
+                                    <Rectangle Height="1" Margin="8,4"
+                                               Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                                    <Button Style="{ThemeResource TransparentButtonWithHover}"
+                                            Command="{x:Bind ViewModel.SettingCommand}"
+                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                                        <StackPanel Orientation="Horizontal" Spacing="12"
+                                                    Padding="0,5">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;" FontSize="16"
+                                                      Width="38" HorizontalAlignment="Center" />
+                                            <TextBlock x:Uid="MultiInstall_Manage" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Flyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
+                </AppBarElementContainer>
                 <!-- 设置本地路径 -->
                 <AppBarButton x:Uid="GalgamePage_SetLocalPath" Command="{x:Bind ViewModel.SetLocalPathCommand}"
-                              Visibility="{x:Bind ViewModel.IsLocalGame, 
-                              Converter={StaticResource BoolToVisibilityConverter}, 
+                              Visibility="{x:Bind ViewModel.IsLocalGame,
+                              Converter={StaticResource BoolToVisibilityConverter},
                               ConverterParameter = True, Mode=OneWay}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE723;" />
@@ -73,7 +144,7 @@
                                 <Button Command="{x:Bind ViewModel.ClearTextCommand}"
                                         local:FlyoutHelper.CloseFlyoutOnClick="True"
                                         x:Uid="YesButton"
-                                        Margin="{StaticResource SmallTopMargin}" HorizontalAlignment="Center" 
+                                        Margin="{StaticResource SmallTopMargin}" HorizontalAlignment="Center"
                                         Flyout="{x:Bind ClearTextFlyout}"/>
                             </StackPanel>
                         </Flyout>
@@ -85,17 +156,74 @@
                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"
                         Command="{x:Bind ViewModel.OpenInExplorerCommand}"
                         Visibility="{x:Bind ViewModel.ShowSingleExplorerButton, Mode=OneWay}"/>
-                <AppBarButton Icon="OpenLocal"
+                <AppBarButton x:Name="OpenInstallationFlyoutButton" Icon="OpenLocal"
                         x:Uid="GalgamePage_Open"
                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.ShowExplorerMenu, Mode=OneWay}">
                     <AppBarButton.Flyout>
-                        <MenuFlyout Placement="Bottom">
-                            <MenuFlyoutItem x:Uid="GalgamePage_OpenGameDirectory"
-                                            Command="{x:Bind ViewModel.OpenInExplorerCommand}"/>
-                            <MenuFlyoutItem x:Uid="GalgamePage_OpenSaveDirectory"
-                                            Command="{x:Bind ViewModel.OpenSaveDirectoryCommand}"/>
-                        </MenuFlyout>
+                        <Flyout Placement="Bottom">
+                            <Flyout.FlyoutPresenterStyle>
+                                <Style TargetType="FlyoutPresenter">
+                                    <Setter Property="Padding" Value="6" />
+                                    <Setter Property="CornerRadius" Value="12" />
+                                    <Setter Property="MinWidth" Value="360" />
+                                    <Setter Property="MaxWidth" Value="480" />
+                                </Style>
+                            </Flyout.FlyoutPresenterStyle>
+                            <StackPanel Spacing="2">
+                                <ScrollViewer MaxHeight="320" HorizontalScrollBarVisibility="Disabled"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Installations, Mode=OneWay}">
+                                        <ItemsRepeater.Layout>
+                                            <StackLayout Spacing="6" />
+                                        </ItemsRepeater.Layout>
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="sources:GalgameAndPath">
+                                                <Button Style="{ThemeResource TransparentButtonWithHover}"
+                                                        DataContext="{x:Bind}"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Stretch"
+                                                        Padding="10,8"
+                                                        Click="OpenInstallation_OnClick">
+                                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="8"
+                                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                                VerticalAlignment="Center">
+                                                            <FontIcon FontFamily="Segoe Fluent Icons" FontSize="16"
+                                                                      Glyph="{x:Bind Source, Mode=OneWay,
+                                                                      Converter={StaticResource SourceToGlyphConverter}}" />
+                                                        </Border>
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                                                            <TextBlock Text="{x:Bind Source.Name, FallbackValue={x:Null}}"
+                                                                       FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="{x:Bind Path}" TextTrimming="CharacterEllipsis"
+                                                                       Style="{ThemeResource CaptionTextBlockStyle}"
+                                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </ScrollViewer>
+                                <Rectangle Height="1" Margin="8,4"
+                                           Fill="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                           Visibility="{x:Bind ViewModel.HasSaveDirectory,
+                                           Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+                                <Button Style="{ThemeResource TransparentButtonWithHover}"
+                                        Command="{x:Bind ViewModel.OpenSaveDirectoryCommand}"
+                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                        Padding="10,8"
+                                        Visibility="{x:Bind ViewModel.HasSaveDirectory,
+                                        Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74E;" FontSize="16"
+                                                  Width="38" HorizontalAlignment="Center" />
+                                        <TextBlock x:Uid="MultiInstall_OpenSaveDirectoryButton" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <CommandBar.SecondaryCommands>
@@ -103,18 +231,18 @@
                     <AppBarToggleButton Icon="Character"
                             x:Uid="GalgamePage_RunInLocaleEmulator"
                                         Command="{x:Bind ViewModel.ChangeRunInLocaleEmulatorCommand}"
-                                        IsChecked="{x:Bind ViewModel.Item.RunInLocaleEmulator, Mode=TwoWay, FallbackValue=False}"
+                                        IsChecked="{x:Bind ViewModel.CurrentInstallationConfig.RunInLocaleEmulator, Mode=TwoWay, FallbackValue=False}"
                                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
                     <!-- 以管理员权限运行游戏 -->
                     <AppBarToggleButton Icon="Admin"
                                         x:Uid="GalgamePage_RunAsAdmin"
                                         Command="{x:Bind ViewModel.SaveCommand}"
-                                        IsChecked="{x:Bind ViewModel.Item.RunAsAdmin, Mode=TwoWay, FallbackValue=False}"
+                                        IsChecked="{x:Bind ViewModel.CurrentInstallationConfig.RunAsAdmin, Mode=TwoWay, FallbackValue=False}"
                                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
                     <!-- 高DPI替代缩放 -->
                     <AppBarToggleButton x:Uid="GalgamePage_HighDpi"
                                         Command="{x:Bind ViewModel.ChangeHighDpiCommand}"
-                                        IsChecked="{x:Bind ViewModel.Item.HighDpi, Mode=TwoWay, FallbackValue=False}"
+                                        IsChecked="{x:Bind ViewModel.CurrentInstallationConfig.HighDpi, Mode=TwoWay, FallbackValue=False}"
                                         IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}">
                         <AppBarToggleButton.Icon>
                             <control:ConditionalFontIcon Symbol="GoToStart"
@@ -145,40 +273,40 @@
                     </AppBarToggleButton>
                     <AppBarSeparator/>
                     <!-- 在BGM中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInBgm, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInBgm,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 在Vndb中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInVndb" Command="{x:Bind ViewModel.OpenInVndbCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInVndb, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInVndb" Command="{x:Bind ViewModel.OpenInVndbCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInVndb,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 在Ymgal中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInYmgal" Command="{x:Bind ViewModel.OpenInYmgalCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInYmgal, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInYmgal" Command="{x:Bind ViewModel.OpenInYmgalCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInYmgal,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 在Cngal中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInCngal" Command="{x:Bind ViewModel.OpenInCngalCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInCngal, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInCngal" Command="{x:Bind ViewModel.OpenInCngalCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInCngal,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 在Steam中打开 -->
-                    <AppBarButton x:Uid="GalgamePage_OpenInSteam" Command="{x:Bind ViewModel.OpenInSteamCommand}" 
-                                  Visibility="{x:Bind ViewModel.CanOpenInSteam, 
+                    <AppBarButton x:Uid="GalgamePage_OpenInSteam" Command="{x:Bind ViewModel.OpenInSteamCommand}"
+                                  Visibility="{x:Bind ViewModel.CanOpenInSteam,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8AD;" />
@@ -187,7 +315,7 @@
                     <!-- 下载游玩状态 -->
                     <AppBarButton x:Uid="GalgamePage_SyncFromBgm"
                             Command="{x:Bind ViewModel.SyncFromBgmCommand}"
-                                  Visibility="{x:Bind ViewModel.CanOpenInBgm, 
+                                  Visibility="{x:Bind ViewModel.CanOpenInBgm,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons"
@@ -196,7 +324,7 @@
                     </AppBarButton>
                     <AppBarButton x:Uid="GalgamePage_SyncFromVndb"
                             Command="{x:Bind ViewModel.SyncFromVndbCommand}"
-                                  Visibility="{x:Bind ViewModel.CanOpenInVndb, 
+                                  Visibility="{x:Bind ViewModel.CanOpenInVndb,
                                   Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons"
@@ -205,7 +333,7 @@
                     </AppBarButton>
                     <AppBarSeparator/>
                     <!-- 手动选择进程 -->
-                    <AppBarButton 
+                    <AppBarButton
                         x:Uid="GalgamePage_SelectThread"
                         Command="{x:Bind ViewModel.SelectProcessCommand}"
                         Visibility="{x:Bind ViewModel.IsSelectProcessVisible, Mode=OneWay}">
@@ -224,7 +352,7 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <!-- 重置exe和文本路径 -->
-                    <AppBarButton 
+                    <AppBarButton
                         x:Uid="GalgamePage_ResetPath"
                         Command="{x:Bind ViewModel.ResetPathCommand}"
                         Visibility="{x:Bind ViewModel.IsResetPathVisible, Mode=OneWay}">
@@ -232,11 +360,11 @@
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74E;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-  
                     <AppBarSeparator/>
                     <!-- 设置界面显示的元素 -->
                     <AppBarButton x:Uid="GalgamePage_ManageLayout"
-                            Command="{x:Bind ViewModel.ManageLayoutCommand}">
+                            Command="{x:Bind ViewModel.ManageLayoutCommand}"
+                            IsEnabled="{x:Bind ViewModel.SettingAvailable, Mode=OneWay}">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="Segoe Fluent Icons"
                                     Glyph="&#xE713;"/>
@@ -265,27 +393,16 @@
                     <!-- 彻底删除游戏 -->
                     <AppBarButton Icon="Delete" x:Uid="GalgamePage_Delete" Command="{x:Bind ViewModel.DeleteFromDiskCommand}"
                                   IsEnabled="{x:Bind ViewModel.IsLocalGame, Mode=OneWay}"/>
+                    <AppBarButton Icon="Remove" x:Uid="MultiInstall_DeleteGame"
+                                  Command="{x:Bind ViewModel.DeletePermanentlyCommand}"/>
                 </CommandBar.SecondaryCommands>
             </CommandBar>
-            <!-- Layout Old -->
-            <Grid Grid.Row="1" RowDefinitions="*"
-                  Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, 
-                      Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
-                <ScrollViewer IsTabStop="True">
-                    <StackPanel>
-                        <galgamePagePanel:GameHeaderOldPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                        <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                        <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                        <galgamePagePanel:GameCharacterPanel
-                            Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                            AddCharacterCommand="{x:Bind ViewModel.AddCharacterCommand}"
-                            DeleteCharacterCommand="{x:Bind ViewModel.DeleteCharacterCommand}" />
-                        <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
-                    </StackPanel>
-                </ScrollViewer>
-            </Grid>
+
+            <ContentPresenter Grid.Row="1" Content="{x:Bind ViewModel.PluginUi, Mode=OneWay}"
+                              Visibility="{x:Bind ViewModel.Plugin, Converter={StaticResource AnyToVisConv}}"/>
             <!-- Layout New -->
-            <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid Grid.Row="1" Visibility="{x:Bind ViewModel.PluginUi, Mode=OneWay,
+                    Converter={StaticResource AnyToVisConv}, ConverterParameter=false}">
                 <ScrollViewer IsTabStop="True" Margin="-55 0 -55 0" CornerRadius="8">
                     <Grid RowDefinitions="*,*">
                         <Image Grid.Row="0"
@@ -293,21 +410,37 @@
                                VerticalAlignment="Top"
                                Stretch="Uniform" HorizontalAlignment="Stretch"
                                Source="{x:Bind ViewModel.Item.HeaderImagePath, Mode=OneWay,
-                                         FallbackValue={x:Null}, Converter={StaticResource ImagePathConverter}, 
+                                         FallbackValue={x:Null}, Converter={StaticResource ImagePathConverter},
                                          ConverterParameter='null_ignoreDefaultPotato'}"/>
 
                         <StackPanel Grid.Row="0" Grid.RowSpan="2">
                             <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
                             <Grid ColumnDefinitions="2*,1,1*">
-                                <galgamePagePanel:GameDescriptionPanel
-                                    Grid.Column="0" Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                                    Margin="0 0 30 0" />
+                                <StackPanel Grid.Column="0" Spacing="10" Margin="0 0 30 0">
+                                    <galgamePagePanel:GameDescriptionPanel
+                                        Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.LeftPanelPluginUis}">
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="UIElement">
+                                                <ContentPresenter Content="{x:Bind}" />
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </StackPanel>
                                 <Rectangle Grid.Column="1" Width="1" Margin="0 20"
                                            Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
                                            VerticalAlignment="Stretch" />
-                                <galgamePagePanel:GamePlayStatusPanel
-                                    Grid.Column="2" Game="{x:Bind ViewModel.Item, Mode=OneWay}"
-                                    Margin="30 0 30 0" />
+                                <StackPanel Grid.Column="2" Spacing="10" Margin="30 0 30 0">
+                                    <galgamePagePanel:GamePlayStatusPanel
+                                        Game="{x:Bind ViewModel.Item, Mode=OneWay}" />
+                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.RightPanelPluginUis}">
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="UIElement">
+                                                <ContentPresenter Content="{x:Bind}" />
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </StackPanel>
                             </Grid>
                             <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"
                                     Visibility="{x:Bind ViewModel.ShowTagPanel, Mode=OneWay}"/>

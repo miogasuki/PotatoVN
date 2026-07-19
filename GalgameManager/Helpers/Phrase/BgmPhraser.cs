@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Web;
 using GalgameManager.Contracts.Phrase;
@@ -13,7 +13,7 @@ using Exception = System.Exception;
 
 namespace GalgameManager.Helpers.Phrase;
 
-public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser
+public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser, IGalStaffParser, IGalCoversParser
 {
     private HttpClient _httpClient;
     private IBgmApi _bgmApi = null!;
@@ -179,6 +179,35 @@ public class BgmPhraser : IGalInfoPhraser, IGalStatusSync, IGalCharacterPhraser,
             result.Characters.Add(c);
         }
         return result;
+    }
+
+    /// <summary>
+    /// 获取封面图片，只关注ImageUrl
+    /// </summary>
+    public async Task<List<string>> GetGalCoversAsync(Galgame galgame)
+    {
+        var name = galgame.Name.Value ?? "";
+        int? id;
+        try
+        {
+            id = Convert.ToInt32(galgame.Ids[(int)RssType.Bangumi] ?? "");
+        }
+        catch (Exception)
+        {
+            id = await GetId(name);
+        }
+        
+        if (id == null) return [];
+        GameDto gameDto;
+        try
+        {
+            gameDto = await _bgmApi.GetGameAsync(id.Value);
+        }
+        catch (Exception)
+        {
+            return [];
+        }
+        return gameDto.images.large is not null ? [gameDto.images.large] : [];
     }
 
     public RssType GetPhraseType() => RssType.Bangumi;

@@ -42,7 +42,7 @@ public static class PhraseHelper
 
     public static async Task<int?> TryGetBgmIdAsync(string name) =>
         await TryGetMapAsync(name) is { } mapModel && mapModel.BgmSimilarity > 0.95 ? mapModel.BgmId : null;
-    
+
     public static async Task<int?> TryGetSteamIdAsync(string name) =>
         await TryGetMapAsync(name) is { } mapModel ? mapModel.SteamId : null;
 
@@ -51,7 +51,7 @@ public static class PhraseHelper
         _isUsing = true;
         Init();
         MapModel? result = null;
-        if (!string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb])) 
+        if (!string.IsNullOrEmpty(game.Ids[(int)RssType.Vndb]))
             result ??= await _vnDbMapper!.TryGetMapAsync(VndbPhraser.GetId(game.Ids[(int)RssType.Vndb]!));
         if (!string.IsNullOrEmpty(game.Ids[(int)RssType.Bangumi]))
             result ??= (await _vnDbMapper!.TryGetMapsWithBgmId(Convert.ToInt32(game.Ids[(int)RssType.Bangumi])))
@@ -82,7 +82,7 @@ public static class PhraseHelper
         _isUsing = false;
         return result;
     }
-    
+
     private static async Task<MapModel?> TryGetMapAsync(string name)
     {
         _isUsing = true;
@@ -108,11 +108,11 @@ public static class ExVndb
         if (_db is not null) return;
         Assembly assembly = Assembly.GetExecutingAssembly();
         var sourceFile = Path.Combine(Path.GetDirectoryName(assembly.Location)!, DbFile);
-        
-        // 获取LocalState文件夹路径
-        var localStateFolder = ApplicationData.Current.LocalFolder.Path;
+
+        // 获取数据文件夹路径（便携模式下位于程序目录旁）
+        var localStateFolder = AppStoragePaths.LocalDataPath;
         var localDbPath = Path.Combine(localStateFolder, LocalDbFile);
-        
+
         // 如果LocalState中不存在数据库文件，则从安装目录复制
         if (!File.Exists(localDbPath) && File.Exists(sourceFile))
         {
@@ -128,12 +128,12 @@ public static class ExVndb
                 return;
             }
         }
-        
+
         // 使用LocalState文件夹中的数据库
         if (File.Exists(localDbPath))
         {
             _db = new SQLiteAsyncConnection(localDbPath);
-            
+
             if (_unloadDbTask is not null)
                 _unloadDbTask = Task.Run(async () =>
                 {
@@ -148,7 +148,7 @@ public static class ExVndb
                 });
         }
     }
-    
+
     public static async Task<ExVn?> TryGetExVnAsync(string id)
     {
         _isUsing = true;
@@ -157,19 +157,19 @@ public static class ExVndb
         _isUsing = false;
         return result;
     }
-    
+
     [Table("Vns")]
     public class ExVn
     {
         [MaxLength(50)]
         public string Id { get; set; } = null!;
-    
+
         [MaxLength(50)]
         public string? BestHeaderImage { get; set; }
-    
+
         [MaxLength(50)]
         public string? AlternativeHeaderImage { get; set; }
-    
+
         [MaxLength(3)]
         public string? HeaderImageVersion { get; set; }
     }

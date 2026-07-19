@@ -16,10 +16,12 @@ namespace GalgameManager.Views.Control
         public SearchAutoSuggestBox()
         {
             InitializeComponent();
+            SuggestBox.MinWidth = MinWidth;
+            MinWidth = 250; //兼容老代码写死在XAML里的MinWidth
         }
-        
+
         private const int SearchDelay = 500;
-    
+
         public readonly ObservableCollection<string> SearchSuggestions = new();
         private DateTime _lastSearchTime = DateTime.Now;
         private async void AutoSuggestBox_OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -30,7 +32,7 @@ namespace GalgameManager.Views.Control
                 SearchSuggestions.Clear();
                 return;
             }
-        
+
             _ = Task.Run((async Task() =>
             {
                 _lastSearchTime = DateTime.Now;
@@ -47,10 +49,10 @@ namespace GalgameManager.Views.Control
             //更新建议
             if(args.Reason != AutoSuggestionBoxTextChangeReason.UserInput) return;
             SearchSuggestions.Clear();
-            
+
             if (SearchKey == string.Empty)return;
-            
-            if (SearchSuggestionsProvider != null && 
+
+            if (SearchSuggestionsProvider != null &&
                 await SearchSuggestionsProvider.GetSearchSuggestionsAsync(SearchKey) is {} result)
             {
                 foreach (var suggestion in result)

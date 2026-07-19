@@ -186,6 +186,18 @@
   <data name="HomePage_Download" xml:space="preserve">
     <value>ゲーム情報をダウンロード</value>
   </data>
+  <data name="HomePage_BatchManage.Label" xml:space="preserve">
+    <value>一括管理</value>
+  </data>
+  <data name="HomePage_BatchManage_Done" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="HomePage_SelectAll" xml:space="preserve">
+    <value>全選択</value>
+  </data>
+  <data name="HomePage_SelectNone" xml:space="preserve">
+    <value>選択解除</value>
+  </data>
   <data name="HomePage_Remove" xml:space="preserve">
     <value>ライブラリからゲームを削除</value>
   </data>
@@ -215,6 +227,9 @@
   </data>
   <data name="HomePage_Remove_Message" xml:space="preserve">
     <value>このゲームのホストを解除しますか？</value>
+  </data>
+  <data name="HomePage_BatchRemove_Message" xml:space="preserve">
+    <value>選択した{0}件のゲームをライブラリから削除しますか？</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>確定</value>
@@ -341,7 +356,7 @@
   <data name="GalgamePage_Description.Text" xml:space="preserve">
     <value>概要</value>
   </data>
-  <data name="GalgameCollectionService_SelectSavePosition_Folder" xml:space="preserve">
+  <data name="GalgameCollectionService_SelectSavePosition" xml:space="preserve">
     <value>セーブフォルダを選択</value>
   </data>
   <data name="GalgameCollectionService_NotExeFounded" xml:space="preserve">
@@ -662,7 +677,7 @@
     <value>自動カテゴリ</value>
   </data>
   <data name="SettingsPage_Download_AutoCategory.Description" xml:space="preserve">
-    <value>有効にすると、開発会社とプレイ状況に基づいてゲームを自動的に分類します。</value>
+    <value>有効にすると、開発会社、ゲームエンジン、およびプレイ状況に基づいてゲームを自動的に分類します。</value>
   </data>
   <data name="SettingsPage_Download_CategoryNow.Title" xml:space="preserve">
     <value>すべてのゲームをカテゴリ分け</value>
@@ -714,6 +729,9 @@
   </data>
   <data name="CategoryPage_CategoryNow.Label" xml:space="preserve">
     <value>すべてのゲームを分類</value>
+  </data>
+  <data name="CategoryPage_CategoryNow.ToolTipService.ToolTip" xml:space="preserve">
+    <value>プレイ状態、制作会社、ゲームエンジンですべてのゲームを分類</value>
   </data>
   <data name="SettingsPage_Start_AuthenticationType.Title" xml:space="preserve">
     <value>認証</value>
@@ -912,6 +930,18 @@
   </data>
   <data name="GalgameSettingPage_GalgameImagePath.Title" xml:space="preserve">
     <value>カバー画像</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageFromRss.Text" xml:space="preserve">
+    <value>情報源から</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageLocal.Text" xml:space="preserve">
+    <value>ローカルファイルから</value>
+  </data>
+  <data name="GalgameSettingPage_NoImagesFound" xml:space="preserve">
+    <value>画像が見つかりませんでした</value>
+  </data>
+  <data name="GalgameSettingPage_ImageSaved" xml:space="preserve">
+    <value>画像を保存しました</value>
   </data>
   <data name="GalgameSettingPage_PickImage.Content" xml:space="preserve">
     <value>画像を選択</value>
@@ -1212,9 +1242,6 @@
   </data>
   <data name="HomePage_Filter_Not_Found" xml:space="preserve">
     <value>一致するフィルターが見つかりません</value>
-  </data>
-  <data name="HomePage_KeepFilters.Label" xml:space="preserve">
-    <value>フィルターを保持</value>
   </data>
   <data name="HomePage_Sort_Title" xml:space="preserve">
     <value>ソート</value>
@@ -1939,6 +1966,12 @@
   <data name="ConfirmGalInfoDialog_Title_NotFound" xml:space="preserve">
     <value>このゲーム情報は見つかりませんでした。</value>
   </data>
+  <data name="BgTask_Cancelling" xml:space="preserve">
+    <value>キャンセル中…</value>
+  </data>
+  <data name="BgTask_CancelFailed" xml:space="preserve">
+    <value>バックグラウンド タスクのキャンセルに失敗しました</value>
+  </data>
   <data name="Canceled" xml:space="preserve">
     <value>ユーザーが操作をキャンセルしました。</value>
   </data>
@@ -2556,6 +2589,15 @@
   <data name="ManageGalgamePageLayoutDialog_ShowBackground.Text" xml:space="preserve">
     <value>背景画像を表示</value>
   </data>
+  <data name="ManageGalgamePageLayoutDialog_OldLayoutSettings.Text" xml:space="preserve">
+    <value>旧レイアウトの設定</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowDescription.Text" xml:space="preserve">
+    <value>概要</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowStaff.Text" xml:space="preserve">
+    <value>スタッフ</value>
+  </data>
   <data name="GalgameSettingPage_GameInfo.SettingTitle" xml:space="preserve">
     <value>ゲーム情報</value>
   </data>
@@ -2903,7 +2945,7 @@
     <value>すべてのゲームを分類</value>
   </data>
   <data name="CategoryPage_CategoryNow_ConfirmMsg" xml:space="preserve">
-    <value>ゲームの制作会社とPotatoVN内での実際のプレイ状況に基づいて分類します。
+    <value>制作会社、ゲームエンジン、およびPotatoVN内の実際のプレイ状況に従ってゲームを分類します。
 これにより、現在分類されている制作会社とプレイ状況が部分的に上書きされます。</value>
   </data>
   <data name="CategoryPage_CategoryGroup_Rename.Text" xml:space="preserve">
@@ -3142,6 +3184,42 @@
   </data>
   <data name="MixedPhraserEnabledDialog_SteamCheckBox.Content" xml:space="preserve">
     <value>Steamスクレイパーを有効にする</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ScraperSourcesHeader.Text" xml:space="preserve">
+    <value>スクレイパーソース</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_InfoTypesHeader.Text" xml:space="preserve">
+    <value>情報タイプ</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_NameCheckBox.Content" xml:space="preserve">
+    <value>ゲーム名を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_DescriptionCheckBox.Content" xml:space="preserve">
+    <value>説明を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_DeveloperCheckBox.Content" xml:space="preserve">
+    <value>開発者を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_TagsCheckBox.Content" xml:space="preserve">
+    <value>タグを取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_RatingCheckBox.Content" xml:space="preserve">
+    <value>評価を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ExpectedPlayTimeCheckBox.Content" xml:space="preserve">
+    <value>予想プレイ時間を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ReleaseDateCheckBox.Content" xml:space="preserve">
+    <value>発売日を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_CnNameCheckBox.Content" xml:space="preserve">
+    <value>中国語名を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_ImageUrlCheckBox.Content" xml:space="preserve">
+    <value>カバー画像を取得</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_CharactersCheckBox.Content" xml:space="preserve">
+    <value>キャラクター情報を取得</value>
   </data>
   <data name="SettingsPage_Rss_Mixed_Enable.Title" xml:space="preserve">
     <value>混合スクレイパー有効設定</value>
@@ -3490,5 +3568,317 @@
   </data>
   <data name="GameCharacterPanel_DeleteCharacter_Success" xml:space="preserve">
     <value>キャラクターを削除しました</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="SettingsViewModel_SelectRemoteFolder_Title" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="SettingsViewModel_SelectRemoteFolder_Choose" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="StorePlugin_Installed" xml:space="preserve">
+    <value>インストール済み</value>
+  </data>
+  <data name="StorePlugin_UpdateAvailable" xml:space="preserve">
+    <value>更新あり</value>
+  </data>
+  <data name="StorePluginDialog_Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="StorePluginDialog_Installed" xml:space="preserve">
+    <value>インストール済み</value>
+  </data>
+  <data name="GalgameSettingPage_PickImageFromClipboard.Text" xml:space="preserve">
+    <value>クリップボードから</value>
+  </data>
+  <data name="GalgameSettingPage_ClipboardNotImage" xml:space="preserve">
+    <value>クリップボードに画像がありません。</value>
+  </data>
+  <data name="GalgameSettingPage_ClipboardReadFailed" xml:space="preserve">
+    <value>クリップボードから画像を読み取れませんでした。</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_CensorTags.Title" xml:space="preserve">
+    <value>タグの規制を有効にする</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_CensorTags.Description" xml:space="preserve">
+    <value>一般タグを残したまま、露骨な VNDB タグを非表示にします。</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_RemoveSpoilerTags.Title" xml:space="preserve">
+    <value>ネタバレタグを除外する</value>
+  </data>
+  <data name="SettingsPage_Rss_VNDB_RemoveSpoilerTags.Description" xml:space="preserve">
+    <value>ネタバレとして扱われる VNDB タグを除外します。</value>
+  </data>
+  <data name="SettingsPage_Theme_SidebarButtons.Title" xml:space="preserve">
+    <value>サイドバー項目</value>
+  </data>
+  <data name="SettingsPage_Theme_SidebarButtons.Description" xml:space="preserve">
+    <value>サイドバーに表示する内置ページとプラグインボタンを選択します。</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.Title" xml:space="preserve">
+    <value>サイドバー項目</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.PrimaryButtonText" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog.CloseButtonText" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_Description.Text" xml:space="preserve">
+    <value>表示したくない項目のチェックを外してください。ここではプラグイン登録ボタンも非表示にできます。</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_MenuHeader.Text" xml:space="preserve">
+    <value>上部セクション</value>
+  </data>
+  <data name="SidebarButtonVisibilityDialog_FooterHeader.Text" xml:space="preserve">
+    <value>下部セクション</value>
+  </data>
+  <data name="CategoryService_Engine" xml:space="preserve">
+    <value>エンジン</value>
+  </data>
+  <data name="GalgamePage_Engine.Text" xml:space="preserve">
+    <value>エンジン</value>
+  </data>
+  <data name="GalgameSettingPage_GalgameEngine.Title" xml:space="preserve">
+    <value>エンジン</value>
+  </data>
+  <data name="HomePage_EngineFilter.Text" xml:space="preserve">
+    <value>エンジン</value>
+  </data>
+  <data name="HomePage_NoEngineCategory" xml:space="preserve">
+    <value>このゲームを含むエンジンカテゴリはありません</value>
+  </data>
+  <data name="MixedPhraserOrderDialog_It_Engine" xml:space="preserve">
+    <value>ゲームエンジン</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_EngineCheckBox.Content" xml:space="preserve">
+    <value>ゲームエンジンを取得</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Title" xml:space="preserve">
+    <value>カテゴリ画像ダウンロードタスク</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Progress" xml:space="preserve">
+    <value>以下の开发商カテゴリ画像をダウンロード中:</value>
+  </data>
+  <data name="DownloadCategoryImageTask_Progress_Waiting" xml:space="preserve">
+    <value>{0} 件のカテゴリ画像ダウンロードが待機中です</value>
+  </data>
+  <data name="PluginPage_Add_LocalZip.Label" xml:space="preserve">
+    <value>プラグインを追加（ローカル圧縮ファイル）</value>
+  </data>
+  <data name="HomePage_ClearFilters.Content" xml:space="preserve">
+    <value>すべてのフィルターをクリア</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground.Text" xml:space="preserve">
+    <value>カスタム背景</value>
+  </data>
+  <data name="SettingsPage_Theme_CustomBackground_Description.Text" xml:space="preserve">
+    <value>アプリの背景として画像を選択します。デフォルトは最後にプレイしたゲームのバナーです。</value>
+  </data>
+  <data name="SettingsPage_Theme_PickBackground.Content" xml:space="preserve">
+    <value>画像を選択</value>
+  </data>
+  <data name="SettingsPage_Theme_ClearBackground.Content" xml:space="preserve">
+    <value>背景をクリア</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Title" xml:space="preserve">
+    <value>ゲームバナーを背景として使用</value>
+  </data>
+  <data name="SettingsPage_Theme_UseBannerBackground.Description" xml:space="preserve">
+    <value>有効にすると、最後にプレイしたゲームのバナーが背景として使用されます。カスタム画像が優先されます。</value>
+  </data>
+  <data name="BackgroundStretchMode_UniformToFill" xml:space="preserve">
+    <value>均一塗りつぶし</value>
+  </data>
+  <data name="BackgroundStretchMode_Fill" xml:space="preserve">
+    <value>塗りつぶし</value>
+  </data>
+  <data name="BackgroundStretchMode_Uniform" xml:space="preserve">
+    <value>均一</value>
+  </data>
+  <data name="BackgroundStretchMode_None" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="SettingsPage_Theme_BackgroundStretchMode.Text" xml:space="preserve">
+    <value>背景の塗りつぶしモード</value>
+  </data>
+  <data name="BackgroundMaterialEnum_Glass" xml:space="preserve">
+    <value>クリアガラス</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassAlpha.Text" xml:space="preserve">
+    <value>ガラスの透明度</value>
+  </data>
+  <data name="SettingsPage_Theme_GlassColor.Text" xml:space="preserve">
+    <value>ガラスの色</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.Title" xml:space="preserve">
+    <value>フィルターパネル</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.PrimaryButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog.SecondaryButtonText" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_PlayStatusAndSourcePanelCheckBox.Content" xml:space="preserve">
+    <value>プレイ状態とライブラリ</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_EnginePanelCheckBox.Content" xml:space="preserve">
+    <value>エンジン</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_DeveloperPanelCheckBox.Content" xml:space="preserve">
+    <value>開発者</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_TagPanelCheckBox.Content" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="HomePage_FilterPanelVisibilityButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>表示するフィルターパネルを選択</value>
+  </data>
+  <data name="MultiInstall_Add.ToolTipService.ToolTip" xml:space="preserve">
+    <value>インストールを追加</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Content" xml:space="preserve">
+    <value>このインストールのファイルを完全に削除し、関連付けを解除しますか？</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_LocalFolderOnly" xml:space="preserve">
+    <value>ディスクから削除できるのはローカルフォルダー版のみです</value>
+  </data>
+  <data name="MultiInstall_DeleteFiles_Title" xml:space="preserve">
+    <value>インストールファイルを削除</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.Label" xml:space="preserve">
+    <value>PotatoVN からゲームを削除</value>
+  </data>
+  <data name="MultiInstall_DeleteGame.ToolTipService.ToolTip" xml:space="preserve">
+    <value>ファイルを削除せずゲーム情報を削除します</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Action" xml:space="preserve">
+    <value>ゲームを削除</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Content" xml:space="preserve">
+    <value>このゲームとすべてのライブラリ関連付けを削除しますか？ディスク上のファイルは保持されます。</value>
+  </data>
+  <data name="MultiInstall_DeleteGame_Title" xml:space="preserve">
+    <value>ゲームを完全に削除</value>
+  </data>
+  <data name="MultiInstall_EditPath.ToolTipService.ToolTip" xml:space="preserve">
+    <value>インストール先を編集</value>
+  </data>
+  <data name="MultiInstall_Installations.Text" xml:space="preserve">
+    <value>インストール</value>
+  </data>
+  <data name="MultiInstall_Launch" xml:space="preserve">
+    <value>起動</value>
+  </data>
+  <data name="MultiInstall_LinkInstallation" xml:space="preserve">
+    <value>インストールを関連付ける</value>
+  </data>
+
+  <data name="MultiInstall_NameMatch_Content" xml:space="preserve">
+    <value>同名のゲームがあります。このパスを別のインストールとして関連付けますか？</value>
+  </data>
+  <data name="MultiInstall_NameMatch_Title" xml:space="preserve">
+    <value>同じゲームの可能性</value>
+  </data>
+  <data name="MultiInstall_OpenFolder.ToolTipService.ToolTip" xml:space="preserve">
+    <value>フォルダーを開く</value>
+  </data>
+
+  <data name="MultiInstall_PathUnavailable" xml:space="preserve">
+    <value>インストール先を利用できません: {0}</value>
+  </data>
+  <data name="MultiInstall_PlayButton.Text" xml:space="preserve">
+    <value>起動</value>
+  </data>
+  <data name="MultiInstall_PlayMenu.Text" xml:space="preserve">
+    <value>このインストールを起動</value>
+  </data>
+  <data name="MultiInstall_ProcessNotFound" xml:space="preserve">
+    <value>ゲームプロセスが見つかりません</value>
+  </data>
+  <data name="MultiInstall_SelectDialog_Title" xml:space="preserve">
+    <value>インストールを選択</value>
+  </data>
+  <data name="MultiInstall_Select_Title.Text" xml:space="preserve">
+    <value>インストールを選択</value>
+  </data>
+  <data name="MultiInstall_SetPreferred.ToolTipService.ToolTip" xml:space="preserve">
+    <value>既定に設定</value>
+  </data>
+  <data name="MultiInstall_Unlink.ToolTipService.ToolTip" xml:space="preserve">
+    <value>ライブラリから外す</value>
+  </data>
+  <data name="MultiInstall_Unlink_Content" xml:space="preserve">
+    <value>このインストールをライブラリから外しますか？ディスク上のファイルは保持されます。</value>
+  </data>
+  <data name="MultiInstall_Unlink_Title" xml:space="preserve">
+    <value>インストールの関連付けを解除</value>
+  </data>
+  <data name="ScanResultPage_ConfirmLink.Content" xml:space="preserve">
+    <value>関連付けを確認</value>
+  </data>
+  <data name="ScanResultType_RequiresConfirmation" xml:space="preserve">
+    <value>確認が必要</value>
+  </data>
+  <data name="ScanResult_LinkFailed" xml:space="preserve">
+    <value>インストールの関連付けに失敗しました</value>
+  </data>
+  <data name="ScanResult_LinkSuccess" xml:space="preserve">
+    <value>別のインストールとして関連付けました:</value>
+  </data>
+  <data name="ScanResult_NameMatchPending" xml:space="preserve">
+    <value>同名のゲームがあります。確認が必要です:</value>
+  </data>
+  <data name="MultiInstall_Manage.Text" xml:space="preserve">
+    <value>インストールを管理</value>
+  </data>
+  <data name="MultiInstall_OpenSaveDirectoryButton.Text" xml:space="preserve">
+    <value>セーブフォルダーを開く</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Title" xml:space="preserve">
+    <value>EXEパスをリセットしますか？</value>
+  </data>
+  <data name="GalgamePage_ResetExePath_Success" xml:space="preserve">
+    <value>EXEパスをリセットしました</value>
+  </data>
+  <data name="HomePage_Sort_Custom.Text" xml:space="preserve">
+    <value>手動並べ替え</value>
+  </data>
+  <data name="LibraryPage_FolderSortByCustom.Text" xml:space="preserve">
+    <value>手動並べ替え</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Timeout.Title" xml:space="preserve">
+    <value>最大取得時間</value>
+  </data>
+  <data name="SettingsPage_Rss_Mixed_Timeout.Description" xml:space="preserve">
+    <value>全ソース共通の最大待機秒数です。0 は制限なしです。</value>
+  </data>
+  <data name="RecordPlayTimeTask_WaitingForProcess" xml:space="preserve">
+    <value>{0}のゲームプロセスの起動を待っています…（残り{1}秒）</value>
+  </data>
+  <data name="HomePage_CategoryFilter.Text" xml:space="preserve">
+    <value>カテゴリ</value>
+  </data>
+  <data name="HomeFilterPanelVisibilityDialog_CategoryPanelCheckBox.Content" xml:space="preserve">
+    <value>カテゴリ</value>
+  </data>
+  <data name="RssType_Hikarinagi" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.Content" xml:space="preserve">
+    <value>Hikarinagi</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi.NavigateUri" xml:space="preserve">
+    <value>https://www.hikarinagi.org</value>
+  </data>
+  <data name="SettingsPage_Rss_Hikarinagi_Description.Text" xml:space="preserve">
+    <value>Hikarinagiは中国語のACGNコミュニティ兼データベースで、ギャルゲー、ライトノベル、漫画などのエントリー情報を提供しています。このソースはPotatoVN同期サーバー経由でアクセスされ、ログイン不要で利用できます（未ログイン時は360リクエスト/分に制限）。</value>
+  </data>
+  <data name="HikarinagiPhraser_RateLimitWaiting" xml:space="preserve">
+    <value>リクエストが多すぎます。{0} 秒後に再試行します（{1}/{2} 回目）</value>
+  </data>
+  <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
+    <value>Hikarinagiスクレイパーを有効にする</value>
   </data>
 </root>

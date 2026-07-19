@@ -3,7 +3,7 @@
 namespace GalgameManager.Models.Sources;
 
 //  对于steam source来说，其path为steamapps
-public class SteamSource : GalgameSourceBase
+public class SteamSource : GalgameSourceBase, ILocalGalgameSource
 {
     public override GalgameSourceType SourceType => GalgameSourceType.Steam;
     public override bool CanChangeScanOnStart => true;
@@ -37,6 +37,8 @@ public class SteamSource : GalgameSourceBase
         foreach (DirectoryInfo gameDir in steamappsDir.GetDirectories())
             yield return (gameDir.FullName, "");
     }
-    
+
+    public override bool ApplySearchKey(string searchKey) => Path.ContainX(searchKey);
+
     public string MetaPath => System.IO.Path.Combine(Path, ".PotatoVN");
 }

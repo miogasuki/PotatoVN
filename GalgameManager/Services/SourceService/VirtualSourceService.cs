@@ -7,7 +7,8 @@ namespace GalgameManager.Services;
 
 public class VirtualSourceService : IGalgameSourceService
 {
-    public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null) => BgTaskBase.Empty;
+    public BgTaskBase MoveInAsync(GalgameSourceBase target, Galgame game, string? targetPath = null,
+        GalgameAndPath? sourceEntry = null) => BgTaskBase.Empty;
 
     public BgTaskBase MoveOutAsync(GalgameSourceBase target, Galgame game) => BgTaskBase.Empty;
 

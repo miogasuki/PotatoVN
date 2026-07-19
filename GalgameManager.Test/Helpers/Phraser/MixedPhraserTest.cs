@@ -5,6 +5,7 @@ using GalgameManager.Models;
 namespace GalgameManager.Test.Helpers.Phraser;
 
 [TestFixture]
+[Category("Phraser")]
 public class MixedPhraserTest
 {
     private MixedPhraser? _mixedPhraser;
@@ -12,6 +13,7 @@ public class MixedPhraserTest
     private VndbPhraser _vndbPhraser = null!;
     private YmgalPhraser _ymgalPhraser = null!;
     private SteamParser _steamParser = null!;
+    private HikarinagiPhraser _hikarinagiPhraser = null!;
     
     [SetUp]
     public void Init()
@@ -25,7 +27,8 @@ public class MixedPhraserTest
         _vndbPhraser = new();
         _ymgalPhraser = new();
         _steamParser = new SteamParser("schinese");
-        _mixedPhraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
+        _hikarinagiPhraser = new HikarinagiPhraser();
+        _mixedPhraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, _hikarinagiPhraser, new MixedPhraserData
         {
             Order = new MixedPhraserOrder().SetToDefault(),
             Enabled = new MixedPhraserEnabled(),
@@ -75,7 +78,7 @@ public class MixedPhraserTest
         order.NameOrder = new() { RssType.Vndb, RssType.Bangumi };
         order.ImageUrlOrder = new() { RssType.Bangumi, RssType.Vndb };
         order.DescriptionOrder = new() { RssType.Vndb, RssType.Bangumi };
-        MixedPhraser phraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
+        MixedPhraser phraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, _hikarinagiPhraser, new MixedPhraserData
         {
             Order = order,
             Enabled = new MixedPhraserEnabled(),
@@ -120,7 +123,7 @@ public class MixedPhraserTest
             BangumiEnabled = false,
             VndbEnabled = false,
         };
-        MixedPhraser phraser = new(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, new MixedPhraserData
+        MixedPhraser phraser = new(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, _hikarinagiPhraser, new MixedPhraserData
         {
             Order = new MixedPhraserOrder().SetToDefault(),
             Enabled = enabled,

@@ -21,25 +21,25 @@ public class GetHeaderFromRssTask : QueueTaskBase<Galgame>, IGameProcessQueue
         Queue.Enqueue(game);
         UpdateProgressMsg();
     }
-    
+
     public override string Title => "GetHeaderFromRssTask_Title".GetLocalized();
-    
+
     protected async override Task ProcessItemAsync(Galgame item)
     {
         if (item.HeaderImagePath.IsLock) return;
         item.AutoFetchStatus.HeaderImage = true;
         await GameService.SaveGalgameAsync(item);
         var fromSteam = !string.IsNullOrEmpty(item.Ids[(int)RssType.Steam]) && item.Ids[(int)RssType.Steam] != "-1";
-        var url =  fromSteam?  
+        var url =  fromSteam?
             await _steamParser.GetGalHeaderAsync(item):
             await _vndbParser.GetGalHeaderAsync(item);
-        
+
         if (url is null) return;
         item.HeaderImageUrl = url;
         var targetPath = Path.Combine((await FileHelper.GetFolderAsync(FileHelper.FolderType.Images)).Path,
             $"{item.Name.Value}_Header_{DateTime.Now.ToUnixTime()}.png".RemoveInvalidChars());
         var rawImage = await DownloadHelper.DownloadAndSaveImageWithDiffThread(url,
-            fileNameWithoutExtension: $"{item.Name.Value ?? string.Empty}_tmp");
+            fileNameWithoutExtension: $"{item.Name.Value?.RemoveInvalidChars() ?? string.Empty}_tmp");
         if (rawImage is null) return;
         DownloadHelper.ProcessImage(rawImage, targetPath, !fromSteam);
         var oldImg = item.HeaderImagePath.Value;

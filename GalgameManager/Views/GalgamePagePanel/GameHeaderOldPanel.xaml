@@ -45,10 +45,18 @@
                     <StackPanel Margin="{StaticResource SmallTopMargin}">
                         <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
                                    x:Uid="GalgamePage_Developers" />
-                        <HyperlinkButton
-                            Content="{x:Bind Game.Developer.Value, Mode=OneWay, FallbackValue={}}"
-                            Padding="0 0 0 0"
-                            Click="ClickDeveloper" />
+                        <ItemsRepeater x:Name="DeveloperList">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="local:GameHeaderPanelDeveloperList">
+                                    <HyperlinkButton Content="{x:Bind Name, Mode=OneWay}"
+                                                     DataContext="{x:Bind}" Margin="0 0 0 1"
+                                                     Padding="0" Click="ClickDeveloper" />
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                            <ItemsRepeater.Layout>
+                                <cmtkControls:WrapLayout Orientation="Horizontal" HorizontalSpacing="5" />
+                            </ItemsRepeater.Layout>
+                        </ItemsRepeater>
                     </StackPanel>
                     <!-- 上次游玩时间 -->
                     <StackPanel Margin="{StaticResource SmallTopMargin}">

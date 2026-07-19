@@ -47,6 +47,8 @@ public class ExportTask (string targetPath) : BgTaskBase
             await _settingService.AddToExportAsync(KeyValues.DataStatus, status);
             // 导出主页设置
             await _settingService.AddToExportDirectlyAsync(KeyValues.MultiStreamPageList);
+            // 导出游戏列表页/库页设置（排序等）
+            await ExportPageSettingsAsync();
             
             await _fileService.WaitForWriteFinishAsync();
 
@@ -61,6 +63,27 @@ public class ExportTask (string targetPath) : BgTaskBase
         }
         
         ChangeProgress(1, 1, "ExportTask_Success".GetLocalized(OutputFilePath));
+    }
+
+    /// <summary>
+    /// 收集游戏列表页/库页的设置（排序等），打包进导出文件；导入时由
+    /// <see cref="Services.LocalSettingsService.ImportPageSettingsAsync"/> 读回
+    /// </summary>
+    private async Task ExportPageSettingsAsync()
+    {
+        PageSettings pageSettings = new()
+        {
+            PrimarySortKey = await _settingService.ReadSettingAsync<int>(KeyValues.PrimarySortKey),
+            PrimarySortDescending = await _settingService.ReadSettingAsync<bool>(KeyValues.PrimarySortDescending),
+            SecondarySortKey = await _settingService.ReadSettingAsync<int>(KeyValues.SecondarySortKey),
+            SecondarySortDescending = await _settingService.ReadSettingAsync<bool>(KeyValues.SecondarySortDescending),
+            CustomSortOrder = await _settingService.ReadSettingAsync<List<string>>(KeyValues.CustomSortOrder, true),
+            LibrarySortKey = await _settingService.ReadSettingAsync<int>(KeyValues.LibrarySortKey),
+            LibraryGameSortDescending = await _settingService.ReadSettingAsync<bool>(KeyValues.LibraryGameSortDescending),
+            LibraryFolderSortKey = await _settingService.ReadSettingAsync<int>(KeyValues.LibraryFolderSortKey),
+            LibraryFolderSortDescending = await _settingService.ReadSettingAsync<bool>(KeyValues.LibraryFolderSortDescending),
+        };
+        await _settingService.AddToExportAsync(KeyValues.PageSettings, pageSettings);
     }
 
     public override string Title => "ExportTask_Title".GetLocalized();

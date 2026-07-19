@@ -21,6 +21,7 @@ public class LocalSettingsService : ILocalSettingsService
     private const string TmpBackupFolderName = "Export";
     private const string FailDataFolderName = "FailData";
     private const string DatabaseFileName = "pvn_data.db";
+    private const string SettingDatabaseFileName = "pvn_settings.db"; //这个数据库只在非MSIX模式下使用
 
     private readonly IFileService _fileService;
 
@@ -35,9 +36,12 @@ public class LocalSettingsService : ILocalSettingsService
     private bool _isUpgrade;
 
     public event ILocalSettingsService.Delegate? OnSettingChanged;
-    public DirectoryInfo LocalFolder => new(ApplicationData.Current.LocalFolder.Path);
-    public DirectoryInfo TemporaryFolder => new(ApplicationData.Current.TemporaryFolder.Path);
+    public DirectoryInfo LocalFolder => new(AppStoragePaths.LocalDataPath);
+    public DirectoryInfo TemporaryFolder => new(AppStoragePaths.TempPath);
+    private DirectoryInfo SettingsFolder => new(Path.Combine(LocalFolder.FullName, "../",  "Settings"));
     public LiteDatabase Database { get; private set; } = null!;
+    private LiteDatabase? _settingDatabase; //这个数据库只在非MSIX模式下使用
+    private ILiteCollection<SettingItem>? _settingCollection; //这个表只在非MSIX模式下使用
     public bool IsDatabaseUsable { get; private set; }
 
     public LocalSettingsService(IFileService fileService, IOptions<LocalSettingsOptions> options)
@@ -47,7 +51,7 @@ public class LocalSettingsService : ILocalSettingsService
 
         _serializerSettings = new JsonSerializerSettings();
 
-        _applicationDataFolder = ApplicationData.Current.LocalFolder.Path;
+        _applicationDataFolder = AppStoragePaths.LocalDataPath;
         _localsettingsFile = op.LocalSettingsFile ?? ErrorFileName;
 
         _settings = new Dictionary<string, object>();
@@ -56,6 +60,7 @@ public class LocalSettingsService : ILocalSettingsService
         {
             IsDatabaseUsable = false;
             Database.Dispose();
+            _settingDatabase?.Dispose();
             await _fileService.WaitForWriteFinishAsync();
         }
 
@@ -133,8 +138,7 @@ public class LocalSettingsService : ILocalSettingsService
     private async Task Upgrade()
     {
         if (_isUpgrade) return;
-        //public const string SortKey1 = "sortKey1";
-        //public const string SortKey2 = "sortKey2";
+        InitSettingDatabase(); //以下为最早会读取配置的地方，在此之前必须初始化SettingDatabase
         if (await ReadSettingAsync<bool>(KeyValues.SortKeysUpgraded) == false)
         {
             SortKeys? sortKey1 = await ReadSettingAsync<SortKeys?>("sortKey1");
@@ -153,8 +157,22 @@ public class LocalSettingsService : ILocalSettingsService
     public void InitDatabase()
     {
         BsonMapper.Global.EnumAsInteger = true;
+        BsonMapper.Global.RegisterType<Version>
+        (
+            serialize: v => v.ToString(),
+            deserialize: b => Version.Parse(b.AsString)
+        );
         Database = new(Path.Combine(LocalFolder.FullName, DatabaseFileName));
         IsDatabaseUsable = true;
+    }
+
+    public void InitSettingDatabase()
+    {
+        if (RuntimeHelper.IsMSIX) return;
+        if (_settingDatabase is not null) return;
+        if (!SettingsFolder.Exists) SettingsFolder.Create();
+        _settingDatabase = new(Path.Combine(SettingsFolder.FullName, SettingDatabaseFileName));
+        _settingCollection = _settingDatabase.GetCollection<SettingItem>("settings");
     }
 
     /// <summary>
@@ -178,6 +196,11 @@ public class LocalSettingsService : ILocalSettingsService
                 {
                     return obj is string ? JsonConvert.DeserializeObject<T>(obj.ToString()!, _serializerSettings) : default;
                 }
+            }
+            else if (!RuntimeHelper.IsMSIX && !isLarge)
+            {
+                SettingItem? settingItem = _settingCollection?.FindById(key);
+                if (settingItem != null) return JsonConvert.DeserializeObject<T>(settingItem.Value, _serializerSettings);
             }
             else
             {
@@ -303,6 +326,9 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)true;
             case KeyValues.DisplayVirtualGame:
             case KeyValues.SpecialDisplayVirtualGame:
+            case KeyValues.HomeFilterShowPlayStatusAndSourcePanel:
+            case KeyValues.HomeFilterShowDeveloperPanel:
+            case KeyValues.HomeFilterShowTagPanel:
             case KeyValues.LibraryNavBar:
             case KeyValues.LibraryStatistics:
             case KeyValues.SyncGameCharacters:
@@ -338,11 +364,15 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)DisplayName.OriginalName;
             case KeyValues.MinPlayTimeRecordThreshold:
                 return (T?)(object)5; // 默认5分钟
+            case KeyValues.MixedPhraserTimeout:
+                return (T?)(object)12; // 默认12秒
             case KeyValues.CustomTextFileExtensions:
                 return (T?)(object)new List<string> { ".doc", ".docx", ".pdf", ".txt", ".md" };
             case KeyValues.AutoExportInterval:
                 return (T?)(object)168.0;
             case KeyValues.VndbTranslateTags:
+            case KeyValues.VndbCensorTags:
+            case KeyValues.VndbRemoveSpoilerTags:
                 return (T?)(object)true;
             default:
                 return default;
@@ -369,6 +399,12 @@ public class LocalSettingsService : ILocalSettingsService
             {
                 ApplicationData.Current.LocalSettings.Values[key] = JsonConvert.SerializeObject(value, _serializerSettings);
             }
+            else if(!RuntimeHelper.IsMSIX && !isLarge)
+            {
+                SettingItem settingItem = _settingCollection?.FindById(key) ?? new SettingItem{Key = key};
+                settingItem.Value = JsonConvert.SerializeObject(value, _serializerSettings);
+                _settingCollection?.Upsert(settingItem);
+            }
             else if(value!=null)
             {
                 await InitializeAsync();
@@ -393,6 +429,7 @@ public class LocalSettingsService : ILocalSettingsService
         {
             ApplicationData.Current.LocalSettings.Values.Remove(key);
         }
+        else if (!RuntimeHelper.IsMSIX && !isLarge) _settingCollection?.Delete(key);
         else
         {
             await InitializeAsync();
@@ -470,8 +507,8 @@ public class LocalSettingsService : ILocalSettingsService
 
     public async Task<StorageFolder> GetTmpExportFolder()
     {
-        StorageFolder? tmp = await ApplicationData.Current.TemporaryFolder
-            .CreateFolderAsync(TmpBackupFolderName, CreationCollisionOption.OpenIfExists);
+        StorageFolder tempRoot = await StorageFolder.GetFolderFromPathAsync(TemporaryFolder.FullName);
+        StorageFolder tmp = await tempRoot.CreateFolderAsync(TmpBackupFolderName, CreationCollisionOption.OpenIfExists);
         return tmp;
     }
 
@@ -543,5 +580,51 @@ public class LocalSettingsService : ILocalSettingsService
             App.GetService<IInfoService>().DeveloperEvent(e: e);
         }
 
+    }
+
+    public async Task ImportPageSettingsAsync()
+    {
+        try
+        {
+            LocalSettingStatus? status = await ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true);
+            if (status?.ImportPageSettings is not false) return; // 仅在来自导入且未处理过的数据上执行
+
+            PageSettings? pageSettings = await ReadSettingAsync<PageSettings>(KeyValues.PageSettings, true);
+            if (pageSettings is not null)
+            {
+                if (pageSettings.PrimarySortKey is { } primarySortKey)
+                    await SaveSettingAsync(KeyValues.PrimarySortKey, primarySortKey);
+                if (pageSettings.PrimarySortDescending is { } primaryDescending)
+                    await SaveSettingAsync(KeyValues.PrimarySortDescending, primaryDescending);
+                if (pageSettings.SecondarySortKey is { } secondarySortKey)
+                    await SaveSettingAsync(KeyValues.SecondarySortKey, secondarySortKey);
+                if (pageSettings.SecondarySortDescending is { } secondaryDescending)
+                    await SaveSettingAsync(KeyValues.SecondarySortDescending, secondaryDescending);
+                if (pageSettings.CustomSortOrder is { } customSortOrder)
+                    await SaveSettingAsync(KeyValues.CustomSortOrder, customSortOrder, true);
+                if (pageSettings.LibrarySortKey is { } librarySortKey)
+                    await SaveSettingAsync(KeyValues.LibrarySortKey, librarySortKey);
+                if (pageSettings.LibraryGameSortDescending is { } libraryGameSortDescending)
+                    await SaveSettingAsync(KeyValues.LibraryGameSortDescending, libraryGameSortDescending);
+                if (pageSettings.LibraryFolderSortKey is { } libraryFolderSortKey)
+                    await SaveSettingAsync(KeyValues.LibraryFolderSortKey, libraryFolderSortKey);
+                if (pageSettings.LibraryFolderSortDescending is { } libraryFolderSortDescending)
+                    await SaveSettingAsync(KeyValues.LibraryFolderSortDescending, libraryFolderSortDescending);
+            }
+
+            status.ImportPageSettings = true;
+            await SaveSettingAsync(KeyValues.DataStatus, status, true);
+            await RemoveSettingAsync(KeyValues.PageSettings, true); // 清理仅供导入使用的临时文件
+        }
+        catch (Exception e)
+        {
+            App.GetService<IInfoService>().DeveloperEvent(e: e);
+        }
+    }
+
+    public class SettingItem
+    {
+        [BsonId] public string Key { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
     }
 }

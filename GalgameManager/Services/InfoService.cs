@@ -3,6 +3,7 @@ using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
+using GalgameManager.WinApp.Base.Models;
 using Microsoft.UI.Xaml.Controls;
 using Serilog;
 
@@ -18,7 +19,7 @@ public class InfoService : IInfoService
     public ObservableCollection<Info> Infos { get; } = new();
     private readonly IAppCenterService _appCenterService;
     private readonly ILocalSettingsService _localSettingsService;
-    
+
     public InfoService(IAppCenterService appCenterService, ILocalSettingsService localSettingsService)
     {
         _appCenterService = appCenterService;
@@ -56,7 +57,7 @@ public class InfoService : IInfoService
         Exception? e = null)
     {
         if (_localSettingsService.ReadSettingAsync<bool>(KeyValues.DevelopmentMode).Result != true) return;
-        Event(EventType.NotCriticalUnexpectedError, infoBarSeverity, "UnexpectedEvent".GetLocalized(), 
+        Event(EventType.NotCriticalUnexpectedError, infoBarSeverity, "UnexpectedEvent".GetLocalized(),
             exception: e, msg: msg);
     }
 
@@ -79,6 +80,12 @@ public class InfoService : IInfoService
                 Serilog.Log.Information("{Msg}", msg);
                 break;
         }
+    }
+
+    public void PluginEvent(PluginInfo info, Exception e, InfoBarSeverity infoBarSeverity = InfoBarSeverity.Warning)
+    {
+        Event(EventType.PluginError, infoBarSeverity, "PluginService_PluginError".GetLocalized(info.Name),
+            msg: "PluginService_PluginError_Msg".GetLocalized(e.ToString()));
     }
 
     private async Task<bool> ShouldNotifyEvent(EventType type)

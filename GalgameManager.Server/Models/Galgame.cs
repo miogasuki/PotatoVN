@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GalgameManager.Core.Helpers;
 using GalgameManager.Server.Enums;
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
@@ -10,6 +11,7 @@ public class Galgame
 
 
     public int Id { get; set; }
+    public int RedirectTo { get; set; } // 因为旧版本设计缺陷，部分服务端游戏重复了，这个redirectTo用来把重复的游戏导向唯一正确游戏
     public User? User { get; set; }
     public required int UserId { get; set; }
 
@@ -36,6 +38,7 @@ public class Galgame
     public List<string>? Tags { get; set; }
     public List<Character> Characters { get; set; } = [];
     public List<StaffGame> StaffGames { get; set; } = [];
+
     #endregion
 
     #region PLAY_STATUS

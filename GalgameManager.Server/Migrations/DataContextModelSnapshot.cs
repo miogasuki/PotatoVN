@@ -191,6 +191,9 @@ namespace GalgameManager.Server.Migrations
                     b.Property<float>("Rating")
                         .HasColumnType("real");
 
+                    b.Property<int>("RedirectTo")
+                        .HasColumnType("integer");
+
                     b.Property<long>("ReleaseDateTimeStamp")
                         .HasColumnType("bigint");
 

@@ -260,7 +260,16 @@ public class CategoryService : ICategoryService
     {
         IList<Galgame> games = _galgameService.Galgames;
         foreach (Galgame game in games)
-            await UpdateCategory(game, updateDeveloper: true, updateStatus: true, updateEngine: true);
+        {
+            try
+            {
+                await UpdateCategory(game, updateDeveloper: true, updateStatus: true, updateEngine: true);
+            }
+            catch (Exception e)
+            {
+                _infoService.DeveloperEvent(msg: $"failed to update category for game {game.Name.Value}", e: e);
+            }
+        }
         //todo:空Category删除
     }
 
@@ -275,7 +284,7 @@ public class CategoryService : ICategoryService
         if (_isInit == false) await Init();
         // 更新开发商分类组
         if (updateDeveloper && await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory)
-            && galgame.Developer.Value != Galgame.DefaultString && galgame.Developer.Value != string.Empty)
+            && !string.IsNullOrWhiteSpace(galgame.Developer?.Value) && galgame.Developer.Value != Galgame.DefaultString)
         {
             //移除旧的开发商分类
             Category? old = GetDeveloperCategory(galgame);
@@ -318,7 +327,7 @@ public class CategoryService : ICategoryService
         }
         // 更新引擎分类组
         if (updateEngine && await _localSettings.ReadSettingAsync<bool>(KeyValues.AutoCategory)
-            && !string.IsNullOrWhiteSpace(galgame.Engine.Value) && galgame.Engine.Value != Galgame.DefaultString)
+            && !string.IsNullOrWhiteSpace(galgame.Engine?.Value) && galgame.Engine.Value != Galgame.DefaultString)
         {
             //移除旧的引擎分类
             Category? old = GetEngineCategory(galgame);

@@ -1,4 +1,4 @@
-﻿# GalgameManager Client (PotatoVN) - Detailed Knowledge Base
+# GalgameManager Client (PotatoVN) - Detailed Knowledge Base
 
 > After finishing editing, please remember to run GalgameManager.Test to ensure no tests are broken.
 >
@@ -169,7 +169,7 @@ This section highlights important files and directories specific to the client a
         *   All source services implement `IGalgameSourceService` interface which defines standard operations like `SaveMetaAsync`, `LoadMetaAsync`, `RemoveMetaAsync` for meta information management.
  *   **`Helpers/`**: Contains utility classes and extension methods that provide common, reusable functions (e.g., file I/O helpers, string manipulation, UI helpers).
      *   `VisibilityHelper.cs`: Provides converters for XAML bindings, e.g., converting a string's null/empty status to a `Visibility` value.
-     *   `GalgameManager/Services/PluginService/PluginXamlHost.cs`: Bridges dynamically loaded plugin assemblies into the host app's WinUI XAML system by loading plugin PRI resources and registering plugin `IXamlMetadataProvider` implementations before plugin UI is initialized.
+     *   `GalgameManager/Services/PluginService/PluginXamlHost.cs`: Bridges dynamically loaded plugin assemblies into the host app's WinUI XAML system by loading plugin PRI resources and registering plugin `IXamlMetadataProvider` implementations before plugin UI is initialized. Its dev-plugin hot-reload staging directory (`HotReloadRoot`) must live under `AppStoragePaths.LocalDataPath`, never `AppContext.BaseDirectory`: for MSIX installs the base directory is the read-only `C:\Program Files\WindowsApps\...` folder, so writing there throws `UnauthorizedAccessException` (issue #693). In general, never write runtime files under `AppContext.BaseDirectory`; use `AppStoragePaths.LocalDataPath`/`TempPath` (they handle MSIX, portable, and unpackaged cases).
     *   **`Helpers/Phrase/`**: Contains the mixed phraser system for aggregating game information from multiple sources:
         *   `MixedPhraser.cs`: The main mixed phraser implementation that combines data from multiple game information sources (Bangumi, VNDB, Ymgal, Steam, Hikarinagi). It supports selective enabling/disabling of individual phrasers through the `MixedPhraserEnabled` configuration. `GetGalgameInfo` waits on all parallel source tasks with a unified soft timeout (`TimeoutSeconds`); incomplete/faulted sources are dropped before merge.
         *   `VndbPhraser.cs`: VNDB queries that use the `search` filter must sort by `searchrank`; ID-based queries should keep their native ordering. API calls that may be throttled should use the shared retry wrapper so a retry preserves the original query.

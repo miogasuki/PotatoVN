@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using GalgameManager.Contracts.Services; 
 using GalgameManager.Enums;
@@ -8,6 +8,7 @@ using GalgameManager.Models.BgTasks;
 using GalgameManager.Models.Sources;
 using GalgameManager.Views.Dialog;
 using LiteDB;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Newtonsoft.Json;
 
@@ -16,7 +17,8 @@ namespace GalgameManager.Services;
 public class GalgameSourceCollectionService(
     ILocalSettingsService localSettingsService,
     IBgTaskService bgTaskService,
-    IInfoService infoService)
+    IInfoService infoService,
+    IServiceProvider serviceProvider)
     : IGalgameSourceCollectionService
 {
     public Action<GalgameSourceBase>? OnSourceDeleted { get; set; }
@@ -30,6 +32,11 @@ public class GalgameSourceCollectionService(
         new GalgameSourceConverter(),
     ];
     private ILiteCollection<GalgameSourceBase> _dbSet = null!;
+
+    private IGalgameCollectionService? _gameService;
+    /// 懒解析以打破与GalgameCollectionService之间的构造循环依赖
+    private IGalgameCollectionService GameService =>
+        _gameService ??= serviceProvider.GetRequiredService<IGalgameCollectionService>();
 
     public async Task InitAsync()
     {
@@ -51,7 +58,7 @@ public class GalgameSourceCollectionService(
                     "GalgameSourceCollectionService_InitAsync_GalgameIsNull".GetLocalized(g.Path, source.Url));
             }
         }
-        foreach (Galgame game in App.GetService<IGalgameCollectionService>().Galgames)
+        foreach (Galgame game in GameService.Galgames)
             game.EnsurePreferredInstallation();
         // 去除找不到的库（只对启用了启动检查的库进行检查）
         // healthcheck 模式用于 E2E 迁移验证：不应做与当前机器文件系统相关的清理（例如删掉不存在路径的库），否则会影响迁移结果校验
@@ -93,7 +100,7 @@ public class GalgameSourceCollectionService(
         {
             _galgameSources.Clear();
             _galgameSources.SyncCollection(_dbSet.FindAll().ToList());
-            IGalgameCollectionService gameService = App.GetService<IGalgameCollectionService>();
+            IGalgameCollectionService gameService = GameService;
             foreach (GalgameSourceBase source in _galgameSources)
             {
                 foreach (GalgameAndPathDbDto dto in source.GetLoadedGalgames())
@@ -278,7 +285,7 @@ public class GalgameSourceCollectionService(
                         // 如果用户选择同时从游戏库中删除游戏
                         if (removeFromLibrary && galgame.Sources.Count == 0)
                         {
-                            var gameService = App.GetService<IGalgameCollectionService>();
+                            var gameService = GameService;
                             await gameService.RemoveGalgame(galgame, false);
                         }
                     }
@@ -347,7 +354,7 @@ public class GalgameSourceCollectionService(
         if (deleteFiles) await DeleteInstallationFilesAsync(installation);
         source.DeleteGalgame(installation.Galgame);
         Save(source);
-        await App.GetService<IGalgameCollectionService>().SaveGalgameAsync(installation.Galgame);
+        await GameService.SaveGalgameAsync(installation.Galgame);
     }
 
     private static Task DeleteInstallationFilesAsync(GalgameAndPath installation)
@@ -557,7 +564,7 @@ public class GalgameSourceCollectionService(
         }
         // 将游戏搬入对应的源中
         {
-            IList<Galgame> games = App.GetService<IGalgameCollectionService>().Galgames;
+            IList<Galgame> games = GameService.Galgames;
             foreach (Galgame g in games)
             {
 #pragma warning disable CS0618 // 类型或成员已过时，升级旧数据使用
@@ -685,7 +692,7 @@ public class GalgameSourceCollectionService(
         if (status.GalgameMultiInstallUpgrade) return;
         try
         {
-            IGalgameCollectionService gameService = App.GetService<IGalgameCollectionService>();
+            IGalgameCollectionService gameService = GameService;
             foreach (Galgame game in gameService.Galgames)
             {
                 List<GalgameAndPath> installations = game.LocalInstallations.ToList();

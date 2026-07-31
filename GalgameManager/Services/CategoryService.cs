@@ -13,7 +13,7 @@ namespace GalgameManager.Services;
 public class CategoryService : ICategoryService
 {
     private ObservableCollection<CategoryGroup> _categoryGroups = new();
-    private readonly GalgameCollectionService _galgameService;
+    private readonly IGalgameCollectionService _galgameService;
     private readonly IBgTaskService _bgTaskService;
     private readonly IInfoService _infoService;
     private CategoryGroup? _developerGroup, _statusGroup, _engineGroup;
@@ -35,7 +35,8 @@ public class CategoryService : ICategoryService
     {
         _localSettings = localSettings;
         _infoService = infoService;
-        _galgameService = (galgameService as GalgameCollectionService)!;
+        // 只依赖接口成员，不再向下转型为具体类，便于单元测试注入mock
+        _galgameService = galgameService;
         _bus = bus;
         _bgTaskService = bgTaskService;
     }
@@ -363,7 +364,7 @@ public class CategoryService : ICategoryService
             var isNew = false;
             if (task is null)
             {
-                task = new DownloadCategoryImageTask();
+                task = _bgTaskService.CreateBgTask<DownloadCategoryImageTask>();
                 isNew = true;
             }
             task.AddCategory(category);

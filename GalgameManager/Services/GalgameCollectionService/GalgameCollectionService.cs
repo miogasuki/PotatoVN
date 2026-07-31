@@ -247,13 +247,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             IsPhrasing = false;
         }
 
-        void AddGameToBgTask<TBgTask>() where TBgTask : BgTaskBase, IGameProcessQueue, new()
+        void AddGameToBgTask<TBgTask>() where TBgTask : BgTaskBase, IGameProcessQueue
         {
             var isNew = false;
             TBgTask? task = _bgTaskService.GetBgTask<TBgTask>(string.Empty);
             if (task is null)
             {
-                task = new TBgTask();
+                task = _bgTaskService.CreateBgTask<TBgTask>();
                 isNew = true;
             }
             task.AddGalgame(galgame);
@@ -935,7 +935,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// </summary>
     private async Task<VndbPhraserData> GetVndbData()
     {
-        LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+        LanguageEnum language = LocalSettingsService.ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
         var isChineseCulture = language == LanguageEnum.ChineseSimplified ||
                                 (language == LanguageEnum.Auto &&
                                  System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));
@@ -1016,7 +1016,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.PropertyType == typeof(ObservableCollection<RssType>));
 
-            LanguageEnum language = App.GetService<ILocalSettingsService>().ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
+            LanguageEnum language = LocalSettingsService.ReadSettingAsync<LanguageEnum>(KeyValues.Language).Result;
             var isChineseCulture = language == LanguageEnum.ChineseSimplified ||
                                     (language == LanguageEnum.Auto &&
                                         System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("zh"));

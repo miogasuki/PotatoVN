@@ -262,6 +262,13 @@ Client services can be unit-tested in the plain NUnit process (no `App`, no WinA
 - Do not abstract away `ILocalSettingsService.Database` — tests use a real LiteDB file, which is the point: `InitAsync` upgrade/migration logic runs for real against a fresh database.
 - `GetLocalized()` is safe in tests: `ResourceLoader` misses fall back to returning the key.
 
+**Upgrade E2E (`GalgameManager.Test/Upgrade/UnpackagedAppUpgradeUiTest.cs`):**
+- Requires Microsoft WinApp CLI (`winget install --id Microsoft.WinAppCLI`) and an interactive Windows desktop session.
+- The test sets `POTATOVN_UPGRADE_UI_TEST=1` and launches the real unpackaged UI against a copied historical JSON fixture. This mode skips unrelated network startup and preserves fixture sources whose historical paths do not exist on the test machine.
+- UI assertions use stable AutomationIds on realized game, category-group, category, and source items plus scoped `winapp ui inspect` trees. Verify the exact Home game count/names; that group/source counts do not shrink; that historical group/category IDs or names survive; that category game counts match; and that a Status group exists. Match legacy system category groups by type because their display names are localized; only custom groups without historical IDs should fall back to name matching. End with `winapp ui send-keys alt+f4 --via send-input --allow-system-keys` and assert normal exit; do not inspect the upgraded LiteDB directly.
+- `CategoryService.LiteDbUpgrade` must run `UpdateGameIndexFormat` before deleting `data.categoryGroups.json`: v1.7.x categories identify games by path, and deleting the JSON first silently leaves migrated categories with zero games.
+- Keep this fixture under `Category("E2E")`; it launches the real WinUI process and should not run in the ordinary service-test loop.
+
 **Known-untestable paths (avoid in unit tests, or refactor first):**
 - `BgTaskBase` subclasses are safe to *construct* in tests now (ctor injection), but their `ProcessItemAsync`/`RunInternal` still hit network, files, and `App` — never let them actually `Run`. Mocked `IBgTaskService.AddBgTask` does not run tasks, so tasks created via a mocked factory are only enqueued. Pattern for code paths that create tasks (e.g. `AddGameAsync` → `GetHeaderFromRssTask`): `BgTaskService.Setup(x => x.CreateBgTask<GetHeaderFromRssTask>(It.IsAny<object[]>())).Returns(() => new GetHeaderFromRssTask(service, pvnMock.Object, Settings))` — the real task instance takes the real service under test plus mocks (see `GalgameCollectionServiceTest.AddGameAsync_VirtualSource_AddsParsedGameToListAndDatabase`).
 - Anything creating `ContentDialog`/`App.MainWindow` (e.g. `DeleteGalgameFolderAsync`), and `Windows.Storage.ApplicationData` (packaged-only APIs).

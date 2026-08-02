@@ -3642,7 +3642,7 @@ If play time can record correctly, just cancel this popup.
     <value>Character deleted successfully</value>
   </data>
   <data name="Shell_PluginStore.Content" xml:space="preserve">
-    <value>PluginStore</value>
+    <value>Plugin Store</value>
   </data>
   <data name="SettingsViewModel_SelectRemoteFolder_Title" xml:space="preserve">
     <value>Choose cloud save root folder</value>
@@ -3960,5 +3960,11 @@ If play time can record correctly, just cancel this popup.
   </data>
   <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
     <value>Enable Hikarinagi Scraper</value>
+  </data>
+  <data name="Shell_Staff.Content" xml:space="preserve">
+    <value>Staff</value>
+  </data>
+  <data name="Shell_SourceScanResult.Content" xml:space="preserve">
+    <value>Scan history</value>
   </data>
 </root>

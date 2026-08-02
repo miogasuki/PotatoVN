@@ -61,8 +61,8 @@ public class GalgameSourceCollectionService(
         foreach (Galgame game in GameService.Galgames)
             game.EnsurePreferredInstallation();
         // 去除找不到的库（只对启用了启动检查的库进行检查）
-        // healthcheck 模式用于 E2E 迁移验证：不应做与当前机器文件系统相关的清理（例如删掉不存在路径的库），否则会影响迁移结果校验
-        if (!IsHealthCheckMode())
+        // 升级 E2E 使用历史路径夹具，不应按当前机器文件系统删除这些来源。
+        if (!AppStoragePaths.IsUpgradeUiTest)
         {
             List<GalgameSourceBase> toRemove = _galgameSources.Where(source =>
                 source is { CheckOnStart: true, SourceType: GalgameSourceType.LocalFolder } && !Directory.Exists(source.Path)).ToList();
@@ -188,12 +188,6 @@ public class GalgameSourceCollectionService(
             default:
                 return tmp.FirstOrDefault(s => s.Path == path);
         }
-    }
-
-    private static bool IsHealthCheckMode()
-    {
-        var args = Environment.GetCommandLineArgs();
-        return args.Any(a => string.Equals(a, "--healthcheck", StringComparison.OrdinalIgnoreCase));
     }
 
     public async Task<GalgameSourceBase> AddGalgameSourceAsync(GalgameSourceType sourceType, string path,

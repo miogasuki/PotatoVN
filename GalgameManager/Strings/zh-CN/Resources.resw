@@ -4878,4 +4878,7 @@
   <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
     <value>启用 Hikarinagi 搜刮器</value>
   </data>
+  <data name="Shell_Staff.Content" xml:space="preserve">
+    <value>制作人员</value>
+  </data>
 </root>

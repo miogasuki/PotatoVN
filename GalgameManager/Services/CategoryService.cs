@@ -709,6 +709,8 @@ public class CategoryService : ICategoryService
             _categoryGroups = await _localSettings.ReadSettingAsync<ObservableCollection<CategoryGroup>>
                                   (KeyValues.CategoryGroups, true, converters: new() { new GalgameAndUidConverter() })
                               ?? new ObservableCollection<CategoryGroup>();
+            // 旧路径索引依赖 data.categoryGroups.json，必须在删除旧 JSON 前完成迁移。
+            await UpdateGameIndexFormat(status);
             foreach (CategoryGroup group in _categoryGroups)
                 group.Categories.ForEach(c => c.GalgamesX.RemoveNull());
             //升级为LiteDB保存
@@ -717,8 +719,8 @@ public class CategoryService : ICategoryService
                 _groupDbSet.Upsert(_categoryGroups);
                 foreach (CategoryGroup group in _categoryGroups)
                     _categoryDbSet.Upsert(group.Categories);
-                _localSettings.RemoveSettingAsync(KeyValues.CategoryGroups, true);
             });
+            await _localSettings.RemoveSettingAsync(KeyValues.CategoryGroups, true);
         }
         catch (Exception e)
         {

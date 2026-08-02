@@ -73,7 +73,9 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     [ObservableProperty] private bool _canOpenInVndb;
     [ObservableProperty] private bool _canOpenInYmgal;
     [ObservableProperty] private bool _canOpenInCngal;
+    [ObservableProperty] private bool _canOpenInHikarinagi;
     [ObservableProperty] private bool _canOpenInSteam;
+    [ObservableProperty] private bool _canOpenInExternalWebsite;
     [ObservableProperty] private Visibility _showBackgroundImage = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showTagPanel = Visibility.Collapsed;
     [ObservableProperty] private Visibility _showCharacterPanel = Visibility.Collapsed;
@@ -216,7 +218,10 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             CanOpenInVndb = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Vndb]);
             CanOpenInYmgal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Ymgal]);
             CanOpenInCngal = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Cngal]);
+            CanOpenInHikarinagi = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Hikarinagi]);
             CanOpenInSteam = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Steam]);
+            CanOpenInExternalWebsite = CanOpenInBgm || CanOpenInVndb || CanOpenInYmgal || CanOpenInCngal ||
+                                       CanOpenInHikarinagi || CanOpenInSteam;
         }
         catch (Exception ex)
         {
@@ -290,6 +295,13 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Cngal])) return;
         await Launcher.LaunchUriAsync(new Uri("https://www.cngal.org/entries/index/"+Item!.Ids[(int)RssType.Cngal]));
+    }
+
+    [RelayCommand]
+    private async Task OpenInHikarinagi()
+    {
+        if(string.IsNullOrEmpty(Item!.Ids[(int)RssType.Hikarinagi])) return;
+        await Launcher.LaunchUriAsync(new Uri("https://www.hikarinagi.org/galgames/"+Item!.Ids[(int)RssType.Hikarinagi]));
     }
 
     [RelayCommand]

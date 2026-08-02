@@ -4881,4 +4881,34 @@
   <data name="Shell_Staff.Content" xml:space="preserve">
     <value>制作人员</value>
   </data>
+  <data name="GalgamePage_OpenInHikarinagi.Label" xml:space="preserve">
+    <value>在Hikarinagi中打开</value>
+  </data>
+  <data name="GalgamePage_OpenInExternalWebsite.Label" xml:space="preserve">
+    <value>在外部网站中打开</value>
+  </data>
+
+
+
+
+
+
+  <data name="GalgamePage_OpenInBgmMenu.Text" xml:space="preserve">
+    <value>在Bangumi中打开</value>
+  </data>
+  <data name="GalgamePage_OpenInVndbMenu.Text" xml:space="preserve">
+    <value>在Vndb中打开</value>
+  </data>
+  <data name="GalgamePage_OpenInYmgalMenu.Text" xml:space="preserve">
+    <value>在月幕Galgame中打开</value>
+  </data>
+  <data name="GalgamePage_OpenInCngalMenu.Text" xml:space="preserve">
+    <value>在CNGal中打开</value>
+  </data>
+  <data name="GalgamePage_OpenInHikarinagiMenu.Text" xml:space="preserve">
+    <value>在Hikarinagi中打开</value>
+  </data>
+  <data name="GalgamePage_OpenInSteamMenu.Text" xml:space="preserve">
+    <value>在Steam中打开</value>
+  </data>
 </root>

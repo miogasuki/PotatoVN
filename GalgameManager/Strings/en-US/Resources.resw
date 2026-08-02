@@ -3967,4 +3967,34 @@ If play time can record correctly, just cancel this popup.
   <data name="Shell_SourceScanResult.Content" xml:space="preserve">
     <value>Scan history</value>
   </data>
+  <data name="GalgamePage_OpenInHikarinagi.Label" xml:space="preserve">
+    <value>Open in Hikarinagi</value>
+  </data>
+  <data name="GalgamePage_OpenInExternalWebsite.Label" xml:space="preserve">
+    <value>Open on external website</value>
+  </data>
+
+
+
+
+
+
+  <data name="GalgamePage_OpenInBgmMenu.Text" xml:space="preserve">
+    <value>Open in Bangumi</value>
+  </data>
+  <data name="GalgamePage_OpenInVndbMenu.Text" xml:space="preserve">
+    <value>Open in VNDB</value>
+  </data>
+  <data name="GalgamePage_OpenInYmgalMenu.Text" xml:space="preserve">
+    <value>Open in Ymgal</value>
+  </data>
+  <data name="GalgamePage_OpenInCngalMenu.Text" xml:space="preserve">
+    <value>Open in CNGal</value>
+  </data>
+  <data name="GalgamePage_OpenInHikarinagiMenu.Text" xml:space="preserve">
+    <value>Open in Hikarinagi</value>
+  </data>
+  <data name="GalgamePage_OpenInSteamMenu.Text" xml:space="preserve">
+    <value>Open in Steam</value>
+  </data>
 </root>

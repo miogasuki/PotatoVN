@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
@@ -61,16 +61,9 @@ public partial class GalgameCollectionService
                     throw new PvnException("Canceled".GetLocalized());
             }
             Galgame tmp = await DealWithExistGameAsync(sourceType, path, existGame, meta);
-            try
-            {
-                GalgameChangedEvent?.Invoke(tmp);
-            }
-            catch (Exception e)
-            {
-                _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning,
-                    "Failed On Calling GalgameChangedEvent", e);
-            }
             await SaveGalgameAsync(tmp);
+            await RaiseGalgameMutatedAsync(new GalgameMutationEventArgs(tmp, GalgameChangeKind.SourceEntries,
+                GalgameChangeOrigin.LocalOperation));
             return tmp;
         }
         
@@ -80,7 +73,7 @@ public partial class GalgameCollectionService
 
         // 添加游戏并移入对应的源
         meta.AddTime = DateTime.Now; // 游戏添加时间
-        await UiThreadInvokeHelper.InvokeAsync(()=>
+        await UiThreadInvokeHelper.InvokeAsync(() =>
         {
             try
             {
@@ -90,20 +83,10 @@ public partial class GalgameCollectionService
             {
                 _infoService.DeveloperEvent(e:e);
             }
-            
-            try
-            {
-                PhrasedEvent2?.Invoke(meta);
-                GalgameChangedEvent?.Invoke(meta);
-            }
-            catch (Exception e)
-            {
-                _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameAddEvent", e);
-            }
         });
         GameParseType parseType = GameParseType.HeaderImage | GameParseType.Character;
         if (meta.ImagePath.Value == Galgame.DefaultImagePath) parseType |= GameParseType.Image;
-        await ParseGalInfoAsync(meta, type: parseType);
+        await ParseGalInfoInternalAsync(meta, RssType.None, requireConfirm: false, parseType, notify: false);
         
         meta.ErrorOccurred += e =>
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgameEvent", e);
@@ -115,12 +98,18 @@ public partial class GalgameCollectionService
         _galSrcService.MoveInNoOperate(source, meta, path, localConfig);
         
         await SaveGalgameAsync(meta);
+        GalgameChangeKind changes = GalgameChangeKind.Added | GalgameChangeKind.Metadata |
+                                    GalgameChangeKind.SourceEntries | GalgameChangeKind.Images |
+                                    GalgameChangeKind.Characters;
+        await RaiseGalgameMutatedAsync(new GalgameMutationEventArgs(meta, changes,
+            GalgameChangeOrigin.LocalOperation));
         return meta;
     }
     
-    public void AddVirtualGalgame(Galgame game)
+    public async Task AddVirtualGalgameAsync(Galgame game,
+        GalgameChangeOrigin origin = GalgameChangeOrigin.LocalOperation)
     {
-        UiThreadInvokeHelper.Invoke(() =>
+        await UiThreadInvokeHelper.InvokeAsync(() =>
         {
             try
             {
@@ -130,31 +119,17 @@ public partial class GalgameCollectionService
             {
                 _infoService.DeveloperEvent(e:e);
             }
-            try
-            {
-                GalgameAddedEvent?.Invoke(game);
-            }
-            catch (Exception e)
-            {
-                _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameAddEvent", e);
-            }
         });
-        _ = SaveGalgameAsync(game);
+        await SaveGalgameAsync(game);
+        await RaiseGalgameMutatedAsync(new GalgameMutationEventArgs(game, GalgameChangeKind.Added, origin));
     }
 
     public async Task<Galgame> SetLocalPathAsync(Galgame galgame, string path)
     {
         Galgame result = await DealWithExistGameAsync(GalgameSourceType.LocalFolder, path, galgame, null);
-        try
-        {
-            GalgameChangedEvent?.Invoke(result);
-        }
-        catch (Exception e)
-        {
-            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameChangedEvent", e);
-        }
-        
         await SaveGalgameAsync(result);
+        await RaiseGalgameMutatedAsync(new GalgameMutationEventArgs(result, GalgameChangeKind.SourceEntries,
+            GalgameChangeOrigin.LocalOperation));
         return result;
     }
 

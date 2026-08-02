@@ -805,7 +805,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 return;
             }
 
-            UploadAllPlayStatusTask task = new(uploadBangumi, uploadVndb);
+            UploadAllPlayStatusTask task = _bgTaskService.CreateBgTask<UploadAllPlayStatusTask>(uploadBangumi, uploadVndb);
             await _bgTaskService.AddBgTask(task);
             _infoService.Info(InfoBarSeverity.Success, msg: "UploadAllPlayStatusTask_Started".GetLocalized());
         }

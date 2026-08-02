@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using AutoMapper;
 using GalgameManager.Contracts.Services;
@@ -45,10 +45,10 @@ public class PvnSyncTaskPullGame(
                     CnName = item.CnName,
                 });
 
-                if (game is null) //同步进来的游戏
+                bool isNewGame = game is null;
+                game ??= new Galgame();
+                if (isNewGame) //同步进来的游戏
                 {
-                    game = new Galgame();
-                    gameService.AddVirtualGalgame(game);
                     Result += "PvnSyncTask_Pull_Added".GetLocalized(item.Name ?? string.Empty, item.Id) + "\n";
                 }
                 else
@@ -144,7 +144,10 @@ public class PvnSyncTaskPullGame(
                 game.PrivateComment = item.PrivateComment;
                 game.PvnUpdate = false;
 
-                await gameService.SaveGalgameAsync(game);
+                if (isNewGame)
+                    await gameService.AddVirtualGalgameAsync(game, GalgameChangeOrigin.PvnSync);
+                else
+                    await gameService.SaveGalgameAsync(game);
             }
             catch (COMException)
             {

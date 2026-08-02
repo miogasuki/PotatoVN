@@ -1,4 +1,4 @@
-﻿using GalgameManager.Enums;
+using GalgameManager.Enums;
 using GalgameManager.Helpers.Phrase;
 using GalgameManager.Models;
 
@@ -28,10 +28,11 @@ public class MixedPhraserTest
         _ymgalPhraser = new();
         _steamParser = new SteamParser("schinese");
         _hikarinagiPhraser = new HikarinagiPhraser();
+        // 混合源默认已关闭Bangumi搜刮器（见MixedPhraserEnabled），本测试类断言了Bangumi的数据，故显式开启
         _mixedPhraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, _hikarinagiPhraser, new MixedPhraserData
         {
             Order = new MixedPhraserOrder().SetToDefault(),
-            Enabled = new MixedPhraserEnabled(),
+            Enabled = new MixedPhraserEnabled { BangumiEnabled = true },
         });
     }
 
@@ -81,7 +82,7 @@ public class MixedPhraserTest
         MixedPhraser phraser = new MixedPhraser(_bgmPhraser, _vndbPhraser, _ymgalPhraser, _steamParser, _hikarinagiPhraser, new MixedPhraserData
         {
             Order = order,
-            Enabled = new MixedPhraserEnabled(),
+            Enabled = new MixedPhraserEnabled { BangumiEnabled = true }, // 默认配置已关闭Bangumi，这里断言了Bangumi的数据，需显式开启
         });
         // Act
         game = await phraser.GetGalgameInfo(game);

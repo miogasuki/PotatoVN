@@ -97,7 +97,8 @@ public class MixedPhraserInfoTypeFilterTest
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Description.Value, Is.Not.Null);
         Assert.That(result.Description.Value, Is.Not.Empty);
-        Assert.That(result.Description.Value!.StartsWith("主人公身为“大藏游星”"), Is.True);
+        // 不断言具体文本：混合源默认已关闭Bangumi，简介来源会按DescriptionOrder在
+        // Hikarinagi/Ymgal等源间回落（如限流时），各源的简介措辞不同且会随远端变化
     }
 
     /// <summary>

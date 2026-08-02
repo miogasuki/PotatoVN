@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -90,7 +90,6 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             _sourceService.Save(source);
         await _galService.SaveGalgameAsync(Gal);
         _pvnService.Upload(Gal, PvnUploadProperties.Infos | PvnUploadProperties.ImageLoc);
-        _galService.PhrasedEvent -= Update;
         Gal.PropertyChanged -= HandleGalPropertyChanged;
         _bus.Unregister<GalgameParsingEventArgs>(this);
     }
@@ -142,7 +141,6 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         SelectedRss = Gal.RssType;
         if (Gal.ReleaseDate.Value > DateTime.MinValue)
             ReleasedDate = Gal.ReleaseDate.Value;
-        _galService.PhrasedEvent += Update;
         _bus.Register(this);
         Update();
     }
@@ -211,13 +209,16 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             _infoService.Info(InfoBarSeverity.Error, "GalgameSettingPage_GetInfoFromRssFailed".GetLocalized(),
                 e.Message);
             _infoService.Log(InfoBarSeverity.Error, $"{e.Message}\n{e.StackTrace}");
-            Update(); // 处理IsPhrasing
+        }
+        finally
+        {
+            IsPhrasing = false;
+            Update();
         }
     }
 
     private void Update()
     {
-        IsPhrasing = _galService.IsPhrasing;
         GalgameInfoDescription = $"{"GalgameSettingPage_GameInfo_SettingDescription".GetLocalized()}" +
                                  $"   |    {"GalgameSettingPage_LastFetchInfoTime".GetLocalized(
                                      new DateTimeToStringConverter().Convert(Gal.LastFetchInfoTime, null!, null!, null!))}";

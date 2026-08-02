@@ -343,3 +343,112 @@ jobs:
             ARGS+=(--latest)
           fi
           gh release "${ARGS[@]}"
+
+  # 发布商店包(Microsoft Store Developer CLI)
+  # 与 sideload 产物不同:商店包使用仓库中签入的商店身份,不执行 Set PUBLISHER / 图标替换,
+  # 也不需要 SignPath 签名(商店审核通过后由微软重新签名)
+  # 当前为草稿模式(-nc):CI 只创建草稿提交,需人工在 Partner Center 检查并点提交;
+  # 链路验证稳定后去掉 -nc 即变为全自动提交
+  publish_store:
+    if: github.ref_name == 'released' || github.ref_name == 'flight-released'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Add WindowsAppSDKSelfContained
+        shell: pwsh
+        run: |
+          $csprojPath = "GalgameManager/GalgameManager.csproj"
+          # 读取 csproj 文件
+          [xml]$xml = Get-Content $csprojPath
+          # 筛选出包含 <TargetFramework> 的 PropertyGroup(主 PropertyGroup)
+          $propertyGroup = $xml.Project.PropertyGroup | Where-Object { $_.TargetFramework }
+          if (!$propertyGroup) {
+            Write-Host "未找到包含 <TargetFramework> 的 PropertyGroup,改为使用第一个 PropertyGroup。"
+            $propertyGroup = $xml.Project.PropertyGroup | Select-Object -First 1
+            if (!$propertyGroup) {
+              Write-Error "没有可用的 PropertyGroup。"
+              exit 1
+            }
+          }
+          # 如果当前没有 WindowsAppSDKSelfContained,则创建该节点并追加
+          if (!$propertyGroup.WindowsAppSDKSelfContained) {
+            $newElement = $xml.CreateElement("WindowsAppSDKSelfContained")
+            $newElement.InnerText = "true"
+            $propertyGroup.AppendChild($newElement) | Out-Null
+          }
+          # 保存
+          $xml.Save($csprojPath)
+
+      # 商店提交需要 .msixupload;AppxBundle 打包三架构为一个 bundle。
+      # bundle 路径会强制走一次性证书签名,命令行构建没有证书会报 MSB4044,
+      # 因此生成一个主体与商店发布者匹配的临时自签证书(每次运行即弃,商店审核后由微软重签)
+      - name: Generate temporary signing certificate
+        id: cert
+        shell: pwsh
+        run: |
+          $cert = New-SelfSignedCertificate -Type Custom `
+            -Subject "CN=AB6A9A1A-DC58-4454-A578-33528FD22B56" `
+            -KeyUsage DigitalSignature `
+            -FriendlyName "PotatoVNStoreBuildTemp" `
+            -CertStoreLocation "Cert:\CurrentUser\My" `
+            -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
+          echo "thumbprint=$($cert.Thumbprint)" >> $env:GITHUB_OUTPUT
+
+      - name: Create the store package
+        run: |
+          msbuild GalgameManager\GalgameManager.csproj /restore `
+            /p:Platform=x64 `
+            /p:Configuration=Release `
+            /p:UapAppxPackageBuildMode=StoreUpload `
+            /p:AppxBundle=Always `
+            /p:AppxBundlePlatforms="x86|x64|arm64" `
+            /p:AppxPackageDir=..\publish-store\ `
+            /p:GenerateAppxPackageOnBuild=true `
+            /p:AppxPackageSigningEnabled=true `
+            /p:PackageCertificateThumbprint="${{ steps.cert.outputs.thumbprint }}"
+
+      - name: Locate msixupload
+        id: package
+        shell: pwsh
+        run: |
+          $file = Get-ChildItem -Path publish-store -Filter "*.msixupload" -Recurse -File | Select-Object -First 1
+          if (!$file) {
+            Write-Host "::error::未找到 .msixupload 产物"
+            exit 1
+          }
+          Write-Host "Store package: $($file.FullName)"
+          echo "path=$($file.FullName)" >> $env:GITHUB_OUTPUT
+
+      - name: Configure Microsoft Store CLI
+        uses: microsoft/microsoft-store-apppublisher@v1.1
+
+      - name: Reconfigure store credentials
+        run: msstore reconfigure `
+              --tenantId ${{ secrets.PARTNER_CENTER_TENANT_ID }} `
+              --sellerId ${{ secrets.PARTNER_CENTER_SELLER_ID }} `
+              --clientId ${{ secrets.PARTNER_CENTER_CLIENT_ID }} `
+              --clientSecret ${{ secrets.PARTNER_CENTER_CLIENT_SECRET }}
+
+      - name: Publish store draft (stable channel)
+        if: github.ref_name == 'released'
+        run: msstore publish "${{ steps.package.outputs.path }}" -id ${{ vars.STORE_PRODUCT_ID }} -nc
+
+      - name: Publish store draft (flight channel)
+        if: github.ref_name == 'flight-released'
+        shell: pwsh
+        run: |
+          $flightId = "${{ vars.STORE_FLIGHT_ID }}"
+          if ([string]::IsNullOrWhiteSpace($flightId)) {
+            Write-Host "::error::未配置 STORE_FLIGHT_ID 仓库变量:请先在 Partner Center 创建 Package Flight,再将其 flightId 设为仓库变量 STORE_FLIGHT_ID"
+            exit 1
+          }
+          msstore publish "${{ steps.package.outputs.path }}" -id ${{ vars.STORE_PRODUCT_ID }} -f $flightId -nc

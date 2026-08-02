@@ -1,8 +1,9 @@
-﻿namespace GalgameManager.Enums;
+namespace GalgameManager.Enums;
 
 [Flags]
 public enum GameParseType
 {
+    None = 0,
     HeaderImage = 1 << 0,
     Character = 1 << 1,
     /// 游玩状态（评论、评分等）

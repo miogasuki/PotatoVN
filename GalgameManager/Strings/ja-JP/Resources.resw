@@ -3881,4 +3881,46 @@
   <data name="MixedPhraserEnabledDialog_HikarinagiCheckBox.Content" xml:space="preserve">
     <value>Hikarinagiスクレイパーを有効にする</value>
   </data>
+  <data name="Shell_Staff.Content" xml:space="preserve">
+    <value>スタッフ</value>
+  </data>
+  <data name="Shell_SourceScanResult.Content" xml:space="preserve">
+    <value>スキャン履歴</value>
+  </data>
+  <data name="Shell_PluginStore.Content" xml:space="preserve">
+    <value>プラグインストア</value>
+  </data>
+  <data name="Shell_Plugin.Text" xml:space="preserve">
+    <value>プラグイン</value>
+  </data>
+  <data name="GalgamePage_OpenInHikarinagi.Label" xml:space="preserve">
+    <value>Hikarinagiで開く</value>
+  </data>
+  <data name="GalgamePage_OpenInExternalWebsite.Label" xml:space="preserve">
+    <value>外部サイトで開く</value>
+  </data>
+
+
+
+
+
+
+  <data name="GalgamePage_OpenInBgmMenu.Text" xml:space="preserve">
+    <value>Bangumiで開く</value>
+  </data>
+  <data name="GalgamePage_OpenInVndbMenu.Text" xml:space="preserve">
+    <value>Vndbで開く</value>
+  </data>
+  <data name="GalgamePage_OpenInYmgalMenu.Text" xml:space="preserve">
+    <value>月幕Galgameで開く</value>
+  </data>
+  <data name="GalgamePage_OpenInCngalMenu.Text" xml:space="preserve">
+    <value>CNGalで開く</value>
+  </data>
+  <data name="GalgamePage_OpenInHikarinagiMenu.Text" xml:space="preserve">
+    <value>Hikarinagiで開く</value>
+  </data>
+  <data name="GalgamePage_OpenInSteamMenu.Text" xml:space="preserve">
+    <value>Steamで開く</value>
+  </data>
 </root>

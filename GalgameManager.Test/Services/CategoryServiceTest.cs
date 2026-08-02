@@ -208,16 +208,19 @@ public class CategoryServiceTest : ServiceTestBase
     // 在测试进程中必抛TypeInitializationException，由生产代码的try/catch吞掉（既有行为），不影响分类创建。
     // 开发商名用producers.json里不存在的虚构名，否则会被ProducerDataHelper规范化成别名（测试输出目录含该数据文件）
     [Test]
-    public async Task GalgameAdded_WithAutoCategory_CreatesDeveloperCategory()
+    public async Task GalgameMutation_Added_AttachesAndCreatesDeveloperCategory()
     {
         await Settings.SaveSettingAsync(KeyValues.AutoCategory, true);
         Galgame game = new("测试游戏") { Developer = "虚构开发商甲" };
+        ObservableCollection<Galgame> games = [];
         GalgameCollectionService.SetupGet(x => x.Galgames)
-            .Returns(new ObservableCollection<Galgame> { game });
+            .Returns(games);
         CategoryService service = CreateService();
         await service.Init();
 
-        GalgameCollectionService.Raise(x => x.GalgameAddedEvent += null, game);
+        games.Add(game);
+        GalgameCollectionService.Raise(x => x.GalgameMutated += null,
+            new GalgameMutationEventArgs(game, GalgameChangeKind.Added, GalgameChangeOrigin.LocalOperation));
 
         await WaitUntilAsync(() => service.DeveloperGroup.Categories.Any(c => c.Name == "虚构开发商甲"),
             "等待自动创建开发商分类超时");
@@ -468,10 +471,10 @@ public class CategoryServiceTest : ServiceTestBase
         Assert.That(service.DeveloperGroup.Categories, Is.Empty);
     }
 
-    // 验证GalgameChangedEvent（游戏信息刷新，如搜刮完成）：对已存在于库中、
+    // 验证统一变更事件的Metadata通知：对已存在于库中、
     // 初始化时未分类的游戏按当前开发商/引擎补充分类
     [Test]
-    public async Task GalgameChangedEvent_CategorizesExistingGame()
+    public async Task GalgameMutation_Metadata_CategorizesExistingGame()
     {
         await Settings.SaveSettingAsync(KeyValues.AutoCategory, true);
         Galgame game = new("测试游戏") { Developer = "虚构开发商甲", Engine = "Unity" };
@@ -482,7 +485,8 @@ public class CategoryServiceTest : ServiceTestBase
         // 初始化不会主动给已有游戏做开发商/引擎分类
         Assert.That(service.DeveloperGroup.Categories, Is.Empty);
 
-        GalgameCollectionService.Raise(x => x.GalgameChangedEvent += null, game);
+        GalgameCollectionService.Raise(x => x.GalgameMutated += null,
+            new GalgameMutationEventArgs(game, GalgameChangeKind.Metadata, GalgameChangeOrigin.PvnSync));
 
         await WaitUntilAsync(() =>
                 service.DeveloperGroup.Categories.Any(c => c.Name == "虚构开发商甲") &&

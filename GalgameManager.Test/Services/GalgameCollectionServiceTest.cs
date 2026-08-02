@@ -127,28 +127,44 @@ public class GalgameCollectionServiceTest : ServiceTestBase
 
     #region 添加游戏（虚拟游戏）
 
-    // 验证添加虚拟游戏：加入内存列表、触发GalgameAddedEvent并写入LiteDB
+    // 验证添加虚拟游戏：加入内存列表、持久化并在完成后触发一次Added变更
     [Test]
     public async Task AddVirtualGalgame_AddsToListFiresEventAndPersists()
     {
         GalgameCollectionService service = await CreateInitializedServiceAsync();
-        Galgame? added = null;
-        service.GalgameAddedEvent += g => added = g;
+        List<GalgameMutationEventArgs> mutations = [];
+        service.GalgameMutated += (_, args) => mutations.Add(args);
         Galgame game = CreateGame("虚拟游戏");
 
-        service.AddVirtualGalgame(game);
+        await service.AddVirtualGalgameAsync(game);
 
         Assert.Multiple(() =>
         {
             Assert.That(service.Galgames, Does.Contain(game));
-            Assert.That(added, Is.SameAs(game));
+            Assert.That(mutations, Has.Count.EqualTo(1));
+            Assert.That(mutations[0].Game, Is.SameAs(game));
+            Assert.That(mutations[0].Changes, Is.EqualTo(GalgameChangeKind.Added));
+            Assert.That(mutations[0].Origin, Is.EqualTo(GalgameChangeOrigin.LocalOperation));
+            Assert.That(mutations[0].ParsedTypes, Is.EqualTo(GameParseType.None));
         });
-        // SaveGalgameAsync是fire-and-forget，轮询等它落库
-        await WaitUntilAsync(() => DbSet.FindById(game.Uuid) is not null, "游戏未及时写入数据库");
+        Assert.That(DbSet.FindById(game.Uuid), Is.Not.Null);
+    }
+
+    [Test]
+    public async Task GalgameMutated_FailingSubscriber_DoesNotBlockOtherSubscribers()
+    {
+        GalgameCollectionService service = await CreateInitializedServiceAsync();
+        var secondSubscriberCalled = false;
+        service.GalgameMutated += (_, _) => throw new InvalidOperationException("监听者异常");
+        service.GalgameMutated += (_, _) => secondSubscriberCalled = true;
+
+        Assert.DoesNotThrowAsync(async () => await service.AddVirtualGalgameAsync(CreateGame("虚拟游戏")));
+
+        Assert.That(secondSubscriberCalled, Is.True);
     }
 
     // 验证添加游戏主流程（虚拟库）：搜刮信息合并进新游戏、加入列表并移入对应的库、
-    // 触发PhrasedEvent2/GalgameChangedEvent（注意不是GalgameAddedEvent）、记录添加时间并落库
+    // 在所有搜刮、来源关联和持久化完成后只触发一次统一变更事件
     [Test]
     public async Task AddGameAsync_VirtualSource_AddsParsedGameToListAndDatabase()
     {
@@ -172,10 +188,8 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         _galSrcService.Setup(x => x.AddGalgameSourceAsync(GalgameSourceType.Virtual, "游戏甲",
                 It.IsAny<bool>(), It.IsAny<bool>()))
             .ReturnsAsync(source);
-        Galgame? phrased = null;
-        Galgame? changed = null;
-        service.PhrasedEvent2 += g => phrased = g;
-        service.GalgameChangedEvent += g => changed = g;
+        List<GalgameMutationEventArgs> mutations = [];
+        service.GalgameMutated += (_, args) => mutations.Add(args);
 
         Galgame result = await service.AddGameAsync(GalgameSourceType.Virtual, "游戏甲", force: true,
             requireConfirm: false);
@@ -188,8 +202,13 @@ public class GalgameCollectionServiceTest : ServiceTestBase
             Assert.That(result.RssType, Is.EqualTo(RssType.Bangumi));
             Assert.That(result.Id, Is.EqualTo("bgm-456"));
             Assert.That(result.AddTime, Is.Not.EqualTo(DateTime.MinValue));
-            Assert.That(phrased, Is.SameAs(result));
-            Assert.That(changed, Is.SameAs(result));
+            Assert.That(mutations, Has.Count.EqualTo(1));
+            Assert.That(mutations[0].Game, Is.SameAs(result));
+            Assert.That(mutations[0].Changes.HasFlag(GalgameChangeKind.Added), Is.True);
+            Assert.That(mutations[0].Changes.HasFlag(GalgameChangeKind.Metadata), Is.True);
+            Assert.That(mutations[0].Changes.HasFlag(GalgameChangeKind.SourceEntries), Is.True);
+            Assert.That(mutations[0].Origin, Is.EqualTo(GalgameChangeOrigin.LocalOperation));
+            Assert.That(mutations[0].ParsedTypes, Is.EqualTo(GameParseType.None));
             Assert.That(DbSet.FindById(result.Uuid), Is.Not.Null);
         });
         _galSrcService.Verify(x => x.MoveInNoOperate(source, result, "游戏甲", null), Times.Once);
@@ -234,7 +253,7 @@ public class GalgameCollectionServiceTest : ServiceTestBase
     {
         GalgameCollectionService service = await CreateInitializedServiceAsync();
         Galgame game = CreateGame("待删除游戏");
-        service.AddVirtualGalgame(game);
+        await service.AddVirtualGalgameAsync(game);
         await WaitUntilAsync(() => DbSet.FindById(game.Uuid) is not null, "游戏未及时写入数据库");
         Galgame? deleted = null;
         service.GalgameDeletedEvent += g => deleted = g;
@@ -272,7 +291,7 @@ public class GalgameCollectionServiceTest : ServiceTestBase
     {
         GalgameCollectionService service = await CreateInitializedServiceAsync();
         Galgame game = CreateGame("游戏甲");
-        service.AddVirtualGalgame(game);
+        await service.AddVirtualGalgameAsync(game);
 
         Assert.Multiple(() =>
         {
@@ -289,7 +308,7 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         GalgameCollectionService service = await CreateInitializedServiceAsync();
         Galgame game = CreateGame("游戏甲");
         game.Ids[(int)RssType.Bangumi] = "12345";
-        service.AddVirtualGalgame(game);
+        await service.AddVirtualGalgameAsync(game);
 
         Assert.Multiple(() =>
         {
@@ -305,7 +324,7 @@ public class GalgameCollectionServiceTest : ServiceTestBase
     {
         GalgameCollectionService service = await CreateInitializedServiceAsync();
         Galgame game = CreateGame("游戏甲");
-        service.AddVirtualGalgame(game);
+        await service.AddVirtualGalgameAsync(game);
 
         Assert.Multiple(() =>
         {
@@ -323,8 +342,8 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         GalgameCollectionService service = await CreateInitializedServiceAsync();
         Galgame gameA = CreateGame("白色相簿2");
         Galgame gameB = CreateGame("千恋万花");
-        service.AddVirtualGalgame(gameA);
-        service.AddVirtualGalgame(gameB);
+        await service.AddVirtualGalgameAsync(gameA);
+        await service.AddVirtualGalgameAsync(gameB);
 
         Assert.Multiple(() =>
         {
@@ -349,7 +368,7 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         game.Tags.Value = new ObservableCollection<string> { "恋爱", "胃痛" };
         game.ChineseName.Value = "白色相簿2";
         game.OriginalName.Value = "WHITE ALBUM 2";
-        service.AddVirtualGalgame(game);
+        await service.AddVirtualGalgameAsync(game);
 
         List<string> byName = await service.GetSearchSuggestions("白色");
         List<string> byDeveloper = await service.GetSearchSuggestions("Leaf");
@@ -373,7 +392,7 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         Galgame game = CreateGame("白色相簿2");
         game.Developer.Value = "Leaf社";
         game.Tags.Value = new ObservableCollection<string> { "恋爱" };
-        service.AddVirtualGalgame(game);
+        await service.AddVirtualGalgameAsync(game);
 
         List<string> result = await service.GetSearchSuggestions("白", false, false, false, false, false);
         List<string> tagOff = await service.GetSearchSuggestions("恋爱", searchTag: false);
@@ -394,8 +413,8 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         gameA.Tags.Value = new ObservableCollection<string> { "恋爱" };
         Galgame gameB = CreateGame("游戏乙");
         gameB.Tags.Value = new ObservableCollection<string> { "恋爱" };
-        service.AddVirtualGalgame(gameA);
-        service.AddVirtualGalgame(gameB);
+        await service.AddVirtualGalgameAsync(gameA);
+        await service.AddVirtualGalgameAsync(gameB);
 
         List<string> result = await service.GetSearchSuggestions("恋爱");
 
@@ -432,8 +451,8 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         GalgameCollectionService service = await CreateInitializedServiceAsync();
         Galgame gameA = CreateGame("游戏甲");
         Galgame gameB = CreateGame("游戏乙");
-        service.AddVirtualGalgame(gameA);
-        service.AddVirtualGalgame(gameB);
+        await service.AddVirtualGalgameAsync(gameA);
+        await service.AddVirtualGalgameAsync(gameB);
 
         await service.SaveGalgamesAsync();
 
@@ -532,7 +551,7 @@ public class GalgameCollectionServiceTest : ServiceTestBase
             CreateGame("幽灵游戏"), RssType.Bangumi, requireConfirm: false, type: GameParseType.GameInfo));
     }
 
-    // 验证解析列表中的游戏（仅基本信息）：字段合并、触发Phrased事件、写库且IsPhrasing复位
+    // 验证解析列表中的游戏（仅基本信息）：字段合并、持久化并触发一次Metadata变更
     [Test]
     public async Task ParseGalInfoAsync_GameInfo_UpdatesGameFiresEventsAndPersists()
     {
@@ -542,11 +561,9 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         parsed.Developer.Value = "新开发商";
         SetupPhraser(service, RssType.Bangumi, parsed);
         Galgame game = CreateGame("游戏甲");
-        service.AddVirtualGalgame(game);
-        var phrasedCount = 0;
-        Galgame? phrasedGame = null;
-        service.PhrasedEvent += () => phrasedCount++;
-        service.PhrasedEvent2 += g => phrasedGame = g;
+        await service.AddVirtualGalgameAsync(game);
+        List<GalgameMutationEventArgs> mutations = [];
+        service.GalgameMutated += (_, args) => mutations.Add(args);
 
         await service.ParseGalInfoAsync(game, RssType.Bangumi, requireConfirm: false,
             type: GameParseType.GameInfo);
@@ -554,9 +571,11 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         Assert.Multiple(() =>
         {
             Assert.That(game.Developer.Value, Is.EqualTo("新开发商"));
-            Assert.That(phrasedCount, Is.EqualTo(1));
-            Assert.That(phrasedGame, Is.SameAs(game));
-            Assert.That(service.IsPhrasing, Is.False);
+            Assert.That(mutations, Has.Count.EqualTo(1));
+            Assert.That(mutations[0].Game, Is.SameAs(game));
+            Assert.That(mutations[0].Changes, Is.EqualTo(GalgameChangeKind.Metadata));
+            Assert.That(mutations[0].Origin, Is.EqualTo(GalgameChangeOrigin.Parser));
+            Assert.That(mutations[0].ParsedTypes, Is.EqualTo(GameParseType.GameInfo));
         });
         await WaitUntilAsync(() => DbSet.FindById(game.Uuid)?.Developer.Value == "新开发商",
             "解析结果未及时写入数据库");
@@ -628,8 +647,8 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         GalgameCollectionService service = await CreateInitializedServiceAsync();
         Galgame gameA = CreateGame("导出游戏A");
         Galgame gameB = CreateGame("导出游戏B");
-        service.AddVirtualGalgame(gameA);
-        service.AddVirtualGalgame(gameB);
+        await service.AddVirtualGalgameAsync(gameA);
+        await service.AddVirtualGalgameAsync(gameB);
         List<(int current, int total)> progress = [];
 
         await service.ExportAsync((_, current, total) => progress.Add((current, total)));

@@ -58,19 +58,24 @@ public class CategoryService : ICategoryService
 
         foreach (Galgame g in _galgameService.Galgames)
             g.GalPropertyChanged += HandleGalPropertyChanged;
-        _galgameService.GalgameAddedEvent += galgame =>
+        _galgameService.GalgameMutated += (_, args) =>
         {
             if (_isInit == false) return;
-            galgame.GalPropertyChanged += HandleGalPropertyChanged;
-            HandleGalPropertyChanged(galgame, nameof(Galgame.Developer), galgame.Developer.Value);
-            HandleGalPropertyChanged(galgame, nameof(Galgame.Engine), galgame.Engine.Value);
-            HandleGalPropertyChanged(galgame, nameof(Galgame.PlayType), galgame.PlayType);
-            HandleGalPropertyChanged(galgame, nameof(Galgame.LastPlayTime), galgame.LastPlayTime);
-        };
-        _galgameService.GalgameChangedEvent += galgame =>
-        {
-            HandleGalPropertyChanged(galgame, nameof(Galgame.Developer), galgame.Developer.Value);
-            HandleGalPropertyChanged(galgame, nameof(Galgame.Engine), galgame.Engine.Value);
+            Galgame galgame = args.Game;
+            if (args.Changes.HasFlag(GalgameChangeKind.Added))
+            {
+                galgame.GalPropertyChanged += HandleGalPropertyChanged;
+                HandleGalPropertyChanged(galgame, nameof(Galgame.Developer), galgame.Developer.Value);
+                HandleGalPropertyChanged(galgame, nameof(Galgame.Engine), galgame.Engine.Value);
+                HandleGalPropertyChanged(galgame, nameof(Galgame.PlayType), galgame.PlayType);
+                HandleGalPropertyChanged(galgame, nameof(Galgame.LastPlayTime), galgame.LastPlayTime);
+                return;
+            }
+            if (args.Changes.HasFlag(GalgameChangeKind.Metadata))
+            {
+                HandleGalPropertyChanged(galgame, nameof(Galgame.Developer), galgame.Developer.Value);
+                HandleGalPropertyChanged(galgame, nameof(Galgame.Engine), galgame.Engine.Value);
+            }
         };
         _galgameService.GalgameDeletedEvent += galgame =>
         {

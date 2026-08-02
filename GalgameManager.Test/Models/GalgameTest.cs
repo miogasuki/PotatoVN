@@ -20,7 +20,7 @@ public class GalgameTest
     }
 
     // 验证整体替换LockableProperty属性后的绑定行为：替换本身不触发GalPropertyChanged
-    // （批量更新场景由GalgameChangedEvent等显式路径兜底），旧实例被解绑、新实例已绑定
+    // （批量更新场景由GalgameMutated等显式路径兜底），旧实例被解绑、新实例已绑定
     [Test]
     public void ReplacedLockableProperty_OldInstanceUnbound_NewInstanceBound()
     {

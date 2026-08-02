@@ -145,8 +145,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
 
             //Add Event
             _galgameService.GalgameLoadedEvent += OnGalgameLoadedEvent;
-            _galgameService.GalgameChangedEvent += UpdateGalgame;
-            _galgameService.PhrasedEvent += OnGalgameServicePhrased;
+            _galgameService.GalgameMutated += UpdateGalgame;
             _localSettingsService.OnSettingChanged += OnSettingChanged;
             _galgameService.Galgames.CollectionChanged += OnGalgamesCollectionChanged;
             _sourceService.OnSourceChanged += HandleSourceChanged;
@@ -185,8 +184,7 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
             await Task.Delay(200); //等待动画结束
             if (await _localSettingsService.ReadSettingAsync<bool>(KeyValues.KeepFilters) == false)
                 _filterService.ClearFilters();
-            _galgameService.PhrasedEvent -= OnGalgameServicePhrased;
-            _galgameService.GalgameChangedEvent -= UpdateGalgame;
+            _galgameService.GalgameMutated -= UpdateGalgame;
             _galgameService.GalgameLoadedEvent -= OnGalgameLoadedEvent;
             _galgameService.Galgames.CollectionChanged -= OnGalgamesCollectionChanged;
             _sourceService.OnSourceChanged -= HandleSourceChanged;
@@ -1071,8 +1069,6 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         _infoService.Info(infoBarSeverity, msg: msg);
     }
 
-    private void OnGalgameServicePhrased() => IsPhrasing = false;
-
     // private void OnGalgameLoadedEvent() => Source.Source = _galgameService.Galgames;
     private void OnGalgameLoadedEvent()
     {
@@ -1081,14 +1077,15 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
         NotifyBatchSelectionStateChanged();
     }
 
-    private void UpdateGalgame(Galgame game)
+    private void UpdateGalgame(object? sender, GalgameMutationEventArgs args)
     {
         _tagFilterCalc = false;
+        if (args.Changes.HasFlag(GalgameChangeKind.Added)) return;
         //通过Remove和Add来刷新某个具体的Item
         UiThreadInvokeHelper.Invoke(() =>
         {
-            Source.Remove(game);
-            Source.Add(game);
+            Source.Remove(args.Game);
+            Source.Add(args.Game);
         });
     }
 
@@ -1165,8 +1162,14 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         if (galgame == null) return;
         IsPhrasing = true;
-        await _galgameService.ParseGalInfoAsync(galgame);
-        IsPhrasing = false;
+        try
+        {
+            await _galgameService.ParseGalInfoAsync(galgame);
+        }
+        finally
+        {
+            IsPhrasing = false;
+        }
     }
 
     [RelayCommand]

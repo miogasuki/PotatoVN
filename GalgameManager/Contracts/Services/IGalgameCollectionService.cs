@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using GalgameManager.Contracts.Phrase;
 using GalgameManager.Enums;
 using GalgameManager.Models;
@@ -12,23 +12,16 @@ public interface IGalgameCollectionService
 
     public Task StartAsync();
     
-    /// 【UI线程触发】当有galgame添加时触发
-    public event Action<Galgame>? GalgameAddedEvent; 
+    /// <summary>
+    /// 【UI线程触发】当游戏完成一次新增、搜刮或来源关系变更后触发。
+    /// 每个公开操作在数据进入最终一致状态后至多触发一次。
+    /// </summary>
+    public event EventHandler<GalgameMutationEventArgs>? GalgameMutated;
     
     /// <summary>
     /// 【UI线程触发】当有galgame删除时触发
     /// </summary>
     public event Action<Galgame>? GalgameDeletedEvent;
-
-    /// <summary>
-    /// 当某款游戏被修改（被添加/设置本地路径）时触发
-    /// </summary>
-    public event Action<Galgame>? GalgameChangedEvent;
-
-    /// <summary>
-    /// 【UI线程触发】当有galgame信息下载完成时触发 
-    /// </summary>
-    public event Action<Galgame>? PhrasedEvent2;
 
     public Dictionary<int, IGalInfoPhraser> PhraserList { get; }
 
@@ -47,7 +40,8 @@ public interface IGalgameCollectionService
     /// 添加一个非本地的虚拟galgame
     /// </summary>
     /// <param name="game"></param>
-    public void AddVirtualGalgame(Galgame game);
+    public Task AddVirtualGalgameAsync(Galgame game,
+        GalgameChangeOrigin origin = GalgameChangeOrigin.LocalOperation);
     
     /// <summary>
     /// 指定某个游戏的本地路径，注意捕获异常

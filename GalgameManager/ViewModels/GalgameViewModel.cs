@@ -126,7 +126,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
             Item = param.Galgame;
             IsLocalGame = Item.IsLocalGame;
-            _galgameService.PhrasedEvent2 += Update;
+            _galgameService.GalgameMutated += OnGalgameMutated;
             _staffService.OnGameStaffChanged += Update;
             // 初始化面板
             Update(Item);
@@ -174,7 +174,7 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
 
     public void OnNavigatedFrom()
     {
-        _galgameService.PhrasedEvent2 -= Update;
+        _galgameService.GalgameMutated -= OnGalgameMutated;
         _staffService.OnGameStaffChanged -= Update;
     }
 
@@ -210,7 +210,6 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private void Update(Galgame? game)
     {
         if (game is null || game != Item) return;
-        IsPhrasing = false;
         try
         {
             CanOpenInBgm = !string.IsNullOrEmpty(Item?.Ids[(int)RssType.Bangumi]);
@@ -252,6 +251,8 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
         OnPropertyChanged(nameof(CurrentInstallationConfig));
         OnPropertyChanged(nameof(HasMultipleInstallations));
     }
+
+    private void OnGalgameMutated(object? sender, GalgameMutationEventArgs args) => Update(args.Game);
 
     #region INFOBAR_CTRL
 
@@ -363,7 +364,14 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     {
         if (Item == null) return;
         IsPhrasing = true;
-        await _galgameService.ParseGalInfoAsync(Item);
+        try
+        {
+            await _galgameService.ParseGalInfoAsync(Item);
+        }
+        finally
+        {
+            IsPhrasing = false;
+        }
     }
 
     [RelayCommand]

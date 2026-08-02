@@ -33,14 +33,10 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     private readonly IGalgameSourceCollectionService _galSrcService;
     private ILiteCollection<Galgame> _dbSet = null!;
     private readonly IMessenger _bus;
-    public event Action<Galgame>? GalgameAddedEvent; //当有galgame添加时触发
+    public event EventHandler<GalgameMutationEventArgs>? GalgameMutated;
     public event Action<Galgame>? GalgameDeletedEvent; //当有galgame删除时触发
     public event Action<Galgame>? MetaSavedEvent; //当有galgame元数据保存时触发
     public event Action? GalgameLoadedEvent; //当galgame列表加载完成时触发
-    public event Action? PhrasedEvent; //当有galgame信息下载完成时触发
-    public event Action<Galgame>? PhrasedEvent2; //当有galgame信息下载完成时触发
-    public event Action<Galgame>? GalgameChangedEvent;
-    public bool IsPhrasing;
 
     public Dictionary<int, IGalInfoPhraser> PhraserList
     {
@@ -200,52 +196,45 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         await UiThreadInvokeHelper.InvokeAsync(() => GalgameDeletedEvent?.Invoke(galgame));
     }
 
-    public async Task<Galgame> ParseGalInfoAsync(Galgame galgame, RssType rssType = RssType.None,
-        bool requireConfirm = false, GameParseType type = GameParseType.All)
+    public Task<Galgame> ParseGalInfoAsync(Galgame galgame, RssType rssType = RssType.None,
+        bool requireConfirm = false, GameParseType type = GameParseType.All) =>
+        ParseGalInfoInternalAsync(galgame, rssType, requireConfirm, type, notify: true);
+
+    private async Task<Galgame> ParseGalInfoInternalAsync(Galgame galgame, RssType rssType,
+        bool requireConfirm, GameParseType type, bool notify)
     {
         if (!_galgames.Contains(galgame)) throw new PvnException($"Game {galgame.Name.Value} is not in game list");
-        IsPhrasing = true;
-        try
+        RssType selectedRss = rssType;
+        if(selectedRss == RssType.None)
+            selectedRss = galgame.RssType == RssType.None ? await LocalSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType) : galgame.RssType;
+        Galgame result = galgame;
+        if (type.HasFlag(GameParseType.GameInfo) || type.HasFlag(GameParseType.Character) || type.HasFlag(GameParseType.Image))
+            result = await ParseAsync(galgame, PhraserList[(int)selectedRss], type);
+        if (requireConfirm)
         {
-            RssType selectedRss = rssType;
-            if(selectedRss == RssType.None)
-                selectedRss = galgame.RssType == RssType.None ? await LocalSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType) : galgame.RssType;
-            Galgame result = galgame;
-            if (type.HasFlag(GameParseType.GameInfo) || type.HasFlag(GameParseType.Character) || type.HasFlag(GameParseType.Image))
-                result = await ParseAsync(galgame, PhraserList[(int)selectedRss], type);
-            if (requireConfirm)
-            {
-                ConfirmGalInfoDialog dialog = new(galgame, result, this);
-                ContentDialogResult tmp = await dialog.ShowAsync();
-                if (tmp == ContentDialogResult.Secondary)
-                    throw new PvnException("Canceled".GetLocalized());
-            }
+            ConfirmGalInfoDialog dialog = new(galgame, result, this);
+            ContentDialogResult tmp = await dialog.ShowAsync();
+            if (tmp == ContentDialogResult.Secondary)
+                throw new PvnException("Canceled".GetLocalized());
+        }
 
-            if (type.HasFlag(GameParseType.PlayStatus) &&
-                await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.SyncPlayStatusWhenPhrasing))
-            {
-                // 优先Bgm
-                await DownLoadPlayStatusAsync(galgame, RssType.Vndb);
-                await DownLoadPlayStatusAsync(galgame, RssType.Bangumi);
-            }
-            await SaveGalgameAsync(galgame);
-            if (type.HasFlag(GameParseType.Character) &&
-                LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result)
-                AddGameToBgTask<GetGalgameCharactersFromRssTask>();
-            if (type.HasFlag(GameParseType.HeaderImage))
-                AddGameToBgTask<GetHeaderFromRssTask>();
-            IsPhrasing = false;
-            await UiThreadInvokeHelper.InvokeAsync(() =>
-            {
-                PhrasedEvent?.Invoke();
-                PhrasedEvent2?.Invoke(galgame);
-            });
-            return result;
-        }
-        finally
+        if (type.HasFlag(GameParseType.PlayStatus) &&
+            await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.SyncPlayStatusWhenPhrasing))
         {
-            IsPhrasing = false;
+            // 优先Bgm
+            await DownLoadPlayStatusAsync(galgame, RssType.Vndb);
+            await DownLoadPlayStatusAsync(galgame, RssType.Bangumi);
         }
+        await SaveGalgameAsync(galgame);
+        if (type.HasFlag(GameParseType.Character) &&
+            LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result)
+            AddGameToBgTask<GetGalgameCharactersFromRssTask>();
+        if (type.HasFlag(GameParseType.HeaderImage))
+            AddGameToBgTask<GetHeaderFromRssTask>();
+        if (notify)
+            await RaiseGalgameMutatedAsync(new GalgameMutationEventArgs(galgame, GetChangeKind(type),
+                GalgameChangeOrigin.Parser, type));
+        return result;
 
         void AddGameToBgTask<TBgTask>() where TBgTask : BgTaskBase, IGameProcessQueue
         {
@@ -258,6 +247,39 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             }
             task.AddGalgame(galgame);
             if (isNew) _ = _bgTaskService.AddBgTask(task);
+        }
+    }
+
+    private static GalgameChangeKind GetChangeKind(GameParseType type)
+    {
+        GalgameChangeKind result = GalgameChangeKind.None;
+        if (type.HasFlag(GameParseType.GameInfo)) result |= GalgameChangeKind.Metadata;
+        if (type.HasFlag(GameParseType.Image) || type.HasFlag(GameParseType.HeaderImage))
+            result |= GalgameChangeKind.Images;
+        if (type.HasFlag(GameParseType.Character)) result |= GalgameChangeKind.Characters;
+        if (type.HasFlag(GameParseType.PlayStatus)) result |= GalgameChangeKind.PlayStatus;
+        return result;
+    }
+
+    private Task RaiseGalgameMutatedAsync(GalgameMutationEventArgs args) =>
+        UiThreadInvokeHelper.InvokeAsync(() => RaiseGalgameMutated(args));
+
+    private void RaiseGalgameMutated(GalgameMutationEventArgs args)
+    {
+        EventHandler<GalgameMutationEventArgs>? handlers = GalgameMutated;
+        if (handlers is null) return;
+        foreach (Delegate invocation in handlers.GetInvocationList())
+        {
+            if (invocation is not EventHandler<GalgameMutationEventArgs> handler) continue;
+            try
+            {
+                handler(this, args);
+            }
+            catch (Exception e)
+            {
+                _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning,
+                    "Failed On Calling GalgameMutated", e);
+            }
         }
     }
 
@@ -314,71 +336,63 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
     public async Task<List<string>> ParserGalImagesAsync(Galgame galgame, GameParseType parseType)
     {
-        IsPhrasing = true;
-        try
+        List<Task<List<string>>> tasks = [];
+        foreach (RssType rssType in RssTypeHelper.UsablePhrasers)
         {
-            List<Task<List<string>>> tasks = [];
-            foreach (RssType rssType in RssTypeHelper.UsablePhrasers)
+            if (PhraserList.TryGetValue((int)rssType, out IGalInfoPhraser? phraser) && phraser != null)
             {
-                if (PhraserList.TryGetValue((int)rssType, out IGalInfoPhraser? phraser) && phraser != null)
-                {
-                    if (galgame.Ids[(int)rssType] == "-1") continue;
-                    Galgame game = new();
-                    game.Name.Value = galgame.Name.Value;
-                    game.RssType = rssType;
-                    game.Ids = (string?[])galgame.Ids.Clone();
+                if (galgame.Ids[(int)rssType] == "-1") continue;
+                Galgame game = new();
+                game.Name.Value = galgame.Name.Value;
+                game.RssType = rssType;
+                game.Ids = (string?[])galgame.Ids.Clone();
 
-                    if (parseType == GameParseType.HeaderImage)
+                if (parseType == GameParseType.HeaderImage)
+                {
+                    if (phraser is IGalHeadersParser headerParser)
                     {
-                        if (phraser is IGalHeadersParser headerParser)
-                        {
-                            tasks.Add(Task.Run(async () => await headerParser.GetGalHeadersAsync(game)));
-                        }
+                        tasks.Add(Task.Run(async () => await headerParser.GetGalHeadersAsync(game)));
                     }
-                    else if (parseType == GameParseType.Image)
+                }
+                else if (parseType == GameParseType.Image)
+                {
+                    if (phraser is IGalCoversParser coverParser)
                     {
-                        if (phraser is IGalCoversParser coverParser)
-                        {
-                            if (phraser is MixedPhraser) continue; // 混合搜刮器是所有搜刮器并集的真子集，没必要再调用一次
-                            tasks.Add(Task.Run(async () => await coverParser.GetGalCoversAsync(game)));
-                        }
+                        if (phraser is MixedPhraser) continue; // 混合搜刮器是所有搜刮器并集的真子集，没必要再调用一次
+                        tasks.Add(Task.Run(async () => await coverParser.GetGalCoversAsync(game)));
                     }
-                    else
-                    {
-                        throw new ArgumentException("Unsupported GameParseType for ParserGalImagesAsync");
-                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Unsupported GameParseType for ParserGalImagesAsync");
                 }
             }
-
-            var safeTasks = tasks.Select(async t =>
-            {
-                try
-                {
-                    return await t;
-                }
-                catch (Exception)
-                {
-                    return new List<string>();
-                }
-            });
-
-            var results = await Task.WhenAll(safeTasks);
-
-            List<string> imageUrls = new();
-            foreach (List<string> images in results)
-            {
-                if (images != null)
-                {
-                    imageUrls.AddRange(images.Where(url => !string.IsNullOrEmpty(url)));
-                }
-            }
-
-            return imageUrls.Distinct().ToList();
         }
-        finally
+
+        var safeTasks = tasks.Select(async t =>
         {
-            IsPhrasing = false;
+            try
+            {
+                return await t;
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
+        });
+
+        var results = await Task.WhenAll(safeTasks);
+
+        List<string> imageUrls = new();
+        foreach (List<string> images in results)
+        {
+            if (images != null)
+            {
+                imageUrls.AddRange(images.Where(url => !string.IsNullOrEmpty(url)));
+            }
         }
+
+        return imageUrls.Distinct().ToList();
     }
 
     private static async Task<GalgameCharacter> PhraserCharacterAsync(GalgameCharacter galgameCharacter, IGalInfoPhraser phraser)

@@ -6,9 +6,16 @@ on:
       - flight-released
       - released
   workflow_dispatch:
+    inputs:
+      store_only:
+        description: Only build and publish the Microsoft Store package
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch' || inputs.store_only != true
     runs-on: windows-latest
 
     strategy:
@@ -347,8 +354,8 @@ jobs:
   # 发布商店包(Microsoft Store Developer CLI)
   # 与 sideload 产物不同:商店包使用仓库中签入的商店身份,不执行 Set PUBLISHER / 图标替换,
   # 也不需要 SignPath 签名(商店审核通过后由微软重新签名)
-  # 当前为草稿模式(-nc):CI 只创建草稿提交,需人工在 Partner Center 检查并点提交;
-  # 链路验证稳定后去掉 -nc 即变为全自动提交
+  # msstore publish 会提交并启动认证;workflow_dispatch 的 store_only 输入可只重跑此 job,
+  # 避免重复生成 GitHub Release 或再次上传 R2 产物
   publish_store:
     if: github.ref_name == 'released' || github.ref_name == 'flight-released'
     runs-on: windows-latest
@@ -438,11 +445,11 @@ jobs:
               --clientId ${{ secrets.PARTNER_CENTER_CLIENT_ID }} `
               --clientSecret ${{ secrets.PARTNER_CENTER_CLIENT_SECRET }}
 
-      - name: Publish store draft (stable channel)
+      - name: Publish to Microsoft Store (stable channel)
         if: github.ref_name == 'released'
-        run: msstore publish "${{ steps.package.outputs.path }}" -id ${{ vars.STORE_PRODUCT_ID }} -nc
+        run: msstore publish "${{ steps.package.outputs.path }}" -id ${{ vars.STORE_PRODUCT_ID }}
 
-      - name: Publish store draft (flight channel)
+      - name: Publish to Microsoft Store (flight channel)
         if: github.ref_name == 'flight-released'
         shell: pwsh
         run: |
@@ -451,4 +458,4 @@ jobs:
             Write-Host "::error::未配置 STORE_FLIGHT_ID 仓库变量:请先在 Partner Center 创建 Package Flight,再将其 flightId 设为仓库变量 STORE_FLIGHT_ID"
             exit 1
           }
-          msstore publish "${{ steps.package.outputs.path }}" -id ${{ vars.STORE_PRODUCT_ID }} -f $flightId -nc
+          msstore publish "${{ steps.package.outputs.path }}" -id ${{ vars.STORE_PRODUCT_ID }} -f $flightId

@@ -18,7 +18,82 @@ public class HikarinagiServiceTests
             ["AppSettings:Hikarinagi:Enable"] = enable.ToString(),
             ["AppSettings:Hikarinagi:ClientId"] = "test_id",
             ["AppSettings:Hikarinagi:ClientSecret"] = "test_secret",
+            ["AppSettings:Hikarinagi:OAuth2Enable"] = enable.ToString(),
+            ["AppSettings:Hikarinagi:RedirectUri"] = "potato-vn://oauth-hikarinagi",
         }).Build();
+    }
+
+    [Test]
+    public void GetAuthorizationUrl_IncludesPkceStateAndUserScopes()
+    {
+        // Arrange
+        HikarinagiService service = new(CreateConfig(), new HttpClient(new StubHttpMessageHandler()));
+
+        // Act
+        string url = service.GetAuthorizationUrl("state_value", "challenge_value");
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(url, Does.StartWith("https://id.hikarinagi.org/oidc/auth?"));
+            Assert.That(url, Does.Contain("client_id=test_id"));
+            Assert.That(url, Does.Contain("redirect_uri=potato-vn%3a%2f%2foauth-hikarinagi"));
+            Assert.That(url, Does.Contain("scope=status%3awrite+offline_access"));
+            Assert.That(url, Does.Contain("state=state_value"));
+            Assert.That(url, Does.Contain("code_challenge=challenge_value"));
+            Assert.That(url, Does.Contain("code_challenge_method=S256"));
+        });
+    }
+
+    [Test]
+    public async Task GetUserTokenWithCodeAsync_UsesConfidentialClientAndPkce()
+    {
+        // Arrange
+        StubHttpMessageHandler handler = new();
+        handler.EnqueueJson(HttpStatusCode.OK,
+            """{"access_token":"access_1","refresh_token":"refresh_1","expires_in":3600,"token_type":"Bearer","scope":"status:write"}""");
+        HikarinagiService service = new(CreateConfig(), new HttpClient(handler));
+
+        // Act
+        var token = await service.GetUserTokenWithCodeAsync("code_value", "verifier_value");
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(token.AccessToken, Is.EqualTo("access_1"));
+            Assert.That(token.RefreshToken, Is.EqualTo("refresh_1"));
+            Assert.That(token.Scope, Is.EqualTo("status:write"));
+            Assert.That(token.Expires, Is.GreaterThan(DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            Assert.That(handler.Requests[0].Authorization, Is.EqualTo(
+                "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes("test_id:test_secret"))));
+            Assert.That(handler.Requests[0].Body, Does.Contain("grant_type=authorization_code"));
+            Assert.That(handler.Requests[0].Body, Does.Contain("code=code_value"));
+            Assert.That(handler.Requests[0].Body, Does.Contain("code_verifier=verifier_value"));
+            Assert.That(handler.Requests[0].Body,
+                Does.Contain("redirect_uri=potato-vn%3A%2F%2Foauth-hikarinagi"));
+        });
+    }
+
+    [Test]
+    public async Task GetUserTokenWithRefreshTokenAsync_ReturnsRotatedRefreshToken()
+    {
+        // Arrange
+        StubHttpMessageHandler handler = new();
+        handler.EnqueueJson(HttpStatusCode.OK,
+            """{"access_token":"access_2","refresh_token":"refresh_2","expires_in":3600,"token_type":"Bearer","scope":"status:write"}""");
+        HikarinagiService service = new(CreateConfig(), new HttpClient(handler));
+
+        // Act
+        var token = await service.GetUserTokenWithRefreshTokenAsync("refresh_1");
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(token.AccessToken, Is.EqualTo("access_2"));
+            Assert.That(token.RefreshToken, Is.EqualTo("refresh_2"));
+            Assert.That(handler.Requests[0].Body, Does.Contain("grant_type=refresh_token"));
+            Assert.That(handler.Requests[0].Body, Does.Contain("refresh_token=refresh_1"));
+        });
     }
 
     [Test]

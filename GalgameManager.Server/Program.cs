@@ -191,11 +191,14 @@ public class Program
             result = Check("AppSettings:Bangumi:RedirectUri") && result;
         }
         result = CheckBoolValue("AppSettings:Hikarinagi:Enable", out var isHikarinagiEnable) && result;
-        if (isHikarinagiEnable)
+        result = CheckBoolValue("AppSettings:Hikarinagi:OAuth2Enable", out var isHikarinagiOAuth2Enable) && result;
+        if (isHikarinagiEnable || isHikarinagiOAuth2Enable)
         {
             result = Check("AppSettings:Hikarinagi:ClientId") && result;
             result = Check("AppSettings:Hikarinagi:ClientSecret") && result;
         }
+        if (isHikarinagiOAuth2Enable)
+            result = Check("AppSettings:Hikarinagi:RedirectUri") && result;
         result = CheckBoolValue("AppSettings:User:Bangumi", out _) && result;
         result = CheckBoolValue("AppSettings:User:Default", out _) && result;
         result = CheckLongValue("AppSettings:User:OssSize", out _) && result;

@@ -64,6 +64,7 @@ public class VndbPhraserTest
     [TestCase("喫茶ステラと死神の蝶", "26414", null, "星光咖啡馆与死神之蝶", new[] { "明月 栞那" })]
     // 特例：Description为空
     [TestCase("妹調教日記～こんなツンデレが俺の妹なわけない!～", "9303", null, "妹调教日记", new string[] { })]
+    [TestCase("あまいろショコラータ3", "41339", "あまいろショコラータ 3", null, new string[] { })]
     public async Task ParseGameWithNameTest(
         string inputGameName,
         string expectedId,

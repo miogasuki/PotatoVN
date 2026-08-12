@@ -134,13 +134,14 @@ public class FakeLocalSettingsService : ILocalSettingsService, IDurableLocalSett
     {
     }
 
-    public Task<T?> ReadSettingAsync<T>(string key, bool isLarge = false, List<JsonConverter>? converters = null,
+    public async Task<T?> ReadSettingAsync<T>(string key, bool isLarge = false, List<JsonConverter>? converters = null,
         bool typeNameHandling = false)
     {
+        if (isLarge && LargeSettingOperationDelay > TimeSpan.Zero)
+            await Task.Delay(LargeSettingOperationDelay);
         Dictionary<string, string> settings = isLarge ? _largeSettings : _settings;
-        if (!settings.TryGetValue(key, out var json)) return Task.FromResult<T?>(default);
-        return Task.FromResult(JsonConvert.DeserializeObject<T>(json, CreateSerializerSettings(converters,
-            typeNameHandling)));
+        if (!settings.TryGetValue(key, out var json)) return default;
+        return JsonConvert.DeserializeObject<T>(json, CreateSerializerSettings(converters, typeNameHandling));
     }
 
     public Task<T?> ReadOldSettingAsync<T>(string key, T template, JsonSerializerSettings? settings = null)
@@ -154,12 +155,15 @@ public class FakeLocalSettingsService : ILocalSettingsService, IDurableLocalSett
         return Task.CompletedTask;
     }
 
-    public Task SaveLargeSettingImmediatelyAsync<T>(string key, T value)
+    public async Task SaveLargeSettingImmediatelyAsync<T>(string key, T value)
     {
+        if (LargeSettingOperationDelay > TimeSpan.Zero)
+            await Task.Delay(LargeSettingOperationDelay);
         _largeSettings[key] = JsonConvert.SerializeObject(value);
         ImmediatelySavedLargeSettingKeys.Add(key);
-        return Task.CompletedTask;
     }
+
+    public TimeSpan LargeSettingOperationDelay { get; set; }
 
     public HashSet<string> ImmediatelySavedLargeSettingKeys { get; } = [];
 

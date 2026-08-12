@@ -51,6 +51,24 @@ public class PvnPendingDeletionStoreTest : ServiceTestBase
     }
 
     [Test]
+    public async Task AddGameAsync_ConcurrentDistinctIdsKeepsEveryIdOnce()
+    {
+        const int count = 100;
+        Settings.LargeSettingOperationDelay = TimeSpan.FromMilliseconds(1);
+
+        await Task.WhenAll(Enumerable.Range(1, count)
+            .Select(id => PvnPendingDeletionStore.AddGameAsync(Settings, id)));
+
+        List<int> result = await PvnPendingDeletionStore.GetGamesAsync(Settings);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Has.Count.EqualTo(count));
+            Assert.That(result, Is.EquivalentTo(Enumerable.Range(1, count)));
+            Assert.That(result.Distinct().ToList(), Has.Count.EqualTo(count));
+        });
+    }
+
+    [Test]
     public async Task ClearGamesAsync_RemovesLargeAndLegacyQueues()
     {
         await Settings.SaveSettingAsync(KeyValues.ToDeleteGames, new List<int> { 1 });

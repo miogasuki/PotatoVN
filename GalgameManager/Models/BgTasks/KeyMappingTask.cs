@@ -20,6 +20,7 @@ public class KeyMappingTask : BgTaskBase
     private string[] _directoryPrefixes = [];
     private readonly HashSet<int> _trackedProcessIds = [];
     private readonly Dictionary<string, OutputAction> _lookupMap = new();
+    private readonly HashSet<int> _mouseSourceKeyboardKeys = [];
     private readonly Dictionary<int, OutputAction> _activeKeyboardMappings = new();
     private readonly Dictionary<int, OutputAction> _activeMouseMappings = new();
     private nint _keyboardHookId;
@@ -230,6 +231,7 @@ public class KeyMappingTask : BgTaskBase
     private void BuildLookupMap()
     {
         _lookupMap.Clear();
+        _mouseSourceKeyboardKeys.Clear();
         // Rules are already ordered by priority: global rules first, then per-game rules.
         // TryAdd preserves the first rule when malformed or legacy data still overlaps.
         foreach (KeyMapping mapping in KeyMappings)
@@ -239,46 +241,38 @@ public class KeyMappingTask : BgTaskBase
             OutputAction? output = CreateOutputAction(mapping.To);
             if (output is null) continue;
 
-            int fromMouseButton = mapping.From.FirstOrDefault(IsMouseButtonCode);
-            if (fromMouseButton != 0)
+            if (mapping.From.Any(IsMouseButtonCode))
             {
-                _lookupMap.TryAdd($"Mouse{fromMouseButton}", output);
-                continue;
+                foreach (int sourceKey in mapping.From.Where(key => !IsMouseButtonCode(key)))
+                    AddMouseSourceKeyboardVariants(sourceKey);
             }
 
-            foreach (string sourceSignature in ExpandSourceSignatures(mapping.From))
+            foreach (string sourceSignature in KeyMappingMergeHelper.ExpandSourceSignatures(mapping.From))
                 _lookupMap.TryAdd(sourceSignature, output);
         }
     }
 
-    private static IEnumerable<string> ExpandSourceSignatures(IReadOnlyList<int> sourceKeys)
+    private void AddMouseSourceKeyboardVariants(int sourceKey)
     {
-        List<List<VirtualKey>> combinations = [[]];
-        foreach (int sourceKey in sourceKeys)
+        VirtualKey key = NormalizeExactModifier((VirtualKey)sourceKey);
+        switch (key)
         {
-            VirtualKey key = NormalizeExactModifier((VirtualKey)sourceKey);
-            VirtualKey[] variants = key switch
-            {
-                VirtualKey.Control => [VirtualKey.LeftControl, VirtualKey.RightControl],
-                VirtualKey.Menu => [VirtualKey.LeftMenu, VirtualKey.RightMenu],
-                VirtualKey.Shift => [VirtualKey.LeftShift, VirtualKey.RightShift],
-                _ => [key],
-            };
-
-            List<List<VirtualKey>> expanded = [];
-            foreach (List<VirtualKey> combination in combinations)
-            foreach (VirtualKey variant in variants)
-                expanded.Add([.. combination, variant]);
-            combinations = expanded;
+            case VirtualKey.Control:
+                _mouseSourceKeyboardKeys.Add((int)VirtualKey.LeftControl);
+                _mouseSourceKeyboardKeys.Add((int)VirtualKey.RightControl);
+                break;
+            case VirtualKey.Menu:
+                _mouseSourceKeyboardKeys.Add((int)VirtualKey.LeftMenu);
+                _mouseSourceKeyboardKeys.Add((int)VirtualKey.RightMenu);
+                break;
+            case VirtualKey.Shift:
+                _mouseSourceKeyboardKeys.Add((int)VirtualKey.LeftShift);
+                _mouseSourceKeyboardKeys.Add((int)VirtualKey.RightShift);
+                break;
+            default:
+                _mouseSourceKeyboardKeys.Add((int)key);
+                break;
         }
-
-        return combinations
-            .Select(keys => string.Join("+", keys
-                .Distinct()
-                .OrderBy(GetKeyOrder)
-                .Select(GetKeyDisplayName)))
-            .Where(signature => signature.Length > 0)
-            .Distinct(StringComparer.Ordinal);
     }
 
     private static OutputAction? CreateOutputAction(IReadOnlyList<int> keys)
@@ -419,7 +413,7 @@ public class KeyMappingTask : BgTaskBase
                 return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
 
             if (_activeKeyboardMappings.ContainsKey(sourceKey)) return 1;
-            string keyString = BuildPressedKeyString((VirtualKey)sourceKey);
+            string keyString = BuildPressedKeyboardSourceSignature(sourceKey);
             _lookupMap.TryGetValue(keyString, out OutputAction? output);
 
             bool targetForeground = IsTargetGameForeground(out _, out _);
@@ -462,7 +456,8 @@ public class KeyMappingTask : BgTaskBase
             }
 
             bool targetForeground = IsTargetGameForeground(out _, out _);
-            _lookupMap.TryGetValue($"Mouse{mouseButton}", out OutputAction? output);
+            string sourceSignature = BuildPressedMouseSourceSignature(mouseButton);
+            _lookupMap.TryGetValue(sourceSignature, out OutputAction? output);
             if (!targetForeground || output is null)
                 return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
 
@@ -543,9 +538,31 @@ public class KeyMappingTask : BgTaskBase
         }
     }
 
-    private string BuildPressedKeyString(VirtualKey currentKey)
+    private static string BuildPressedKeyboardSourceSignature(int currentKey)
     {
-        List<VirtualKey> pressed = [NormalizeExactModifier(currentKey)];
+        int normalizedCurrent = (int)NormalizeExactModifier((VirtualKey)currentKey);
+        List<int> pressed = [normalizedCurrent];
+        AddPressedModifiers(pressed);
+        return KeyMappingMergeHelper.CreateSourceSignature(pressed);
+    }
+
+    private string BuildPressedMouseSourceSignature(int mouseButton)
+    {
+        List<int> pressed = [mouseButton];
+        AddPressedModifiers(pressed);
+        pressed.AddRange(_mouseSourceKeyboardKeys.Where(key =>
+            !IsModifierKey((VirtualKey)key) &&
+            IsKeyDown((VirtualKey)key)));
+        return KeyMappingMergeHelper.CreateSourceSignature(pressed);
+    }
+
+    private static void AddPressedModifiers(ICollection<int> pressed)
+    {
+        void AddIfPressed(VirtualKey key)
+        {
+            if (IsKeyDown(key)) pressed.Add((int)key);
+        }
+
         AddIfPressed(VirtualKey.LeftControl);
         AddIfPressed(VirtualKey.RightControl);
         AddIfPressed(VirtualKey.LeftShift);
@@ -553,18 +570,7 @@ public class KeyMappingTask : BgTaskBase
         AddIfPressed(VirtualKey.LeftMenu);
         AddIfPressed(VirtualKey.RightMenu);
         if (IsKeyDown(VirtualKey.LeftWindows) || IsKeyDown(VirtualKey.RightWindows))
-            pressed.Add(VirtualKey.LeftWindows);
-
-        return string.Join("+", pressed
-            .Select(NormalizeExactModifier)
-            .Distinct()
-            .OrderBy(GetKeyOrder)
-            .Select(GetKeyDisplayName));
-
-        void AddIfPressed(VirtualKey key)
-        {
-            if (IsKeyDown(key)) pressed.Add(key);
-        }
+            pressed.Add((int)VirtualKey.LeftWindows);
     }
 
     private void PressOutput(OutputAction output)

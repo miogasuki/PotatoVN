@@ -91,6 +91,41 @@ public class KeyMappingMergeHelperTest
         Assert.That(KeyMappingMergeHelper.HasDuplicateEnabledSources(mappings), Is.True);
     }
 
+    [Test]
+    public void SourceSignatures_KeepMouseButtonsAndKeyboardModifiersDistinct()
+    {
+        HashSet<string> plainMouse = KeyMappingMergeHelper.ExpandSourceSignatures([1]);
+        HashSet<string> controlMouse = KeyMappingMergeHelper.ExpandSourceSignatures(
+            [(int)VirtualKey.Control, 1]);
+        HashSet<string> altMouse = KeyMappingMergeHelper.ExpandSourceSignatures(
+            [(int)VirtualKey.Menu, 1]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(plainMouse, Is.EquivalentTo(new[] { "1" }));
+            Assert.That(controlMouse, Is.EquivalentTo(new[] { "1,162", "1,163" }));
+            Assert.That(altMouse, Is.EquivalentTo(new[] { "1,164", "1,165" }));
+            Assert.That(controlMouse.Overlaps(plainMouse), Is.False);
+            Assert.That(controlMouse.Overlaps(altMouse), Is.False);
+            Assert.That(KeyMappingMergeHelper.CreateSourceSignature([(int)VirtualKey.LeftControl, 1]),
+                Is.EqualTo("1,162"));
+        });
+    }
+
+    [Test]
+    public void SourcesOverlap_MouseChordOnlyOverlapsMatchingPhysicalModifier()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(KeyMappingMergeHelper.SourcesOverlap(
+                [(int)VirtualKey.Control, 1], [(int)VirtualKey.LeftControl, 1]), Is.True);
+            Assert.That(KeyMappingMergeHelper.SourcesOverlap(
+                [(int)VirtualKey.Control, 1], [1]), Is.False);
+            Assert.That(KeyMappingMergeHelper.SourcesOverlap(
+                [(int)VirtualKey.Control, 1], [(int)VirtualKey.Menu, 1]), Is.False);
+        });
+    }
+
     private static KeyMapping Mapping(VirtualKey from, VirtualKey to, bool isGlobal = false) => new()
     {
         From = [(int)from],

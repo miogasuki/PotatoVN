@@ -172,7 +172,7 @@ public static class KeyMappingMergeHelper
         return false;
     }
 
-    private static HashSet<string> ExpandSourceSignatures(IReadOnlyList<int> source)
+    public static HashSet<string> ExpandSourceSignatures(IReadOnlyList<int> source)
     {
         List<List<int>> combinations = [[]];
         foreach (int rawKey in source)
@@ -194,9 +194,12 @@ public static class KeyMappingMergeHelper
         }
 
         return combinations
-            .Select(keys => string.Join(',', keys.Distinct().Order()))
+            .Select(CreateSourceSignature)
             .ToHashSet(StringComparer.Ordinal);
     }
+
+    public static string CreateSourceSignature(IEnumerable<int> source) =>
+        string.Join(',', source.Distinct().Order());
 
     private static bool ContainsSource(IEnumerable<List<int>> sources, IEnumerable<int> source) =>
         sources.Any(item => item.SequenceEqual(source));

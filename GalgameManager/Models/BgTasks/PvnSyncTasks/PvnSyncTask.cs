@@ -251,13 +251,13 @@ public class PvnSyncTask : BgTaskBase
                         Id = id,
                         IsDeleted = true,
                     });
+                    await PvnPendingDeletionStore.RemoveStaffAsync(_settingsService, id);
                 }
                 catch (Exception)
                 {
                     //ignore
                 }
             }
-            await PvnPendingDeletionStore.ClearStaffAsync(_settingsService);
             await _settingsService.SaveSettingAsync(KeyValues.PvnSyncStaffTimestamp, DateTime.Now.ToUnixTime());
         } while (_staffService.GetStaffs().Any(s => s.RequirePvnSync));
     }

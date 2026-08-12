@@ -30,6 +30,9 @@ public static class PvnPendingDeletionStore
     public static Task AddStaffAsync(ILocalSettingsService settings, int id) =>
         AddAsync(settings, KeyValues.ToDeleteStaff, id, StaffLock);
 
+    public static Task RemoveStaffAsync(ILocalSettingsService settings, int id) =>
+        RemoveAsync(settings, KeyValues.ToDeleteStaff, id, StaffLock);
+
     public static Task ClearStaffAsync(ILocalSettingsService settings) =>
         SaveAsync(settings, KeyValues.ToDeleteStaff, [], StaffLock);
 
@@ -80,9 +83,14 @@ public static class PvnPendingDeletionStore
         await gate.WaitAsync();
         try
         {
-            List<int> ids = await ReadAndMigrateUnlockedAsync(settings, key);
+            List<int> ids = await settings.ReadSettingAsync<List<int>>(key, true)
+                ?? await settings.ReadSettingAsync<List<int>>(key)
+                ?? [];
             if (ids.RemoveAll(item => item == id) > 0)
+            {
                 await settings.SaveSettingAsync(key, ids, true);
+                await RemoveLegacyWhenAcknowledgedUnlockedAsync(settings, key, ids);
+            }
         }
         finally
         {
@@ -122,9 +130,22 @@ public static class PvnPendingDeletionStore
         if (legacy is not null)
         {
             await settings.SaveSettingAsync(key, merged, true);
-            await settings.RemoveSettingAsync(key);
+            // Keep the legacy value as a durable migration journal. Large settings are
+            // written by FileService's background queue, so removing the old value here
+            // could lose the only persisted copy if the app exits before that write lands.
+            // Successfully processed ids are removed from both stores by RemoveAsync.
         }
 
         return merged;
+    }
+
+    private static async Task RemoveLegacyWhenAcknowledgedUnlockedAsync(
+        ILocalSettingsService settings,
+        string key,
+        IReadOnlyCollection<int> remaining)
+    {
+        List<int>? legacy = await settings.ReadSettingAsync<List<int>>(key);
+        if (legacy is not null && !legacy.Any(remaining.Contains))
+            await settings.RemoveSettingAsync(key);
     }
 }

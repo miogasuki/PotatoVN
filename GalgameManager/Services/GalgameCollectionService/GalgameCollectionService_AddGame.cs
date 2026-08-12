@@ -77,7 +77,8 @@ public partial class GalgameCollectionService
         {
             try
             {
-                _galgames.Add(meta);
+                lock (_gamePersistenceLock)
+                    _galgames.Add(meta);
             }
             catch (COMException e)
             {
@@ -87,6 +88,8 @@ public partial class GalgameCollectionService
         GameParseType parseType = GameParseType.HeaderImage | GameParseType.Character;
         if (meta.ImagePath.Value == Galgame.DefaultImagePath) parseType |= GameParseType.Image;
         await ParseGalInfoInternalAsync(meta, RssType.None, requireConfirm: false, parseType, notify: false);
+        if (!IsCurrentGameInstance(meta))
+            throw new PvnException("Canceled".GetLocalized());
         
         meta.ErrorOccurred += e =>
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgameEvent", e);
@@ -95,9 +98,21 @@ public partial class GalgameCollectionService
             source is ILocalGalgameSource
                 ? meta.CreateLegacyLocalConfiguration(path)
                 : null;
-        _galSrcService.MoveInNoOperate(source, meta, path, localConfig);
+        GalgameAndPath? addedEntry = _galSrcService.MoveInNoOperate(source, meta, path, localConfig);
+        if (!IsCurrentGameInstance(meta))
+        {
+            if (addedEntry?.Source?.Galgames.Contains(addedEntry) is true)
+                await _galSrcService.MoveOutNoOperate(addedEntry);
+            throw new PvnException("Canceled".GetLocalized());
+        }
         
         await SaveGalgameAsync(meta);
+        if (!IsCurrentGameInstance(meta))
+        {
+            if (addedEntry?.Source?.Galgames.Contains(addedEntry) is true)
+                await _galSrcService.MoveOutNoOperate(addedEntry);
+            throw new PvnException("Canceled".GetLocalized());
+        }
         GalgameChangeKind changes = GalgameChangeKind.Added | GalgameChangeKind.Metadata |
                                     GalgameChangeKind.SourceEntries | GalgameChangeKind.Images |
                                     GalgameChangeKind.Characters;
@@ -113,7 +128,8 @@ public partial class GalgameCollectionService
         {
             try
             {
-                _galgames.Add(game);
+                lock (_gamePersistenceLock)
+                    _galgames.Add(game);
             }
             catch (COMException e)
             {

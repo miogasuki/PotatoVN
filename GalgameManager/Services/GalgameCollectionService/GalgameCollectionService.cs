@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.BgTasks;
@@ -26,6 +27,11 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// _galgames 无序, _displayGalgames有序，<br/>
     /// <b>所有对这个数组的操作均应该使用UI线程执行，以防出现COMException</b>
     private readonly ObservableCollection<Galgame> _galgames = [];
+    // A removed game can still be referenced by an in-flight parser/image task. Keep a weak, instance-specific
+    // tombstone so those tasks cannot upsert the deleted row again. The instance check also prevents an old task
+    // from overwriting a newly-added game that happens to reuse the same UUID.
+    private readonly ConditionalWeakTable<Galgame, RemovedGameMarker> _removedGameInstances = new();
+    private readonly object _gamePersistenceLock = new();
     private static ILocalSettingsService LocalSettingsService { get; set; } = null!;
     private readonly IJumpListService _jumpListService;
     private readonly IInfoService _infoService;
@@ -171,29 +177,49 @@ public partial class GalgameCollectionService : IGalgameCollectionService
 
     public async Task RemoveGalgame(Galgame galgame, bool removeFromDisk = false)
     {
-        if (!_galgames.Contains(galgame)) return;
-        if (removeFromDisk)
+        lock (_gamePersistenceLock)
         {
-            foreach (GalgameAndPath installation in galgame.LocalInstallations
-                         .Where(e => e.Source is GalgameFolderSource).ToList())
-                await _galSrcService.MoveOutNoOperate(installation, true);
+            if (!_galgames.Contains(galgame)) return;
+            _removedGameInstances.GetValue(galgame, static _ => new RemovedGameMarker());
         }
-        await UiThreadInvokeHelper.InvokeAsync(() =>
+        var removedFromCollection = false;
+        try
         {
-            try
+            if (removeFromDisk)
             {
-                _galgames.Remove(galgame);
+                foreach (GalgameAndPath installation in galgame.LocalInstallations
+                             .Where(e => e.Source is GalgameFolderSource).ToList())
+                    await _galSrcService.MoveOutNoOperate(installation, true);
             }
-            catch (COMException)
+            await UiThreadInvokeHelper.InvokeAsync(() =>
             {
-                //框架bug：在试图更新UI界面的时候抛出异常，不影响逻辑正常运行
-                //暂时忽略
+                try
+                {
+                    lock (_gamePersistenceLock)
+                        removedFromCollection = _galgames.Remove(galgame);
+                }
+                catch (COMException)
+                {
+                    //框架bug：在试图更新UI界面的时候抛出异常，不影响逻辑正常运行
+                    //暂时忽略
+                }
+            });
+            lock (_gamePersistenceLock)
+                _dbSet.Delete(galgame.Uuid);
+            foreach (GalgameAndPath entry in galgame.SourceEntries.ToList())
+                await _galSrcService.MoveOutNoOperate(entry);
+            await UiThreadInvokeHelper.InvokeAsync(() => GalgameDeletedEvent?.Invoke(galgame));
+        }
+        catch
+        {
+            // If removal failed before the game left the collection, allow normal saves again.
+            if (!removedFromCollection)
+            {
+                lock (_gamePersistenceLock)
+                    _removedGameInstances.Remove(galgame);
             }
-        });
-        foreach (GalgameAndPath entry in galgame.SourceEntries.ToList())
-            await _galSrcService.MoveOutNoOperate(entry);
-        _dbSet.Delete(galgame.Uuid);
-        await UiThreadInvokeHelper.InvokeAsync(() => GalgameDeletedEvent?.Invoke(galgame));
+            throw;
+        }
     }
 
     public Task<Galgame> ParseGalInfoAsync(Galgame galgame, RssType rssType = RssType.None,
@@ -203,7 +229,8 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     private async Task<Galgame> ParseGalInfoInternalAsync(Galgame galgame, RssType rssType,
         bool requireConfirm, GameParseType type, bool notify)
     {
-        if (!_galgames.Contains(galgame)) throw new PvnException($"Game {galgame.Name.Value} is not in game list");
+        if (!IsCurrentGameInstance(galgame))
+            throw new PvnException($"Game {galgame.Name.Value} is not in game list");
         RssType selectedRss = rssType;
         if(selectedRss == RssType.None)
             selectedRss = galgame.RssType == RssType.None ? await LocalSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType) : galgame.RssType;
@@ -231,13 +258,14 @@ public partial class GalgameCollectionService : IGalgameCollectionService
             AddGameToBgTask<GetGalgameCharactersFromRssTask>();
         if (type.HasFlag(GameParseType.HeaderImage))
             AddGameToBgTask<GetHeaderFromRssTask>();
-        if (notify)
+        if (notify && IsCurrentGameInstance(galgame))
             await RaiseGalgameMutatedAsync(new GalgameMutationEventArgs(galgame, GetChangeKind(type),
                 GalgameChangeOrigin.Parser, type));
         return result;
 
         void AddGameToBgTask<TBgTask>() where TBgTask : BgTaskBase, IGameProcessQueue
         {
+            if (!IsCurrentGameInstance(galgame)) return;
             var isNew = false;
             TBgTask? task = _bgTaskService.GetBgTask<TBgTask>(string.Empty);
             if (task is null)
@@ -636,15 +664,44 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     {
         return Task.Run(() =>
         {
-            _dbSet.Upsert(_galgames);
+            lock (_gamePersistenceLock)
+            {
+                foreach (Galgame galgame in _galgames)
+                {
+                    if (CanPersistGameLocked(galgame))
+                        _dbSet.Upsert(galgame);
+                }
+            }
         });
     }
 
     public async Task SaveGalgameAsync(Galgame galgame)
     {
-        _dbSet.Upsert(galgame);
+        lock (_gamePersistenceLock)
+        {
+            if (!CanPersistGameLocked(galgame)) return;
+            _dbSet.Upsert(galgame);
+        }
         await SaveMetaAsync(galgame);
     }
+
+    private bool IsCurrentGameInstance(Galgame galgame)
+    {
+        lock (_gamePersistenceLock)
+        {
+            if (_removedGameInstances.TryGetValue(galgame, out _)) return false;
+            return _galgames.Any(current => ReferenceEquals(current, galgame));
+        }
+    }
+
+    private bool CanPersistGameLocked(Galgame galgame)
+    {
+        if (_removedGameInstances.TryGetValue(galgame, out _)) return false;
+        Galgame? current = _galgames.FirstOrDefault(item => item.Uuid == galgame.Uuid);
+        return current is null || ReferenceEquals(current, galgame);
+    }
+
+    private sealed class RemovedGameMarker;
 
     public Task SaveGalgameMetaAsync(Galgame galgame, GalgameSourceBase? targetSource = null)
     {

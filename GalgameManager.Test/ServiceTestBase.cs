@@ -100,7 +100,7 @@ public abstract class ServiceTestBase
 /// 内存版ILocalSettingsService：设置存Dictionary（经Newtonsoft序列化往返以模拟真实行为），
 /// Database为真实LiteDB。未实现的成员抛NotImplementedException，用到再补。
 /// </summary>
-public class FakeLocalSettingsService : ILocalSettingsService
+public class FakeLocalSettingsService : ILocalSettingsService, IDurableLocalSettingsService
 {
     private readonly Dictionary<string, string> _settings = new();
     private readonly Dictionary<string, string> _largeSettings = new();
@@ -153,6 +153,15 @@ public class FakeLocalSettingsService : ILocalSettingsService
         settings[key] = JsonConvert.SerializeObject(value, CreateSerializerSettings(converters, typeNameHandling));
         return Task.CompletedTask;
     }
+
+    public Task SaveLargeSettingImmediatelyAsync<T>(string key, T value)
+    {
+        _largeSettings[key] = JsonConvert.SerializeObject(value);
+        ImmediatelySavedLargeSettingKeys.Add(key);
+        return Task.CompletedTask;
+    }
+
+    public HashSet<string> ImmediatelySavedLargeSettingKeys { get; } = [];
 
     public Task RemoveSettingAsync(string key, bool isLarge = false)
     {

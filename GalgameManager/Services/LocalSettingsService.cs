@@ -15,7 +15,7 @@ using FileAttributes = System.IO.FileAttributes;
 
 namespace GalgameManager.Services;
 
-public class LocalSettingsService : ILocalSettingsService
+public class LocalSettingsService : ILocalSettingsService, IDurableLocalSettingsService
 {
     private const string ErrorFileName ="You_Should_Not_See_This_File.Check_AppSettingsJson.json";
     private const string TmpBackupFolderName = "Export";
@@ -421,6 +421,32 @@ public class LocalSettingsService : ILocalSettingsService
 
         if (value != null || triggerEventWhenNull)
             await UiThreadInvokeHelper.InvokeAsync(() => OnSettingChanged?.Invoke(key, value));
+    }
+
+    public async Task SaveLargeSettingImmediatelyAsync<T>(string key, T value)
+    {
+        await InitializeAsync();
+        string filePath = Path.Combine(_applicationDataFolder, $"data.{key}.json");
+        string tmpPath = filePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            string json = JsonConvert.SerializeObject(value, _serializerSettings);
+            await using (FileStream stream = new(tmpPath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
+                             bufferSize: 4096, FileOptions.WriteThrough))
+            await using (StreamWriter writer = new(stream))
+            {
+                await writer.WriteAsync(json);
+                await writer.FlushAsync();
+                stream.Flush(flushToDisk: true);
+            }
+            File.Move(tmpPath, filePath, true);
+            _settings[key] = value!;
+        }
+        finally
+        {
+            try { File.Delete(tmpPath); } catch { }
+        }
+        await UiThreadInvokeHelper.InvokeAsync(() => OnSettingChanged?.Invoke(key, value));
     }
 
     public async Task RemoveSettingAsync(string key, bool isLarge = false)

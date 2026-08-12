@@ -17,40 +17,27 @@ public class PvnPendingDeletionStoreTest : ServiceTestBase
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.EquivalentTo(new[] { 1, 2, 3 }));
-            Assert.That(Settings.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames).Result,
-                Is.EquivalentTo(new[] { 1, 2, 2 }));
+            Assert.That(Settings.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames).Result, Is.Null);
             Assert.That(Settings.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames, true).Result,
                 Is.EquivalentTo(new[] { 1, 2, 3 }));
+            Assert.That(Settings.ImmediatelySavedLargeSettingKeys, Does.Contain(KeyValues.ToDeleteGames));
         });
     }
 
     [Test]
-    public async Task GetGamesAsync_LegacyQueueSurvivesUntilEachDeletionIsAcknowledged()
+    public async Task RemoveGameAsync_PersistsNewerLargeOnlyIdsBeforeRemovingLegacyQueue()
     {
-        await Settings.SaveSettingAsync(KeyValues.ToDeleteGames, new List<int> { 1, 2 });
-
-        Assert.That(await PvnPendingDeletionStore.GetGamesAsync(Settings), Is.EquivalentTo(new[] { 1, 2 }));
-
-        // Simulate an abnormal exit before the queued large-setting write reaches disk.
-        await Settings.RemoveSettingAsync(KeyValues.ToDeleteGames, true);
-        Assert.That(await PvnPendingDeletionStore.GetGamesAsync(Settings), Is.EquivalentTo(new[] { 1, 2 }));
+        await Settings.SaveSettingAsync(KeyValues.ToDeleteGames, new List<int> { 1 });
+        await Settings.SaveSettingAsync(KeyValues.ToDeleteGames, new List<int> { 1, 2 }, isLarge: true);
 
         await PvnPendingDeletionStore.RemoveGameAsync(Settings, 1);
 
         Assert.Multiple(() =>
         {
-            Assert.That(Settings.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames).Result,
-                Is.EquivalentTo(new[] { 1, 2 }));
-            Assert.That(Settings.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames, true).Result,
-                Is.EquivalentTo(new[] { 2 }));
-        });
-
-        await PvnPendingDeletionStore.RemoveGameAsync(Settings, 2);
-
-        Assert.Multiple(() =>
-        {
             Assert.That(Settings.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames).Result, Is.Null);
-            Assert.That(Settings.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames, true).Result, Is.Empty);
+            Assert.That(Settings.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames, true).Result,
+                Is.EqualTo(new[] { 2 }));
+            Assert.That(Settings.ImmediatelySavedLargeSettingKeys, Does.Contain(KeyValues.ToDeleteGames));
         });
     }
 

@@ -201,6 +201,37 @@ public static class KeyMappingMergeHelper
     public static string CreateSourceSignature(IEnumerable<int> source) =>
         string.Join(',', source.Distinct().Order());
 
+    /// <summary>
+    /// Builds the keyboard-key candidates for each mouse source button. Keeping the
+    /// candidates per button prevents a chord for one mouse button from changing how
+    /// an unrelated button is matched.
+    /// </summary>
+    public static Dictionary<int, HashSet<int>> BuildMouseSourceKeyboardKeyIndex(
+        IEnumerable<KeyMapping> mappings)
+    {
+        Dictionary<int, HashSet<int>> result = [];
+        foreach (KeyMapping mapping in mappings.Where(mapping =>
+                     mapping.IsEnabled && HasSource(mapping) && HasTarget(mapping)))
+        foreach (string signature in ExpandSourceSignatures(mapping.From))
+        {
+            int[] keys = signature.Split(',').Select(int.Parse).ToArray();
+            int[] mouseButtons = keys.Where(IsMouseButtonCode).ToArray();
+            if (mouseButtons.Length == 0) continue;
+
+            int[] keyboardKeys = keys.Where(key => !IsMouseButtonCode(key)).ToArray();
+            foreach (int mouseButton in mouseButtons)
+            {
+                if (!result.TryGetValue(mouseButton, out HashSet<int>? candidates))
+                    result[mouseButton] = candidates = [];
+                candidates.UnionWith(keyboardKeys);
+            }
+        }
+
+        return result;
+    }
+
+    private static bool IsMouseButtonCode(int key) => key is >= 1 and <= 7;
+
     private static bool ContainsSource(IEnumerable<List<int>> sources, IEnumerable<int> source) =>
         sources.Any(item => item.SequenceEqual(source));
 

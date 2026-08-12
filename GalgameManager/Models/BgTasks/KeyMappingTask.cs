@@ -20,7 +20,7 @@ public class KeyMappingTask : BgTaskBase
     private string[] _directoryPrefixes = [];
     private readonly HashSet<int> _trackedProcessIds = [];
     private readonly Dictionary<string, OutputAction> _lookupMap = new();
-    private readonly HashSet<int> _mouseSourceKeyboardKeys = [];
+    private readonly Dictionary<int, HashSet<int>> _mouseSourceKeyboardKeysByButton = [];
     private readonly Dictionary<int, OutputAction> _activeKeyboardMappings = new();
     private readonly Dictionary<int, OutputAction> _activeMouseMappings = new();
     private nint _keyboardHookId;
@@ -231,7 +231,7 @@ public class KeyMappingTask : BgTaskBase
     private void BuildLookupMap()
     {
         _lookupMap.Clear();
-        _mouseSourceKeyboardKeys.Clear();
+        _mouseSourceKeyboardKeysByButton.Clear();
         // Rules are already ordered by priority: global rules first, then per-game rules.
         // TryAdd preserves the first rule when malformed or legacy data still overlaps.
         foreach (KeyMapping mapping in KeyMappings)
@@ -241,38 +241,12 @@ public class KeyMappingTask : BgTaskBase
             OutputAction? output = CreateOutputAction(mapping.To);
             if (output is null) continue;
 
-            if (mapping.From.Any(IsMouseButtonCode))
-            {
-                foreach (int sourceKey in mapping.From.Where(key => !IsMouseButtonCode(key)))
-                    AddMouseSourceKeyboardVariants(sourceKey);
-            }
-
             foreach (string sourceSignature in KeyMappingMergeHelper.ExpandSourceSignatures(mapping.From))
                 _lookupMap.TryAdd(sourceSignature, output);
         }
-    }
-
-    private void AddMouseSourceKeyboardVariants(int sourceKey)
-    {
-        VirtualKey key = NormalizeExactModifier((VirtualKey)sourceKey);
-        switch (key)
-        {
-            case VirtualKey.Control:
-                _mouseSourceKeyboardKeys.Add((int)VirtualKey.LeftControl);
-                _mouseSourceKeyboardKeys.Add((int)VirtualKey.RightControl);
-                break;
-            case VirtualKey.Menu:
-                _mouseSourceKeyboardKeys.Add((int)VirtualKey.LeftMenu);
-                _mouseSourceKeyboardKeys.Add((int)VirtualKey.RightMenu);
-                break;
-            case VirtualKey.Shift:
-                _mouseSourceKeyboardKeys.Add((int)VirtualKey.LeftShift);
-                _mouseSourceKeyboardKeys.Add((int)VirtualKey.RightShift);
-                break;
-            default:
-                _mouseSourceKeyboardKeys.Add((int)key);
-                break;
-        }
+        foreach ((int button, HashSet<int> keys) in
+                 KeyMappingMergeHelper.BuildMouseSourceKeyboardKeyIndex(KeyMappings))
+            _mouseSourceKeyboardKeysByButton[button] = keys;
     }
 
     private static OutputAction? CreateOutputAction(IReadOnlyList<int> keys)
@@ -549,10 +523,8 @@ public class KeyMappingTask : BgTaskBase
     private string BuildPressedMouseSourceSignature(int mouseButton)
     {
         List<int> pressed = [mouseButton];
-        AddPressedModifiers(pressed);
-        pressed.AddRange(_mouseSourceKeyboardKeys.Where(key =>
-            !IsModifierKey((VirtualKey)key) &&
-            IsKeyDown((VirtualKey)key)));
+        if (_mouseSourceKeyboardKeysByButton.TryGetValue(mouseButton, out HashSet<int>? candidates))
+            pressed.AddRange(candidates.Where(key => IsKeyDown((VirtualKey)key)));
         return KeyMappingMergeHelper.CreateSourceSignature(pressed);
     }
 

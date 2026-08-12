@@ -126,6 +126,37 @@ public class KeyMappingMergeHelperTest
         });
     }
 
+    [Test]
+    public void MouseSourceKeyboardKeyIndex_IsolatesCandidatesByMouseButton()
+    {
+        KeyMapping controlLeft = new()
+        {
+            From = [(int)VirtualKey.Control, 1],
+            To = [(int)VirtualKey.Enter],
+            IsEnabled = true,
+        };
+        KeyMapping aRight = new()
+        {
+            From = [(int)VirtualKey.A, 2],
+            To = [(int)VirtualKey.Space],
+            IsEnabled = true,
+        };
+
+        Dictionary<int, HashSet<int>> result =
+            KeyMappingMergeHelper.BuildMouseSourceKeyboardKeyIndex([controlLeft, aRight]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result[1], Is.EquivalentTo(new[]
+            {
+                (int)VirtualKey.LeftControl,
+                (int)VirtualKey.RightControl,
+            }));
+            Assert.That(result[1], Does.Not.Contain((int)VirtualKey.A));
+            Assert.That(result[2], Is.EquivalentTo(new[] { (int)VirtualKey.A }));
+        });
+    }
+
     private static KeyMapping Mapping(VirtualKey from, VirtualKey to, bool isGlobal = false) => new()
     {
         From = [(int)from],

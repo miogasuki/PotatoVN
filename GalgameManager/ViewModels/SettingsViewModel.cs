@@ -85,6 +85,9 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     public async void OnNavigatedTo(object parameter)
     {
+        // 设置页会被 Frame 缓存；外部入口（例如单游戏按键映射对话框）修改总开关后，
+        // 每次返回设置页都重新读取，避免界面状态与真实启动配置不一致。
+        GameReMapEnabled = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled);
         try
         {
             await _updateService.UpdateSettingsBadgeAsync(); //通过这句话来触发更新弹窗提醒（如果这个版本没触发过的话）

@@ -3347,11 +3347,74 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
     <value>Selection Mode</value>
   </data>
+  <data name="KeyMappingDialog_Activation_Disabled_Title" xml:space="preserve">
+    <value>Key mapping is not enabled</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Disabled_Message" xml:space="preserve">
+    <value>Both the per-game switch and the “all games” master switch are off, so saved rules will not run. Enable mapping for this game or for all games. Rules are loaded when the game starts; additions, deletions, or edits made while the game is running require the game to be exited and restarted. If the game runs as administrator, PotatoVN must run as administrator too.</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Enabled_Title" xml:space="preserve">
+    <value>Key mapping is enabled</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Enabled_Game_Message" xml:space="preserve">
+    <value>Key mapping is enabled specifically for this game. Rules are loaded when the game starts; additions, deletions, or edits made while the game is running require the game to be exited and restarted. If the game runs as administrator, PotatoVN must run as administrator too.</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Enabled_Global_Message" xml:space="preserve">
+    <value>The “enable key mapping for all games” master switch is on, so valid rules for this game will be applied when it starts. Additions, deletions, or edits made while the game is running require the game to be exited and restarted. If the game runs as administrator, PotatoVN must run as administrator too.</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Enabled_Both_Message" xml:space="preserve">
+    <value>Both the per-game switch and the “enable key mapping for all games” master switch are on. Valid rules for this game will be applied when it starts. Additions, deletions, or edits made while the game is running require the game to be exited and restarted. If the game runs as administrator, PotatoVN must run as administrator too.</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_EnableGame.Content" xml:space="preserve">
+    <value>Enable for this game</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_DisableGame.Content" xml:space="preserve">
+    <value>Disable for this game</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_EnableGlobal.Content" xml:space="preserve">
+    <value>Enable for all games</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_DisableGlobal.Content" xml:space="preserve">
+    <value>Stop enabling for all games</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_EnableGame_Label" xml:space="preserve">
+    <value>Enable for this game</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_DisableGame_Label" xml:space="preserve">
+    <value>Disable for this game</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_EnableGlobal_Label" xml:space="preserve">
+    <value>Enable for all games</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_DisableGlobal_Label" xml:space="preserve">
+    <value>Stop enabling for all games</value>
+  </data>
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
-    <value>Global Key Mapping Settings</value>
+    <value>Global Mapping Rules</value>
   </data>
   <data name="GlobalKeyMappingDialog_Description" xml:space="preserve">
-    <value>Set global key mappings that will work in all games</value>
+    <value>Enter source and target keys. Rules apply to all mapping-enabled games in list order; legacy rules remain inactive until a target is added.</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_DuplicateSource" xml:space="preserve">
+    <value>Multiple enabled rules use the same source key. Disable or remove the duplicate rules before saving.</value>
+  </data>
+  <data name="KeyMappingDialog_DuplicateSource_Title" xml:space="preserve">
+    <value>Duplicate source keys</value>
+  </data>
+  <data name="KeyMappingDialog_DuplicateSource_Message" xml:space="preserve">
+    <value>Multiple game rules can match the same input. Disable or remove duplicates before saving; if legacy rules overlap, only the first one runs.</value>
+  </data>
+  <data name="KeyMappingDialog_GlobalConflict_Title" xml:space="preserve">
+    <value>Conflict with global mappings</value>
+  </data>
+  <data name="KeyMappingDialog_GlobalConflict_Message" xml:space="preserve">
+    <value>{0} game rule(s) use the same source as a global rule. Keep them as per-game overrides or discard the conflicting rules.</value>
+  </data>
+  <data name="KeyMappingDialog_GlobalConflict_Override" xml:space="preserve">
+    <value>Override for this game</value>
+  </data>
+  <data name="KeyMappingDialog_GlobalConflict_Discard" xml:space="preserve">
+    <value>Discard conflicts</value>
   </data>
   <data name="GlobalKeyMappingDialog_Button_Save" xml:space="preserve">
     <value>Save</value>
@@ -3369,13 +3432,13 @@ If play time can record correctly, just cancel this popup.
     <value>Key mapping saved</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
-    <value>Global Key Mapping</value>
+    <value>Global Mapping Rules</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Description" xml:space="preserve">
-    <value>Set global key mappings that will work in all games</value>
+    <value>Define shared source-to-target rules for all games; per-game rules with the same source take priority.</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
-    <value>Edit Global Mappings</value>
+    <value>Edit Global Rules</value>
   </data>
   <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
     <value>Key Mapping</value>
@@ -3387,7 +3450,7 @@ If play time can record correctly, just cancel this popup.
     <value>Edit Key Mapping</value>
   </data>
   <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
-    <value>Red corner indicates global shortcut, cannot be deleted here</value>
+    <value>A red corner marks an inherited global rule. Edit its source and target in Global Rules; disable it here or add a per-game rule with the same source to override it.</value>
   </data>
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>Mouse button capture is enabled, click mouse button in input box</value>
@@ -3432,13 +3495,13 @@ If play time can record correctly, just cancel this popup.
     <value>Key mapping task finished</value>
   </data>
   <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
-    <value>Enable Game Key Mapping</value>
+    <value>Enable Key Mapping for All Games</value>
   </data>
   <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
-    <value>Global switch for game key mapping.</value>
+    <value>When enabled, every game uses its own rules and enabled global rules; an individual game can still enable mapping separately.</value>
   </data>
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
-    <value>Edit Key Mapping</value>
+    <value>Edit Global Mapping Rules</value>
   </data>
   <data name="Settings_Game_AutoDetectSavePath.Title" xml:space="preserve">
     <value>Auto-detect game save locations</value>
@@ -3997,4 +4060,28 @@ If play time can record correctly, just cancel this popup.
   <data name="GalgamePage_OpenInSteamMenu.Text" xml:space="preserve">
     <value>Open in Steam</value>
   </data>
+  <data name="KeyMapping_Key_AnyCtrl" xml:space="preserve"><value>Any Ctrl</value></data>
+  <data name="KeyMapping_Key_LeftCtrl" xml:space="preserve"><value>Left Ctrl</value></data>
+  <data name="KeyMapping_Key_RightCtrl" xml:space="preserve"><value>Right Ctrl</value></data>
+  <data name="KeyMapping_Key_AnyAlt" xml:space="preserve"><value>Any Alt</value></data>
+  <data name="KeyMapping_Key_LeftAlt" xml:space="preserve"><value>Left Alt</value></data>
+  <data name="KeyMapping_Key_RightAlt" xml:space="preserve"><value>Right Alt</value></data>
+  <data name="KeyMapping_Key_AnyShift" xml:space="preserve"><value>Any Shift</value></data>
+  <data name="KeyMapping_Key_LeftShift" xml:space="preserve"><value>Left Shift</value></data>
+  <data name="KeyMapping_Key_RightShift" xml:space="preserve"><value>Right Shift</value></data>
+  <data name="KeyMapping_Key_Space" xml:space="preserve"><value>Space</value></data>
+  <data name="KeyMapping_Key_Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="KeyMapping_Key_Menu" xml:space="preserve"><value>Menu key</value></data>
+  <data name="KeyMapping_Key_Sleep" xml:space="preserve"><value>Sleep</value></data>
+  <data name="KeyMapping_Key_NumberPad_Format" xml:space="preserve"><value>Numpad {0}</value></data>
+  <data name="KeyMapping_Key_NumberPadSeparator" xml:space="preserve"><value>Numpad separator</value></data>
+  <data name="KeyMapping_Key_Unknown_Format" xml:space="preserve"><value>Key {0}</value></data>
+  <data name="KeyMapping_Mouse_Left" xml:space="preserve"><value>Left mouse button</value></data>
+  <data name="KeyMapping_Mouse_Right" xml:space="preserve"><value>Right mouse button</value></data>
+  <data name="KeyMapping_Mouse_Middle" xml:space="preserve"><value>Middle mouse button</value></data>
+  <data name="KeyMapping_Mouse_X1" xml:space="preserve"><value>Mouse side button 1</value></data>
+  <data name="KeyMapping_Mouse_X2" xml:space="preserve"><value>Mouse side button 2</value></data>
+  <data name="KeyMapping_Mouse_WheelUp" xml:space="preserve"><value>Wheel up</value></data>
+  <data name="KeyMapping_Mouse_WheelDown" xml:space="preserve"><value>Wheel down</value></data>
+  <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>Mouse button {0}</value></data>
 </root>

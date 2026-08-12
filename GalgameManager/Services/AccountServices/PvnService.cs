@@ -66,11 +66,19 @@ public class PvnService : IPvnService
         };
         _gameService.GalgameDeletedEvent += async galgame =>
         {
-            List<int> list = await _settingsService.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames) ?? new();
-            if(galgame.Ids[(int)RssType.PotatoVn] is null) return;
-            list.Add(Convert.ToInt32(galgame.Ids[(int)RssType.PotatoVn]));
-            await _settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, list);
-            SyncGames();
+            try
+            {
+                // Imported data can retain a PotatoVN id even when no account is signed in.
+                // Such ids do not belong in a cloud deletion queue.
+                if (await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount) is null) return;
+                if (!int.TryParse(galgame.Ids[(int)RssType.PotatoVn], out int id)) return;
+                await PvnPendingDeletionStore.AddGameAsync(_settingsService, id);
+                SyncGames();
+            }
+            catch (Exception e)
+            {
+                _infoService.DeveloperEvent(msg: "Failed to queue a PotatoVN game deletion.", e: e);
+            }
         };
         _staffService.OnStaffSaved += staff =>
         {
@@ -81,13 +89,24 @@ public class PvnService : IPvnService
         };
         _staffService.OnStaffDeleted += staff =>
         {
-            if (!_settingsService.ReadSettingAsync<bool>(KeyValues.SyncStaff).Result) return;
-            List<int> list = _settingsService.ReadSettingAsync<List<int>>(KeyValues.ToDeleteStaff).Result ?? [];
-            if(staff.Ids[(int)RssType.PotatoVn]?.ToInt() is not { } id) return;
-            list.Add(id);
-            _settingsService.SaveSettingAsync(KeyValues.ToDeleteStaff, list);
-            SyncGames();
+            _ = QueueStaffDeletionAsync(staff);
         };
+    }
+
+    private async Task QueueStaffDeletionAsync(Staff staff)
+    {
+        try
+        {
+            if (!await _settingsService.ReadSettingAsync<bool>(KeyValues.SyncStaff)) return;
+            if (await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount) is null) return;
+            if (staff.Ids[(int)RssType.PotatoVn]?.ToInt() is not { } id) return;
+            await PvnPendingDeletionStore.AddStaffAsync(_settingsService, id);
+            SyncGames();
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(msg: "Failed to queue a PotatoVN staff deletion.", e: e);
+        }
     }
     
     public void Startup()
@@ -95,6 +114,25 @@ public class PvnService : IPvnService
         Task.Run(async () =>
         {
             PvnAccount? account = await _settingsService.ReadSettingAsync<PvnAccount>(KeyValues.PvnAccount);
+            try
+            {
+                if (account is null)
+                {
+                    // A queue created while signed out cannot safely be applied to a future account.
+                    await PvnPendingDeletionStore.ClearGamesAsync(_settingsService);
+                    await PvnPendingDeletionStore.ClearStaffAsync(_settingsService);
+                }
+                else
+                {
+                    // Migrate the legacy Windows settings values before they can hit the 8 KiB limit.
+                    await PvnPendingDeletionStore.GetGamesAsync(_settingsService);
+                    await PvnPendingDeletionStore.GetStaffAsync(_settingsService);
+                }
+            }
+            catch (Exception e)
+            {
+                _infoService.DeveloperEvent(msg: "Failed to migrate PotatoVN deletion queues.", e: e);
+            }
             if (account is not null && DateTime.Now.ToUnixTime() >= account.RefreshTimestamp)
             {
                 try
@@ -387,7 +425,8 @@ public class PvnService : IPvnService
         await _settingsService.SaveSettingAsync(KeyValues.SyncGames, false);
         await _settingsService.SaveSettingAsync(KeyValues.PvnSyncTimestamp, 0);
         await _settingsService.SaveSettingAsync(KeyValues.PvnSyncStaffTimestamp, 0);
-        await _settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, new List<int>());
+        await PvnPendingDeletionStore.ClearGamesAsync(_settingsService);
+        await PvnPendingDeletionStore.ClearStaffAsync(_settingsService);
         foreach (Galgame gal in _gameService.Galgames)
         {
             gal.Ids[(int)RssType.PotatoVn] = null;

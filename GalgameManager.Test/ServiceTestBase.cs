@@ -103,6 +103,7 @@ public abstract class ServiceTestBase
 public class FakeLocalSettingsService : ILocalSettingsService
 {
     private readonly Dictionary<string, string> _settings = new();
+    private readonly Dictionary<string, string> _largeSettings = new();
 
     public FakeLocalSettingsService(LiteDatabase database, string rootDir)
     {
@@ -136,7 +137,8 @@ public class FakeLocalSettingsService : ILocalSettingsService
     public Task<T?> ReadSettingAsync<T>(string key, bool isLarge = false, List<JsonConverter>? converters = null,
         bool typeNameHandling = false)
     {
-        if (!_settings.TryGetValue(key, out var json)) return Task.FromResult<T?>(default);
+        Dictionary<string, string> settings = isLarge ? _largeSettings : _settings;
+        if (!settings.TryGetValue(key, out var json)) return Task.FromResult<T?>(default);
         return Task.FromResult(JsonConvert.DeserializeObject<T>(json, CreateSerializerSettings(converters,
             typeNameHandling)));
     }
@@ -147,13 +149,15 @@ public class FakeLocalSettingsService : ILocalSettingsService
     public Task SaveSettingAsync<T>(string key, T value, bool isLarge = false, bool triggerEventWhenNull = false,
         List<JsonConverter>? converters = null, bool typeNameHandling = false)
     {
-        _settings[key] = JsonConvert.SerializeObject(value, CreateSerializerSettings(converters, typeNameHandling));
+        Dictionary<string, string> settings = isLarge ? _largeSettings : _settings;
+        settings[key] = JsonConvert.SerializeObject(value, CreateSerializerSettings(converters, typeNameHandling));
         return Task.CompletedTask;
     }
 
     public Task RemoveSettingAsync(string key, bool isLarge = false)
     {
-        _settings.Remove(key);
+        Dictionary<string, string> settings = isLarge ? _largeSettings : _settings;
+        settings.Remove(key);
         return Task.CompletedTask;
     }
 

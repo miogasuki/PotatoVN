@@ -102,6 +102,9 @@ public class PvnSyncTask : BgTaskBase
             Galgame? game = gameService.GetGalgameFromId(id.ToString(), RssType.PotatoVn);
             if (game is null) continue;
             Result += "PvnSyncTask_Pull_Deleted".GetLocalized(game.Name.Value ?? string.Empty, id) + "\n";
+            // This deletion originated from the server. Clear the cloud id before raising the
+            // local deletion event so it is not queued for deletion back to the same server.
+            game.Ids[(int)RssType.PotatoVn] = null;
             await gameService.RemoveGalgame(game);
         }
 
@@ -112,21 +115,21 @@ public class PvnSyncTask : BgTaskBase
         IInfoService infoService,
         ILocalSettingsService settingsService)
     {
-        List<int> toDelete = await settingsService.ReadSettingAsync<List<int>>(KeyValues.ToDeleteGames) ?? new();
-        List<int> toDeleteCopy = new(toDelete);
+        List<int> toDeleteCopy = await PvnPendingDeletionStore.GetGamesAsync(settingsService);
         for (var index = 0; index < toDeleteCopy.Count; index++)
         {
             var id = toDeleteCopy[index];
+            bool removeFromQueue = false;
             try
             {
                 ChangeProgress(index, toDeleteCopy.Count, "PvnSyncTask_Deleting".GetLocalized(id));
                 await pvnService.DeleteInternal(id);
-                toDelete.Remove(id);
+                removeFromQueue = true;
                 Result += "PvnSyncTask_Commit_Delete".GetLocalized(id) + "\n";
             }
             catch (Exception e)
             {
-                if (e is InvalidOperationException) toDelete.Remove(id); //游戏不属于该用户或游戏不存在
+                if (e is InvalidOperationException) removeFromQueue = true; //游戏不属于该用户或游戏不存在
                 // 否则为网络异常等因素，不应该移出删除列表，等待下次同步重试
                 else
                     infoService.Event(EventType.PvnSyncEvent, InfoBarSeverity.Warning,
@@ -134,7 +137,8 @@ public class PvnSyncTask : BgTaskBase
             }
             finally
             {
-                await settingsService.SaveSettingAsync(KeyValues.ToDeleteGames, toDelete);
+                if (removeFromQueue)
+                    await PvnPendingDeletionStore.RemoveGameAsync(settingsService, id);
             }
         }
 
@@ -237,7 +241,7 @@ public class PvnSyncTask : BgTaskBase
             }
             await Task.WhenAll(uploadTasks);
             // 提交被删除的staff
-            List<int> deletedStaff = await _settingsService.ReadSettingAsync<List<int>>(KeyValues.ToDeleteStaff) ?? [];
+            List<int> deletedStaff = await PvnPendingDeletionStore.GetStaffAsync(_settingsService);
             foreach (var id in deletedStaff)
             {
                 try
@@ -253,7 +257,7 @@ public class PvnSyncTask : BgTaskBase
                     //ignore
                 }
             }
-            await _settingsService.SaveSettingAsync(KeyValues.ToDeleteStaff, new List<int>());
+            await PvnPendingDeletionStore.ClearStaffAsync(_settingsService);
             await _settingsService.SaveSettingAsync(KeyValues.PvnSyncStaffTimestamp, DateTime.Now.ToUnixTime());
         } while (_staffService.GetStaffs().Any(s => s.RequirePvnSync));
     }

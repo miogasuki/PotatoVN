@@ -83,7 +83,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
     public async void OnNavigatedFrom()
     {
-        Gal.KeyMappings = new List<KeyMapping>(KeyMappings);
+        Gal.KeyMappings = KeyMappingMergeHelper.BuildPersistedGameMappings(KeyMappings);
         if (Gal.ImagePath.Value != Galgame.DefaultImagePath && !File.Exists(Gal.ImagePath.Value))
             Gal.ImagePath.Value = Galgame.DefaultImagePath;
         foreach (GalgameSourceBase source in Installations.Select(i => i.Source).OfType<GalgameSourceBase>().Distinct())
@@ -103,39 +103,9 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
 
         Gal = galgame;
         RefreshInstallations();
-        KeyMappings = new ObservableCollection<KeyMapping>();
-
-        // 用户设置优先：先导入用户的快捷键设置
-        List<KeyMapping> userMappings = Gal.KeyMappings.ToList();
         List<KeyMapping> globalMappings = await GetGlobalKeyMappingsAsync();
-
-        // 先添加用户的所有快捷键设置
-        foreach (var userMapping in userMappings)
-        {
-            KeyMappings.Add(userMapping);
-        }
-
-        // 然后处理全局快捷键，只添加用户没有定义的
-        foreach (KeyMapping globalMapping in globalMappings)
-        {
-            // 检查用户是否已经定义了这个按键（通过From键匹配）
-            var hasUserMapping = userMappings.Any(um =>
-                um.From != null && globalMapping.From != null &&
-                um.From.SequenceEqual(globalMapping.From));
-
-            if (!hasUserMapping)
-            {
-                // 用户没有定义这个按键，添加全局设置到头部
-                KeyMappings.Insert(0, new KeyMapping
-                {
-                    From = new List<int>(globalMapping.From),
-                    To = globalMapping.To != null ? new List<int>(globalMapping.To) : new List<int>(),
-                    Remark = globalMapping.Remark,
-                    IsGlobal = true,
-                    IsEnabled = true
-                });
-            }
-        }
+        KeyMappings = new ObservableCollection<KeyMapping>(
+            KeyMappingMergeHelper.BuildEffectiveMappings(Gal.KeyMappings, globalMappings));
 
         Gal.PropertyChanged += HandleGalPropertyChanged;
         SelectedRss = Gal.RssType;
@@ -688,6 +658,14 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     [RelayCommand]
     private async Task OpenKeyMappingDialog()
     {
+        // 已经持久化的本游戏规则代表用户此前确认过覆盖关系。保存时只提示
+        // 本次编辑新引入的冲突，避免同一条覆盖规则在每次保存时反复询问。
+        List<List<int>> acknowledgedLocalSources = (Gal.KeyMappings ?? [])
+            .Where(mapping => !mapping.IsGlobal && mapping.IsEnabled &&
+                              mapping.From is { Count: > 0 } && mapping.To is { Count: > 0 })
+            .Select(mapping => mapping.From.ToList())
+            .ToList();
+
         KeyMappingDialog dialog = new(this)
         {
             XamlRoot = App.MainWindow!.Content.XamlRoot,
@@ -699,21 +677,46 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         // 只有在用户点击保存时才保存设置并显示通知
         if (result == ContentDialogResult.Primary)
         {
+            List<KeyMapping> editedMappings = dialog.DialogKeyMappings
+                .Select(KeyMappingMergeHelper.Clone)
+                .ToList();
+            List<KeyMapping> globalMappings = await GetGlobalKeyMappingsAsync();
+            List<KeyMapping> conflicts = editedMappings
+                .Where(mapping => !mapping.IsGlobal && mapping.IsEnabled && mapping.From.Count > 0 && mapping.To.Count > 0)
+                .Where(local => globalMappings.Any(global =>
+                    global.IsEnabled && global.From.Count > 0 && global.To.Count > 0 &&
+                    KeyMappingMergeHelper.SourcesOverlap(local.From, global.From)))
+                .Where(local => !acknowledgedLocalSources.Any(source =>
+                    KeyMappingMergeHelper.SourcesEquivalent(source, local.From)))
+                .ToList();
+
+            if (conflicts.Count > 0)
+            {
+                ContentDialog conflictDialog = new()
+                {
+                    XamlRoot = App.MainWindow!.Content.XamlRoot,
+                    RequestedTheme = App.MainWindow.Content is FrameworkElement conflictElement
+                        ? conflictElement.RequestedTheme
+                        : ElementTheme.Default,
+                    Title = "KeyMappingDialog_GlobalConflict_Title".GetLocalized(),
+                    Content = "KeyMappingDialog_GlobalConflict_Message".GetLocalized(conflicts.Count),
+                    PrimaryButtonText = "KeyMappingDialog_GlobalConflict_Override".GetLocalized(),
+                    SecondaryButtonText = "KeyMappingDialog_GlobalConflict_Discard".GetLocalized(),
+                    CloseButtonText = "Cancel".GetLocalized(),
+                    DefaultButton = ContentDialogButton.Close,
+                };
+                ContentDialogResult conflictResult = await conflictDialog.ShowAsync();
+                if (conflictResult == ContentDialogResult.None) return;
+                if (conflictResult == ContentDialogResult.Secondary)
+                    editedMappings.RemoveAll(conflicts.Contains);
+            }
+
+            KeyMappings = new ObservableCollection<KeyMapping>(editedMappings);
             await SaveKeyMappingsAsync();
             _infoService.Info(InfoBarSeverity.Success, msg:"KeyMapping_Info_KeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
         }
     }
 
-
-    /// <summary>
-    /// 检查全局快捷键是否已存在于当前快捷键列表中
-    /// </summary>
-    /// <param name="globalMapping">要检查的全局快捷键</param>
-    /// <returns>如果不存在返回true，存在返回false</returns>
-    private bool IsGlobalKeyMappingNotExists(KeyMapping globalMapping)
-    {
-        return globalMapping.From != null && KeyMappings.All(k => k.From == null || !k.From.SequenceEqual(globalMapping.From));
-    }
 
     /// <summary>
     /// 从全局设置中获取所有全局快捷键
@@ -753,11 +756,12 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     /// </summary>
     public async Task SaveKeyMappingsAsync()
     {
-        // 保存所有映射，包括用户修改过的全局快捷键设置
-        // 这样用户对全局快捷键的自定义设置会被保留
-        Gal.KeyMappings = new List<KeyMapping>(KeyMappings);
-
-        // 立即保存游戏数据
+        Gal.KeyMappings = KeyMappingMergeHelper.BuildPersistedGameMappings(KeyMappings);
         await _galService.SaveGalgameAsync(Gal);
+
+        // 保存后重新从真实的全局规则合并，避免把继承规则误写进单个游戏。
+        List<KeyMapping> globalMappings = await GetGlobalKeyMappingsAsync();
+        KeyMappings = new ObservableCollection<KeyMapping>(
+            KeyMappingMergeHelper.BuildEffectiveMappings(Gal.KeyMappings, globalMappings));
     }
 }

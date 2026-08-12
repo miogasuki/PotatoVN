@@ -156,9 +156,18 @@ public sealed class GameLaunchService(
             if (await localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground) ||
                 game.MuteInBackground)
                 _ = bgTaskService.AddBgTask(new GameMuteTask(game, process));
-            if ((await localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled) || game.KeyReMap) &&
-                game.KeyMappings.Any(m => m.IsEnabled))
-                _ = bgTaskService.AddBgTask(new KeyMappingTask(game, process));
+            if (await localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled) || game.KeyReMap)
+            {
+                List<KeyMapping> globalMappings =
+                    await localSettingsService.ReadSettingAsync<List<KeyMapping>>(KeyValues.GlobalKeyMappings) ?? [];
+                List<KeyMapping> effectiveMappings =
+                    KeyMappingMergeHelper.BuildEffectiveMappings(game.KeyMappings, globalMappings);
+                if (effectiveMappings.Any(mapping =>
+                        mapping.IsEnabled && mapping.From.Count > 0 && mapping.To.Count > 0))
+                {
+                    _ = bgTaskService.AddBgTask(new KeyMappingTask(game, process, effectiveMappings));
+                }
+            }
             if (await localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath) &&
                 config.DetectedSavePath is null)
                 _ = bgTaskService.AddBgTask(new GameSaveDetectorTask(game, installation));

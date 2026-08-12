@@ -3308,11 +3308,74 @@
   <data name="KeyMappingDialog_InputModeToggle.OnContent" xml:space="preserve">
     <value>選択モード</value>
   </data>
+  <data name="KeyMappingDialog_Activation_Disabled_Title" xml:space="preserve">
+    <value>キーマッピングが有効になっていません</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Disabled_Message" xml:space="preserve">
+    <value>ゲーム別スイッチと「すべてのゲーム」マスタースイッチが両方オフのため、保存したルールは動作しません。このゲームまたはすべてのゲームで有効にしてください。ルールはゲーム起動時に読み込まれます。ゲーム実行中の追加・削除・変更は、ゲームを終了して再起動した後に反映されます。ゲームを管理者として実行する場合、PotatoVN も管理者として実行する必要があります。</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Enabled_Title" xml:space="preserve">
+    <value>キーマッピングは有効です</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Enabled_Game_Message" xml:space="preserve">
+    <value>このゲームではキーマッピングが個別に有効になっています。ルールはゲーム起動時に読み込まれます。ゲーム実行中の追加・削除・変更は、ゲームを終了して再起動した後に反映されます。ゲームを管理者として実行する場合、PotatoVN も管理者として実行する必要があります。</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Enabled_Global_Message" xml:space="preserve">
+    <value>「すべてのゲームでキーマッピングを有効にする」マスタースイッチがオンのため、このゲームの有効なルールは起動時に適用されます。ゲーム実行中の追加・削除・変更は、ゲームを終了して再起動した後に反映されます。ゲームを管理者として実行する場合、PotatoVN も管理者として実行する必要があります。</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_Enabled_Both_Message" xml:space="preserve">
+    <value>ゲーム別スイッチと「すべてのゲームでキーマッピングを有効にする」マスタースイッチが両方オンです。このゲームの有効なルールは起動時に適用されます。ゲーム実行中の追加・削除・変更は、ゲームを終了して再起動した後に反映されます。ゲームを管理者として実行する場合、PotatoVN も管理者として実行する必要があります。</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_EnableGame.Content" xml:space="preserve">
+    <value>このゲームで有効にする</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_DisableGame.Content" xml:space="preserve">
+    <value>このゲームで無効にする</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_EnableGlobal.Content" xml:space="preserve">
+    <value>すべてのゲームで有効にする</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_DisableGlobal.Content" xml:space="preserve">
+    <value>すべてのゲームでの有効化を停止</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_EnableGame_Label" xml:space="preserve">
+    <value>このゲームで有効にする</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_DisableGame_Label" xml:space="preserve">
+    <value>このゲームで無効にする</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_EnableGlobal_Label" xml:space="preserve">
+    <value>すべてのゲームで有効にする</value>
+  </data>
+  <data name="KeyMappingDialog_Activation_DisableGlobal_Label" xml:space="preserve">
+    <value>すべてのゲームでの有効化を停止</value>
+  </data>
   <data name="GlobalKeyMappingDialog_Title" xml:space="preserve">
-    <value>グローバルキーマッピング設定</value>
+    <value>グローバルマッピングルール</value>
   </data>
   <data name="GlobalKeyMappingDialog_Description" xml:space="preserve">
-    <value>すべてのゲームで有効なグローバルキーマッピングを設定</value>
+    <value>元キーと対象キーを入力してください。ルールは有効な全ゲームで一覧順に適用され、旧ルールは対象キーを追加するまで動作しません。</value>
+  </data>
+  <data name="GlobalKeyMappingDialog_DuplicateSource" xml:space="preserve">
+    <value>同じ元キーを使用する有効なルールが複数あります。重複するルールを無効化または削除してから保存してください。</value>
+  </data>
+  <data name="KeyMappingDialog_DuplicateSource_Title" xml:space="preserve">
+    <value>元キーが重複しています</value>
+  </data>
+  <data name="KeyMappingDialog_DuplicateSource_Message" xml:space="preserve">
+    <value>同じ入力に一致するゲーム別ルールが複数あります。重複を無効化または削除してから保存してください。旧ルールが重複した場合は先頭のみ実行されます。</value>
+  </data>
+  <data name="KeyMappingDialog_GlobalConflict_Title" xml:space="preserve">
+    <value>グローバルルールとの競合</value>
+  </data>
+  <data name="KeyMappingDialog_GlobalConflict_Message" xml:space="preserve">
+    <value>{0} 件のゲーム別ルールがグローバルルールと同じ元キーを使用しています。このゲームで上書きするか、競合ルールを破棄してください。</value>
+  </data>
+  <data name="KeyMappingDialog_GlobalConflict_Override" xml:space="preserve">
+    <value>このゲームで上書き</value>
+  </data>
+  <data name="KeyMappingDialog_GlobalConflict_Discard" xml:space="preserve">
+    <value>競合ルールを破棄</value>
   </data>
   <data name="GlobalKeyMappingDialog_Button_Save" xml:space="preserve">
     <value>保存</value>
@@ -3330,13 +3393,13 @@
     <value>キーマッピングが保存されました</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Title" xml:space="preserve">
-    <value>グローバルキーマッピング</value>
+    <value>グローバルマッピングルール</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping.Description" xml:space="preserve">
-    <value>すべてのゲームで有効なグローバルキーマッピングを設定</value>
+    <value>すべてのゲームで共有する元キー→対象キーのルールを設定します。同じ元キーのゲーム別ルールが優先されます。</value>
   </data>
   <data name="SettingsPage_Game_GlobalKeyMapping_Button" xml:space="preserve">
-    <value>グローバルマッピングを編集</value>
+    <value>グローバルルールを編集</value>
   </data>
   <data name="GalgameSettingPage_KeyMappings.Title" xml:space="preserve">
     <value>キーマッピング</value>
@@ -3348,7 +3411,7 @@
     <value>キーマッピングを編集</value>
   </data>
   <data name="KeyMapping_Info_GlobalMappingIndicator" xml:space="preserve">
-    <value>赤いコーナーはグローバルショートカットを示し、ここでは削除できません</value>
+    <value>赤いコーナーは継承したグローバルルールを示します。元キーと対象キーはグローバルルールで編集し、ここでは無効化するか、同じ元キーのゲーム別ルールで上書きできます。</value>
   </data>
   <data name="KeyMapping_Info_MouseCapturing" xml:space="preserve">
     <value>マウスボタンキャプチャが有効、入力ボックス内でマウスボタンをクリックしてください</value>
@@ -3393,13 +3456,13 @@
     <value>キーマッピングタスクが終了しました</value>
   </data>
   <data name="Settings_Game_ReMapEnabled.Title" xml:space="preserve">
-    <value>ゲームキーマッピングを有効化</value>
+    <value>すべてのゲームでキーマッピングを有効化</value>
   </data>
   <data name="Settings_Game_ReMapEnabled.Description" xml:space="preserve">
-    <value>ゲームキーマッピングのグローバルスイッチ。</value>
+    <value>オンにすると、すべてのゲームでゲーム別ルールと有効なグローバルルールを使用します。ゲームごとに個別に有効化することもできます。</value>
   </data>
   <data name="Settings_Game_EditKeyMapping.Text" xml:space="preserve">
-    <value>キーマッピング編集</value>
+    <value>グローバルマッピングルールを編集</value>
   </data>
   <data name="Settings_Game_AutoDetectSavePath.Title" xml:space="preserve">
     <value>セーブデータ保存場所の自動検出</value>
@@ -3923,4 +3986,28 @@
   <data name="GalgamePage_OpenInSteamMenu.Text" xml:space="preserve">
     <value>Steamで開く</value>
   </data>
+  <data name="KeyMapping_Key_AnyCtrl" xml:space="preserve"><value>Ctrl（任意）</value></data>
+  <data name="KeyMapping_Key_LeftCtrl" xml:space="preserve"><value>左 Ctrl</value></data>
+  <data name="KeyMapping_Key_RightCtrl" xml:space="preserve"><value>右 Ctrl</value></data>
+  <data name="KeyMapping_Key_AnyAlt" xml:space="preserve"><value>Alt（任意）</value></data>
+  <data name="KeyMapping_Key_LeftAlt" xml:space="preserve"><value>左 Alt</value></data>
+  <data name="KeyMapping_Key_RightAlt" xml:space="preserve"><value>右 Alt</value></data>
+  <data name="KeyMapping_Key_AnyShift" xml:space="preserve"><value>Shift（任意）</value></data>
+  <data name="KeyMapping_Key_LeftShift" xml:space="preserve"><value>左 Shift</value></data>
+  <data name="KeyMapping_Key_RightShift" xml:space="preserve"><value>右 Shift</value></data>
+  <data name="KeyMapping_Key_Space" xml:space="preserve"><value>スペース</value></data>
+  <data name="KeyMapping_Key_Clear" xml:space="preserve"><value>クリア</value></data>
+  <data name="KeyMapping_Key_Menu" xml:space="preserve"><value>メニューキー</value></data>
+  <data name="KeyMapping_Key_Sleep" xml:space="preserve"><value>スリープ</value></data>
+  <data name="KeyMapping_Key_NumberPad_Format" xml:space="preserve"><value>テンキー {0}</value></data>
+  <data name="KeyMapping_Key_NumberPadSeparator" xml:space="preserve"><value>テンキー区切り</value></data>
+  <data name="KeyMapping_Key_Unknown_Format" xml:space="preserve"><value>キー {0}</value></data>
+  <data name="KeyMapping_Mouse_Left" xml:space="preserve"><value>マウス左ボタン</value></data>
+  <data name="KeyMapping_Mouse_Right" xml:space="preserve"><value>マウス右ボタン</value></data>
+  <data name="KeyMapping_Mouse_Middle" xml:space="preserve"><value>マウス中ボタン</value></data>
+  <data name="KeyMapping_Mouse_X1" xml:space="preserve"><value>マウスサイドボタン 1</value></data>
+  <data name="KeyMapping_Mouse_X2" xml:space="preserve"><value>マウスサイドボタン 2</value></data>
+  <data name="KeyMapping_Mouse_WheelUp" xml:space="preserve"><value>ホイール上</value></data>
+  <data name="KeyMapping_Mouse_WheelDown" xml:space="preserve"><value>ホイール下</value></data>
+  <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>マウスボタン {0}</value></data>
 </root>

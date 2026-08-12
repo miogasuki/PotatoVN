@@ -454,7 +454,7 @@
                                     <local:SettingToggleSwitch
                                         x:Uid="Settings_Game_ReMapEnabled"
                                         IsOn="{x:Bind ViewModel.GameReMapEnabled, Mode=TwoWay}"/>
-                                    <StackPanel Style="{StaticResource SettingStackPanelStyle}" Visibility="{x:Bind ViewModel.GameReMapEnabled, Mode=OneWay}">
+                                    <StackPanel Style="{StaticResource SettingStackPanelStyle}">
                                         <Button Command="{x:Bind ViewModel.OpenGlobalKeyMappingDialogCommand}" HorizontalAlignment="Stretch">
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <SymbolIcon Symbol="Edit"/>

@@ -1293,7 +1293,8 @@ public partial class HomeViewModel : ObservableObject, INavigationAware
     {
         _localSettingsService.SaveSettingAsync(KeyValues.SpecialDisplayVirtualGame, value);
         GameToOpacityConverter.SpecialDisplayVirtualGame = value;
-        Source.Refresh();
+        foreach (Galgame game in _galgameService.Galgames)
+            game.RaisePropertyChanged(nameof(Galgame.IsLocalGame));
     }
 }
 

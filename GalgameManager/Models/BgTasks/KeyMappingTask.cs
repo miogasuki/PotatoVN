@@ -19,10 +19,12 @@ public class KeyMappingTask : BgTaskBase
     private Process? _process;
     private string[] _directoryPrefixes = [];
     private readonly HashSet<int> _trackedProcessIds = [];
-    private readonly Dictionary<string, OutputAction> _lookupMap = new();
+    private readonly Dictionary<string, KeyMappingOutput> _lookupMap = new();
     private readonly Dictionary<int, HashSet<int>> _mouseSourceKeyboardKeysByButton = [];
-    private readonly Dictionary<int, OutputAction> _activeKeyboardMappings = new();
-    private readonly Dictionary<int, OutputAction> _activeMouseMappings = new();
+    private readonly Dictionary<int, KeyMappingOutput> _activeKeyboardMappings = new();
+    private readonly Dictionary<int, KeyMappingOutput> _activeMouseMappings = new();
+    private readonly HashSet<int> _pressedPhysicalKeyboardKeys = [];
+    private readonly KeyMappingOutputState _outputState;
     private nint _keyboardHookId;
     private nint _mouseHookId;
     private Thread? _hookThread;
@@ -126,6 +128,7 @@ public class KeyMappingTask : BgTaskBase
 
     public KeyMappingTask()
     {
+        _outputState = new(SendKeyboardState, SendMouseState);
     }
 
     public KeyMappingTask(Galgame game, Process process)
@@ -134,6 +137,7 @@ public class KeyMappingTask : BgTaskBase
     }
 
     public KeyMappingTask(Galgame game, Process process, IEnumerable<KeyMapping> keyMappings)
+        : this()
     {
         ProcessName = process.ProcessName;
         Galgame = game;
@@ -238,7 +242,7 @@ public class KeyMappingTask : BgTaskBase
         {
             if (!mapping.IsEnabled || mapping.From.Count == 0 || mapping.To.Count == 0) continue;
 
-            OutputAction? output = CreateOutputAction(mapping.To);
+            KeyMappingOutput? output = KeyMappingOutputFactory.Create(mapping.To);
             if (output is null) continue;
 
             foreach (string sourceSignature in KeyMappingMergeHelper.ExpandSourceSignatures(mapping.From))
@@ -247,32 +251,6 @@ public class KeyMappingTask : BgTaskBase
         foreach ((int button, HashSet<int> keys) in
                  KeyMappingMergeHelper.BuildMouseSourceKeyboardKeyIndex(KeyMappings))
             _mouseSourceKeyboardKeysByButton[button] = keys;
-    }
-
-    private static OutputAction? CreateOutputAction(IReadOnlyList<int> keys)
-    {
-        int mouseButton = keys.FirstOrDefault(IsMouseButtonCode);
-        if (mouseButton != 0) return new OutputAction([], null, mouseButton);
-
-        List<VirtualKey> targetKeys = keys
-            .Select(k => (VirtualKey)k)
-            .Distinct()
-            .OrderBy(GetKeyOrder)
-            .ToList();
-        if (targetKeys.Count == 0) return null;
-
-        List<int> modifiers = targetKeys
-            .Where(IsModifierKey)
-            .Select(k => (int)k)
-            .ToList();
-        VirtualKey? mainKey = targetKeys.FirstOrDefault(k => !IsModifierKey(k));
-        if (mainKey is null || mainKey == default)
-        {
-            mainKey = targetKeys[0];
-            modifiers.Remove((int)mainKey.Value);
-        }
-
-        return new OutputAction(modifiers, (int)mainKey.Value, null);
     }
 
     private void StartHookThread()
@@ -316,6 +294,7 @@ public class KeyMappingTask : BgTaskBase
             _mouseHookId = SetWindowsHookEx(WhMouseLl, _mouseHookProc, moduleHandle, 0);
             if (_mouseHookId == nint.Zero) throw new Win32Exception(Marshal.GetLastWin32Error());
 
+            SeedPressedPhysicalKeys();
             _hookStarted.Set();
             while (true)
             {
@@ -376,7 +355,8 @@ public class KeyMappingTask : BgTaskBase
             int sourceKey = (int)ResolvePhysicalModifier(data);
             if (message is WmKeyUp or WmSysKeyUp)
             {
-                if (_activeKeyboardMappings.Remove(sourceKey, out OutputAction? active))
+                _pressedPhysicalKeyboardKeys.Remove(sourceKey);
+                if (_activeKeyboardMappings.Remove(sourceKey, out KeyMappingOutput? active))
                 {
                     ReleaseOutput(active);
                     return 1;
@@ -386,9 +366,10 @@ public class KeyMappingTask : BgTaskBase
             if (message is not (WmKeyDown or WmSysKeyDown))
                 return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
 
+            _pressedPhysicalKeyboardKeys.Add(sourceKey);
             if (_activeKeyboardMappings.ContainsKey(sourceKey)) return 1;
             string keyString = BuildPressedKeyboardSourceSignature(sourceKey);
-            _lookupMap.TryGetValue(keyString, out OutputAction? output);
+            _lookupMap.TryGetValue(keyString, out KeyMappingOutput? output);
 
             bool targetForeground = IsTargetGameForeground(out _, out _);
             if (!targetForeground || output is null)
@@ -421,7 +402,7 @@ public class KeyMappingTask : BgTaskBase
 
             if (IsMouseButtonUp(message))
             {
-                if (_activeMouseMappings.Remove(mouseButton, out OutputAction? active))
+                if (_activeMouseMappings.Remove(mouseButton, out KeyMappingOutput? active))
                 {
                     ReleaseOutput(active);
                     return 1;
@@ -431,7 +412,7 @@ public class KeyMappingTask : BgTaskBase
 
             bool targetForeground = IsTargetGameForeground(out _, out _);
             string sourceSignature = BuildPressedMouseSourceSignature(mouseButton);
-            _lookupMap.TryGetValue(sourceSignature, out OutputAction? output);
+            _lookupMap.TryGetValue(sourceSignature, out KeyMappingOutput? output);
             if (!targetForeground || output is null)
                 return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
 
@@ -512,7 +493,7 @@ public class KeyMappingTask : BgTaskBase
         }
     }
 
-    private static string BuildPressedKeyboardSourceSignature(int currentKey)
+    private string BuildPressedKeyboardSourceSignature(int currentKey)
     {
         int normalizedCurrent = (int)NormalizeExactModifier((VirtualKey)currentKey);
         List<int> pressed = [normalizedCurrent];
@@ -528,16 +509,35 @@ public class KeyMappingTask : BgTaskBase
         return KeyMappingMergeHelper.CreateSourceSignature(pressed);
     }
 
-    private static bool IsMouseSourceCandidateDown(int key) =>
+    private bool IsMouseSourceCandidateDown(int key) =>
         (VirtualKey)key == VirtualKey.LeftWindows
-            ? IsKeyDown(VirtualKey.LeftWindows) || IsKeyDown(VirtualKey.RightWindows)
-            : IsKeyDown((VirtualKey)key);
+            ? _pressedPhysicalKeyboardKeys.Contains((int)VirtualKey.LeftWindows) ||
+              _pressedPhysicalKeyboardKeys.Contains((int)VirtualKey.RightWindows)
+            : _pressedPhysicalKeyboardKeys.Contains(key);
 
-    private static void AddPressedModifiers(ICollection<int> pressed)
+    private void SeedPressedPhysicalKeys()
+    {
+        HashSet<int> candidates =
+        [
+            (int)VirtualKey.LeftControl,
+            (int)VirtualKey.RightControl,
+            (int)VirtualKey.LeftShift,
+            (int)VirtualKey.RightShift,
+            (int)VirtualKey.LeftMenu,
+            (int)VirtualKey.RightMenu,
+            (int)VirtualKey.LeftWindows,
+            (int)VirtualKey.RightWindows,
+        ];
+        candidates.UnionWith(_mouseSourceKeyboardKeysByButton.Values.SelectMany(keys => keys));
+        foreach (int key in candidates.Where(IsKeyDown))
+            _pressedPhysicalKeyboardKeys.Add(key);
+    }
+
+    private void AddPressedModifiers(ICollection<int> pressed)
     {
         void AddIfPressed(VirtualKey key)
         {
-            if (IsKeyDown(key)) pressed.Add((int)key);
+            if (_pressedPhysicalKeyboardKeys.Contains((int)key)) pressed.Add((int)key);
         }
 
         AddIfPressed(VirtualKey.LeftControl);
@@ -546,56 +546,30 @@ public class KeyMappingTask : BgTaskBase
         AddIfPressed(VirtualKey.RightShift);
         AddIfPressed(VirtualKey.LeftMenu);
         AddIfPressed(VirtualKey.RightMenu);
-        if (IsKeyDown(VirtualKey.LeftWindows) || IsKeyDown(VirtualKey.RightWindows))
+        if (_pressedPhysicalKeyboardKeys.Contains((int)VirtualKey.LeftWindows) ||
+            _pressedPhysicalKeyboardKeys.Contains((int)VirtualKey.RightWindows))
             pressed.Add((int)VirtualKey.LeftWindows);
     }
 
-    private void PressOutput(OutputAction output)
-    {
-        if (output.MouseButton is { } mouseButton)
-        {
-            SendMouseState(mouseButton, true);
-            return;
-        }
+    private void PressOutput(KeyMappingOutput output) => _outputState.Press(output);
 
-        foreach (int modifier in output.Modifiers) SendKeyboardState(modifier, true);
-        if (output.Key is { } key) SendKeyboardState(key, true);
-    }
+    private void ReleaseOutput(KeyMappingOutput output) => _outputState.Release(output);
 
-    private void ReleaseOutput(OutputAction output)
-    {
-        if (output.MouseButton is { } mouseButton)
-        {
-            SendMouseState(mouseButton, false);
-            return;
-        }
-
-        if (output.Key is { } key) SendKeyboardState(key, false);
-        for (int i = output.Modifiers.Count - 1; i >= 0; i--)
-            SendKeyboardState(output.Modifiers[i], false);
-    }
-
-    private void PulseOutput(OutputAction output)
-    {
-        PressOutput(output);
-        ReleaseOutput(output);
-    }
+    private void PulseOutput(KeyMappingOutput output) => _outputState.Pulse(output);
 
     private void ReleaseAllOutputs()
     {
-        foreach (OutputAction output in _activeKeyboardMappings.Values.Concat(_activeMouseMappings.Values))
+        try
         {
-            try
-            {
-                ReleaseOutput(output);
-            }
-            catch
-            {
-                // 退出时尽力释放，不能阻止钩子线程结束。
-            }
+            _outputState.Reset();
+        }
+        catch
+        {
+            // 退出时尽力释放，不能阻止钩子线程结束。
         }
         _activeKeyboardMappings.Clear();
         _activeMouseMappings.Clear();
+        _pressedPhysicalKeyboardKeys.Clear();
     }
 
     private static void SendMouseState(int mouseButton, bool down)
@@ -666,9 +640,9 @@ public class KeyMappingTask : BgTaskBase
             e: exception);
     }
 
-    private static bool IsKeyDown(VirtualKey key) => (GetAsyncKeyState((int)key) & 0x8000) != 0;
-
     private static bool IsMouseButtonCode(int code) => code is >= 1 and <= 7;
+
+    private static bool IsKeyDown(int key) => (GetAsyncKeyState(key) & 0x8000) != 0;
 
     private static bool IsMouseButtonUp(int message) =>
         message is WmLButtonUp or WmRButtonUp or WmMButtonUp or WmXButtonUp;
@@ -682,12 +656,6 @@ public class KeyMappingTask : BgTaskBase
         WmMouseWheel => unchecked((short)(mouseData >> 16)) > 0 ? 6 : 7,
         _ => 0,
     };
-
-    private static bool IsModifierKey(VirtualKey key) => key is
-        VirtualKey.Control or VirtualKey.LeftControl or VirtualKey.RightControl or
-        VirtualKey.Shift or VirtualKey.LeftShift or VirtualKey.RightShift or
-        VirtualKey.Menu or VirtualKey.LeftMenu or VirtualKey.RightMenu or
-        VirtualKey.LeftWindows or VirtualKey.RightWindows;
 
     private static VirtualKey NormalizeExactModifier(VirtualKey key) => key switch
     {
@@ -713,15 +681,6 @@ public class KeyMappingTask : BgTaskBase
         };
     }
 
-    private static int GetKeyOrder(VirtualKey key)
-    {
-        if (key is VirtualKey.LeftWindows or VirtualKey.RightWindows) return 1;
-        if (key is VirtualKey.Control or VirtualKey.LeftControl or VirtualKey.RightControl) return 2;
-        if (key is VirtualKey.Menu or VirtualKey.LeftMenu or VirtualKey.RightMenu) return 3;
-        if (key is VirtualKey.Shift or VirtualKey.LeftShift or VirtualKey.RightShift) return 4;
-        return 5;
-    }
-
     private static string GetKeyDisplayName(VirtualKey key) => key switch
     {
         VirtualKey.LeftWindows or VirtualKey.RightWindows => "Win",
@@ -738,11 +697,6 @@ public class KeyMappingTask : BgTaskBase
     };
 
     public override string Title { get; } = "KeyMappingTask_Title".GetLocalized();
-
-    private sealed record OutputAction(
-        List<int> Modifiers,
-        int? Key,
-        int? MouseButton);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct NativeInput

@@ -524,9 +524,14 @@ public class KeyMappingTask : BgTaskBase
     {
         List<int> pressed = [mouseButton];
         if (_mouseSourceKeyboardKeysByButton.TryGetValue(mouseButton, out HashSet<int>? candidates))
-            pressed.AddRange(candidates.Where(key => IsKeyDown((VirtualKey)key)));
+            pressed.AddRange(candidates.Where(IsMouseSourceCandidateDown));
         return KeyMappingMergeHelper.CreateSourceSignature(pressed);
     }
+
+    private static bool IsMouseSourceCandidateDown(int key) =>
+        (VirtualKey)key == VirtualKey.LeftWindows
+            ? IsKeyDown(VirtualKey.LeftWindows) || IsKeyDown(VirtualKey.RightWindows)
+            : IsKeyDown((VirtualKey)key);
 
     private static void AddPressedModifiers(ICollection<int> pressed)
     {

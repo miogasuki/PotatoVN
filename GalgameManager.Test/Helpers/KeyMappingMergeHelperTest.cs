@@ -141,9 +141,15 @@ public class KeyMappingMergeHelperTest
             To = [(int)VirtualKey.Space],
             IsEnabled = true,
         };
+        KeyMapping rightWindowsMiddle = new()
+        {
+            From = [(int)VirtualKey.RightWindows, 3],
+            To = [(int)VirtualKey.Tab],
+            IsEnabled = true,
+        };
 
         Dictionary<int, HashSet<int>> result =
-            KeyMappingMergeHelper.BuildMouseSourceKeyboardKeyIndex([controlLeft, aRight]);
+            KeyMappingMergeHelper.BuildMouseSourceKeyboardKeyIndex([controlLeft, aRight, rightWindowsMiddle]);
 
         Assert.Multiple(() =>
         {
@@ -154,6 +160,7 @@ public class KeyMappingMergeHelperTest
             }));
             Assert.That(result[1], Does.Not.Contain((int)VirtualKey.A));
             Assert.That(result[2], Is.EquivalentTo(new[] { (int)VirtualKey.A }));
+            Assert.That(result[3], Is.EquivalentTo(new[] { (int)VirtualKey.LeftWindows }));
         });
     }
 

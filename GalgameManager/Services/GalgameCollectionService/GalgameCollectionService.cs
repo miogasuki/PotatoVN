@@ -666,11 +666,10 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         {
             lock (_gamePersistenceLock)
             {
-                foreach (Galgame galgame in _galgames)
-                {
-                    if (CanPersistGameLocked(galgame))
-                        _dbSet.Upsert(galgame);
-                }
+                List<Galgame> gamesToSave = _galgames
+                    .Where(CanPersistGameLocked)
+                    .ToList();
+                _dbSet.Upsert(gamesToSave);
             }
         });
     }

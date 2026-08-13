@@ -281,6 +281,48 @@ public class GalgameCollectionServiceTest : ServiceTestBase
         Assert.That(eventFired, Is.False);
     }
 
+    [Test]
+    public async Task SaveGalgameAsync_RemovedInstance_DoesNotReinsertDeletedGame()
+    {
+        GalgameCollectionService service = await CreateInitializedServiceAsync();
+        Galgame game = CreateGame("待删除后保存的游戏");
+        await service.AddVirtualGalgameAsync(game);
+
+        await service.RemoveGalgame(game);
+        game.Comment = "后台任务的迟到修改";
+        await service.SaveGalgameAsync(game);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(service.Galgames, Does.Not.Contain(game));
+            Assert.That(DbSet.FindById(game.Uuid), Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task SaveGalgameAsync_OldInstance_DoesNotOverwriteReaddedGameWithSameUuid()
+    {
+        GalgameCollectionService service = await CreateInitializedServiceAsync();
+        Galgame oldGame = CreateGame("旧游戏对象");
+        await service.AddVirtualGalgameAsync(oldGame);
+        await service.RemoveGalgame(oldGame);
+
+        Galgame readdedGame = CreateGame("重新添加的游戏");
+        readdedGame.Uuid = oldGame.Uuid;
+        await service.AddVirtualGalgameAsync(readdedGame);
+
+        oldGame.Name.Value = "旧后台任务写回的名称";
+        await service.SaveGalgameAsync(oldGame);
+
+        Galgame? loaded = DbSet.FindById(readdedGame.Uuid);
+        Assert.Multiple(() =>
+        {
+            Assert.That(service.Galgames, Does.Contain(readdedGame));
+            Assert.That(loaded, Is.Not.Null);
+            Assert.That(loaded!.Name.Value, Is.EqualTo("重新添加的游戏"));
+        });
+    }
+
     #endregion
 
     #region 游戏查询

@@ -4998,4 +4998,7 @@
   <data name="KeyMapping_Mouse_WheelUp" xml:space="preserve"><value>滚轮向上</value></data>
   <data name="KeyMapping_Mouse_WheelDown" xml:space="preserve"><value>滚轮向下</value></data>
   <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>鼠标按键 {0}</value></data>
+  <data name="GalgamePage_Play_AlreadyRunning" xml:space="preserve">
+    <value>“{0}”已在运行或正在记录游玩时间。</value>
+  </data>
 </root>

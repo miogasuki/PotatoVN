@@ -4010,4 +4010,7 @@
   <data name="KeyMapping_Mouse_WheelUp" xml:space="preserve"><value>ホイール上</value></data>
   <data name="KeyMapping_Mouse_WheelDown" xml:space="preserve"><value>ホイール下</value></data>
   <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>マウスボタン {0}</value></data>
+  <data name="GalgamePage_Play_AlreadyRunning" xml:space="preserve">
+    <value>「{0}」はすでに実行中か、プレイ時間を記録中です。</value>
+  </data>
 </root>

@@ -1,10 +1,12 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using CommunityToolkit.Mvvm.Messaging;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
 using GalgameManager.Models;
+using GalgameManager.WinApp.Base.Models.Msgs;
 using Windows.System;
 
 namespace GalgameManager.Models.BgTasks;
@@ -19,17 +21,26 @@ public class KeyMappingTask : BgTaskBase
     private Process? _process;
     private string[] _directoryPrefixes = [];
     private readonly HashSet<int> _trackedProcessIds = [];
-    private readonly Dictionary<string, KeyMappingOutput> _lookupMap = new();
-    private readonly Dictionary<int, HashSet<int>> _mouseSourceKeyboardKeysByButton = [];
+    private List<KeyMapping> _runtimeGameMappings = [];
+    private bool _runtimeGameMappingOptInEnabled;
+    private KeyMappingRuntimeSnapshot _snapshot = KeyMappingRuntimeSnapshot.Empty;
+    private KeyMappingRuntimeSnapshot? _pendingSnapshot;
     private readonly Dictionary<int, KeyMappingOutput> _activeKeyboardMappings = new();
     private readonly Dictionary<int, KeyMappingOutput> _activeMouseMappings = new();
     private readonly HashSet<int> _pressedPhysicalKeyboardKeys = [];
+    private readonly HashSet<int> _pressedPhysicalMouseButtons = [];
+    private readonly KeyMappingHeldInputGuard _heldInputGuard = new();
     private readonly KeyMappingOutputState _outputState;
+    private readonly SemaphoreSlim _reloadSemaphore = new(1, 1);
+    private ILocalSettingsService? _localSettingsService;
+    private IMessenger? _messenger;
+    private volatile bool _isMonitoring;
     private nint _keyboardHookId;
     private nint _mouseHookId;
     private Thread? _hookThread;
     private uint _hookThreadId;
     private readonly ManualResetEventSlim _hookStarted = new(false);
+    private readonly ManualResetEventSlim _snapshotApplied = new(false);
     private Exception? _hookStartException;
     private int _callbackErrorLogged;
 
@@ -108,6 +119,7 @@ public class KeyMappingTask : BgTaskBase
     private const int WmXButtonDown = 0x020B;
     private const int WmXButtonUp = 0x020C;
     private const uint WmQuit = 0x0012;
+    private const uint WmApplySnapshot = 0x8001;
     private const uint LlkhfExtended = 0x01;
     private const uint LlkhfInjected = 0x10;
     private const uint LlmhfInjected = 0x01;
@@ -151,6 +163,8 @@ public class KeyMappingTask : BgTaskBase
             Remark = m.Remark,
             IsGlobal = m.IsGlobal,
         }).ToList();
+        _runtimeGameMappings = KeyMappings.Select(KeyMappingMergeHelper.Clone).ToList();
+        _runtimeGameMappingOptInEnabled = game.KeyReMap;
         InitDirectoryPrefixes();
     }
 
@@ -166,20 +180,159 @@ public class KeyMappingTask : BgTaskBase
     {
         if (_process is null || Galgame is null) return;
 
-        BuildLookupMap();
-        if (_lookupMap.Count == 0) return;
-
+        _localSettingsService = App.GetService<ILocalSettingsService>();
+        _messenger = App.GetService<IMessenger>();
+        _runtimeGameMappings = (Galgame.KeyMappings ?? [])
+            .Select(KeyMappingMergeHelper.Clone)
+            .ToList();
+        _runtimeGameMappingOptInEnabled = Galgame.KeyReMap;
+        _isMonitoring = true;
+        _localSettingsService.OnSettingChanged += OnSettingChanged;
+        Galgame.PropertyChanged += OnGalgamePropertyChanged;
+        _messenger.Register<KeyMappingsChangedMessage>(this, (_, message) =>
+        {
+            if (Galgame?.Uuid == message.GalgameUuid)
+                message.Reply(ReloadMappingsSafelyAsync(
+                    "game mappings saved",
+                    message.GameMappings,
+                    message.GameMappingOptInEnabled,
+                    reportGameMappingsApplied: true));
+        });
         ChangeProgress(0, 1, "KeyMappingTask_ProgressMsg".GetLocalized(Galgame.Name.Value!));
         try
         {
-            await Task.Run(StartHookThread);
+            _ = await ReloadMappingsSafelyAsync("game launched");
             await FollowGameProcessAsync();
         }
         finally
         {
-            await Task.Run(StopHookThread);
+            _isMonitoring = false;
+            _localSettingsService.OnSettingChanged -= OnSettingChanged;
+            Galgame.PropertyChanged -= OnGalgamePropertyChanged;
+            _messenger.Unregister<KeyMappingsChangedMessage>(this);
+            await _reloadSemaphore.WaitAsync();
+            try
+            {
+                await Task.Run(StopHookThread);
+                Volatile.Write(ref _snapshot, KeyMappingRuntimeSnapshot.Empty);
+            }
+            finally
+            {
+                _reloadSemaphore.Release();
+            }
             ChangeProgress(1, 1, "KeyMappingTask_Done".GetLocalized());
         }
+    }
+
+    private void OnSettingChanged(string key, object? value)
+    {
+        if (key is KeyValues.GameReMapEnabled or KeyValues.GlobalKeyMappings)
+            _ = ReloadMappingsSafelyAsync($"setting changed: {key}");
+    }
+
+    private void OnGalgamePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(GalgameManager.Models.Galgame.KeyReMap))
+            _ = ReloadMappingsSafelyAsync(
+                "game mapping toggle changed",
+                updatedGameMappingOptInEnabled: Galgame?.KeyReMap);
+    }
+
+    private async Task<bool> ReloadMappingsSafelyAsync(
+        string reason,
+        IReadOnlyList<KeyMapping>? updatedGameMappings = null,
+        bool? updatedGameMappingOptInEnabled = null,
+        bool reportGameMappingsApplied = false)
+    {
+        if (!_isMonitoring || Galgame is null || _localSettingsService is null) return false;
+
+        await _reloadSemaphore.WaitAsync();
+        try
+        {
+            if (!_isMonitoring) return false;
+            if (updatedGameMappings is not null)
+                _runtimeGameMappings = updatedGameMappings
+                    .Select(KeyMappingMergeHelper.Clone)
+                    .ToList();
+            if (updatedGameMappingOptInEnabled is not null)
+                _runtimeGameMappingOptInEnabled = updatedGameMappingOptInEnabled.Value;
+
+            bool globalEnabled =
+                await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled);
+            bool mappingActive = _runtimeGameMappingOptInEnabled || globalEnabled;
+            List<KeyMapping> globalMappings = mappingActive
+                ? await _localSettingsService.ReadSettingAsync<List<KeyMapping>>(KeyValues.GlobalKeyMappings) ?? []
+                : [];
+            List<KeyMapping> effectiveMappings = KeyMappingRuntimeSnapshot.BuildEffectiveMappings(
+                _runtimeGameMappings,
+                globalMappings,
+                _runtimeGameMappingOptInEnabled,
+                globalEnabled);
+            KeyMappings = effectiveMappings.Select(KeyMappingMergeHelper.Clone).ToList();
+            KeyMappingRuntimeSnapshot nextSnapshot = KeyMappingRuntimeSnapshot.Create(effectiveMappings);
+
+            await ApplySnapshotAsync(nextSnapshot);
+            App.GetService<IInfoService>().Log(Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational,
+                $"Key mappings reloaded: gameUuid={Galgame.Uuid:D}, rules={nextSnapshot.LookupMap.Count}, " +
+                $"gameOptIn={_runtimeGameMappingOptInEnabled}, globalEnabled={globalEnabled}, " +
+                $"mappingActive={mappingActive}, hookActive={!nextSnapshot.IsEmpty}, " +
+                $"mappings={DescribeSnapshot(nextSnapshot)}, reason={reason}");
+            return !reportGameMappingsApplied || mappingActive;
+        }
+        catch (Exception exception)
+        {
+            App.GetService<IInfoService>().DeveloperEvent(
+                msg: $"Failed to reload key mappings: gameUuid={Galgame?.Uuid:D}, reason={reason}",
+                e: exception);
+            return false;
+        }
+        finally
+        {
+            _reloadSemaphore.Release();
+        }
+    }
+
+    private static string DescribeSnapshot(KeyMappingRuntimeSnapshot snapshot)
+    {
+        if (snapshot.IsEmpty) return "<empty>";
+        return string.Join("; ", snapshot.LookupMap
+            .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+            .Select(pair =>
+            {
+                KeyMappingOutput output = pair.Value;
+                IEnumerable<int> target = output.Modifiers
+                    .Concat(output.Key is null ? [] : [output.Key.Value])
+                    .Concat(output.MouseButton is null ? [] : [output.MouseButton.Value]);
+                return $"{pair.Key}->{string.Join(',', target)}";
+            }));
+    }
+
+    private async Task ApplySnapshotAsync(KeyMappingRuntimeSnapshot nextSnapshot)
+    {
+        Thread? hookThread = _hookThread;
+        if (hookThread is null || !hookThread.IsAlive || _hookThreadId == 0)
+        {
+            Volatile.Write(ref _snapshot, nextSnapshot);
+            if (!nextSnapshot.IsEmpty)
+                await Task.Run(StartHookThread);
+            return;
+        }
+
+        Interlocked.Exchange(ref _pendingSnapshot, nextSnapshot);
+        _snapshotApplied.Reset();
+        if (!PostThreadMessage(_hookThreadId, WmApplySnapshot, 0, nint.Zero))
+        {
+            await Task.Run(StopHookThread);
+            Volatile.Write(ref _snapshot, nextSnapshot);
+            if (!nextSnapshot.IsEmpty)
+                await Task.Run(StartHookThread);
+            return;
+        }
+
+        bool applied = await Task.Run(() => _snapshotApplied.Wait(TimeSpan.FromSeconds(3)));
+        if (!applied) throw new TimeoutException("应用键位映射热更新超时。");
+        if (nextSnapshot.IsEmpty)
+            await Task.Run(StopHookThread);
     }
 
     private void InitDirectoryPrefixes()
@@ -232,27 +385,6 @@ public class KeyMappingTask : BgTaskBase
         return null;
     }
 
-    private void BuildLookupMap()
-    {
-        _lookupMap.Clear();
-        _mouseSourceKeyboardKeysByButton.Clear();
-        // Rules are already ordered by priority: global rules first, then per-game rules.
-        // TryAdd preserves the first rule when malformed or legacy data still overlaps.
-        foreach (KeyMapping mapping in KeyMappings)
-        {
-            if (!mapping.IsEnabled || mapping.From.Count == 0 || mapping.To.Count == 0) continue;
-
-            KeyMappingOutput? output = KeyMappingOutputFactory.Create(mapping.To);
-            if (output is null) continue;
-
-            foreach (string sourceSignature in KeyMappingMergeHelper.ExpandSourceSignatures(mapping.From))
-                _lookupMap.TryAdd(sourceSignature, output);
-        }
-        foreach ((int button, HashSet<int> keys) in
-                 KeyMappingMergeHelper.BuildMouseSourceKeyboardKeyIndex(KeyMappings))
-            _mouseSourceKeyboardKeysByButton[button] = keys;
-    }
-
     private void StartHookThread()
     {
         _hookStartException = null;
@@ -295,12 +427,19 @@ public class KeyMappingTask : BgTaskBase
             if (_mouseHookId == nint.Zero) throw new Win32Exception(Marshal.GetLastWin32Error());
 
             SeedPressedPhysicalKeys();
+            SeedPressedPhysicalMouseButtons();
+            _heldInputGuard.BeginTransition(_pressedPhysicalKeyboardKeys, _pressedPhysicalMouseButtons);
             _hookStarted.Set();
             while (true)
             {
                 int result = GetMessage(out NativeMessage message, nint.Zero, 0, 0);
                 if (result == 0) break;
                 if (result < 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+                if (message.Message == WmApplySnapshot)
+                {
+                    ApplyPendingSnapshot();
+                    continue;
+                }
                 _ = TranslateMessage(ref message);
                 _ = DispatchMessage(ref message);
             }
@@ -341,6 +480,21 @@ public class KeyMappingTask : BgTaskBase
         if (!thread.IsAlive) _hookThread = null;
     }
 
+    private void ApplyPendingSnapshot()
+    {
+        KeyMappingRuntimeSnapshot? nextSnapshot = Interlocked.Exchange(ref _pendingSnapshot, null);
+        if (nextSnapshot is null)
+        {
+            _snapshotApplied.Set();
+            return;
+        }
+
+        ReleaseMappedOutputs();
+        _heldInputGuard.BeginTransition(_pressedPhysicalKeyboardKeys, _pressedPhysicalMouseButtons);
+        Volatile.Write(ref _snapshot, nextSnapshot);
+        _snapshotApplied.Set();
+    }
+
     private nint KeyboardHookCallback(int nCode, nint wParam, nint lParam)
     {
         if (nCode < 0) return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
@@ -356,6 +510,7 @@ public class KeyMappingTask : BgTaskBase
             if (message is WmKeyUp or WmSysKeyUp)
             {
                 _pressedPhysicalKeyboardKeys.Remove(sourceKey);
+                _heldInputGuard.ReleaseKeyboard(sourceKey);
                 if (_activeKeyboardMappings.Remove(sourceKey, out KeyMappingOutput? active))
                 {
                     ReleaseOutput(active);
@@ -368,8 +523,12 @@ public class KeyMappingTask : BgTaskBase
 
             _pressedPhysicalKeyboardKeys.Add(sourceKey);
             if (_activeKeyboardMappings.ContainsKey(sourceKey)) return 1;
-            string keyString = BuildPressedKeyboardSourceSignature(sourceKey);
-            _lookupMap.TryGetValue(keyString, out KeyMappingOutput? output);
+            List<int> sourceKeys = BuildPressedKeyboardSourceKeys(sourceKey);
+            if (_heldInputGuard.IsKeyboardSuppressed(sourceKeys))
+                return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
+            string keyString = KeyMappingMergeHelper.CreateSourceSignature(sourceKeys);
+            KeyMappingRuntimeSnapshot snapshot = Volatile.Read(ref _snapshot);
+            snapshot.LookupMap.TryGetValue(keyString, out KeyMappingOutput? output);
 
             bool targetForeground = IsTargetGameForeground(out _, out _);
             if (!targetForeground || output is null)
@@ -402,6 +561,8 @@ public class KeyMappingTask : BgTaskBase
 
             if (IsMouseButtonUp(message))
             {
+                _pressedPhysicalMouseButtons.Remove(mouseButton);
+                _heldInputGuard.ReleaseMouse(mouseButton);
                 if (_activeMouseMappings.Remove(mouseButton, out KeyMappingOutput? active))
                 {
                     ReleaseOutput(active);
@@ -410,9 +571,17 @@ public class KeyMappingTask : BgTaskBase
                 return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
             }
 
+            if (message != WmMouseWheel)
+                _pressedPhysicalMouseButtons.Add(mouseButton);
+
+            KeyMappingRuntimeSnapshot snapshot = Volatile.Read(ref _snapshot);
+            List<int> sourceKeyboardKeys = GetPressedMouseSourceKeyboardKeys(snapshot, mouseButton);
+            if (_heldInputGuard.IsMouseSuppressed(mouseButton, sourceKeyboardKeys))
+                return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
             bool targetForeground = IsTargetGameForeground(out _, out _);
-            string sourceSignature = BuildPressedMouseSourceSignature(mouseButton);
-            _lookupMap.TryGetValue(sourceSignature, out KeyMappingOutput? output);
+            string sourceSignature = KeyMappingMergeHelper.CreateSourceSignature(
+                sourceKeyboardKeys.Prepend(mouseButton));
+            snapshot.LookupMap.TryGetValue(sourceSignature, out KeyMappingOutput? output);
             if (!targetForeground || output is null)
                 return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
 
@@ -493,20 +662,20 @@ public class KeyMappingTask : BgTaskBase
         }
     }
 
-    private string BuildPressedKeyboardSourceSignature(int currentKey)
+    private List<int> BuildPressedKeyboardSourceKeys(int currentKey)
     {
         int normalizedCurrent = (int)NormalizeExactModifier((VirtualKey)currentKey);
         List<int> pressed = [normalizedCurrent];
         AddPressedModifiers(pressed);
-        return KeyMappingMergeHelper.CreateSourceSignature(pressed);
+        return pressed;
     }
 
-    private string BuildPressedMouseSourceSignature(int mouseButton)
+    private List<int> GetPressedMouseSourceKeyboardKeys(KeyMappingRuntimeSnapshot snapshot, int mouseButton)
     {
-        List<int> pressed = [mouseButton];
-        if (_mouseSourceKeyboardKeysByButton.TryGetValue(mouseButton, out HashSet<int>? candidates))
+        List<int> pressed = [];
+        if (snapshot.MouseSourceKeyboardKeysByButton.TryGetValue(mouseButton, out var candidates))
             pressed.AddRange(candidates.Where(IsMouseSourceCandidateDown));
-        return KeyMappingMergeHelper.CreateSourceSignature(pressed);
+        return pressed;
     }
 
     private bool IsMouseSourceCandidateDown(int key) =>
@@ -517,6 +686,7 @@ public class KeyMappingTask : BgTaskBase
 
     private void SeedPressedPhysicalKeys()
     {
+        KeyMappingRuntimeSnapshot snapshot = Volatile.Read(ref _snapshot);
         HashSet<int> candidates =
         [
             (int)VirtualKey.LeftControl,
@@ -528,9 +698,16 @@ public class KeyMappingTask : BgTaskBase
             (int)VirtualKey.LeftWindows,
             (int)VirtualKey.RightWindows,
         ];
-        candidates.UnionWith(_mouseSourceKeyboardKeysByButton.Values.SelectMany(keys => keys));
+        candidates.UnionWith(snapshot.MouseSourceKeyboardKeysByButton.Values.SelectMany(keys => keys));
         foreach (int key in candidates.Where(IsKeyDown))
             _pressedPhysicalKeyboardKeys.Add(key);
+    }
+
+    private void SeedPressedPhysicalMouseButtons()
+    {
+        for (var button = 1; button <= 5; button++)
+            if (IsKeyDown(button))
+                _pressedPhysicalMouseButtons.Add(button);
     }
 
     private void AddPressedModifiers(ICollection<int> pressed)
@@ -559,6 +736,14 @@ public class KeyMappingTask : BgTaskBase
 
     private void ReleaseAllOutputs()
     {
+        ReleaseMappedOutputs();
+        _pressedPhysicalKeyboardKeys.Clear();
+        _pressedPhysicalMouseButtons.Clear();
+        _heldInputGuard.Clear();
+    }
+
+    private void ReleaseMappedOutputs()
+    {
         try
         {
             _outputState.Reset();
@@ -569,7 +754,6 @@ public class KeyMappingTask : BgTaskBase
         }
         _activeKeyboardMappings.Clear();
         _activeMouseMappings.Clear();
-        _pressedPhysicalKeyboardKeys.Clear();
     }
 
     private static void SendMouseState(int mouseButton, bool down)
@@ -695,6 +879,7 @@ public class KeyMappingTask : BgTaskBase
         VirtualKey.RightShift => "右 Shift",
         _ => key.ToString(),
     };
+
 
     public override string Title { get; } = "KeyMappingTask_Title".GetLocalized();
 

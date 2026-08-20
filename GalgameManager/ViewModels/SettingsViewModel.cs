@@ -626,7 +626,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         if (result == ContentDialogResult.Primary || result == ContentDialogResult.Secondary)
         {
             await _localSettingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, keyMappingDialog.ResultMappings);
-            _infoService.Info(InfoBarSeverity.Success, msg: "KeyMapping_Info_GlobalKeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
+            bool hasRunningGames = _bgTaskService.GetBgTasks().OfType<KeyMappingTask>().Any();
+            _infoService.Info(InfoBarSeverity.Success,
+                msg: (hasRunningGames
+                    ? "KeyMapping_Info_GlobalKeyMappingAppliedNow"
+                    : "KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch").GetLocalized(),
+                displayTimeMs: 3000);
         }
     }
 

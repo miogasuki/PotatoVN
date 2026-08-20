@@ -11,11 +11,13 @@ using GalgameManager.Helpers;
 using GalgameManager.Helpers.Converter;
 using GalgameManager.Helpers.EnumHelpers;
 using GalgameManager.Models;
+using GalgameManager.Models.BgTasks;
 using System.Collections.ObjectModel;
 using GalgameManager.Core.Helpers;
 using GalgameManager.Services;
 using GalgameManager.Models.Sources;
 using GalgameManager.Views.Dialog;
+using GalgameManager.WinApp.Base.Models.Msgs;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -89,6 +91,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         foreach (GalgameSourceBase source in Installations.Select(i => i.Source).OfType<GalgameSourceBase>().Distinct())
             _sourceService.Save(source);
         await _galService.SaveGalgameAsync(Gal);
+        _ = await NotifyKeyMappingsChangedAsync();
         _pvnService.Upload(Gal, PvnUploadProperties.Infos | PvnUploadProperties.ImageLoc);
         Gal.PropertyChanged -= HandleGalPropertyChanged;
         _bus.Unregister<GalgameParsingEventArgs>(this);
@@ -672,7 +675,15 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             RequestedTheme = App.MainWindow.Content is FrameworkElement element ? element.RequestedTheme : ElementTheme.Default
         };
 
-        ContentDialogResult result = await dialog.ShowAsync();
+        ContentDialogResult result;
+        while (true)
+        {
+            result = await dialog.ShowAsync();
+            if (!dialog.ConsumeGlobalMappingEditorRequest()) break;
+
+            if (await EditGlobalKeyMappingsAsync())
+                dialog.RefreshGlobalMappings(await GetGlobalKeyMappingsAsync());
+        }
 
         // 只有在用户点击保存时才保存设置并显示通知
         if (result == ContentDialogResult.Primary)
@@ -712,8 +723,16 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             }
 
             KeyMappings = new ObservableCollection<KeyMapping>(editedMappings);
-            await SaveKeyMappingsAsync();
-            _infoService.Info(InfoBarSeverity.Success, msg:"KeyMapping_Info_KeyMappingSaved".GetLocalized(), displayTimeMs: 2000);
+            bool appliedNow = await SaveKeyMappingsAsync();
+            bool mappingEnabled = Gal.KeyReMap || await IsGlobalKeyMappingEnabledAsync();
+            string resultMessage = appliedNow
+                ? "KeyMapping_Info_KeyMappingAppliedNow"
+                : mappingEnabled
+                    ? "KeyMapping_Info_KeyMappingSavedForNextLaunch"
+                    : "KeyMapping_Info_KeyMappingSavedButDisabled";
+            _infoService.Info(InfoBarSeverity.Success,
+                msg: resultMessage.GetLocalized(),
+                displayTimeMs: 3000);
         }
     }
 
@@ -735,6 +754,32 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         }
     }
 
+    private async Task<bool> EditGlobalKeyMappingsAsync()
+    {
+        GlobalKeyMappingDialog dialog = new(await GetGlobalKeyMappingsAsync())
+        {
+            XamlRoot = App.MainWindow!.Content.XamlRoot,
+            RequestedTheme = App.MainWindow.Content is FrameworkElement element
+                ? element.RequestedTheme
+                : ElementTheme.Default
+        };
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result is not (ContentDialogResult.Primary or ContentDialogResult.Secondary))
+            return false;
+
+        await _settingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, dialog.ResultMappings);
+        bool hasRunningGames = App.GetService<IBgTaskService>()
+            .GetBgTasks()
+            .OfType<KeyMappingTask>()
+            .Any();
+        _infoService.Info(InfoBarSeverity.Success,
+            msg: (hasRunningGames
+                ? "KeyMapping_Info_GlobalKeyMappingAppliedNow"
+                : "KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch").GetLocalized(),
+            displayTimeMs: 3000);
+        return true;
+    }
+
 
     [RelayCommand]
     private void AddKeyMapping()
@@ -754,7 +799,7 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
     /// <summary>
     /// 保存当前游戏的快捷键映射设置
     /// </summary>
-    public async Task SaveKeyMappingsAsync()
+    public async Task<bool> SaveKeyMappingsAsync()
     {
         Gal.KeyMappings = KeyMappingMergeHelper.BuildPersistedGameMappings(KeyMappings);
         await _galService.SaveGalgameAsync(Gal);
@@ -763,5 +808,25 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
         List<KeyMapping> globalMappings = await GetGlobalKeyMappingsAsync();
         KeyMappings = new ObservableCollection<KeyMapping>(
             KeyMappingMergeHelper.BuildEffectiveMappings(Gal.KeyMappings, globalMappings));
+        return await NotifyKeyMappingsChangedAsync();
+    }
+
+    private async Task<bool> IsGlobalKeyMappingEnabledAsync()
+    {
+        try
+        {
+            return await _settingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled);
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(e: e);
+            return false;
+        }
+    }
+
+    private async Task<bool> NotifyKeyMappingsChangedAsync()
+    {
+        KeyMappingsChangedMessage message = _bus.Send(new KeyMappingsChangedMessage(Gal));
+        return message.HasReceivedResponse && await message.Response;
     }
 }

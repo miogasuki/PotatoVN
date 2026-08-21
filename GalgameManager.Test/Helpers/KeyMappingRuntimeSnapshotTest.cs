@@ -9,7 +9,7 @@ namespace GalgameManager.Test.Helpers;
 public class KeyMappingRuntimeSnapshotTest
 {
     [Test]
-    public void BuildEffectiveMappings_Preserves618OptInSemantics()
+    public void BuildEffectiveMappings_PreservesExistingOptInSemantics()
     {
         KeyMapping game = Mapping(VirtualKey.A, VirtualKey.Space);
         KeyMapping global = Mapping(VirtualKey.B, VirtualKey.Enter, isGlobal: true);

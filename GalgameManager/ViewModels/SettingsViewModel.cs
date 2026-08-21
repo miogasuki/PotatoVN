@@ -626,11 +626,18 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         if (result == ContentDialogResult.Primary || result == ContentDialogResult.Secondary)
         {
             await _localSettingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, keyMappingDialog.ResultMappings);
-            bool hasRunningGames = _bgTaskService.GetBgTasks().OfType<KeyMappingTask>().Any();
+            KeyMappingTask[] runningTasks = _bgTaskService.GetBgTasks().OfType<KeyMappingTask>().ToArray();
+            bool globalEnabled =
+                await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled);
+            bool hasActiveRunningGames = runningTasks.Any(task =>
+                globalEnabled || task.Galgame?.KeyReMap == true);
+            string messageKey = hasActiveRunningGames
+                ? "KeyMapping_Info_GlobalKeyMappingAppliedNow"
+                : runningTasks.Length == 0 && globalEnabled
+                    ? "KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch"
+                    : "KeyMapping_Info_GlobalKeyMappingSaved";
             _infoService.Info(InfoBarSeverity.Success,
-                msg: (hasRunningGames
-                    ? "KeyMapping_Info_GlobalKeyMappingAppliedNow"
-                    : "KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch").GetLocalized(),
+                msg: messageKey.GetLocalized(),
                 displayTimeMs: 3000);
         }
     }

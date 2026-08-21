@@ -322,17 +322,32 @@ public class KeyMappingTask : BgTaskBase
         _snapshotApplied.Reset();
         if (!PostThreadMessage(_hookThreadId, WmApplySnapshot, 0, nint.Zero))
         {
-            await Task.Run(StopHookThread);
-            Volatile.Write(ref _snapshot, nextSnapshot);
-            if (!nextSnapshot.IsEmpty)
-                await Task.Run(StartHookThread);
+            await RestartHookThreadWithSnapshotAsync(nextSnapshot, hookThread);
             return;
         }
 
         bool applied = await Task.Run(() => _snapshotApplied.Wait(TimeSpan.FromSeconds(3)));
-        if (!applied) throw new TimeoutException("应用键位映射热更新超时。");
+        if (!applied)
+        {
+            await RestartHookThreadWithSnapshotAsync(nextSnapshot, hookThread);
+            return;
+        }
         if (nextSnapshot.IsEmpty)
             await Task.Run(StopHookThread);
+    }
+
+    private async Task RestartHookThreadWithSnapshotAsync(
+        KeyMappingRuntimeSnapshot nextSnapshot,
+        Thread previousHookThread)
+    {
+        await Task.Run(StopHookThread);
+        if (previousHookThread.IsAlive)
+            throw new TimeoutException("停止无响应的按键映射钩子线程超时。");
+
+        Interlocked.Exchange(ref _pendingSnapshot, null);
+        Volatile.Write(ref _snapshot, nextSnapshot);
+        if (!nextSnapshot.IsEmpty)
+            await Task.Run(StartHookThread);
     }
 
     private void InitDirectoryPrefixes()
@@ -706,8 +721,11 @@ public class KeyMappingTask : BgTaskBase
     private void SeedPressedPhysicalMouseButtons()
     {
         for (var button = 1; button <= 5; button++)
-            if (IsKeyDown(button))
+        {
+            int virtualKey = KeyMappingMergeHelper.GetMouseButtonVirtualKey(button);
+            if (virtualKey != 0 && IsKeyDown(virtualKey))
                 _pressedPhysicalMouseButtons.Add(button);
+        }
     }
 
     private void AddPressedModifiers(ICollection<int> pressed)

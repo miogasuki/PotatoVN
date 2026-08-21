@@ -768,14 +768,20 @@ public partial class GalgameSettingViewModel : ObservableObject, INavigationAwar
             return false;
 
         await _settingsService.SaveSettingAsync(KeyValues.GlobalKeyMappings, dialog.ResultMappings);
-        bool hasRunningGames = App.GetService<IBgTaskService>()
+        KeyMappingTask[] runningTasks = App.GetService<IBgTaskService>()
             .GetBgTasks()
             .OfType<KeyMappingTask>()
-            .Any();
+            .ToArray();
+        bool globalEnabled = await IsGlobalKeyMappingEnabledAsync();
+        bool hasActiveRunningGames = runningTasks.Any(task =>
+            globalEnabled || task.Galgame?.KeyReMap == true);
+        string messageKey = hasActiveRunningGames
+            ? "KeyMapping_Info_GlobalKeyMappingAppliedNow"
+            : runningTasks.Length == 0 && globalEnabled
+                ? "KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch"
+                : "KeyMapping_Info_GlobalKeyMappingSaved";
         _infoService.Info(InfoBarSeverity.Success,
-            msg: (hasRunningGames
-                ? "KeyMapping_Info_GlobalKeyMappingAppliedNow"
-                : "KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch").GetLocalized(),
+            msg: messageKey.GetLocalized(),
             displayTimeMs: 3000);
         return true;
     }

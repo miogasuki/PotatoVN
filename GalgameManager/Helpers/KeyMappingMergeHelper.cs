@@ -230,6 +230,19 @@ public static class KeyMappingMergeHelper
         return result;
     }
 
+    /// <summary>
+    /// 将按键映射使用的鼠标按钮编号转换为 GetAsyncKeyState 所需的虚拟键码。
+    /// </summary>
+    public static int GetMouseButtonVirtualKey(int mouseButton) => mouseButton switch
+    {
+        1 => 0x01,
+        2 => 0x02,
+        3 => 0x04,
+        4 => 0x05,
+        5 => 0x06,
+        _ => 0,
+    };
+
     private static bool IsMouseButtonCode(int key) => key is >= 1 and <= 7;
 
     private static bool ContainsSource(IEnumerable<List<int>> sources, IEnumerable<int> source) =>

@@ -147,6 +147,9 @@ public sealed class GameLaunchService(
             await _gameService.SaveGalgameAsync(game);
 
             _ = bgTaskService.AddBgTask(new RecordPlayTimeTask(game, process, installation.EntryId));
+            // 即使当前没有生效规则，也保留轻量运行时任务，
+            // 确保游戏运行期间首次启用或新增映射时可以立即生效。
+            _ = bgTaskService.AddBgTask(new KeyMappingTask(game, process));
             await jumpListService.AddToJumpListAsync(game);
             messenger.Send(new GalgamePlayedMessage(game));
 
@@ -156,18 +159,6 @@ public sealed class GameLaunchService(
             if (await localSettingsService.ReadSettingAsync<bool>(KeyValues.AlwaysMuteInBackground) ||
                 game.MuteInBackground)
                 _ = bgTaskService.AddBgTask(new GameMuteTask(game, process));
-            if (await localSettingsService.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled) || game.KeyReMap)
-            {
-                List<KeyMapping> globalMappings =
-                    await localSettingsService.ReadSettingAsync<List<KeyMapping>>(KeyValues.GlobalKeyMappings) ?? [];
-                List<KeyMapping> effectiveMappings =
-                    KeyMappingMergeHelper.BuildEffectiveMappings(game.KeyMappings, globalMappings);
-                if (effectiveMappings.Any(mapping =>
-                        mapping.IsEnabled && mapping.From.Count > 0 && mapping.To.Count > 0))
-                {
-                    _ = bgTaskService.AddBgTask(new KeyMappingTask(game, process, effectiveMappings));
-                }
-            }
             if (await localSettingsService.ReadSettingAsync<bool>(KeyValues.AutoDetectSavePath) &&
                 config.DetectedSavePath is null)
                 _ = bgTaskService.AddBgTask(new GameSaveDetectorTask(game, installation));

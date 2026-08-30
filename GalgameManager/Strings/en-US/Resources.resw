@@ -4084,4 +4084,22 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMapping_Mouse_WheelUp" xml:space="preserve"><value>Wheel up</value></data>
   <data name="KeyMapping_Mouse_WheelDown" xml:space="preserve"><value>Wheel down</value></data>
   <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>Mouse button {0}</value></data>
+  <data name="KeyMappingDialog_Activation_EditGlobal.Content" xml:space="preserve">
+    <value>Edit global rules</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingAppliedNow" xml:space="preserve">
+    <value>Key mappings saved and applied to the running game.</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSavedForNextLaunch" xml:space="preserve">
+    <value>Key mappings saved. They will apply the next time the game starts.</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSavedButDisabled" xml:space="preserve">
+    <value>Key mappings saved, but both the global switch and this game's opt-in are off. Enable either switch to apply them.</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingAppliedNow" xml:space="preserve">
+    <value>Global key mappings saved and sent to running games.</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch" xml:space="preserve">
+    <value>Global key mappings saved. They will apply when a game starts.</value>
+  </data>
 </root>

@@ -33,6 +33,8 @@
                     <Button x:Name="EnableGlobalKeyMappingButton"
                             x:Uid="KeyMappingDialog_Activation_EnableGlobal"
                             Click="EnableGlobalKeyMappingButton_Click" />
+                    <Button x:Uid="KeyMappingDialog_Activation_EditGlobal"
+                            Click="EditGlobalKeyMappingButton_Click" />
                 </StackPanel>
             </InfoBar.Content>
         </InfoBar>

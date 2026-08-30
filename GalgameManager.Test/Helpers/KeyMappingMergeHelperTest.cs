@@ -164,6 +164,18 @@ public class KeyMappingMergeHelperTest
         });
     }
 
+    [TestCase(1, 0x01)]
+    [TestCase(2, 0x02)]
+    [TestCase(3, 0x04)]
+    [TestCase(4, 0x05)]
+    [TestCase(5, 0x06)]
+    [TestCase(6, 0)]
+    [TestCase(7, 0)]
+    public void GetMouseButtonVirtualKey_ConvertsInternalButtonCodes(int mouseButton, int expected)
+    {
+        Assert.That(KeyMappingMergeHelper.GetMouseButtonVirtualKey(mouseButton), Is.EqualTo(expected));
+    }
+
     private static KeyMapping Mapping(VirtualKey from, VirtualKey to, bool isGlobal = false) => new()
     {
         From = [(int)from],

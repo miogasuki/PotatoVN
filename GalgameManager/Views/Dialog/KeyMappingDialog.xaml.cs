@@ -15,6 +15,7 @@ public sealed partial class KeyMappingDialog : ContentDialog
 {
     public GalgameSettingViewModel ViewModel { get; }
     public ObservableCollection<KeyMapping> DialogKeyMappings { get; private set; } = null!;
+    public bool IsGlobalMappingEditorRequested { get; private set; }
     private readonly ObservableCollection<KeyMapping> _originalKeyMappings;
 
     public static readonly DependencyProperty HasMappingsProperty =
@@ -118,6 +119,33 @@ public sealed partial class KeyMappingDialog : ContentDialog
         bool enabled = await settings.ReadSettingAsync<bool>(KeyValues.GameReMapEnabled);
         await settings.SaveSettingAsync(KeyValues.GameReMapEnabled, !enabled);
         await UpdateKeyMappingActivationStatusAsync();
+    }
+
+    private void EditGlobalKeyMappingButton_Click(object sender, RoutedEventArgs e)
+    {
+        IsGlobalMappingEditorRequested = true;
+        Hide();
+    }
+
+    public bool ConsumeGlobalMappingEditorRequest()
+    {
+        if (!IsGlobalMappingEditorRequested) return false;
+        IsGlobalMappingEditorRequested = false;
+        return true;
+    }
+
+    public void RefreshGlobalMappings(IEnumerable<KeyMapping> globalMappings)
+    {
+        List<KeyMapping> persistedGameMappings =
+            GalgameManager.Helpers.KeyMappingMergeHelper.BuildPersistedGameMappings(DialogKeyMappings);
+        List<KeyMapping> refreshedMappings =
+            GalgameManager.Helpers.KeyMappingMergeHelper.BuildEffectiveMappings(
+                persistedGameMappings, globalMappings);
+
+        DialogKeyMappings.Clear();
+        foreach (KeyMapping mapping in refreshedMappings)
+            DialogKeyMappings.Add(GalgameManager.Helpers.KeyMappingMergeHelper.Clone(mapping));
+        UpdateHasMappings();
     }
 
     private ObservableCollection<KeyMapping> CreateDeepCopy(ObservableCollection<KeyMapping> source)

@@ -4012,5 +4012,22 @@
   <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>マウスボタン {0}</value></data>
   <data name="GalgamePage_Play_AlreadyRunning" xml:space="preserve">
     <value>「{0}」はすでに実行中か、プレイ時間を記録中です。</value>
+  <data name="KeyMappingDialog_Activation_EditGlobal.Content" xml:space="preserve">
+    <value>グローバルルールを編集</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingAppliedNow" xml:space="preserve">
+    <value>キーマッピングを保存し、実行中のゲームに適用しました。</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSavedForNextLaunch" xml:space="preserve">
+    <value>キーマッピングを保存しました。次回のゲーム起動時に適用されます。</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSavedButDisabled" xml:space="preserve">
+    <value>キーマッピングを保存しましたが、グローバル設定とこのゲームの個別有効化はどちらもオフです。いずれかを有効にすると適用されます。</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingAppliedNow" xml:space="preserve">
+    <value>グローバルキーマッピングを保存し、実行中のゲームに反映しました。</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch" xml:space="preserve">
+    <value>グローバルキーマッピングを保存しました。ゲームの次回起動時に適用されます。</value>
   </data>
 </root>

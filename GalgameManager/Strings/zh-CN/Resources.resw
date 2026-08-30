@@ -5000,5 +5000,22 @@
   <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>鼠标按键 {0}</value></data>
   <data name="GalgamePage_Play_AlreadyRunning" xml:space="preserve">
     <value>“{0}”已在运行或正在记录游玩时间。</value>
+  <data name="KeyMappingDialog_Activation_EditGlobal.Content" xml:space="preserve">
+    <value>编辑全局规则</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingAppliedNow" xml:space="preserve">
+    <value>按键映射已保存，并已应用到正在运行的游戏。</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSavedForNextLaunch" xml:space="preserve">
+    <value>按键映射已保存，将在下次启动游戏时应用。</value>
+  </data>
+  <data name="KeyMapping_Info_KeyMappingSavedButDisabled" xml:space="preserve">
+    <value>按键映射已保存，但全局开关和本游戏单独启用均已关闭；启用任一开关后即可应用。</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingAppliedNow" xml:space="preserve">
+    <value>全局按键映射已保存，并已同步到正在运行的游戏。</value>
+  </data>
+  <data name="KeyMapping_Info_GlobalKeyMappingSavedForNextLaunch" xml:space="preserve">
+    <value>全局按键映射已保存，将在游戏下次启动时应用。</value>
   </data>
 </root>

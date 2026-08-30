@@ -4012,6 +4012,7 @@
   <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>マウスボタン {0}</value></data>
   <data name="GalgamePage_Play_AlreadyRunning" xml:space="preserve">
     <value>「{0}」はすでに実行中か、プレイ時間を記録中です。</value>
+  </data>
   <data name="KeyMappingDialog_Activation_EditGlobal.Content" xml:space="preserve">
     <value>グローバルルールを編集</value>
   </data>

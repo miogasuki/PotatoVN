@@ -4086,6 +4086,7 @@ If play time can record correctly, just cancel this popup.
   <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>Mouse button {0}</value></data>
   <data name="GalgamePage_Play_AlreadyRunning" xml:space="preserve">
     <value>“{0}” is already running or its play time is being recorded.</value>
+  </data>
   <data name="KeyMappingDialog_Activation_EditGlobal.Content" xml:space="preserve">
     <value>Edit global rules</value>
   </data>

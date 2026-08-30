@@ -5000,6 +5000,7 @@
   <data name="KeyMapping_Mouse_Unknown_Format" xml:space="preserve"><value>鼠标按键 {0}</value></data>
   <data name="GalgamePage_Play_AlreadyRunning" xml:space="preserve">
     <value>“{0}”已在运行或正在记录游玩时间。</value>
+  </data>
   <data name="KeyMappingDialog_Activation_EditGlobal.Content" xml:space="preserve">
     <value>编辑全局规则</value>
   </data>
